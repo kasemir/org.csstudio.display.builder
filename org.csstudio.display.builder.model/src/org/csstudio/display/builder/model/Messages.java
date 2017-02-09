@@ -127,6 +127,7 @@ public class Messages extends NLS
     public static String TraceType_LineErrorbar;
     public static String TraceType_None;
     public static String TraceType_Step;
+    public static String ValueNoPV;
     public static String Vertical;
     public static String WebBrowser_showToolbar;
     public static String WebBrowser_URL;
