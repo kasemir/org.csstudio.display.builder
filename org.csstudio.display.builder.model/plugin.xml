@@ -188,6 +188,14 @@
       </widget>
       <widget
             category="CONTROL"
+            class="org.csstudio.display.builder.model.widgets.LinearMeterWidget"
+            description="%LinearMeterWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/linear-meter.png"
+            name="%LinearMeterWidget_Name"
+            type="linear-meter">
+      </widget>
+      <widget
+            category="CONTROL"
             class="org.csstudio.display.builder.model.widgets.MeterWidget"
             description="%MeterWidget_Description"
             icon="platform:/plugin/org.csstudio.display.builder.model/icons/meter.png"

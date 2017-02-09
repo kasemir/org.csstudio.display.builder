@@ -39,7 +39,6 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
     private static final Color MINOR_COLOR = JFXUtil.convert(WidgetColorService.getColor(NamedWidgetColors.ALARM_MINOR));
     private static final Color MAJOR_COLOR = JFXUtil.convert(WidgetColorService.getColor(NamedWidgetColors.ALARM_MAJOR));
 
-    private final DirtyFlag     dirtyBehavior = new DirtyFlag();
     private final DirtyFlag     dirtyGeometry = new DirtyFlag();
     private final DirtyFlag     dirtyLimits   = new DirtyFlag();
     private final DirtyFlag     dirtyLook     = new DirtyFlag();
@@ -58,22 +57,6 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         super.updateChanges();
 
         Object value;
-
-        if ( dirtyBehavior.checkAndClear() ) {
-
-            value = model_widget.propAnimated().getValue();
-
-            if ( !Objects.equals(value, jfx_node.isAnimated()) ) {
-                jfx_node.setAnimated((boolean) value);
-            }
-
-            value = model_widget.propAnimationDuration().getValue();
-
-            if ( !Objects.equals(value, jfx_node.getAnimationDuration()) ) {
-                jfx_node.setAnimationDuration((long) value);
-            }
-
-        }
 
         if ( dirtyGeometry.checkAndClear() ) {
 
@@ -147,10 +130,10 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
      * @param skinType The new skin to be set.
      */
     protected void changeSkin ( final Gauge.SkinType skinType ) {
-
         jfx_node.setSkinType(skinType);
         jfx_node.setPrefWidth(model_widget.propWidth().getValue());
         jfx_node.setPrefHeight(model_widget.propHeight().getValue());
+        jfx_node.setAnimated(false);
         jfx_node.setAutoScale(true);
         jfx_node.setCheckAreasForValue(false);
         jfx_node.setCheckSectionsForValue(false);
@@ -171,8 +154,7 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
                 //--------------------------------------------------------
                 //  Previous properties must be set first.
                 //--------------------------------------------------------
-                .animated(model_widget.propAnimated().getValue())
-                .animationDuration(model_widget.propAnimationDuration().getValue())
+                .animated(false)
                 .autoScale(true)
                 .checkAreasForValue(false)
                 .checkSectionsForValue(false)
@@ -188,11 +170,6 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
                 .value(( max + min ) / 2.0)
                 .build();
 
-        gauge.animatedProperty().addListener( ( s, o, n ) -> {
-            if ( !Objects.equals(n, model_widget.propAnimated().getValue()) ) {
-                model_widget.propAnimated().setValue(n);
-            }
-        });
         gauge.layoutXProperty().addListener( ( s, o, n ) -> {
             if ( !Objects.equals(n, model_widget.propX().getValue()) ) {
                 model_widget.propX().setValue(n.intValue());
@@ -245,9 +222,6 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
     protected void registerListeners ( ) {
 
         super.registerListeners();
-
-        model_widget.propAnimated().addUntypedPropertyListener(this::behaviorChanged);
-        model_widget.propAnimationDuration().addUntypedPropertyListener(this::behaviorChanged);
 
         model_widget.propVisible().addUntypedPropertyListener(this::geometryChanged);
         model_widget.propX().addUntypedPropertyListener(this::geometryChanged);
@@ -375,11 +349,6 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
             || model_widget.propShowLow().getValue()
             || model_widget.propShowHigh().getValue()
             || model_widget.propShowHiHi().getValue();
-    }
-
-    private void behaviorChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
-        dirtyBehavior.mark();
-        toolkit.scheduleUpdate(this);
     }
 
     private Section[] createZones ( ) {

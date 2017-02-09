@@ -72,8 +72,6 @@ public class MeterWidget extends BaseGaugeWidget {
         AMP,
         GAUGE,
         HORIZONTAL,
-        LINEAR_H,
-        LINEAR_V,
         QUARTER,
         THREE_QUARTERS,
         VERTICAL

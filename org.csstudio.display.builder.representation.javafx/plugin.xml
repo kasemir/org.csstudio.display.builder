@@ -64,6 +64,10 @@
             type="led">
       </representation>
       <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.LinearMeterRepresentation"
+            type="linear-meter">
+      </representation>
+      <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.MeterRepresentation"
             type="meter">
       </representation>

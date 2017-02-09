@@ -37,6 +37,7 @@ import org.csstudio.display.builder.model.widgets.GaugeWidget;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
 import org.csstudio.display.builder.model.widgets.LEDWidget;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
+import org.csstudio.display.builder.model.widgets.LinearMeterWidget;
 import org.csstudio.display.builder.model.widgets.MeterWidget;
 import org.csstudio.display.builder.model.widgets.MultiStateLEDWidget;
 import org.csstudio.display.builder.model.widgets.PictureWidget;
@@ -132,6 +133,7 @@ public class WidgetFactory
         addWidgetType(ImageWidget.WIDGET_DESCRIPTOR);
         addWidgetType(LabelWidget.WIDGET_DESCRIPTOR);
         addWidgetType(LEDWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(LinearMeterWidget.WIDGET_DESCRIPTOR);
         addWidgetType(MeterWidget.WIDGET_DESCRIPTOR);
         addWidgetType(MultiStateLEDWidget.WIDGET_DESCRIPTOR);
         addWidgetType(PictureWidget.WIDGET_DESCRIPTOR);

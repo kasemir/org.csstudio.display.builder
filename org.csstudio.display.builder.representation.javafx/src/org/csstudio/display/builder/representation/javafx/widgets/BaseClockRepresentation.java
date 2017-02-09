@@ -117,7 +117,6 @@ public abstract class BaseClockRepresentation<W extends BaseClockWidget> extends
 
     }
 
-    @Override
     protected Clock createJFXNode ( Clock.ClockSkinType skin ) throws Exception {
 
         Clock clock = ClockBuilder.create()

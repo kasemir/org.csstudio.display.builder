@@ -11,7 +11,6 @@ package org.csstudio.display.builder.model.widgets;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newColorPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newDoublePropertyDescriptor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newLongPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newStringPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLimitsFromPV;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMaximum;
@@ -41,13 +40,8 @@ public abstract class BaseGaugeWidget extends PVWidget {
     public static final WidgetPropertyDescriptor<Boolean>     propShowLow           = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "show_low",           Messages.WidgetProperties_ShowLow);
     public static final WidgetPropertyDescriptor<String>      propTitle             = newStringPropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "title",              Messages.WidgetProperties_Title);
 
-    public static final WidgetPropertyDescriptor<Boolean>     propAnimated          = newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "animated",           Messages.WidgetProperties_Animated);
-    public static final WidgetPropertyDescriptor<Long>        propAnimationDuration = newLongPropertyDescriptor   (WidgetPropertyCategory.BEHAVIOR, "animation_duration", Messages.WidgetProperties_AnimationDuration, 10L, 10000L);
-
     public static final WidgetPropertyDescriptor<WidgetColor> propTitleColor        = newColorPropertyDescriptor  (WidgetPropertyCategory.MISC,     "title_color",        Messages.WidgetProperties_TitleColor);
 
-    private volatile WidgetProperty<Boolean>     animated;
-    private volatile WidgetProperty<Long>        animation_duration;
     private volatile WidgetProperty<Double>      level_high;
     private volatile WidgetProperty<Double>      level_hihi;
     private volatile WidgetProperty<Double>      level_lolo;
@@ -69,14 +63,6 @@ public abstract class BaseGaugeWidget extends PVWidget {
      */
     public BaseGaugeWidget ( final String type, final int default_width, final int default_height ) {
         super(type, default_width, default_height);
-    }
-
-    public WidgetProperty<Boolean> propAnimated ( ) {
-        return animated;
-    }
-
-    public WidgetProperty<Long> propAnimationDuration ( ) {
-        return animation_duration;
     }
 
     public WidgetProperty<Double> propLevelHiHi ( ) {
@@ -136,23 +122,21 @@ public abstract class BaseGaugeWidget extends PVWidget {
 
         super.defineProperties(properties);
 
-        properties.add(level_hihi         = propLevelHiHi.createProperty(this, 90.0));
-        properties.add(level_high         = propLevelHigh.createProperty(this, 80.0));
-        properties.add(level_low          = propLevelLow.createProperty(this, 20.0));
-        properties.add(level_lolo         = propLevelLoLo.createProperty(this, 10.0));
-        properties.add(show_hihi          = propShowHiHi.createProperty(this, true));
-        properties.add(show_high          = propShowHigh.createProperty(this, true));
-        properties.add(show_low           = propShowLow.createProperty(this, true));
-        properties.add(show_lolo          = propShowLoLo.createProperty(this, true));
-        properties.add(title              = propTitle.createProperty(this, ""));
+        properties.add(level_hihi     = propLevelHiHi.createProperty(this, 90.0));
+        properties.add(level_high     = propLevelHigh.createProperty(this, 80.0));
+        properties.add(level_low      = propLevelLow.createProperty(this, 20.0));
+        properties.add(level_lolo     = propLevelLoLo.createProperty(this, 10.0));
+        properties.add(show_hihi      = propShowHiHi.createProperty(this, true));
+        properties.add(show_high      = propShowHigh.createProperty(this, true));
+        properties.add(show_low       = propShowLow.createProperty(this, true));
+        properties.add(show_lolo      = propShowLoLo.createProperty(this, true));
+        properties.add(title          = propTitle.createProperty(this, ""));
 
-        properties.add(minimum            = propMinimum.createProperty(this, 0.0));
-        properties.add(maximum            = propMaximum.createProperty(this, 100.0));
-        properties.add(limits_from_pv     = propLimitsFromPV.createProperty(this, true));
-        properties.add(animated           = propAnimated.createProperty(this, false));
-        properties.add(animation_duration = propAnimationDuration.createProperty(this, 800L));
+        properties.add(minimum        = propMinimum.createProperty(this, 0.0));
+        properties.add(maximum        = propMaximum.createProperty(this, 100.0));
+        properties.add(limits_from_pv = propLimitsFromPV.createProperty(this, true));
 
-        properties.add(titleColor         = propTitleColor.createProperty(this, new WidgetColor(136, 196, 136)));
+        properties.add(titleColor     = propTitleColor.createProperty(this, new WidgetColor(136, 196, 136)));
 
     }
 
