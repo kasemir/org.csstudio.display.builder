@@ -27,7 +27,7 @@ import javafx.scene.paint.Paint;
  * @version 1.0.0 18 Jan 2017
  */
 @SuppressWarnings("nls")
-public class ClockRepresentation extends BasicClockRepresentation<ClockWidget> {
+public class ClockRepresentation extends BaseClockRepresentation<ClockWidget> {
 
     private final DirtyFlag dirtyBehavior = new DirtyFlag();
     private final DirtyFlag dirtyLook     = new DirtyFlag();
@@ -178,9 +178,9 @@ public class ClockRepresentation extends BasicClockRepresentation<ClockWidget> {
     @Override
     protected Clock createJFXNode ( ) throws Exception {
 
-        Clock clock = super.createJFXNode();
+        Clock.ClockSkinType skinType = ClockSkinType.valueOf(model_widget.propSkin().getValue().name());
+        Clock clock = super.createJFXNode(skinType);
 
-        clock.setSkinType(ClockSkinType.valueOf(model_widget.propSkin().getValue().name()));
         clock.setBackgroundPaint(model_widget.propTransparent().getValue() ? Color.TRANSPARENT : JFXUtil.convert(model_widget.propBackgroundColor().getValue()));
         clock.setBorderPaint(JFXUtil.convert(model_widget.propBorderColor().getValue()));
         clock.setBorderWidth(model_widget.propBorderWidth().getValue());

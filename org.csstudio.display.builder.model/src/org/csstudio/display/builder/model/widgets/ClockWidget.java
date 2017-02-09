@@ -35,7 +35,7 @@ import org.csstudio.display.builder.model.properties.WidgetColor;
  * @version 1.0.0 18 Jan 2017
  */
 @SuppressWarnings("nls")
-public class ClockWidget extends BasicClockWidget {
+public class ClockWidget extends BaseClockWidget {
 
     public static final WidgetDescriptor WIDGET_DESCRIPTOR = new WidgetDescriptor(
         "clock",

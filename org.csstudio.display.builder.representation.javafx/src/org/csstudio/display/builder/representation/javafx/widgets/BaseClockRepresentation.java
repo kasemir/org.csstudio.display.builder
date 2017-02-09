@@ -16,7 +16,7 @@ import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.model.widgets.BasicClockWidget;
+import org.csstudio.display.builder.model.widgets.BaseClockWidget;
 
 import eu.hansolo.medusa.Clock;
 import eu.hansolo.medusa.ClockBuilder;
@@ -25,7 +25,7 @@ import eu.hansolo.medusa.ClockBuilder;
  * @author claudiorosati, European Spallation Source ERIC
  * @version 1.0.0 7 Feb 2017
  */
-public abstract class BasicClockRepresentation<W extends BasicClockWidget> extends RegionBaseRepresentation<Clock, W> {
+public abstract class BaseClockRepresentation<W extends BaseClockWidget> extends RegionBaseRepresentation<Clock, W> {
 
     private final DirtyFlag dirtyBehavior = new DirtyFlag();
     private final DirtyFlag dirtyGeometry = new DirtyFlag();
@@ -33,6 +33,8 @@ public abstract class BasicClockRepresentation<W extends BasicClockWidget> exten
 
     @Override
     public void updateChanges ( ) {
+
+        super.updateChanges();
 
         Object value;
 
@@ -116,7 +118,7 @@ public abstract class BasicClockRepresentation<W extends BasicClockWidget> exten
     }
 
     @Override
-    protected Clock createJFXNode ( ) throws Exception {
+    protected Clock createJFXNode ( Clock.ClockSkinType skin ) throws Exception {
 
         Clock clock = ClockBuilder.create()
                                   .prefHeight(model_widget.propHeight().getValue())
@@ -204,6 +206,8 @@ public abstract class BasicClockRepresentation<W extends BasicClockWidget> exten
 
     @Override
     protected void registerListeners ( ) {
+
+        super.registerListeners();
 
         model_widget.propVisible().addUntypedPropertyListener(this::geometryChanged);
         model_widget.propX().addUntypedPropertyListener(this::geometryChanged);

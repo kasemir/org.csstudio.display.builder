@@ -28,7 +28,7 @@ import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
  * @version 1.0.0 7 Feb 2017
  */
 @SuppressWarnings("nls")
-public abstract class BasicClockWidget extends VisibleWidget {
+public abstract class BaseClockWidget extends VisibleWidget {
 
     public static final WidgetPropertyDescriptor<Boolean>     propDateVisible    = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "date_visible",    Messages.WidgetProperties_DateVisible);
     public static final WidgetPropertyDescriptor<Boolean>     propSecondVisible  = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "second_visible",  Messages.WidgetProperties_SecondVisible);
@@ -48,7 +48,7 @@ public abstract class BasicClockWidget extends VisibleWidget {
     private volatile WidgetProperty<String>      title;
     private volatile WidgetProperty<Boolean>     titleVisible;
 
-    public BasicClockWidget ( final String type, final int default_width, final int default_height ) {
+    public BaseClockWidget ( final String type, final int default_width, final int default_height ) {
         super(type, default_width, default_height);
     }
 
@@ -85,13 +85,13 @@ public abstract class BasicClockWidget extends VisibleWidget {
 
         super.defineProperties(properties);
 
-        properties.add(dateVisible           = propDateVisible.createProperty(this, false));
-        properties.add(secondVisible         = propSecondVisible.createProperty(this, true));
-        properties.add(title                 = propTitle.createProperty(this, ""));
-        properties.add(titleVisible          = propTitleVisible.createProperty(this, false));
+        properties.add(dateVisible    = propDateVisible.createProperty(this, false));
+        properties.add(secondVisible  = propSecondVisible.createProperty(this, true));
+        properties.add(title          = propTitle.createProperty(this, ""));
+        properties.add(titleVisible   = propTitleVisible.createProperty(this, false));
 
-        properties.add(locale                = propLocale.createProperty(this, Locale.getDefault().toLanguageTag()));
-        properties.add(shadowsEnabled        = propShadowsEnabled.createProperty(this, true));
+        properties.add(locale         = propLocale.createProperty(this, Locale.getDefault().toLanguageTag()));
+        properties.add(shadowsEnabled = propShadowsEnabled.createProperty(this, true));
 
         //  Properties not visible in the property sheet.
         running = propRunning.createProperty(this, true);

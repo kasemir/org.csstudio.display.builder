@@ -30,7 +30,7 @@ import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
  * @version 1.0.0 23 Jan 2017
  */
 @SuppressWarnings("nls")
-public class DigitalClockWidget extends BasicClockWidget {
+public class DigitalClockWidget extends BaseClockWidget {
 
     public static final WidgetDescriptor WIDGET_DESCRIPTOR = new WidgetDescriptor(
         "digital_clock",

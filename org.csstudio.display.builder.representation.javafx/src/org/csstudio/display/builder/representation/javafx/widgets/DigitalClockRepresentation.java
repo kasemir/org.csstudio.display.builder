@@ -26,7 +26,7 @@ import eu.hansolo.medusa.LcdDesign;
  * @version 1.0.0 23 Jan 2017
  */
 @SuppressWarnings("nls")
-public class DigitalClockRepresentation extends BasicClockRepresentation<DigitalClockWidget> {
+public class DigitalClockRepresentation extends BaseClockRepresentation<DigitalClockWidget> {
 
     private final DirtyFlag dirtyLook = new DirtyFlag();
 
@@ -58,9 +58,8 @@ public class DigitalClockRepresentation extends BasicClockRepresentation<Digital
     @Override
     protected Clock createJFXNode ( ) throws Exception {
 
-        Clock clock = super.createJFXNode();
+        Clock clock = super.createJFXNode(ClockSkinType.LCD);
 
-        clock.setSkinType(ClockSkinType.LCD);
         clock.setLcdDesign(LcdDesign.valueOf(model_widget.propLcdDesign().getValue().name()));
         clock.setLcdCrystalEnabled(model_widget.propLcdCrystalEnabled().getValue());
         clock.setTextVisible(true);

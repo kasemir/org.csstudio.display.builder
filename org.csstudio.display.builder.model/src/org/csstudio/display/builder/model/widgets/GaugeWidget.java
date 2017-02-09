@@ -9,10 +9,6 @@
 package org.csstudio.display.builder.model.widgets;
 
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newColorPropertyDescriptor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newStringPropertyDescriptor;
-
 import java.util.List;
 
 import org.csstudio.display.builder.model.Messages;
@@ -23,7 +19,6 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
-import org.csstudio.display.builder.model.properties.WidgetColor;
 
 
 /**
@@ -32,7 +27,7 @@ import org.csstudio.display.builder.model.properties.WidgetColor;
  * @author Claudio Rosati, European Spallation Source ERIC
  * @version 1.0.0 25 Jan 2017
  */
-public class GaugeWidget extends PVWidget {
+public class GaugeWidget extends BaseGaugeWidget {
 
     public static final WidgetDescriptor WIDGET_DESCRIPTOR = new WidgetDescriptor(
         "gauge",
@@ -58,48 +53,26 @@ public class GaugeWidget extends PVWidget {
         DIGITAL,
         FLAT,
         MODERN,
-        SECTION,
         SIMPLE_DIGITAL,
         SIMPLE_SECTION,
         SLIM
     }
 
-    public static final WidgetPropertyDescriptor<Skin>        propSkin       = new WidgetPropertyDescriptor<Skin>(WidgetPropertyCategory.WIDGET,   "skin",        Messages.WidgetProperties_Skin) {
+    public static final WidgetPropertyDescriptor<Skin> propSkin = new WidgetPropertyDescriptor<Skin>(WidgetPropertyCategory.WIDGET, "skin", Messages.WidgetProperties_Skin) {
         @Override
         public EnumWidgetProperty<Skin> createProperty ( Widget widget, Skin defaultValue ) {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
 
-    public static final WidgetPropertyDescriptor<String>      propTitle      = newStringPropertyDescriptor       (WidgetPropertyCategory.DISPLAY,  "title",       Messages.WidgetProperties_Title);
-
-    public static final WidgetPropertyDescriptor<Boolean>     propAnimated   = newBooleanPropertyDescriptor      (WidgetPropertyCategory.BEHAVIOR, "animated",    Messages.WidgetProperties_Animated);
-
-    public static final WidgetPropertyDescriptor<WidgetColor> propTitleColor = newColorPropertyDescriptor        (WidgetPropertyCategory.MISC,     "title_color", Messages.WidgetProperties_TitleColor);
-
-    private volatile WidgetProperty<Boolean>     animated;
-    private volatile WidgetProperty<Skin>        skin;
-    private volatile WidgetProperty<String>      title;
-    private volatile WidgetProperty<WidgetColor> titleColor;
+    private volatile WidgetProperty<Skin> skin;
 
     public GaugeWidget ( ) {
         super(WIDGET_DESCRIPTOR.getType(), 160, 160);
     }
 
-    public WidgetProperty<Boolean> propAnimated ( ) {
-        return animated;
-    }
-
     public WidgetProperty<Skin> propSkin ( ) {
         return skin;
-    }
-
-    public WidgetProperty<String> propTitle ( ) {
-        return title;
-    }
-
-    public WidgetProperty<WidgetColor> propTitleColor ( ) {
-        return titleColor;
     }
 
     @Override
@@ -107,13 +80,7 @@ public class GaugeWidget extends PVWidget {
 
         super.defineProperties(properties);
 
-        properties.add(skin       = propSkin.createProperty(this, Skin.SIMPLE_SECTION));
-
-        properties.add(title      = propTitle.createProperty(this, ""));
-
-        properties.add(animated   = propAnimated.createProperty(this, true));
-
-        properties.add(titleColor = propTitleColor.createProperty(this, new WidgetColor(136, 196, 136)));
+        properties.add(skin = propSkin.createProperty(this, Skin.SIMPLE_SECTION));
 
     }
 
