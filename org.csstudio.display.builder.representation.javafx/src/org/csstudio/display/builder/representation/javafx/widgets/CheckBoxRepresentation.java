@@ -26,7 +26,7 @@ import javafx.scene.control.CheckBox;
  *  @author Amanda Carpenter
  */
 @SuppressWarnings("nls")
-public class CheckBoxRepresentation extends JFXBaseRepresentation<CheckBox, CheckBoxWidget>
+public class CheckBoxRepresentation extends RegionBaseRepresentation<CheckBox, CheckBoxWidget>
 {
     private final DirtyFlag dirty_size = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
