@@ -36,6 +36,7 @@ public class CheckBoxRepresentation extends RegionBaseRepresentation<CheckBox, C
     protected volatile int value = 0;
     protected volatile boolean state = false;
     protected volatile String label = "";
+    protected volatile boolean enabled = true;
 
     @Override
     protected final CheckBox createJFXNode() throws Exception
@@ -52,6 +53,11 @@ public class CheckBoxRepresentation extends RegionBaseRepresentation<CheckBox, C
     /** @param respond to button press */
     private void handlePress()
     {
+        if (! enabled)
+        {   // Ignore, restore current state of PV
+            jfx_node.setSelected(state);
+            return;
+        }
         logger.log(Level.FINE, "{0} pressed", model_widget);
         int new_val = (bit < 0) ? (value == 0 ? 1 : 0) : (value ^ (1 << bit));
         toolkit.fireWrite(model_widget, new_val);
@@ -74,6 +80,7 @@ public class CheckBoxRepresentation extends RegionBaseRepresentation<CheckBox, C
         model_widget.propLabel().addPropertyListener(this::labelChanged);
         model_widget.propFont().addUntypedPropertyListener(this::styleChanged);
         model_widget.propEnabled().addUntypedPropertyListener(this::styleChanged);
+        model_widget.runtimePropPVWritable().addUntypedPropertyListener(this::styleChanged);
 
         bitChanged(model_widget.propBit(), null, model_widget.propBit().getValue());
         model_widget.propBit().addPropertyListener(this::bitChanged);
@@ -142,7 +149,8 @@ public class CheckBoxRepresentation extends RegionBaseRepresentation<CheckBox, C
             // Don't disable the widget, because that would also remove the
             // context menu etc.
             // Just apply a style that matches the disabled look.
-            final boolean enabled = model_widget.propEnabled().getValue();
+            enabled = model_widget.propEnabled().getValue() &&
+                      model_widget.runtimePropPVWritable().getValue();
             if (enabled)
                 jfx_node.getStyleClass().remove(Styles.NOT_ENABLED);
            else
