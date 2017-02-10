@@ -7,7 +7,13 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.properties;
 
+import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
+import org.csstudio.display.builder.model.persist.WidgetFontService;
+
 /** Description of a named font
+ *
+ *  @see NamedWidgetFonts
+ *  @see WidgetFontService
  *  @author Kay Kasemir
  */
 // Implementation avoids AWT, SWT, JavaFX color
