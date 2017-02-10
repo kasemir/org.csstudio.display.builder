@@ -157,4 +157,32 @@ widget.setPropertyValue("pv_name", PVUtil.getString(pvs[0]))]]></text>
     <tooltip>
 VString[No PV, 1969/12/31 19:00:00.000]</tooltip>
   </widget>
+  <widget type="combo" version="2.0.0">
+    <name>Text Entry_4</name>
+    <x>90</x>
+    <y>280</y>
+    <width>130</width>
+    <rules>
+      <rule name="Enable" prop_id="enabled" out_exp="false">
+        <exp bool_exp="pv0&lt;1">
+          <value>false</value>
+        </exp>
+        <pv_name>loc://enable(1)</pv_name>
+      </rule>
+    </rules>
+    <scripts>
+      <script file="EmbeddedPy">
+        <text><![CDATA[from org.csstudio.display.builder.runtime.script import PVUtil
+widget.setPropertyValue("pv_name", PVUtil.getString(pvs[0]))]]></text>
+        <pv_name>loc://pv_name("loc://x(4)")</pv_name>
+      </script>
+    </scripts>
+    <tooltip></tooltip>
+    <items>
+      <item>2</item>
+      <item>4</item>
+      <item>6</item>
+    </items>
+    <items_from_pv>false</items_from_pv>
+  </widget>
 </display>
