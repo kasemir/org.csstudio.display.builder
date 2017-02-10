@@ -165,10 +165,7 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
         {
             final boolean enabled = model_widget.propEnabled().getValue();
             jfx_node.setDisable(! enabled);
-            if (enabled)
-                jfx_node.getStyleClass().remove(Styles.NOT_ENABLED);
-            else
-                jfx_node.getStyleClass().add(Styles.NOT_ENABLED);
+            Styles.update(jfx_node, Styles.NOT_ENABLED, !enabled);
 
             jfx_node.setPrefHeight(model_widget.propHeight().getValue());
             jfx_node.setPrefWidth(model_widget.propWidth().getValue());

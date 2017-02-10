@@ -285,10 +285,7 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
             // context menu etc.
             // Just apply a style that matches the disabled look.
             jfx_node.setEditable(enabled);
-            if (enabled)
-                jfx_node.getStyleClass().remove(Styles.NOT_ENABLED);
-           else
-                jfx_node.getStyleClass().add(Styles.NOT_ENABLED);
+            Styles.update(jfx_node, Styles.NOT_ENABLED, !enabled);
         }
         if (active)
             return;

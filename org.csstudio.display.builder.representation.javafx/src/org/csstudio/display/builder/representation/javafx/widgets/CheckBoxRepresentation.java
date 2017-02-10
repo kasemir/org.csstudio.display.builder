@@ -151,10 +151,7 @@ public class CheckBoxRepresentation extends RegionBaseRepresentation<CheckBox, C
             // Just apply a style that matches the disabled look.
             enabled = model_widget.propEnabled().getValue() &&
                       model_widget.runtimePropPVWritable().getValue();
-            if (enabled)
-                jfx_node.getStyleClass().remove(Styles.NOT_ENABLED);
-           else
-                jfx_node.getStyleClass().add(Styles.NOT_ENABLED);
+            Styles.update(jfx_node, Styles.NOT_ENABLED, !enabled);
         }
     }
 }

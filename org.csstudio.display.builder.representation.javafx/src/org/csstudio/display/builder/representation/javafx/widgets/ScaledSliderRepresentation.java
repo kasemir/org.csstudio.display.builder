@@ -284,10 +284,7 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         {
             final boolean enabled = model_widget.propEnabled().getValue();
             jfx_node.setDisable(! enabled);
-            if (enabled)
-                jfx_node.getStyleClass().remove(Styles.NOT_ENABLED);
-            else
-                jfx_node.getStyleClass().add(Styles.NOT_ENABLED);
+            Styles.update(jfx_node, Styles.NOT_ENABLED, !enabled);
 
             final boolean horizontal = model_widget.propHorizontal().getValue();
             slider.setOrientation(horizontal ? Orientation.HORIZONTAL : Orientation.VERTICAL);
