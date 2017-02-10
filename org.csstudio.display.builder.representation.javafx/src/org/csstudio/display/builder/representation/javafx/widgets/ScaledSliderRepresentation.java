@@ -43,6 +43,7 @@ import javafx.util.converter.FormatStringConverter;
 public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPane, ScaledSliderWidget>
 {
     private final DirtyFlag dirty_layout = new DirtyFlag();
+    private final DirtyFlag dirty_enablement = new DirtyFlag();
     private final DirtyFlag dirty_value = new DirtyFlag();
 
     private volatile double min = 0.0;
@@ -56,6 +57,7 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
     private volatile double tick_unit = 20;
 
     private volatile boolean active = false;
+    private volatile boolean enabled = false;
 
     private final Slider slider = new Slider();
     private final SliderMarkers markers = new SliderMarkers(slider);
@@ -107,8 +109,10 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         model_widget.propShowScale().addUntypedPropertyListener(this::layoutChanged);
         model_widget.propScaleFormat().addUntypedPropertyListener(this::layoutChanged);
         model_widget.propShowMinorTicks().addUntypedPropertyListener(this::layoutChanged);
-        model_widget.propEnabled().addUntypedPropertyListener(this::layoutChanged);
         model_widget.propIncrement().addPropertyListener(this::layoutChanged);
+
+        model_widget.propEnabled().addPropertyListener(this::enablementChanged);
+        model_widget.runtimePropPVWritable().addPropertyListener(this::enablementChanged);
 
         model_widget.propLevelHi().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propLevelHiHi().addUntypedPropertyListener(this::limitsChanged);
@@ -130,6 +134,7 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
             dirty_value.checkAndClear();
         else
             model_widget.runtimePropValue().addPropertyListener(this::valueChanged);
+        enablementChanged(null, null, null);
         limitsChanged(null, null, null);
         layoutChanged(null, null, null);
     }
@@ -140,6 +145,14 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         if (increment <= 0.0)
             increment = 1.0;
         dirty_layout.mark();
+        toolkit.scheduleUpdate(this);
+    }
+
+    private void enablementChanged(final WidgetProperty<Boolean> property, final Boolean old_value, final Boolean new_value)
+    {
+        enabled = model_widget.propEnabled().getValue()  &&
+                  model_widget.runtimePropPVWritable().getValue();
+        dirty_enablement.mark();
         toolkit.scheduleUpdate(this);
     }
 
@@ -280,12 +293,13 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
     public void updateChanges()
     {
         super.updateChanges();
-        if (dirty_layout.checkAndClear())
+        if (dirty_enablement.checkAndClear())
         {
-            final boolean enabled = model_widget.propEnabled().getValue();
             jfx_node.setDisable(! enabled);
             Styles.update(jfx_node, Styles.NOT_ENABLED, !enabled);
-
+        }
+        if (dirty_layout.checkAndClear())
+        {
             final boolean horizontal = model_widget.propHorizontal().getValue();
             slider.setOrientation(horizontal ? Orientation.HORIZONTAL : Orientation.VERTICAL);
 
