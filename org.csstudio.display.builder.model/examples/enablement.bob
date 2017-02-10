@@ -219,4 +219,30 @@ widget.setPropertyValue("pv_name", PVUtil.getString(pvs[0]))]]></text>
     <maximum>10.0</maximum>
     <limits_from_pv>false</limits_from_pv>
   </widget>
+  <widget type="scrollbar" version="2.0.0">
+    <name>Text Entry_6</name>
+    <x>150</x>
+    <y>320</y>
+    <width>50</width>
+    <height>190</height>
+    <horizontal>false</horizontal>
+    <rules>
+      <rule name="Enable" prop_id="enabled" out_exp="false">
+        <exp bool_exp="pv0&lt;1">
+          <value>false</value>
+        </exp>
+        <pv_name>loc://enable(1)</pv_name>
+      </rule>
+    </rules>
+    <scripts>
+      <script file="EmbeddedPy">
+        <text><![CDATA[from org.csstudio.display.builder.runtime.script import PVUtil
+widget.setPropertyValue("pv_name", PVUtil.getString(pvs[0]))]]></text>
+        <pv_name>loc://pv_name("loc://x(4)")</pv_name>
+      </script>
+    </scripts>
+    <tooltip></tooltip>
+    <maximum>10.0</maximum>
+    <bar_length>1.0</bar_length>
+  </widget>
 </display>
