@@ -188,10 +188,10 @@ public class MeterRepresentation extends BaseGaugeRepresentation<MeterWidget> {
         boolean somethingChanged = super.updateLimits();
 
         //  Model's values.
-        boolean new_highlight = model_widget.propHighlightZones().getValue();
+        boolean newZonesHighlight = model_widget.propHighlightZones().getValue();
 
-        if ( zonesHighlight != new_highlight ) {
-            zonesHighlight = new_highlight;
+        if ( zonesHighlight != newZonesHighlight ) {
+            zonesHighlight = newZonesHighlight;
             somethingChanged = true;
         }
 

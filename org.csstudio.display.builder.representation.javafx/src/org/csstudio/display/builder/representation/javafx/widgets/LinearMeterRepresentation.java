@@ -28,9 +28,11 @@ import javafx.scene.paint.Color;
  */
 public class LinearMeterRepresentation extends BaseGaugeRepresentation<LinearMeterWidget> {
 
+    private volatile boolean              barHighlight   = true;
     private final DirtyFlag               dirtyLimits    = new DirtyFlag();
     private final DirtyFlag               dirtyLook      = new DirtyFlag();
     private LinearMeterWidget.Orientation orientation    = null;
+    private volatile boolean              updatingAreas  = false;
     private volatile boolean              zonesHighlight = true;
 
     @Override
@@ -55,6 +57,8 @@ public class LinearMeterRepresentation extends BaseGaugeRepresentation<LinearMet
         }
 
         if ( dirtyLimits.checkAndClear() ) {
+            jfx_node.setAreas(createAreas());
+            jfx_node.setAreasVisible(barHighlight && areZonesVisible());
             jfx_node.setHighlightSections(zonesHighlight);
         }
 
@@ -67,10 +71,17 @@ public class LinearMeterRepresentation extends BaseGaugeRepresentation<LinearMet
 
         Gauge gauge = super.createJFXNode(Gauge.SkinType.LINEAR);
 
+        gauge.setAreas(createAreas());
+        gauge.setAreasVisible(barHighlight);
         gauge.setHighlightSections(zonesHighlight);
         gauge.setOrientation(Orientation.valueOf(orientation.name()));
         gauge.setTickLabelLocation(TickLabelLocation.INSIDE);
 
+        gauge.highlightAreasProperty().addListener( ( s, o, n ) -> {
+            if ( !Objects.equals(n, model_widget.propHighlightBar().getValue()) ) {
+                model_widget.propHighlightBar().setValue(n);
+            }
+        });
         gauge.highlightSectionsProperty().addListener( ( s, o, n ) -> {
             if ( !Objects.equals(n, model_widget.propHighlightZones().getValue()) ) {
                 model_widget.propHighlightZones().setValue(n);
@@ -98,7 +109,9 @@ public class LinearMeterRepresentation extends BaseGaugeRepresentation<LinearMet
     @Override
     protected Section createZone ( double start, double end, String name, Color color ) {
 
-        if ( zonesHighlight ) {
+        if ( updatingAreas ) {
+            return super.createZone(start, end, name, color);
+        } else if ( zonesHighlight ) {
 
             Section s = new Section(start, end, color.deriveColor(0.0, 1.0, 1.0, 0.2), color);
 
@@ -129,14 +142,33 @@ public class LinearMeterRepresentation extends BaseGaugeRepresentation<LinearMet
         boolean somethingChanged = super.updateLimits();
 
         //  Model's values.
-        boolean new_highlight = model_widget.propHighlightZones().getValue();
+        boolean newZonesHighlight = model_widget.propHighlightZones().getValue();
 
-        if ( zonesHighlight != new_highlight ) {
-            zonesHighlight = new_highlight;
+        if ( zonesHighlight != newZonesHighlight ) {
+            zonesHighlight = newZonesHighlight;
+            somethingChanged = true;
+        }
+
+        boolean newBarHighlight = model_widget.propHighlightBar().getValue();
+
+        if ( barHighlight != newBarHighlight ) {
+            barHighlight = newBarHighlight;
             somethingChanged = true;
         }
 
         return somethingChanged;
+
+    }
+
+    private Section[] createAreas ( ) {
+
+        updatingAreas = true;
+
+        try {
+            return createZones();
+        } finally {
+            updatingAreas = false;
+        }
 
     }
 

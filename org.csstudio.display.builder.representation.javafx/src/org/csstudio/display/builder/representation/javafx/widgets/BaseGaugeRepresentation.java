@@ -124,6 +124,13 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
 
     }
 
+    protected final boolean areZonesVisible ( ) {
+        return model_widget.propShowLoLo().getValue()
+            || model_widget.propShowLow().getValue()
+            || model_widget.propShowHigh().getValue()
+            || model_widget.propShowHiHi().getValue();
+    }
+
     /**
      * Change the skin type, resetting some of the gauge parameters.
      *
@@ -218,6 +225,37 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         return new Section(start, end, name, color);
     }
 
+    /**
+     * Creates the zones.
+     *
+     * @return An array of {@link Section}s.
+     */
+    protected final Section[] createZones ( ) {
+
+        boolean loloNaN = Double.isNaN(lolo);
+        boolean hihiNaN = Double.isNaN(hihi);
+        List<Section> sections = new ArrayList<>(4);
+
+        if ( !loloNaN ) {
+            sections.add(createZone(min, lolo, "LoLo", MAJOR_COLOR));
+        }
+
+        if ( !Double.isNaN(low) ) {
+            sections.add(createZone(loloNaN ? min : lolo, low, "Low", MINOR_COLOR));
+        }
+
+        if ( !Double.isNaN(high) ) {
+            sections.add(createZone(high, hihiNaN ? max : hihi, "High", MINOR_COLOR));
+        }
+
+        if ( !hihiNaN ) {
+            sections.add(createZone(hihi, max, "HiHi", MAJOR_COLOR));
+        }
+
+        return sections.toArray(new Section[sections.size()]);
+
+    }
+
     @Override
     protected void registerListeners ( ) {
 
@@ -262,12 +300,12 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         boolean somethingChanged = false;
 
         //  Model's values.
-        double new_min = model_widget.propMinimum().getValue();
-        double new_max = model_widget.propMaximum().getValue();
-        double new_lolo = model_widget.propLevelLoLo().getValue();
-        double new_low = model_widget.propLevelLow().getValue();
-        double new_high = model_widget.propLevelHight().getValue();
-        double new_hihi = model_widget.propLevelHiHi().getValue();
+        double newMin = model_widget.propMinimum().getValue();
+        double newMax = model_widget.propMaximum().getValue();
+        double newLoLo = model_widget.propLevelLoLo().getValue();
+        double newLow = model_widget.propLevelLow().getValue();
+        double newHigh = model_widget.propLevelHight().getValue();
+        double newHiHi = model_widget.propLevelHiHi().getValue();
 
         if ( model_widget.propLimitsFromPV().getValue() ) {
 
@@ -275,57 +313,57 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
             final Display display_info = ValueUtil.displayOf(model_widget.runtimePropValue().getValue());
 
             if ( display_info != null ) {
-                new_min = display_info.getLowerCtrlLimit();
-                new_max = display_info.getUpperCtrlLimit();
-                new_lolo = display_info.getLowerAlarmLimit();
-                new_low = display_info.getLowerWarningLimit();
-                new_high = display_info.getUpperWarningLimit();
-                new_hihi = display_info.getUpperAlarmLimit();
+                newMin = display_info.getLowerCtrlLimit();
+                newMax = display_info.getUpperCtrlLimit();
+                newLoLo = display_info.getLowerAlarmLimit();
+                newLow = display_info.getLowerWarningLimit();
+                newHigh = display_info.getUpperWarningLimit();
+                newHiHi = display_info.getUpperAlarmLimit();
             }
 
         }
 
         if ( !model_widget.propShowLoLo().getValue() ) {
-            new_lolo = Double.NaN;
+            newLoLo = Double.NaN;
         }
         if ( !model_widget.propShowLow().getValue() ) {
-            new_low = Double.NaN;
+            newLow = Double.NaN;
         }
         if ( !model_widget.propShowHigh().getValue() ) {
-            new_high = Double.NaN;
+            newHigh = Double.NaN;
         }
         if ( !model_widget.propShowHiHi().getValue() ) {
-            new_hihi = Double.NaN;
+            newHiHi = Double.NaN;
         }
 
         //  If invalid limits, fall back to 0..100 range.
-        if ( !( Double.isNaN(new_min) || Double.isNaN(new_max) || new_min < new_max ) ) {
-            new_min = 0.0;
-            new_max = 100.0;
+        if ( !( Double.isNaN(newMin) || Double.isNaN(newMax) || newMin < newMax ) ) {
+            newMin = 0.0;
+            newMax = 100.0;
         }
 
-        if ( Double.compare(min, new_min) != 0 ) {
-            min = new_min;
+        if ( Double.compare(min, newMin) != 0 ) {
+            min = newMin;
             somethingChanged = true;
         }
-        if ( Double.compare(max, new_max) != 0 ) {
-            max = new_max;
+        if ( Double.compare(max, newMax) != 0 ) {
+            max = newMax;
             somethingChanged = true;
         }
-        if ( Double.compare(lolo, new_lolo) != 0 ) {
-            lolo = new_lolo;
+        if ( Double.compare(lolo, newLoLo) != 0 ) {
+            lolo = newLoLo;
             somethingChanged = true;
         }
-        if ( Double.compare(low, new_low) != 0 ) {
-            low = new_low;
+        if ( Double.compare(low, newLow) != 0 ) {
+            low = newLow;
             somethingChanged = true;
         }
-        if ( Double.compare(high, new_high) != 0 ) {
-            high = new_high;
+        if ( Double.compare(high, newHigh) != 0 ) {
+            high = newHigh;
             somethingChanged = true;
         }
-        if ( Double.compare(hihi, new_hihi) != 0 ) {
-            hihi = new_hihi;
+        if ( Double.compare(hihi, newHiHi) != 0 ) {
+            hihi = newHiHi;
             somethingChanged = true;
         }
 
@@ -341,39 +379,6 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
 
         dirtyValue.mark();
         toolkit.scheduleUpdate(this);
-
-    }
-
-    private boolean areZonesVisible ( ) {
-        return model_widget.propShowLoLo().getValue()
-            || model_widget.propShowLow().getValue()
-            || model_widget.propShowHigh().getValue()
-            || model_widget.propShowHiHi().getValue();
-    }
-
-    private Section[] createZones ( ) {
-
-        boolean loloNaN = Double.isNaN(lolo);
-        boolean hihiNaN = Double.isNaN(hihi);
-        List<Section> sections = new ArrayList<>(4);
-
-        if ( !loloNaN ) {
-            sections.add(createZone(min, lolo, "LoLo", MAJOR_COLOR));
-        }
-
-        if ( !Double.isNaN(low) ) {
-            sections.add(createZone(loloNaN ? min : lolo, low, "Low", MINOR_COLOR));
-        }
-
-        if ( !Double.isNaN(high) ) {
-            sections.add(createZone(high, hihiNaN ? max : hihi, "High", MINOR_COLOR));
-        }
-
-        if ( !hihiNaN ) {
-            sections.add(createZone(hihi, max, "HiHi", MAJOR_COLOR));
-        }
-
-        return sections.toArray(new Section[sections.size()]);
 
     }
 

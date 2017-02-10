@@ -56,13 +56,19 @@ public class LinearMeterWidget extends BaseGaugeWidget {
         }
     };
 
+    public static final WidgetPropertyDescriptor<Boolean>      propHighlightBar   = newBooleanPropertyDescriptor             (WidgetPropertyCategory.DISPLAY, "highligh_bar",   Messages.WidgetProperties_HighlightBar);
     public static final WidgetPropertyDescriptor<Boolean>      propHighlightZones = newBooleanPropertyDescriptor             (WidgetPropertyCategory.DISPLAY, "highligh_zones", Messages.WidgetProperties_HighlightZones);
 
+    private volatile WidgetProperty<Boolean>      highligh_bar;
     private volatile WidgetProperty<Boolean>      highligh_zones;
     private volatile WidgetProperty<Orientation>  orientation;
 
     public LinearMeterWidget ( ) {
         super(WIDGET_DESCRIPTOR.getType(), 350, 80);
+    }
+
+    public WidgetProperty<Boolean> propHighlightBar ( ) {
+        return highligh_bar;
     }
 
     public WidgetProperty<Boolean> propHighlightZones ( ) {
@@ -80,6 +86,7 @@ public class LinearMeterWidget extends BaseGaugeWidget {
 
         properties.add(orientation    = propOrientation.createProperty(this, Orientation.HORIZONTAL));
 
+        properties.add(highligh_bar   = propHighlightBar.createProperty(this, true));
         properties.add(highligh_zones = propHighlightZones.createProperty(this, true));
 
     }
