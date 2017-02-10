@@ -54,12 +54,14 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
     // to multiple actions.
 
     private final DirtyFlag dirty_representation = new DirtyFlag();
+    private final DirtyFlag dirty_enablement = new DirtyFlag();
     private final DirtyFlag dirty_actionls = new DirtyFlag();
 
     private volatile ButtonBase base;
     private volatile String background;
     private volatile Color foreground;
     private volatile String button_text;
+    private volatile boolean enabled = true;
 
     /** Optional modifier of the open display 'target */
     private Optional<OpenDisplayActionInfo.Target> target_modifier = Optional.empty();
@@ -217,6 +219,8 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
     /** @param action Action that the user invoked */
     private void handleAction(ActionInfo action)
     {
+        if (! enabled)
+            return;
         logger.log(Level.FINE, "{0} pressed", model_widget);
         if (action instanceof OpenDisplayActionInfo  &&  target_modifier.isPresent())
         {
@@ -236,11 +240,15 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
         model_widget.propHeight().addUntypedPropertyListener(this::representationChanged);
         model_widget.propText().addUntypedPropertyListener(this::representationChanged);
         model_widget.propFont().addUntypedPropertyListener(this::representationChanged);
-        model_widget.propEnabled().addUntypedPropertyListener(this::representationChanged);
+
+        model_widget.propEnabled().addPropertyListener(this::enablementChanged);
+        model_widget.runtimePropPVWritable().addPropertyListener(this::enablementChanged);
 
         model_widget.propBackgroundColor().addUntypedPropertyListener(this::buttonChanged);
         model_widget.propForegroundColor().addUntypedPropertyListener(this::buttonChanged);
         model_widget.propActions().addUntypedPropertyListener(this::buttonChanged);
+
+        enablementChanged(null, null, null);
     }
 
     @Override
@@ -266,6 +274,16 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
         toolkit.scheduleUpdate(this);
     }
 
+    /** enabled or pv_writable changed */
+    private void enablementChanged(final WidgetProperty<Boolean> property, final Boolean old_value, final Boolean new_value)
+    {
+        enabled  = model_widget.propEnabled().getValue()  &&
+                  model_widget.runtimePropPVWritable().getValue();
+        dirty_enablement.mark();
+        toolkit.scheduleUpdate(this);
+    }
+
+
     private void updateColors()
     {
         foreground = JFXUtil.convert(model_widget.propForegroundColor().getValue());
@@ -289,8 +307,9 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
             base.setPrefSize(model_widget.propWidth().getValue(),
                              model_widget.propHeight().getValue());
             base.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
-
-            final boolean enabled = model_widget.propEnabled().getValue();
+        }
+        if (dirty_enablement.checkAndClear())
+        {
             base.setDisable(! enabled);
             Styles.update(jfx_node, Styles.NOT_ENABLED, !enabled);
         }
