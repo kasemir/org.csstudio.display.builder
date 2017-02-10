@@ -90,7 +90,7 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
         model_widget.propHorizontal().addPropertyListener(this::sizeChanged);
         model_widget.propBarLength().addPropertyListener(this::sizeChanged);
         model_widget.propIncrement().addPropertyListener(this::sizeChanged);
-        model_widget.runtimePropEnabled().addPropertyListener(this::sizeChanged);
+        model_widget.propEnabled().addPropertyListener(this::sizeChanged);
 
         //Since both the widget's PV value and the ScrollBar node's value property might be
         //written to independently during runtime, both must be listened to.
@@ -163,7 +163,7 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
         super.updateChanges();
         if (dirty_size.checkAndClear())
         {
-            final boolean enabled = model_widget.runtimePropEnabled().getValue();
+            final boolean enabled = model_widget.propEnabled().getValue();
             jfx_node.setDisable(! enabled);
             if (enabled)
                 jfx_node.getStyleClass().remove(Styles.NOT_ENABLED);

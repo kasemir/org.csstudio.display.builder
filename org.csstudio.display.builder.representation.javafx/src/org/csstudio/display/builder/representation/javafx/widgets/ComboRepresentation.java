@@ -80,7 +80,7 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
         model_widget.runtimePropValue().addUntypedPropertyListener(this::contentChanged);
         model_widget.propItemsFromPV().addUntypedPropertyListener(this::contentChanged);
         model_widget.propItems().addUntypedPropertyListener(this::contentChanged);
-        model_widget.runtimePropEnabled().addUntypedPropertyListener(this::enableChanged);
+        model_widget.propEnabled().addUntypedPropertyListener(this::enableChanged);
 
         styleChanged(null, null, null);
     }
@@ -191,7 +191,7 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
         }
         if (dirty_enable.checkAndClear())
         {
-            final boolean enabled = model_widget.runtimePropEnabled().getValue();
+            final boolean enabled = model_widget.propEnabled().getValue();
             jfx_node.setDisable(! enabled);
             if (enabled)
                 jfx_node.getStyleClass().remove(Styles.NOT_ENABLED);

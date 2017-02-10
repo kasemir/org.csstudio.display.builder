@@ -8,7 +8,7 @@
 package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropEnabled;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
 
@@ -147,7 +147,7 @@ public class ComboWidget extends PVWidget
         properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BUTTON_BACKGROUND)));
         properties.add(items = propItems.createProperty(this, Collections.emptyList()));
         properties.add(items_from_pv = propItemsFromPV.createProperty(this, true));
-        properties.add(enabled = runtimePropEnabled.createProperty(this, true));
+        properties.add(enabled = propEnabled.createProperty(this, true));
     }
 
     /** @return 'foreground_color' property */
@@ -201,7 +201,7 @@ public class ComboWidget extends PVWidget
     }
 
     /** @return 'enabled' property */
-    public WidgetProperty<Boolean> runtimePropEnabled()
+    public WidgetProperty<Boolean> propEnabled()
     {
         return enabled;
     }

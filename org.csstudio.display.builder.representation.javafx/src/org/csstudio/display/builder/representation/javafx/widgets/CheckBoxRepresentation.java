@@ -73,7 +73,7 @@ public class CheckBoxRepresentation extends RegionBaseRepresentation<CheckBox, C
         labelChanged(model_widget.propLabel(), null, model_widget.propLabel().getValue());
         model_widget.propLabel().addPropertyListener(this::labelChanged);
         model_widget.propFont().addUntypedPropertyListener(this::styleChanged);
-        model_widget.runtimePropEnabled().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propEnabled().addUntypedPropertyListener(this::styleChanged);
 
         bitChanged(model_widget.propBit(), null, model_widget.propBit().getValue());
         model_widget.propBit().addPropertyListener(this::bitChanged);
@@ -142,7 +142,7 @@ public class CheckBoxRepresentation extends RegionBaseRepresentation<CheckBox, C
             // Don't disable the widget, because that would also remove the
             // context menu etc.
             // Just apply a style that matches the disabled look.
-            final boolean enabled = model_widget.runtimePropEnabled().getValue();
+            final boolean enabled = model_widget.propEnabled().getValue();
             if (enabled)
                 jfx_node.getStyleClass().remove(Styles.NOT_ENABLED);
            else

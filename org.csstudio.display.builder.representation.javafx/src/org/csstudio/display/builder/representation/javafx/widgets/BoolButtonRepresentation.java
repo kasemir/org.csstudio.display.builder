@@ -108,7 +108,7 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
         model_widget.propFont().addUntypedPropertyListener(this::representationChanged);
         model_widget.propForegroundColor().addUntypedPropertyListener(this::representationChanged);
         model_widget.propBackgroundColor().addUntypedPropertyListener(this::representationChanged);
-        model_widget.runtimePropEnabled().addUntypedPropertyListener(this::representationChanged);
+        model_widget.propEnabled().addUntypedPropertyListener(this::representationChanged);
         model_widget.propBit().addPropertyListener(this::bitChanged);
         model_widget.runtimePropValue().addPropertyListener(this::valueChanged);
 
@@ -212,7 +212,7 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
             led.setRadiusX(size / 15.0);
             led.setRadiusY(size / 10.0);
 
-            final boolean enabled = model_widget.runtimePropEnabled().getValue();
+            final boolean enabled = model_widget.propEnabled().getValue();
             jfx_node.setDisable(! enabled);
             if (enabled)
                 jfx_node.getStyleClass().remove(Styles.NOT_ENABLED);

@@ -137,7 +137,7 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
         if (this.active == active)
             return;
         // Don't enable when widget is disabled
-        if (active  &&  !model_widget.runtimePropEnabled().getValue())
+        if (active  &&  !model_widget.propEnabled().getValue())
             return;
         this.active = active;
         dirty_style.mark();
@@ -202,7 +202,7 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
         model_widget.propForegroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.propBackgroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.propFont().addUntypedPropertyListener(this::styleChanged);
-        model_widget.runtimePropEnabled().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propEnabled().addUntypedPropertyListener(this::styleChanged);
         model_widget.runtimePropPVWritable().addUntypedPropertyListener(this::styleChanged);
 
         model_widget.propFormat().addUntypedPropertyListener(this::contentChanged);
@@ -279,7 +279,7 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
             jfx_node.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
 
             // Enable if enabled by user and there's write access
-            final boolean enabled = model_widget.runtimePropEnabled().getValue()  &&
+            final boolean enabled = model_widget.propEnabled().getValue()  &&
                                     model_widget.runtimePropPVWritable().getValue();
             // Don't disable the widget, because that would also remove the
             // context menu etc.

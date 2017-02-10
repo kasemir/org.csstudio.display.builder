@@ -236,7 +236,7 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
         model_widget.propHeight().addUntypedPropertyListener(this::representationChanged);
         model_widget.propText().addUntypedPropertyListener(this::representationChanged);
         model_widget.propFont().addUntypedPropertyListener(this::representationChanged);
-        model_widget.runtimePropEnabled().addUntypedPropertyListener(this::representationChanged);
+        model_widget.propEnabled().addUntypedPropertyListener(this::representationChanged);
 
         model_widget.propBackgroundColor().addUntypedPropertyListener(this::buttonChanged);
         model_widget.propForegroundColor().addUntypedPropertyListener(this::buttonChanged);
@@ -290,7 +290,7 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
                              model_widget.propHeight().getValue());
             base.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
 
-            final boolean enabled = model_widget.runtimePropEnabled().getValue();
+            final boolean enabled = model_widget.propEnabled().getValue();
             base.setDisable(! enabled);
             if (enabled)
                 jfx_node.getStyleClass().remove(Styles.NOT_ENABLED);
