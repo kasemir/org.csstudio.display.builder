@@ -21,7 +21,7 @@ package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBorderAlarmSensitive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropPVValue;
 
 import java.time.Instant;
 import java.util.List;
@@ -35,7 +35,7 @@ import org.diirt.vtype.ValueFactory;
 /** A base class for all widgets having a primary PV and value.
  *
  *  <p>Default WidgetRuntime will connect PV to "pv_name"
- *  and update "value" with received updates.
+ *  and update "pv_value" with received updates.
  *
  *  @author Kay Kasemir
  *  @author claudiorosati, European Spallation Source ERIC
@@ -55,10 +55,10 @@ public class PVWidget extends VisibleWidget
                                                                             ValueFactory.newTime(Instant.ofEpochSecond(0)));
 
     private volatile WidgetProperty<String> pv_name;
-    private volatile WidgetProperty<VType>  value;
+    private volatile WidgetProperty<VType>  pv_value;
 
     /** @param type Widget type. */
-    public PVWidget(final String type )
+    public PVWidget(final String type)
     {
         super(type);
     }
@@ -77,7 +77,7 @@ public class PVWidget extends VisibleWidget
     {
         super.defineProperties(properties);
         properties.add(pv_name = propPVName.createProperty(this, ""));
-        properties.add(value = runtimePropValue.createProperty(this, RUNTIME_VALUE_NO_PV));
+        properties.add(pv_value = runtimePropPVValue.createProperty(this, RUNTIME_VALUE_NO_PV));
         properties.add(propBorderAlarmSensitive.createProperty(this, true));
     }
 
@@ -97,6 +97,6 @@ public class PVWidget extends VisibleWidget
     /** @return Runtime 'pv_value' property */
     public WidgetProperty<VType> runtimePropValue()
     {
-        return value;
+        return pv_value;
     }
 }

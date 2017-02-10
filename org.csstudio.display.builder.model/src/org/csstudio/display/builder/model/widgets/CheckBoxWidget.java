@@ -30,7 +30,7 @@ import org.csstudio.display.builder.model.properties.WidgetFont;
 /** Widget that can read/write a bit in a PV
  *  @author Amanda Carpenter
  */
-public class CheckBoxWidget extends PVWidget
+public class CheckBoxWidget extends WritablePVWidget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =

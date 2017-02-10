@@ -203,6 +203,7 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
         model_widget.propBackgroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.propFont().addUntypedPropertyListener(this::styleChanged);
         model_widget.runtimePropEnabled().addUntypedPropertyListener(this::styleChanged);
+        model_widget.runtimePropPVWritable().addUntypedPropertyListener(this::styleChanged);
 
         model_widget.propFormat().addUntypedPropertyListener(this::contentChanged);
         model_widget.propPrecision().addUntypedPropertyListener(this::contentChanged);
@@ -277,10 +278,12 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
 
             jfx_node.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
 
+            // Enable if enabled by user and there's write access
+            final boolean enabled = model_widget.runtimePropEnabled().getValue()  &&
+                                    model_widget.runtimePropPVWritable().getValue();
             // Don't disable the widget, because that would also remove the
             // context menu etc.
             // Just apply a style that matches the disabled look.
-            final boolean enabled = model_widget.runtimePropEnabled().getValue();
             jfx_node.setEditable(enabled);
             if (enabled)
                 jfx_node.getStyleClass().remove(Styles.NOT_ENABLED);
