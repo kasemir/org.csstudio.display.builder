@@ -16,6 +16,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.MeterWidget;
 import org.csstudio.display.builder.model.widgets.MeterWidget.KnobPosition;
 import org.csstudio.display.builder.model.widgets.MeterWidget.Skin;
+import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
 import eu.hansolo.medusa.Gauge;
 import eu.hansolo.medusa.Section;
@@ -79,6 +80,25 @@ public class MeterRepresentation extends BaseGaugeRepresentation<MeterWidget> {
 
             }
 
+            value = model_widget.propAverage().getValue();
+
+            if ( !Objects.equals(value, jfx_node.isAverageVisible()) || !Objects.equals(value, jfx_node.isAveragingEnabled()) ) {
+                jfx_node.setAverageVisible((boolean) value);
+                jfx_node.setAveragingEnabled((boolean) value);
+            }
+
+            value = JFXUtil.convert(model_widget.propAverageColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getAverageColor()) ) {
+                jfx_node.setAverageColor((Color) value);
+            }
+
+            value = model_widget.propAverageSamples().getValue();
+
+            if ( !Objects.equals(value, jfx_node.getAveragingPeriod()) ) {
+                jfx_node.setAveragingPeriod((int) value);
+            }
+
             value = model_widget.propKnobPosition().getValue();
 
             if ( !Objects.equals(value,  knobPosition) ) {
@@ -94,6 +114,19 @@ public class MeterRepresentation extends BaseGaugeRepresentation<MeterWidget> {
         if ( dirtyLimits.checkAndClear() ) {
             jfx_node.setHighlightSections(zonesHighlight);
         }
+
+    }
+
+    @Override
+    protected void changeSkin ( final Gauge.SkinType skinType ) {
+
+        super.changeSkin(skinType);
+
+        jfx_node.setAverageColor(JFXUtil.convert(model_widget.propAverageColor().getValue()));
+        jfx_node.setAverageVisible(model_widget.propAverage().getValue());
+        jfx_node.setAveragingEnabled(model_widget.propAverage().getValue());
+        jfx_node.setAveragingPeriod(model_widget.propAverageSamples().getValue());
+        jfx_node.setTickLabelLocation(TickLabelLocation.INSIDE);
 
     }
 
@@ -116,6 +149,10 @@ public class MeterRepresentation extends BaseGaugeRepresentation<MeterWidget> {
 
         Gauge gauge = super.createJFXNode(skinType);
 
+        gauge.setAverageColor(JFXUtil.convert(model_widget.propAverageColor().getValue()));
+        gauge.setAverageVisible(model_widget.propAverage().getValue());
+        gauge.setAveragingEnabled(model_widget.propAverage().getValue());
+        gauge.setAveragingPeriod(model_widget.propAverageSamples().getValue());
         gauge.setHighlightSections(zonesHighlight);
         gauge.setKnobPosition(Pos.valueOf(knobPosition.name()));
         gauge.setTickLabelLocation(TickLabelLocation.INSIDE);
@@ -175,6 +212,9 @@ public class MeterRepresentation extends BaseGaugeRepresentation<MeterWidget> {
 
         super.registerListeners();
 
+        model_widget.propAverage().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propAverageColor().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propAverageSamples().addUntypedPropertyListener(this::lookChanged);
         model_widget.propKnobPosition().addUntypedPropertyListener(this::lookChanged);
         model_widget.propSkin().addUntypedPropertyListener(this::lookChanged);
 

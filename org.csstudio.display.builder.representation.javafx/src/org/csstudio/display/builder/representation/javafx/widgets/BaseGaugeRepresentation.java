@@ -27,7 +27,6 @@ import org.diirt.vtype.ValueUtil;
 import eu.hansolo.medusa.Gauge;
 import eu.hansolo.medusa.GaugeBuilder;
 import eu.hansolo.medusa.Section;
-import eu.hansolo.medusa.TickLabelLocation;
 import javafx.scene.paint.Color;
 
 /**
@@ -147,7 +146,6 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         jfx_node.setCheckThreshold(false);
         jfx_node.setHighlightAreas(false);
         jfx_node.setLedVisible(false);
-        jfx_node.setTickLabelLocation(TickLabelLocation.INSIDE);
     }
 
     protected Gauge createJFXNode ( Gauge.SkinType skin ) throws Exception {

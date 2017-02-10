@@ -10,6 +10,8 @@ package org.csstudio.display.builder.model.widgets;
 
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newColorPropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newIntegerPropertyDescriptor;
 
 import java.util.List;
 
@@ -21,6 +23,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
+import org.csstudio.display.builder.model.properties.WidgetColor;
 
 
 /**
@@ -77,27 +80,45 @@ public class MeterWidget extends BaseGaugeWidget {
         VERTICAL
     }
 
-    public static final WidgetPropertyDescriptor<Skin>         propSkin           = new WidgetPropertyDescriptor<Skin>        (WidgetPropertyCategory.WIDGET,  "skin",           Messages.WidgetProperties_Skin) {
+    public static final WidgetPropertyDescriptor<Skin>         propSkin           = new WidgetPropertyDescriptor<Skin>        (WidgetPropertyCategory.WIDGET,  "skin",            Messages.WidgetProperties_Skin) {
         @Override
         public EnumWidgetProperty<Skin> createProperty ( Widget widget, Skin defaultValue ) {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
-    public static final WidgetPropertyDescriptor<KnobPosition> propKnobPosition   = new WidgetPropertyDescriptor<KnobPosition>(WidgetPropertyCategory.WIDGET,  "knob_position",  Messages.WidgetProperties_KnobPosition) {
+    public static final WidgetPropertyDescriptor<KnobPosition> propKnobPosition   = new WidgetPropertyDescriptor<KnobPosition>(WidgetPropertyCategory.WIDGET,  "knob_position",   Messages.WidgetProperties_KnobPosition) {
         @Override
         public EnumWidgetProperty<KnobPosition> createProperty ( Widget widget, KnobPosition defaultValue ) {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
 
-    public static final WidgetPropertyDescriptor<Boolean>      propHighlightZones = newBooleanPropertyDescriptor              (WidgetPropertyCategory.DISPLAY, "highligh_zones", Messages.WidgetProperties_HighlightZones);
+    public static final WidgetPropertyDescriptor<Boolean>      propHighlightZones = newBooleanPropertyDescriptor              (WidgetPropertyCategory.DISPLAY, "highligh_zones",  Messages.WidgetProperties_HighlightZones);
+    public static final WidgetPropertyDescriptor<Boolean>      propAverage        = newBooleanPropertyDescriptor              (WidgetPropertyCategory.MISC,    "average",         Messages.WidgetProperties_Average);
+    public static final WidgetPropertyDescriptor<WidgetColor>  propAverageColor   = newColorPropertyDescriptor                (WidgetPropertyCategory.MISC,    "average_color",   Messages.WidgetProperties_AverageColor);
+    public static final WidgetPropertyDescriptor<Integer>      propAverageSamples = newIntegerPropertyDescriptor              (WidgetPropertyCategory.MISC,    "average_samples", Messages.WidgetProperties_AverageSamples, 1, 1000);
 
+    private volatile WidgetProperty<Boolean>      average;
+    private volatile WidgetProperty<WidgetColor>  average_color;
+    private volatile WidgetProperty<Integer>      average_samples;
     private volatile WidgetProperty<Boolean>      highligh_zones;
     private volatile WidgetProperty<KnobPosition> knob_position;
     private volatile WidgetProperty<Skin>         skin;
 
     public MeterWidget ( ) {
         super(WIDGET_DESCRIPTOR.getType(), 240, 120);
+    }
+
+    public WidgetProperty<Boolean> propAverage ( ) {
+        return average;
+    }
+
+    public WidgetProperty<WidgetColor> propAverageColor ( ) {
+        return average_color;
+    }
+
+    public WidgetProperty<Integer> propAverageSamples ( ) {
+        return average_samples;
     }
 
     public WidgetProperty<Boolean> propHighlightZones ( ) {
@@ -117,10 +138,14 @@ public class MeterWidget extends BaseGaugeWidget {
 
         super.defineProperties(properties);
 
-        properties.add(skin           = propSkin.createProperty(this, Skin.HORIZONTAL));
-        properties.add(knob_position  = propKnobPosition.createProperty(this, KnobPosition.BOTTOM_CENTER));
+        properties.add(skin            = propSkin.createProperty(this, Skin.HORIZONTAL));
+        properties.add(knob_position   = propKnobPosition.createProperty(this, KnobPosition.BOTTOM_CENTER));
 
-        properties.add(highligh_zones = propHighlightZones.createProperty(this, true));
+        properties.add(highligh_zones  = propHighlightZones.createProperty(this, true));
+
+        properties.add(average         = propAverage.createProperty(this, false));
+        properties.add(average_color   = propAverageColor.createProperty(this, new WidgetColor(13, 23, 251)));
+        properties.add(average_samples = propAverageSamples.createProperty(this, 100));
 
     }
 

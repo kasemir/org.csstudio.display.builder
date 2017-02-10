@@ -54,7 +54,7 @@ public abstract class BaseGaugeWidget extends PVWidget {
     private volatile WidgetProperty<Boolean>     show_lolo;
     private volatile WidgetProperty<Boolean>     show_low;
     private volatile WidgetProperty<String>      title;
-    private volatile WidgetProperty<WidgetColor> titleColor;
+    private volatile WidgetProperty<WidgetColor> title_color;
 
     /**
      * @param type Widget type.
@@ -114,7 +114,7 @@ public abstract class BaseGaugeWidget extends PVWidget {
     }
 
     public WidgetProperty<WidgetColor> propTitleColor ( ) {
-        return titleColor;
+        return title_color;
     }
 
     @Override
@@ -136,7 +136,7 @@ public abstract class BaseGaugeWidget extends PVWidget {
         properties.add(maximum        = propMaximum.createProperty(this, 100.0));
         properties.add(limits_from_pv = propLimitsFromPV.createProperty(this, true));
 
-        properties.add(titleColor     = propTitleColor.createProperty(this, new WidgetColor(136, 196, 136)));
+        properties.add(title_color    = propTitleColor.createProperty(this, new WidgetColor(136, 196, 136)));
 
     }
 
