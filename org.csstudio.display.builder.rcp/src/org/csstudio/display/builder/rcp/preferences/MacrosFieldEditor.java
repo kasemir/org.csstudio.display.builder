@@ -54,12 +54,12 @@ public class MacrosFieldEditor extends FieldEditor
     {
         if (fxcanvas == null)
         {
-            new JFX_SWT_Wrapper(parent, () ->
+            final JFX_SWT_Wrapper wrapper = new JFX_SWT_Wrapper(parent, () ->
             {
                 table = new MacrosTable(new Macros());
                 return new Scene(table.getNode());
             });
-            fxcanvas = JFX_SWT_Wrapper.findFXCanvas(parent);
+            fxcanvas = wrapper.getFXCanvas();
         }
     }
 

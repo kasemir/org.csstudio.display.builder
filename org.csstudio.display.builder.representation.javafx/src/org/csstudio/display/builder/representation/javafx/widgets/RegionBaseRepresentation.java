@@ -187,7 +187,7 @@ abstract public class RegionBaseRepresentation<JFX extends Region, MW extends Vi
             else if (value != null)
                 // Not a vtype, but non-null, assume OK
                 severity = AlarmSeverity.NONE;
-            else// null
+            else // null
                 severity = AlarmSeverity.UNDEFINED;
         }
         else

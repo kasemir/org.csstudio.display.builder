@@ -7,8 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
 import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
 
@@ -34,6 +34,7 @@ import org.csstudio.display.builder.model.properties.ExecuteScriptActionInfo;
 import org.csstudio.display.builder.model.properties.RuleInfo;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.WritePVActionInfo;
+import org.csstudio.display.builder.model.widgets.PVWidget;
 import org.csstudio.display.builder.runtime.internal.RuntimePVs;
 import org.csstudio.display.builder.runtime.pv.PVFactory;
 import org.csstudio.display.builder.runtime.pv.RuntimePV;
@@ -59,7 +60,9 @@ import org.diirt.vtype.VType;
 @SuppressWarnings("nls")
 public class WidgetRuntime<MW extends Widget>
 {
+    /** Extension point for contributing custom widget runtime */ 
     public static final String EXTENSION_POINT = "org.csstudio.display.builder.runtime.widgets";
+
     /** The widget handled by this runtime */
     protected MW widget;
 
@@ -146,9 +149,8 @@ public class WidgetRuntime<MW extends Widget>
             disconnectPrimaryPV();
 
             if (pv_name.isEmpty())
-            {   // Send 'null' update on value.
-                // In runtime mode, this will create a 'disconnected' representation.
-                widget.getProperty(runtimePropValue).setValue(null);
+            {
+                widget.getProperty(runtimePropValue).setValue(PVWidget.RUNTIME_VALUE_NO_PV);
                 return;
             }
 

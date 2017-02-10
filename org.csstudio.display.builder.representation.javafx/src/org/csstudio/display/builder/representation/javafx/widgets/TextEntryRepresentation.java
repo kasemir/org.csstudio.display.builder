@@ -17,6 +17,7 @@ import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.util.FormatOptionHandler;
+import org.csstudio.display.builder.model.widgets.PVWidget;
 import org.csstudio.display.builder.model.widgets.TextEntryWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.javafx.Styles;
@@ -230,6 +231,8 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
     {
         if (value == null)
             return "<" + model_widget.propPVName().getValue() + ">";
+        if (value == PVWidget.RUNTIME_VALUE_NO_PV)
+            return "";
         return FormatOptionHandler.format(value,
                                           model_widget.propFormat().getValue(),
                                           model_widget.propPrecision().getValue(),

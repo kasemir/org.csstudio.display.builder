@@ -172,7 +172,7 @@ public class DisplayEditorPart extends EditorPart
 
         editor.getUndoableActionManager().addListener(undo_redo_listener);
 
-        final Control fx_canvas = JFX_SWT_Wrapper.findFXCanvas(parent);
+        final Control fx_canvas = wrapper.getFXCanvas();
         fx_canvas.setMenu(createContextMenu(fx_canvas));
 
         PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.csstudio.display.builder.editor.rcp.display_builder");
