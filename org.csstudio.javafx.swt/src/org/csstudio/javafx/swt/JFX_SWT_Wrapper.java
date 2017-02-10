@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.javafx.swt;
 
+import java.util.Arrays;
 import java.util.function.Supplier;
 
 import org.eclipse.fx.ui.workbench3.FXViewPart;
@@ -38,6 +39,7 @@ import javafx.scene.Scene;
 public class JFX_SWT_Wrapper
 {
     private Scene scene;
+    private final Control canvas;
 
     // Implementation detail:
     //
@@ -53,6 +55,8 @@ public class JFX_SWT_Wrapper
      */
     public JFX_SWT_Wrapper(final Composite parent, final Supplier<Scene> scene_creator)
     {
+        final int last = parent.getChildren().length;
+
         final FXViewPart part = new FXViewPart()
         {
             @Override
@@ -73,18 +77,18 @@ public class JFX_SWT_Wrapper
         // which creates an FXCanvas under the 'parent',
         // sets its scene and focus.
         part.createPartControl(parent);
-    }
 
-    /** @param parent Parent to which an FXCanvas has been added
-     *  @return FXCanvas
-     *  @throws IllegalStateException if not found
-     */
-    public static Control findFXCanvas(final Composite parent)
-    {
-        for (Control child : parent.getChildren())
-            if (child.getClass().getName().contains("FXCanvas"))
-                return child;
-        throw new IllegalStateException("Cannot identify FXCanvas");
+        // The new FXCanvas may not be the only FXCanvas.
+        // The 'outline view' for example keeps pages for all the active editors,
+        // where each may be based on an FXCanvas.
+        // The newly added FXCanvas should be the last one, though,
+        // and only one control was added.
+        final Control[] children = parent.getChildren();
+        if (children.length != last + 1)
+            throw new IllegalStateException("Expected " + (last+1) + "child controls, got " + Arrays.asList(children));
+        canvas = children[last];
+        if (! canvas.getClass().getName().contains("FXCanvas"))
+            throw new IllegalStateException("Expected FXCanvas, got " + canvas);
     }
 
     /** @return Scene that was created and attached to FXCanvas */
@@ -93,6 +97,13 @@ public class JFX_SWT_Wrapper
         return scene;
     }
 
+    /** @return FXCanvas that was created with scene as root */
+    public Control getFXCanvas()
+    {
+        return canvas;
+    }
+
+    /** Derived class can override to set focus within scene */
     protected void setFxFocus(final Scene scene)
     {
         // NOP

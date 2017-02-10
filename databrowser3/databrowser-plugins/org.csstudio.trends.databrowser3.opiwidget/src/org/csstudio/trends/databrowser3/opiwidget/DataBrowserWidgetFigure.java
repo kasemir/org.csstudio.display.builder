@@ -62,7 +62,7 @@ public class DataBrowserWidgetFigure extends AbstractSWTWidgetFigure<Control>
             }
             return new Scene(root);
         });
-        return JFX_SWT_Wrapper.findFXCanvas(parent);
+        return wrapper.getFXCanvas();
     }
 
     /** @return Data Browser Plot */

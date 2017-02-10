@@ -30,11 +30,11 @@ import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.runtime.ActionUtil;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.csstudio.javafx.swt.JFXCursorFix;
-import org.csstudio.javafx.swt.JFX_SWT_Wrapper;
 import org.eclipse.fx.ui.workbench3.FXViewPart;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IViewPart;
@@ -245,11 +245,17 @@ public class RuntimeViewPart extends FXViewPart
         // This calls createFxScene()
         super.createPartControl(parent);
 
+        // The child added last should be the new FXCanvas
+        final Control[] children = parent.getChildren();
+        final Control fx_canvas = children[children.length - 1];
+        if (!  fx_canvas.getClass().getName().contains("FXCanvas"))
+            throw new IllegalStateException("Expected FXCanvas, got " + fx_canvas);
+
         JFXCursorFix.apply(scene, parent.getDisplay());
 
         createToolbarItems();
 
-        new ContextMenuSupport(this, JFX_SWT_Wrapper.findFXCanvas(parent), representation);
+        new ContextMenuSupport(this, fx_canvas, representation);
 
         parent.addDisposeListener(e -> onDispose());
 

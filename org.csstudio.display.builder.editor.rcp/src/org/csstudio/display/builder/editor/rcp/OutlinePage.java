@@ -52,8 +52,7 @@ public class OutlinePage extends Page implements IContentOutlinePage
             final StackPane root = new StackPane(tree.create());
             return new Scene(root, 200.0, 400.0);
         });
-
-        canvas = JFX_SWT_Wrapper.findFXCanvas(parent);
+        canvas = wrapper.getFXCanvas();
         EditorUtil.setSceneStyle(wrapper.getScene());
     }
 
