@@ -166,8 +166,6 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         {
             return new ExprInfoString(boolExp.get(), getPropVal());
         }
-
-
     };
 
     public static class ExprItemValue<T> extends ExprItem< WidgetProperty<T> >
@@ -199,7 +197,6 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         {
             return internal_prop_val;
         }
-
     };
 
     public static class ExprItemFactory
@@ -264,16 +261,14 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         }
     }
 
-    public class ValueFormatCell extends TableCell<ExprItem<?>, Node> {
-
-        public ValueFormatCell() {    }
-
-        @Override protected void updateItem(Node item, boolean empty) {
+    public class ValueFormatCell extends TableCell<ExprItem<?>, Node>
+    {
+        @Override protected void updateItem(Node item, boolean empty)
+        {
             // calling super here is very important - don't skip this!
             super.updateItem(item, empty);
             setGraphic(item);
         }
-
     }
 
     /** Modifiable RuleInfo */
@@ -321,7 +316,8 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                 catch (Exception ex)
                 {
                     logger.log(Level.WARNING, "Error converting " + expr, ex);
-                } } );
+                }
+            });
 
             return new RuleItem(attached_widget, exprs, pvs, info.getName(), info.getPropID(), info.getPropAsExprFlag());
         }
@@ -468,6 +464,8 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
     private final List<PropInfo> propinfo_ls;
     private ComboBox<String> propComboBox;
 
+    private static final int MAX_PROP_LENGTH = 40;
+
     /** Is the property value an expressions (i.e. user input string) **/
     private CheckBox valExpBox;
 
@@ -582,7 +580,14 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         // Show each property with current value
         final ObservableList<String> prop_id_opts = FXCollections.observableArrayList();
         for (PropInfo pi : propinfo_ls)
-            prop_id_opts.add(pi.toString());
+        {   // Property _value_ can be long, ex. points of a polyline
+            // Truncate the value that's shown in the combo box
+            // to prevent combo from using all screen width.
+            String prop_opt = pi.toString();
+            if (prop_opt.length() > MAX_PROP_LENGTH)
+                prop_opt = prop_opt.substring(0, MAX_PROP_LENGTH) + "...";
+            prop_id_opts.add(prop_opt);
+        }
         propComboBox = new ComboBox<String>(prop_id_opts);
         propComboBox.setDisable(true);
         // Select property info based on index within combo
@@ -610,7 +615,6 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             }
         });
 
-
         final HBox props = new HBox(10, valExpBox, new Separator(Orientation.VERTICAL), propLabel, propComboBox);
         final HBox subtabs = new HBox(10, pvs, exprs);
         final VBox subitems = new VBox(10, props, new Separator(Orientation.HORIZONTAL), subtabs);
@@ -622,10 +626,6 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         HBox.setHgrow(subitems, Priority.ALWAYS);
         VBox.setVgrow(subtabs, Priority.ALWAYS);
 
-        //final Label mainLabel = new Label("Editting rules for widget type " + widgetType);
-        //final VBox box = new VBox(10, mainLabel, hbox);
-
-        // box.setStyle("-fx-background-color: rgb(255, 100, 0, 0.2);"); // For debugging
         return box;
     }
 
