@@ -132,7 +132,7 @@
          </alternates>
       </widget>
       <widget
-            category="CONTROL"
+            category="MONITOR"
             class="org.csstudio.display.builder.model.widgets.GaugeWidget"
             description="%GaugeWidget_Description"
             icon="platform:/plugin/org.csstudio.display.builder.model/icons/gauge.png"
@@ -187,7 +187,7 @@
          </alternates>
       </widget>
       <widget
-            category="CONTROL"
+            category="MONITOR"
             class="org.csstudio.display.builder.model.widgets.LinearMeterWidget"
             description="%LinearMeterWidget_Description"
             icon="platform:/plugin/org.csstudio.display.builder.model/icons/linear-meter.png"
@@ -195,7 +195,7 @@
             type="linear-meter">
       </widget>
       <widget
-            category="CONTROL"
+            category="MONITOR"
             class="org.csstudio.display.builder.model.widgets.MeterWidget"
             description="%MeterWidget_Description"
             icon="platform:/plugin/org.csstudio.display.builder.model/icons/meter.png"

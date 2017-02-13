@@ -20,6 +20,7 @@ import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.BaseGaugeWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
+import org.csstudio.javafx.Styles;
 import org.diirt.vtype.Display;
 import org.diirt.vtype.VType;
 import org.diirt.vtype.ValueUtil;
@@ -41,7 +42,9 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
     private final DirtyFlag     dirtyGeometry = new DirtyFlag();
     private final DirtyFlag     dirtyLimits   = new DirtyFlag();
     private final DirtyFlag     dirtyLook     = new DirtyFlag();
+    private final DirtyFlag     dirty_style   = new DirtyFlag();
     private final DirtyFlag     dirtyValue    = new DirtyFlag();
+    private volatile boolean    enabled       = true;
     private volatile double     high          = Double.NaN;
     private volatile double     hihi          = Double.NaN;
     private volatile double     lolo          = Double.NaN;
@@ -93,6 +96,20 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
             jfx_node.setMinValue(min);
             jfx_node.setSectionsVisible(areZonesVisible());
             jfx_node.setSections(createZones());
+        }
+
+        if ( dirty_style.checkAndClear() ) {
+
+            value = model_widget.propEnabled().getValue();
+
+            if ( !Objects.equals(value, enabled) ) {
+
+                enabled = (boolean) value;
+
+                Styles.update(jfx_node, Styles.NOT_ENABLED, !enabled);
+
+            }
+
         }
 
         if ( dirtyValue.checkAndClear() && updatingValue.compareAndSet(false, true) ) {
@@ -174,6 +191,10 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
                 .titleColor(JFXUtil.convert(model_widget.propTitleColor().getValue()))
                 .value(( max + min ) / 2.0)
                 .build();
+
+        enabled = model_widget.propEnabled().getValue();
+
+        Styles.update(gauge, Styles.NOT_ENABLED, !enabled);
 
         gauge.layoutXProperty().addListener( ( s, o, n ) -> {
             if ( !Objects.equals(n, model_widget.propX().getValue()) ) {
@@ -279,6 +300,8 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         model_widget.propShowLow().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propMaximum().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propMinimum().addUntypedPropertyListener(this::limitsChanged);
+
+        model_widget.propEnabled().addUntypedPropertyListener(this::styleChanged);
 
         if ( toolkit.isEditMode() ) {
             dirtyValue.checkAndClear();
@@ -394,6 +417,11 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
 
     private void lookChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
         dirtyLook.mark();
+        toolkit.scheduleUpdate(this);
+    }
+
+    private void styleChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
+        dirty_style.mark();
         toolkit.scheduleUpdate(this);
     }
 

@@ -12,6 +12,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newColorPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newDoublePropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newStringPropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLimitsFromPV;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMaximum;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMinimum;
@@ -42,6 +43,7 @@ public abstract class BaseGaugeWidget extends PVWidget {
 
     public static final WidgetPropertyDescriptor<WidgetColor> propTitleColor        = newColorPropertyDescriptor  (WidgetPropertyCategory.MISC,     "title_color",        Messages.WidgetProperties_TitleColor);
 
+    private volatile WidgetProperty<Boolean>     enabled;
     private volatile WidgetProperty<Double>      level_high;
     private volatile WidgetProperty<Double>      level_hihi;
     private volatile WidgetProperty<Double>      level_lolo;
@@ -63,6 +65,10 @@ public abstract class BaseGaugeWidget extends PVWidget {
      */
     public BaseGaugeWidget ( final String type, final int default_width, final int default_height ) {
         super(type, default_width, default_height);
+    }
+
+    public WidgetProperty<Boolean> propEnabled ( ) {
+        return enabled;
     }
 
     public WidgetProperty<Double> propLevelHiHi ( ) {
@@ -135,6 +141,7 @@ public abstract class BaseGaugeWidget extends PVWidget {
         properties.add(minimum        = propMinimum.createProperty(this, 0.0));
         properties.add(maximum        = propMaximum.createProperty(this, 100.0));
         properties.add(limits_from_pv = propLimitsFromPV.createProperty(this, true));
+        properties.add(enabled        = propEnabled.createProperty(this, true));
 
         properties.add(title_color    = propTitleColor.createProperty(this, new WidgetColor(136, 196, 136)));
 

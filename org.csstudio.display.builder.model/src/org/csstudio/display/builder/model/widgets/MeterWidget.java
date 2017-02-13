@@ -36,10 +36,10 @@ public class MeterWidget extends BaseGaugeWidget {
 
     public static final WidgetDescriptor WIDGET_DESCRIPTOR = new WidgetDescriptor(
         "meter",
-        WidgetCategory.CONTROL,
+        WidgetCategory.MONITOR,
         "Meter",
         "platform:/plugin/org.csstudio.display.builder.model/icons/meter.png",
-        "Meter that can read/write a numeric PV"
+        "Meter that can read a numeric PV"
     ) {
         @Override
         public Widget createWidget ( ) {
