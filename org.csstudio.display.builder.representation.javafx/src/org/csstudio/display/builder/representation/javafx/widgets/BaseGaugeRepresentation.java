@@ -29,6 +29,7 @@ import eu.hansolo.medusa.Gauge;
 import eu.hansolo.medusa.GaugeBuilder;
 import eu.hansolo.medusa.Section;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 
 /**
  * @author claudiorosati, European Spallation Source ERIC
@@ -76,6 +77,12 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         }
 
         if ( dirtyLook.checkAndClear() ) {
+
+            value = model_widget.propTransparent().getValue() ? Color.TRANSPARENT : JFXUtil.convert(model_widget.propBackgroundColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getBackgroundPaint()) ) {
+                jfx_node.setBackgroundPaint((Paint) value);
+            }
 
             value = model_widget.propTitle().getValue();
 
@@ -178,6 +185,7 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
                 //--------------------------------------------------------
                 .animated(false)
                 .autoScale(true)
+                .backgroundPaint(model_widget.propTransparent().getValue() ? Color.TRANSPARENT : JFXUtil.convert(model_widget.propBackgroundColor().getValue()))
                 .checkAreasForValue(false)
                 .checkSectionsForValue(false)
                 .checkThreshold(false)
@@ -196,6 +204,11 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
 
         Styles.update(gauge, Styles.NOT_ENABLED, !enabled);
 
+        gauge.backgroundPaintProperty().addListener( ( s, o, n ) -> {
+            if ( !Objects.equals(n, JFXUtil.convert(model_widget.propBackgroundColor().getValue())) ) {
+                model_widget.propBackgroundColor().setValue(JFXUtil.convert((Color) n));
+            }
+        });
         gauge.layoutXProperty().addListener( ( s, o, n ) -> {
             if ( !Objects.equals(n, model_widget.propX().getValue()) ) {
                 model_widget.propX().setValue(n.intValue());
@@ -286,8 +299,10 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         model_widget.propWidth().addUntypedPropertyListener(this::geometryChanged);
         model_widget.propHeight().addUntypedPropertyListener(this::geometryChanged);
 
+        model_widget.propBackgroundColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTitle().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTitleColor().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propTransparent().addUntypedPropertyListener(this::lookChanged);
 
         model_widget.propLevelHiHi().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propLevelHight().addUntypedPropertyListener(this::limitsChanged);

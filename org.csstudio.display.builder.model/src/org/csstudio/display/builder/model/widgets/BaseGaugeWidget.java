@@ -12,10 +12,12 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newColorPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newDoublePropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newStringPropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLimitsFromPV;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMaximum;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMinimum;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propTransparent;
 
 import java.util.List;
 
@@ -31,18 +33,19 @@ import org.csstudio.display.builder.model.properties.WidgetColor;
  */
 public abstract class BaseGaugeWidget extends PVWidget {
 
-    public static final WidgetPropertyDescriptor<Double>      propLevelHiHi         = newDoublePropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "level_hihi",         Messages.WidgetProperties_LevelHiHi);
-    public static final WidgetPropertyDescriptor<Double>      propLevelHigh         = newDoublePropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "level_high",         Messages.WidgetProperties_LevelHigh);
-    public static final WidgetPropertyDescriptor<Double>      propLevelLoLo         = newDoublePropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "level_lolo",         Messages.WidgetProperties_LevelLoLo);
-    public static final WidgetPropertyDescriptor<Double>      propLevelLow          = newDoublePropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "level_low",          Messages.WidgetProperties_LevelLow);
-    public static final WidgetPropertyDescriptor<Boolean>     propShowHiHi          = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "show_hihi",          Messages.WidgetProperties_ShowHiHi);
-    public static final WidgetPropertyDescriptor<Boolean>     propShowHigh          = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "show_high",          Messages.WidgetProperties_ShowHigh);
-    public static final WidgetPropertyDescriptor<Boolean>     propShowLoLo          = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "show_lolo",          Messages.WidgetProperties_ShowLoLo);
-    public static final WidgetPropertyDescriptor<Boolean>     propShowLow           = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "show_low",           Messages.WidgetProperties_ShowLow);
-    public static final WidgetPropertyDescriptor<String>      propTitle             = newStringPropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "title",              Messages.WidgetProperties_Title);
+    public static final WidgetPropertyDescriptor<Double>      propLevelHiHi = newDoublePropertyDescriptor (WidgetPropertyCategory.DISPLAY, "level_hihi",  Messages.WidgetProperties_LevelHiHi);
+    public static final WidgetPropertyDescriptor<Double>      propLevelHigh = newDoublePropertyDescriptor (WidgetPropertyCategory.DISPLAY, "level_high",  Messages.WidgetProperties_LevelHigh);
+    public static final WidgetPropertyDescriptor<Double>      propLevelLoLo = newDoublePropertyDescriptor (WidgetPropertyCategory.DISPLAY, "level_lolo",  Messages.WidgetProperties_LevelLoLo);
+    public static final WidgetPropertyDescriptor<Double>      propLevelLow  = newDoublePropertyDescriptor (WidgetPropertyCategory.DISPLAY, "level_low",   Messages.WidgetProperties_LevelLow);
+    public static final WidgetPropertyDescriptor<Boolean>     propShowHiHi  = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_hihi",   Messages.WidgetProperties_ShowHiHi);
+    public static final WidgetPropertyDescriptor<Boolean>     propShowHigh  = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_high",   Messages.WidgetProperties_ShowHigh);
+    public static final WidgetPropertyDescriptor<Boolean>     propShowLoLo  = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_lolo",   Messages.WidgetProperties_ShowLoLo);
+    public static final WidgetPropertyDescriptor<Boolean>     propShowLow   = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_low",    Messages.WidgetProperties_ShowLow);
+    public static final WidgetPropertyDescriptor<String>      propTitle     = newStringPropertyDescriptor (WidgetPropertyCategory.DISPLAY, "title",       Messages.WidgetProperties_Title);
 
-    public static final WidgetPropertyDescriptor<WidgetColor> propTitleColor        = newColorPropertyDescriptor  (WidgetPropertyCategory.MISC,     "title_color",        Messages.WidgetProperties_TitleColor);
+    public static final WidgetPropertyDescriptor<WidgetColor> propTitleColor = newColorPropertyDescriptor (WidgetPropertyCategory.MISC,    "title_color", Messages.WidgetProperties_TitleColor);
 
+    private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<Boolean>     enabled;
     private volatile WidgetProperty<Double>      level_high;
     private volatile WidgetProperty<Double>      level_hihi;
@@ -57,6 +60,7 @@ public abstract class BaseGaugeWidget extends PVWidget {
     private volatile WidgetProperty<Boolean>     show_low;
     private volatile WidgetProperty<String>      title;
     private volatile WidgetProperty<WidgetColor> title_color;
+    private volatile WidgetProperty<Boolean>     transparent;
 
     /**
      * @param type Widget type.
@@ -65,6 +69,10 @@ public abstract class BaseGaugeWidget extends PVWidget {
      */
     public BaseGaugeWidget ( final String type, final int default_width, final int default_height ) {
         super(type, default_width, default_height);
+    }
+
+    public WidgetProperty<WidgetColor> propBackgroundColor ( ) {
+        return background;
     }
 
     public WidgetProperty<Boolean> propEnabled ( ) {
@@ -123,10 +131,17 @@ public abstract class BaseGaugeWidget extends PVWidget {
         return title_color;
     }
 
+    public WidgetProperty<Boolean> propTransparent ( ) {
+        return transparent;
+    }
+
     @Override
     protected void defineProperties ( final List<WidgetProperty<?>> properties ) {
 
         super.defineProperties(properties);
+
+        properties.add(background     = propBackgroundColor.createProperty(this, new WidgetColor(255, 254, 253)));
+        properties.add(transparent    = propTransparent.createProperty(this, true));
 
         properties.add(level_hihi     = propLevelHiHi.createProperty(this, 90.0));
         properties.add(level_high     = propLevelHigh.createProperty(this, 80.0));
