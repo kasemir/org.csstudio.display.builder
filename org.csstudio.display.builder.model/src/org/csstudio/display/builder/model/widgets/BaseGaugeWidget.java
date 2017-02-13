@@ -45,7 +45,7 @@ public abstract class BaseGaugeWidget extends PVWidget {
 
     public static final WidgetPropertyDescriptor<WidgetColor> propTitleColor = newColorPropertyDescriptor (WidgetPropertyCategory.MISC,    "title_color", Messages.WidgetProperties_TitleColor);
 
-    private volatile WidgetProperty<WidgetColor> background;
+    private volatile WidgetProperty<WidgetColor> background_color;
     private volatile WidgetProperty<Boolean>     enabled;
     private volatile WidgetProperty<Double>      level_high;
     private volatile WidgetProperty<Double>      level_hihi;
@@ -72,7 +72,7 @@ public abstract class BaseGaugeWidget extends PVWidget {
     }
 
     public WidgetProperty<WidgetColor> propBackgroundColor ( ) {
-        return background;
+        return background_color;
     }
 
     public WidgetProperty<Boolean> propEnabled ( ) {
@@ -140,25 +140,25 @@ public abstract class BaseGaugeWidget extends PVWidget {
 
         super.defineProperties(properties);
 
-        properties.add(background     = propBackgroundColor.createProperty(this, new WidgetColor(255, 254, 253)));
-        properties.add(transparent    = propTransparent.createProperty(this, true));
+        properties.add(background_color = propBackgroundColor.createProperty(this, new WidgetColor(255, 254, 253)));
+        properties.add(transparent      = propTransparent.createProperty(this, true));
 
-        properties.add(level_hihi     = propLevelHiHi.createProperty(this, 90.0));
-        properties.add(level_high     = propLevelHigh.createProperty(this, 80.0));
-        properties.add(level_low      = propLevelLow.createProperty(this, 20.0));
-        properties.add(level_lolo     = propLevelLoLo.createProperty(this, 10.0));
-        properties.add(show_hihi      = propShowHiHi.createProperty(this, true));
-        properties.add(show_high      = propShowHigh.createProperty(this, true));
-        properties.add(show_low       = propShowLow.createProperty(this, true));
-        properties.add(show_lolo      = propShowLoLo.createProperty(this, true));
-        properties.add(title          = propTitle.createProperty(this, ""));
+        properties.add(level_hihi       = propLevelHiHi.createProperty(this, 90.0));
+        properties.add(level_high       = propLevelHigh.createProperty(this, 80.0));
+        properties.add(level_low        = propLevelLow.createProperty(this, 20.0));
+        properties.add(level_lolo       = propLevelLoLo.createProperty(this, 10.0));
+        properties.add(show_hihi        = propShowHiHi.createProperty(this, true));
+        properties.add(show_high        = propShowHigh.createProperty(this, true));
+        properties.add(show_low         = propShowLow.createProperty(this, true));
+        properties.add(show_lolo        = propShowLoLo.createProperty(this, true));
+        properties.add(title            = propTitle.createProperty(this, ""));
 
-        properties.add(minimum        = propMinimum.createProperty(this, 0.0));
-        properties.add(maximum        = propMaximum.createProperty(this, 100.0));
-        properties.add(limits_from_pv = propLimitsFromPV.createProperty(this, true));
-        properties.add(enabled        = propEnabled.createProperty(this, true));
+        properties.add(minimum          = propMinimum.createProperty(this, 0.0));
+        properties.add(maximum          = propMaximum.createProperty(this, 100.0));
+        properties.add(limits_from_pv   = propLimitsFromPV.createProperty(this, true));
+        properties.add(enabled          = propEnabled.createProperty(this, true));
 
-        properties.add(title_color    = propTitleColor.createProperty(this, new WidgetColor(136, 196, 136)));
+        properties.add(title_color      = propTitleColor.createProperty(this, new WidgetColor(136, 196, 136)));
 
     }
 

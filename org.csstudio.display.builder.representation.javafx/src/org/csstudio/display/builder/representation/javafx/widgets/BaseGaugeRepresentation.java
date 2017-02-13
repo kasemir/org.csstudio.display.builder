@@ -78,7 +78,11 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
 
         if ( dirtyLook.checkAndClear() ) {
 
-            value = model_widget.propTransparent().getValue() ? Color.TRANSPARENT : JFXUtil.convert(model_widget.propBackgroundColor().getValue());
+            value = JFXUtil.convert(model_widget.propBackgroundColor().getValue());
+
+            if ( model_widget.propTransparent().getValue() ) {
+                value = ((Color) value).deriveColor(0, 1, 1, 0);
+            }
 
             if ( !Objects.equals(value, jfx_node.getBackgroundPaint()) ) {
                 jfx_node.setBackgroundPaint((Paint) value);

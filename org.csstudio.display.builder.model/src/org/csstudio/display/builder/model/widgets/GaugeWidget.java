@@ -9,6 +9,8 @@
 package org.csstudio.display.builder.model.widgets;
 
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newColorPropertyDescriptor;
+
 import java.util.List;
 
 import org.csstudio.display.builder.model.Messages;
@@ -19,6 +21,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
+import org.csstudio.display.builder.model.properties.WidgetColor;
 
 
 /**
@@ -58,17 +61,30 @@ public class GaugeWidget extends BaseGaugeWidget {
         SLIM
     }
 
-    public static final WidgetPropertyDescriptor<Skin> propSkin = new WidgetPropertyDescriptor<Skin>(WidgetPropertyCategory.WIDGET, "skin", Messages.WidgetProperties_Skin) {
+    public static final WidgetPropertyDescriptor<Skin>        propSkin               = new WidgetPropertyDescriptor<Skin>(WidgetPropertyCategory.WIDGET, "skin",                 Messages.WidgetProperties_Skin) {
         @Override
         public EnumWidgetProperty<Skin> createProperty ( Widget widget, Skin defaultValue ) {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
 
+    public static final WidgetPropertyDescriptor<WidgetColor> propBarBackgroundColor = newColorPropertyDescriptor        (WidgetPropertyCategory.MISC,   "bar_background_color", Messages.WidgetProperties_BarBackgroundColor);
+    public static final WidgetPropertyDescriptor<WidgetColor> propBarColor           = newColorPropertyDescriptor        (WidgetPropertyCategory.MISC,   "bar_color",            Messages.WidgetProperties_BarColor);
+
+    private volatile WidgetProperty<WidgetColor> bar_background_color;
+    private volatile WidgetProperty<WidgetColor> bar_color;
     private volatile WidgetProperty<Skin> skin;
 
     public GaugeWidget ( ) {
         super(WIDGET_DESCRIPTOR.getType(), 160, 160);
+    }
+
+    public WidgetProperty<WidgetColor> propBarBackgroundColor ( ) {
+        return bar_background_color;
+    }
+
+    public WidgetProperty<WidgetColor> propBarColor ( ) {
+        return bar_color;
     }
 
     public WidgetProperty<Skin> propSkin ( ) {
@@ -80,7 +96,10 @@ public class GaugeWidget extends BaseGaugeWidget {
 
         super.defineProperties(properties);
 
-        properties.add(skin = propSkin.createProperty(this, Skin.SIMPLE_SECTION));
+        properties.add(skin                 = propSkin.createProperty(this, Skin.SIMPLE_SECTION));
+
+        properties.add(bar_background_color = propBarBackgroundColor.createProperty(this, new WidgetColor(0, 90, 0)));
+        properties.add(bar_color            = propBarColor.createProperty(this, new WidgetColor(0, 183, 0)));
 
     }
 

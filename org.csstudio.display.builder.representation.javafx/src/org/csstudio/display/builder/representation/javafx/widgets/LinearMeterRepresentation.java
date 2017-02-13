@@ -71,8 +71,11 @@ public class LinearMeterRepresentation extends BaseGaugeRepresentation<LinearMet
 
         Gauge gauge = super.createJFXNode(Gauge.SkinType.LINEAR);
 
+        gauge.setAreaIconsVisible(false);
+        gauge.setAreaTextVisible(false);
         gauge.setAreas(createAreas());
         gauge.setAreasVisible(barHighlight);
+
         gauge.setHighlightSections(zonesHighlight);
         gauge.setOrientation(Orientation.valueOf(orientation.name()));
         gauge.setTickLabelLocation(TickLabelLocation.INSIDE);

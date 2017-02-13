@@ -80,23 +80,24 @@ public class MeterWidget extends BaseGaugeWidget {
         VERTICAL
     }
 
-    public static final WidgetPropertyDescriptor<Skin>         propSkin           = new WidgetPropertyDescriptor<Skin>        (WidgetPropertyCategory.WIDGET,  "skin",            Messages.WidgetProperties_Skin) {
+    public static final WidgetPropertyDescriptor<Skin>         propSkin           = new WidgetPropertyDescriptor<Skin>        (WidgetPropertyCategory.WIDGET,   "skin",            Messages.WidgetProperties_Skin) {
         @Override
         public EnumWidgetProperty<Skin> createProperty ( Widget widget, Skin defaultValue ) {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
-    public static final WidgetPropertyDescriptor<KnobPosition> propKnobPosition   = new WidgetPropertyDescriptor<KnobPosition>(WidgetPropertyCategory.WIDGET,  "knob_position",   Messages.WidgetProperties_KnobPosition) {
+    public static final WidgetPropertyDescriptor<KnobPosition> propKnobPosition   = new WidgetPropertyDescriptor<KnobPosition>(WidgetPropertyCategory.WIDGET,   "knob_position",   Messages.WidgetProperties_KnobPosition) {
         @Override
         public EnumWidgetProperty<KnobPosition> createProperty ( Widget widget, KnobPosition defaultValue ) {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
 
-    public static final WidgetPropertyDescriptor<Boolean>      propHighlightZones = newBooleanPropertyDescriptor              (WidgetPropertyCategory.DISPLAY, "highligh_zones",  Messages.WidgetProperties_HighlightZones);
-    public static final WidgetPropertyDescriptor<Boolean>      propAverage        = newBooleanPropertyDescriptor              (WidgetPropertyCategory.MISC,    "average",         Messages.WidgetProperties_Average);
-    public static final WidgetPropertyDescriptor<WidgetColor>  propAverageColor   = newColorPropertyDescriptor                (WidgetPropertyCategory.MISC,    "average_color",   Messages.WidgetProperties_AverageColor);
-    public static final WidgetPropertyDescriptor<Integer>      propAverageSamples = newIntegerPropertyDescriptor              (WidgetPropertyCategory.MISC,    "average_samples", Messages.WidgetProperties_AverageSamples, 1, 1000);
+    public static final WidgetPropertyDescriptor<Boolean>      propHighlightZones = newBooleanPropertyDescriptor              (WidgetPropertyCategory.BEHAVIOR, "highligh_zones",  Messages.WidgetProperties_HighlightZones);
+
+    public static final WidgetPropertyDescriptor<Boolean>      propAverage        = newBooleanPropertyDescriptor              (WidgetPropertyCategory.MISC,     "average",         Messages.WidgetProperties_Average);
+    public static final WidgetPropertyDescriptor<WidgetColor>  propAverageColor   = newColorPropertyDescriptor                (WidgetPropertyCategory.MISC,     "average_color",   Messages.WidgetProperties_AverageColor);
+    public static final WidgetPropertyDescriptor<Integer>      propAverageSamples = newIntegerPropertyDescriptor              (WidgetPropertyCategory.MISC,     "average_samples", Messages.WidgetProperties_AverageSamples, 1, 1000);
 
     private volatile WidgetProperty<Boolean>      average;
     private volatile WidgetProperty<WidgetColor>  average_color;

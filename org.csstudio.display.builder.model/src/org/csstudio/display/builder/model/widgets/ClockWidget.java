@@ -90,7 +90,7 @@ public class ClockWidget extends BaseClockWidget {
     public static final WidgetPropertyDescriptor<Boolean>     propTickLabelVisible      = newBooleanPropertyDescriptor      (WidgetPropertyCategory.MISC,     "tick_label_visible",       Messages.WidgetProperties_TickLabelVisible);
     public static final WidgetPropertyDescriptor<WidgetColor> propTitleColor            = newColorPropertyDescriptor        (WidgetPropertyCategory.MISC,     "title_color",              Messages.WidgetProperties_TitleColor);
 
-    private volatile WidgetProperty<WidgetColor> background;
+    private volatile WidgetProperty<WidgetColor> background_color;
     private volatile WidgetProperty<WidgetColor> borderColor;
     private volatile WidgetProperty<Double>      borderWidth;
     private volatile WidgetProperty<WidgetColor> dateColor;
@@ -118,7 +118,7 @@ public class ClockWidget extends BaseClockWidget {
     }
 
     public WidgetProperty<WidgetColor> propBackgroundColor ( ) {
-        return background;
+        return background_color;
     }
 
     public WidgetProperty<WidgetColor> propBorderColor ( ) {
@@ -212,7 +212,7 @@ public class ClockWidget extends BaseClockWidget {
 
         properties.add(skin                  = propSkin.createProperty(this, Skin.PLAIN));
 
-        properties.add(background            = propBackgroundColor.createProperty(this, new WidgetColor(230, 230, 153)));
+        properties.add(background_color      = propBackgroundColor.createProperty(this, new WidgetColor(230, 230, 153)));
         properties.add(transparent           = propTransparent.createProperty(this, false));
 
         properties.add(discreteHours         = propDiscreteHours.createProperty(this, false));

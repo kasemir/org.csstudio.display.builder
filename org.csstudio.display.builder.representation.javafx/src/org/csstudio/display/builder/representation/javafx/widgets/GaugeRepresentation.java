@@ -15,8 +15,10 @@ import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.GaugeWidget;
 import org.csstudio.display.builder.model.widgets.GaugeWidget.Skin;
+import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
 import eu.hansolo.medusa.Gauge;
+import javafx.scene.paint.Color;
 
 
 /**
@@ -47,6 +49,12 @@ public class GaugeRepresentation extends BaseGaugeRepresentation<GaugeWidget> {
 
             }
 
+            value = JFXUtil.convert(model_widget.propBarBackgroundColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getBarBackgroundColor()) ) {
+                jfx_node.setBarBackgroundColor((Color) value);
+            }
+
         }
 
     }
@@ -57,7 +65,14 @@ public class GaugeRepresentation extends BaseGaugeRepresentation<GaugeWidget> {
         Gauge.SkinType skinType = Gauge.SkinType.valueOf(model_widget.propSkin().getValue().name());
         Gauge gauge = super.createJFXNode(skinType);
 
+        gauge.setBarBackgroundColor(JFXUtil.convert(model_widget.propBarBackgroundColor().getValue()));
         gauge.setHighlightSections(false);
+
+        gauge.barBackgroundColorProperty().addListener( ( s, o, n ) -> {
+            if ( !Objects.equals(n, JFXUtil.convert(model_widget.propBarBackgroundColor().getValue())) ) {
+                model_widget.propBarBackgroundColor().setValue(JFXUtil.convert(n));
+            }
+        });
 
         return gauge;
 
@@ -69,6 +84,7 @@ public class GaugeRepresentation extends BaseGaugeRepresentation<GaugeWidget> {
         super.registerListeners();
 
         model_widget.propSkin().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propBarBackgroundColor().addUntypedPropertyListener(this::lookChanged);
 
     }
 
