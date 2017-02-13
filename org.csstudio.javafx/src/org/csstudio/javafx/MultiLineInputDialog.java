@@ -48,6 +48,12 @@ public class MultiLineInputDialog extends Dialog<String>
         setY(bounds.getMinY());
     }
 
+    /** @param pixels Suggested height of text in pixels */
+    public void setTextHeight(final double pixels)
+    {
+        text.setPrefHeight(pixels);
+    }
+
     // TODO Catch/consume 'escape'
     // If ESC key is pressed while editing the text,
     // the dialog closes, not returning a value.

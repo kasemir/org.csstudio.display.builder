@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.model.properties;
+package org.csstudio.display.builder.model.rules;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -13,10 +13,10 @@ import java.util.Map;
 
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.model.properties.RuleInfo.ExpressionInfo;
+import org.csstudio.display.builder.model.properties.WidgetColor;
+import org.csstudio.display.builder.model.rules.RuleInfo.ExpressionInfo;
 
 /** Transform rules into scripts
- *
  *
  *  <p>Rules produce scripts attached to widgets
  *  rules execute in response to changes in triggering
@@ -38,11 +38,10 @@ public class RuleToScript
         {
             final String istr = Integer.toString(idx);
             pvm.put("pv" + istr, "PVUtil.getDouble(pvs["+istr+"])"  );
-            pvm.put("pvReal" + istr, "PVUtil.getDouble(pvs["+istr+"])"  );
             pvm.put("pvInt" + istr, "PVUtil.getLong(pvs["+istr+"])"  );
-            pvm.put("pvLong" + istr, "PVUtil.getLong(pvs["+istr+"])"  );
             pvm.put("pvStr" + istr, "PVUtil.getString(pvs["+istr+"])"  );
-            //pvm.put("pvLabels" + istr, "PVUtil.getLabels(pvs["+istr+"])"  );
+            pvm.put("pvSev" + istr, "PVUtil.getSeverity(pvs["+istr+"])"  );
+            pvm.put("pvLegacySev" + istr, "PVUtil.getLegacySeverity(pvs["+istr+"])"  );
         }
         return pvm;
     }
@@ -157,7 +156,12 @@ public class RuleToScript
         final Map<String,String> pvm = pvNameOptions(rule.getPVs().size());
 
         for (Map.Entry<String, String> entry : pvm.entrySet())
-            script.append("##     " + entry.getKey() + "\n");
+        {
+            script.append("##     ").append(entry.getKey());
+            if (entry.getKey().contains("Legacy"))
+                script.append("  [DEPRECATED]");
+            script.append("\n");
+        }
         script.append("\n");
 
         // Check which pv* variables are actually used

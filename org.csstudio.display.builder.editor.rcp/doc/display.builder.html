@@ -893,9 +893,12 @@ Example:
 <!-- ====================================================== -->
 
 <p>Rules are the suggested way to obtain customized, dynamic behaviors beyond the capability of
-<a href="#properties">widget properties</a> alone. (The other is <a href="#scripts">scripts</a>.
-Rules are recommended over scripts because, while rules are more limited than scripts, the API is stable,
-and it should remain available and virtually unchanged as Display Builder evolves.)
+<a href="#properties">widget properties</a> alone.
+The alternative to rules are <a href="#scripts">scripts</a>.
+Rules are recommended over scripts. While rules are more limited than scripts,
+their API is expected to remain stable as the Display Builder evolves.
+Scripts on the other hand are very likely to require adjustments
+when updating to a new version of the Display Builder.
 </p>
 
 <p>Unlike scripts, rules require no code aside from simple expressions. Rules set widget property
@@ -912,21 +915,30 @@ for its Rules property in the Properties palette. This will open the Rules dialo
 	<img src="images/Rules.png" alt="Rules Dialog" style="height:456px;"/>
 </center>
 
+<p>
+In the example shown in the screenshot, a rule named "New Rule" sets the "text" property of a Label widget.
+It is triggered by a "sim://ramp" PV.
+Whenever the value of that PV is greater than zero, the "text" property will be set to "Positive".
+Whenever the value of that PV is less or equal than zero, the "text" property will be set to a
+value that the user of that dialog was just about to enter as the screenshot was taken.
+</p>
+
 <p>Key features include:</p>
 <ul>
   <li>Rule Name: Add and remove rules here. Select a rule to edit its properties.</li>
   <li>PVName: Add and remove input PVs for the rule. If "Trigger" is checked (true),
 	  then the rule will execute whenever the PV's value changes.</li>
   <li>Property ID: The property which is affected by the rule.</li>
-  <li>Boolean expression: The expression which is evaluated when the rule executes. If it is
+  <li>Boolean Expression: The expression which is evaluated when the rule executes. If it is
 	  true, the property's value will be set to the expression's "Value" field. The expression may simply be
 	  "true" or "True", in which case the value is always used (this is most useful when "Value as Expression"
 	  is checked).
   </li>
-  <li>Value as Expression: If true, all values for the rule are given as expressions.</li>
+  <li>Value: The value to use for the property if the boolean expression of that row is valid.
+  </li>
 </ul>
 
-<h3>Expressions</h3>
+<h3>Boolean Expressions</h3>
 <p>The standard comparison operators (&lt;, &gt;, ==, &lt;=, &gt;=, and !=) may be used. Logical
 operators may also be used. All input PVs of the rule are accessible as follows:
 </p>
@@ -948,12 +960,43 @@ operators may also be used. All input PVs of the rule are accessible as follows:
 			<td><code>pvInt0 == 5</code></td>
 		</tr>
 		<tr>
-			<td style="border-bottom: 0px">string value</td>
-			<td style="border-bottom: 0px"><code>pvStr{index}</code></td>
-			<td style="border-bottom: 0px"><code>pvStr0 == "happy"</code></td>
+			<td>alarm severity code</td>
+			<td><code>pvSev{index}</code></td>
+			<td><code>pvSev > 0</code></td>
 		</tr>
+        <tr>
+            <td style="border-bottom: 0px">string value</td>
+            <td style="border-bottom: 0px"><code>pvStr{index}</code></td>
+            <td style="border-bottom: 0px"><code>pvStr0 == "happy"</code></td>
+        </tr>
 	</table>
 </center>
+
+<h3>Value as Expression</h3>
+<p>
+Assume a rule for the "width" property of a widget.
+By default, the "Value" field provides the exact value, for example "40" for the width.
+In Value-as-Expression mode, the value can contain an expression like "20 + pv0 * 2"
+The expression will be evaluated by Python (Jython). 
+</p>
+
+<h3>Value as Expression</h3>
+<p>
+Checking this option changes the way the "Value" is handled.
+</p>
+<p>
+Assume a rule for the "width" property of a widget.
+By default, the "Value" field provides the exact value, for example "40" for the width.
+In Value-as-Expression mode, the value can contain an expression like "20 + pv0 * 2"
+The expression will be evaluated by Python (Jython). 
+</p>
+
+<h3>Show Script</h3>
+<p>
+Rules are internally translated into scripts, which are then executed.
+The "Show Script" button allows previewing the the generated script,
+which can help to understand or debug a rule.
+</p>
 
 
 <!-- ====================================================== -->
