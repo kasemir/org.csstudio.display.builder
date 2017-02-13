@@ -98,8 +98,6 @@ public class DisplayEditorPart extends EditorPart
     /** Editor ID registered in plugin.xml */
     public static final String ID = "org.csstudio.display.builder.editor.rcp.editor";
 
-    private Composite top_control;
-
     private final JFXRepresentation toolkit = new JFXRepresentation(true);
 
     private DisplayEditor editor;
@@ -150,7 +148,6 @@ public class DisplayEditorPart extends EditorPart
     @Override
     public void createPartControl(final Composite parent)
     {
-        top_control = parent;
         parent.setLayout(new FillLayout());
 
         final JFX_SWT_Wrapper wrapper = new JFX_SWT_Wrapper(parent, () ->
@@ -168,12 +165,12 @@ public class DisplayEditorPart extends EditorPart
         final AutocompleteMenu ac_menu = editor.getSelectedWidgetUITracker().getAutocompleteMenu();
         ac_menu.setUpdater(new AutoCompleteUpdater(ac_menu));
 
-        createRetargetableActionHandlers();
 
         editor.getUndoableActionManager().addListener(undo_redo_listener);
 
         final Control fx_canvas = wrapper.getFXCanvas();
         fx_canvas.setMenu(createContextMenu(fx_canvas));
+        createRetargetableActionHandlers(fx_canvas);
 
         PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.csstudio.display.builder.editor.rcp.display_builder");
 
@@ -284,13 +281,13 @@ public class DisplayEditorPart extends EditorPart
         model.propName().addPropertyListener(model_name_listener);
     }
 
-    private void createRetargetableActionHandlers()
+    private void createRetargetableActionHandlers(final Control fx_canvas)
     {
         actions.put(ActionFactory.UNDO.getId(), new UndoAction(editor));
         actions.put(ActionFactory.REDO.getId(), new RedoAction(editor));
         actions.put(ActionFactory.CUT.getId(), new CutDeleteAction(editor, true));
         actions.put(ActionFactory.COPY.getId(), new CopyAction(editor));
-        actions.put(ActionFactory.PASTE.getId(), new PasteAction(top_control, editor));
+        actions.put(ActionFactory.PASTE.getId(), new PasteAction(fx_canvas, editor));
         actions.put(ActionFactory.DELETE.getId(), new CutDeleteAction(editor, false));
         actions.put(ActionFactory.SELECT_ALL.getId(), new SelectAllAction(editor));
     }

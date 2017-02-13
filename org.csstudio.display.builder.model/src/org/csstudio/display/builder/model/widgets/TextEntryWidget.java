@@ -9,13 +9,13 @@ package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFormat;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPrecision;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propShowUnits;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propWrapWords;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
 
 import java.util.Arrays;
 import java.util.List;
@@ -44,7 +44,7 @@ import org.w3c.dom.Element;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class TextEntryWidget extends PVWidget
+public class TextEntryWidget extends WritablePVWidget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
@@ -127,7 +127,7 @@ public class TextEntryWidget extends PVWidget
         properties.add(format = propFormat.createProperty(this, FormatOption.DEFAULT));
         properties.add(precision = propPrecision.createProperty(this, -1));
         properties.add(show_units = propShowUnits.createProperty(this, true));
-        properties.add(enabled = runtimePropEnabled.createProperty(this, true));
+        properties.add(enabled = propEnabled.createProperty(this, true));
         properties.add(wrap_words = propWrapWords.createProperty(this, false));
         properties.add(multi_line = propMultiLine.createProperty(this, false));
     }
@@ -169,7 +169,7 @@ public class TextEntryWidget extends PVWidget
     }
 
     /** @return 'enabled' property */
-    public WidgetProperty<Boolean> runtimePropEnabled()
+    public WidgetProperty<Boolean> propEnabled()
     {
         return enabled;
     }

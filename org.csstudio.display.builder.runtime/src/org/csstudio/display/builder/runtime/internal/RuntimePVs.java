@@ -7,7 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime.internal;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropEnabled;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropPVWritable;
 import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
 
 import java.util.ArrayList;
@@ -174,6 +174,12 @@ public class RuntimePVs
     /** Update write access indication of the widget */
     private void updateWriteAccess()
     {
+        // Widget may have actions that want to write,
+        // but no property to track pv_writable..
+        final Optional<WidgetProperty<Boolean>> prop = widget.checkProperty(runtimePropPVWritable);
+        if (!prop.isPresent())
+            return;
+
         int need_to_write = 0, can_write = 0;
         for (Map.Entry<RuntimePV, PVInfo> entry : pvs.entrySet())
             if (entry.getValue().needWriteAccess())
@@ -183,10 +189,8 @@ public class RuntimePVs
                     ++can_write;
             }
         logger.log(Level.FINE, "{0} can write {1} out of {2} PVs", new Object[] { widget, can_write, need_to_write });
-        final boolean enable = need_to_write == 0  ||  can_write > 0;
-        final Optional<WidgetProperty<Boolean>> enabled = widget.checkProperty(runtimePropEnabled);
-        if (enabled.isPresent())
-            enabled.get().setValue(enable);
+        final boolean writable = need_to_write == 0  ||  can_write > 0;
+        prop.get().setValue(writable);
     }
 
     /** @return All PVs of this widget */

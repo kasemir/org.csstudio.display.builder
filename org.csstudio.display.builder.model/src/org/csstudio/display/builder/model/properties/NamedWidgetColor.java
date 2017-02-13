@@ -7,7 +7,13 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.properties;
 
+import org.csstudio.display.builder.model.persist.NamedWidgetColors;
+import org.csstudio.display.builder.model.persist.WidgetColorService;
+
 /** Description of a named color
+ *
+ *  @see NamedWidgetColors
+ *  @see WidgetColorService
  *  @author Kay Kasemir
  */
 // Implementation avoids AWT, SWT, JavaFX color

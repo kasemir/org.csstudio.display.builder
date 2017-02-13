@@ -8,13 +8,21 @@
   </grid_color>
   <widget type="label" version="2.0.0">
     <name>Label</name>
+    <class>TITLE</class>
     <text>Display Builder Examples</text>
+    <x use_class="true">0</x>
+    <y use_class="true">0</y>
     <width>281</width>
     <height>31</height>
-    <font>
+    <font use_class="true">
       <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
       </font>
     </font>
+    <foreground_color use_class="true">
+      <color name="Text" red="0" green="0" blue="0">
+      </color>
+    </foreground_color>
+    <transparent use_class="true">true</transparent>
   </widget>
   <widget type="action_button" version="3.0.0">
     <name>Action Button</name>
@@ -185,7 +193,7 @@
         <description>Scripts</description>
       </action>
     </actions>
-    <y>241</y>
+    <y>281</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -213,7 +221,7 @@
         <description>Macros</description>
       </action>
     </actions>
-    <y>161</y>
+    <y>201</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -227,7 +235,7 @@
         <description>Actions</description>
       </action>
     </actions>
-    <y>201</y>
+    <y>241</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -490,7 +498,7 @@
         <description>Classes</description>
       </action>
     </actions>
-    <y>281</y>
+    <y>161</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -506,6 +514,20 @@
     </actions>
     <x>471</x>
     <y>361</y>
+    <width>120</width>
+    <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_26</name>
+    <actions>
+      <action type="open_display">
+        <file>enablement.bob</file>
+        <target>replace</target>
+        <description>Enablement</description>
+      </action>
+    </actions>
+    <y>321</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>

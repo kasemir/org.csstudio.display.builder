@@ -7,7 +7,10 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.properties;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
+
 import java.util.List;
+import java.util.logging.Level;
 
 import javax.xml.stream.XMLStreamWriter;
 
@@ -16,6 +19,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
+import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.persist.XMLTags;
 import org.csstudio.display.builder.model.persist.XMLUtil;
@@ -91,10 +95,22 @@ public class ColorWidgetProperty extends WidgetProperty<WidgetColor>
             return;
 
         final String name = col_el.getAttribute(XMLTags.NAME);
-        final int red = getAttrib(col_el, XMLTags.RED);
-        final int green = getAttrib(col_el, XMLTags.GREEN);
-        final int blue = getAttrib(col_el, XMLTags.BLUE);
-
+        final int red, green, blue;
+        try
+        {
+            red = getAttrib(col_el, XMLTags.RED);
+            green = getAttrib(col_el, XMLTags.GREEN);
+            blue = getAttrib(col_el, XMLTags.BLUE);
+        }
+        catch (Exception ex)
+        {   // Older legacy files had no red/green/blue info for named colors
+            logger.log(Level.WARNING, "Line " + XMLUtil.getLineInfo(property_xml), ex);
+            if (name.isEmpty())
+                setValue(WidgetColorService.getColor(NamedWidgetColors.TEXT));
+            else
+                setValue(WidgetColorService.getColor(name));
+            return;
+        }
         final WidgetColor color;
         if (name.isEmpty())
             // Plain color
@@ -104,11 +120,11 @@ public class ColorWidgetProperty extends WidgetProperty<WidgetColor>
         setValue(color);
     }
 
-    private int getAttrib(final Element element, final String attrib)
+    private int getAttrib(final Element element, final String attrib) throws Exception
     {
         final String text = element.getAttribute(attrib);
         if (text.isEmpty())
-           throw new IllegalStateException("<color> without " + attrib);
+            throw new Exception("<color> without " + attrib);
         return Integer.parseInt(text);
     }
 }
