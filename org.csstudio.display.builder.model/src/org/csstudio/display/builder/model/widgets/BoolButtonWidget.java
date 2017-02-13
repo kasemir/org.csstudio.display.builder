@@ -10,7 +10,7 @@ package org.csstudio.display.builder.model.widgets;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newFilenamePropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBit;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropEnabled;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLabelsFromPV;
@@ -44,7 +44,7 @@ import org.w3c.dom.Element;
  *  @author Megan Grodowitz
  */
 @SuppressWarnings("nls")
-public class BoolButtonWidget extends PVWidget
+public class BoolButtonWidget extends WritablePVWidget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
@@ -139,7 +139,7 @@ public class BoolButtonWidget extends PVWidget
         properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
         properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BUTTON_BACKGROUND)));
         properties.add(labels_from_pv = propLabelsFromPV.createProperty(this, false));
-        properties.add(enabled = runtimePropEnabled.createProperty(this, true));
+        properties.add(enabled = propEnabled.createProperty(this, true));
     }
 
     /** @return 'bit' property */
@@ -209,7 +209,7 @@ public class BoolButtonWidget extends PVWidget
     }
 
     /** @return 'enabled' property */
-    public WidgetProperty<Boolean> runtimePropEnabled()
+    public WidgetProperty<Boolean> propEnabled()
     {
         return enabled;
     }

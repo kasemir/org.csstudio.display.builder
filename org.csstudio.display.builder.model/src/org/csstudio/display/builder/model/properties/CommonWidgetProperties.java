@@ -564,9 +564,9 @@ public class CommonWidgetProperties
         }
     };
 
-    /** Runtime 'enabled' property: Is widget enabled, or should it not allow user actions? */
-    public static final WidgetPropertyDescriptor<Boolean> runtimePropEnabled =
-            newBooleanPropertyDescriptor(WidgetPropertyCategory.RUNTIME, "enabled", Messages.WidgetProperties_Enabled);
+    /** 'enabled' property: Is widget enabled, or should it not allow user actions? */
+    public static final WidgetPropertyDescriptor<Boolean> propEnabled =
+            newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "enabled", Messages.WidgetProperties_Enabled);
 
     /** 'limits_from_pv' property: Use limits from PV's meta data? */
     public static final WidgetPropertyDescriptor<Boolean> propLimitsFromPV =
@@ -581,11 +581,14 @@ public class CommonWidgetProperties
             newDoublePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "maximum", Messages.WidgetProperties_Maximum);
 
     /** Runtime 'pv_value' property: Typically read from primary PV */
-    public static final WidgetPropertyDescriptor<VType> runtimePropValue =
+    public static final WidgetPropertyDescriptor<VType> runtimePropPVValue =
             newRuntimeValue("pv_value", Messages.WidgetProperties_Value);
+
+    /** Runtime 'pv_writable' property: Are all PVs of the widget connected? */
+    public static final WidgetPropertyDescriptor<Boolean> runtimePropPVWritable =
+            newBooleanPropertyDescriptor(WidgetPropertyCategory.RUNTIME, "pv_writable", Messages.WidgetProperties_Writable);
 
     /** Runtime 'connected' property: Are all PVs of the widget connected? */
     public static final WidgetPropertyDescriptor<Boolean> runtimePropConnected =
             newBooleanPropertyDescriptor(WidgetPropertyCategory.RUNTIME, "connected", Messages.WidgetProperties_Connected);
-
 }

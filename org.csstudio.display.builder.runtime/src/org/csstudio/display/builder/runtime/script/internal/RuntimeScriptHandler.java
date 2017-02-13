@@ -109,7 +109,7 @@ public class RuntimeScriptHandler implements RuntimePVListener
 
         final String script = rule_info.getTextPy(widget);
         final InputStream stream = new ByteArrayInputStream(script.getBytes());
-        String dummy_name = widget.getName() + ":" + rule_info.getName() + ".rule.py";
+        String dummy_name = widget.getType() + ":" + widget.getName() + ":" + rule_info.getName() + ".rule.py";
 
         logger.log(Level.FINER, () -> "Compiling rule script for " + dummy_name + "\n" + RuleToScript.addLineNumbers(script));
         try

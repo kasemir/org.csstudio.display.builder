@@ -17,6 +17,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
+import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetFontService;
 import org.csstudio.display.builder.model.persist.XMLTags;
 import org.csstudio.display.builder.model.persist.XMLUtil;
@@ -102,18 +103,31 @@ public class FontWidgetProperty extends WidgetProperty<WidgetFont>
             size = Double.parseDouble(font_el.getAttribute(SIZE));
         }
         else
-        {   // Legacy *.opi used either
+        {   // Legacy *.opi used either just the name
+            // <opifont.name>Default</opifont.name>
+            // or added the values in case name is not known
             // <opifont.name fontName="Sans" height="18" style="1">Header 1</opifont.name>
+            // for named fonts.
             font_el = XMLUtil.getChildElement(property_xml, "opifont.name");
             if (font_el != null)
             {
                 name = XMLUtil.getString(font_el);
-                family = font_el.getAttribute("fontName");
-                style = WidgetFontStyle.values()[Integer.parseInt(font_el.getAttribute(STYLE))];
-                size = Double.parseDouble(font_el.getAttribute("height")) / legacy_size_calibration;
+                if (font_el.hasAttribute("fontName"))
+                    family = font_el.getAttribute("fontName");
+                else
+                    family = NamedWidgetFonts.DEFAULT.getFamily();
+                if (font_el.hasAttribute(STYLE))
+                    style = WidgetFontStyle.values()[Integer.parseInt(font_el.getAttribute(STYLE))];
+                else
+                    style = NamedWidgetFonts.DEFAULT.getStyle();
+                if (font_el.hasAttribute("height"))
+                    size = Double.parseDouble(font_el.getAttribute("height")) / legacy_size_calibration;
+                else
+                    size = NamedWidgetFonts.DEFAULT.getSize();
             }
             else
-            {   // or   <fontdata fontName="Sans" height="20" style="3" pixels="true" />
+            {   // Plain fonts without name used
+                // <fontdata fontName="Sans" height="20" style="3" pixels="true" />
                 // 'pixels' was added in Jan. 2017 to mark font data that's already in pixels
                 font_el = XMLUtil.getChildElement(property_xml, "fontdata");
                 if (font_el != null)

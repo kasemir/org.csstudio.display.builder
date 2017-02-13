@@ -8,12 +8,13 @@
 package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropEnabled;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMacros;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propText;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropPVWritable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -131,6 +132,7 @@ public class ActionButtonWidget extends VisibleWidget
         return new ActionButtonConfigurator(persisted_version);
     }
 
+    // Has pv_name and pv_writable, but no pv_value which would make it a WritablePVWidget
     private volatile WidgetProperty<String> pv_name;
     private volatile WidgetProperty<Boolean> enabled;
     private volatile WidgetProperty<Macros> macros;
@@ -138,6 +140,7 @@ public class ActionButtonWidget extends VisibleWidget
     private volatile WidgetProperty<WidgetFont> font;
     private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<WidgetColor> foreground;
+    private volatile WidgetProperty<Boolean> pv_writable;
 
     public ActionButtonWidget()
     {
@@ -162,7 +165,8 @@ public class ActionButtonWidget extends VisibleWidget
         properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
         properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BUTTON_BACKGROUND)));
-        properties.add(enabled = runtimePropEnabled.createProperty(this, true));
+        properties.add(enabled = propEnabled.createProperty(this, true));
+        properties.add(pv_writable = runtimePropPVWritable.createProperty(this, true));
     }
 
     @Override
@@ -209,9 +213,15 @@ public class ActionButtonWidget extends VisibleWidget
     }
 
     /** @return 'enabled' property */
-    public WidgetProperty<Boolean> runtimePropEnabled()
+    public WidgetProperty<Boolean> propEnabled()
     {
         return enabled;
+    }
+
+    /** @return 'pv_writable' property */
+    public final WidgetProperty<Boolean> runtimePropPVWritable()
+    {
+        return pv_writable;
     }
 
     /** Action button widget extends parent macros
