@@ -35,8 +35,8 @@ import org.csstudio.display.builder.model.macros.MacroOrPropertyProvider;
 import org.csstudio.display.builder.model.macros.MacroValueProvider;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.ActionInfo;
-import org.csstudio.display.builder.model.properties.RuleInfo;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
+import org.csstudio.display.builder.model.rules.RuleInfo;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.osgi.framework.Version;
 

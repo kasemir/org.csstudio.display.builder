@@ -46,6 +46,5 @@ public class DialogHelper
         final Bounds pos = node.localToScreen(node.getBoundsInLocal());
         dialog.setX(pos.getMinX() + pos.getWidth()/2 + x_offset);
         dialog.setY(pos.getMinY() + pos.getHeight()/2 + y_offset);
-
     }
 }
