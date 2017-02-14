@@ -436,7 +436,9 @@ public class RuntimeViewPart extends FXViewPart
     {
         try
         {
-            final DisplayModel model = ModelLoader.loadModel(info.getPath());
+            final DisplayModel model = info.shouldResolve()
+                ? ModelLoader.resolveAndLoadModel(null, info.getPath())
+                : ModelLoader.loadModel(info.getPath());
 
             // This code is called
             // 1) From OpenDisplayAction
