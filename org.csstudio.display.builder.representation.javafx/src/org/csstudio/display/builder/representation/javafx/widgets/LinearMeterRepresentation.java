@@ -61,6 +61,12 @@ public class LinearMeterRepresentation extends BaseGaugeRepresentation<LinearMet
                 jfx_node.setBarColor((Color) value);
             }
 
+            value = model_widget.propFlatBar().getValue();
+
+            if ( !Objects.equals(value, !jfx_node.isBarEffectEnabled()) ) {
+                jfx_node.setBarEffectEnabled(!( (boolean) value ));
+            }
+
         }
 
         if ( dirtyLimits.checkAndClear() ) {
@@ -83,6 +89,7 @@ public class LinearMeterRepresentation extends BaseGaugeRepresentation<LinearMet
         gauge.setAreas(createAreas());
         gauge.setAreasVisible(barHighlight);
         gauge.setBarColor(JFXUtil.convert(model_widget.propBarColor().getValue()));
+        gauge.setBarEffectEnabled(!model_widget.propFlatBar().getValue());
         gauge.setHighlightSections(zonesHighlight);
         gauge.setOrientation(Orientation.valueOf(orientation.name()));
         gauge.setTickLabelLocation(TickLabelLocation.INSIDE);
@@ -92,7 +99,11 @@ public class LinearMeterRepresentation extends BaseGaugeRepresentation<LinearMet
                 model_widget.propBarColor().setValue(JFXUtil.convert(n));
             }
         });
-
+        gauge.barEffectEnabledProperty().addListener( ( s, o, n ) -> {
+            if ( !Objects.equals(!n, model_widget.propFlatBar().getValue()) ) {
+                model_widget.propFlatBar().setValue(!n);
+            }
+        });
         gauge.highlightAreasProperty().addListener( ( s, o, n ) -> {
             if ( !Objects.equals(n, model_widget.propHighlightBar().getValue()) ) {
                 model_widget.propHighlightBar().setValue(n);
@@ -147,6 +158,7 @@ public class LinearMeterRepresentation extends BaseGaugeRepresentation<LinearMet
         super.registerListeners();
 
         model_widget.propBarColor().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propFlatBar().addUntypedPropertyListener(this::lookChanged);
         model_widget.propOrientation().addUntypedPropertyListener(this::lookChanged);
 
         model_widget.propHighlightZones().addUntypedPropertyListener(this::limitsChanged);
