@@ -14,6 +14,7 @@ import java.util.Objects;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.LinearMeterWidget;
+import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
 import eu.hansolo.medusa.Gauge;
 import eu.hansolo.medusa.Section;
@@ -54,6 +55,12 @@ public class LinearMeterRepresentation extends BaseGaugeRepresentation<LinearMet
 
             }
 
+            value = JFXUtil.convert(model_widget.propBarColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getBarColor()) ) {
+                jfx_node.setBarColor((Color) value);
+            }
+
         }
 
         if ( dirtyLimits.checkAndClear() ) {
@@ -75,10 +82,16 @@ public class LinearMeterRepresentation extends BaseGaugeRepresentation<LinearMet
         gauge.setAreaTextVisible(false);
         gauge.setAreas(createAreas());
         gauge.setAreasVisible(barHighlight);
-
+        gauge.setBarColor(JFXUtil.convert(model_widget.propBarColor().getValue()));
         gauge.setHighlightSections(zonesHighlight);
         gauge.setOrientation(Orientation.valueOf(orientation.name()));
         gauge.setTickLabelLocation(TickLabelLocation.INSIDE);
+
+        gauge.barColorProperty().addListener( ( s, o, n ) -> {
+            if ( !Objects.equals(n, JFXUtil.convert(model_widget.propBarColor().getValue())) ) {
+                model_widget.propBarColor().setValue(JFXUtil.convert(n));
+            }
+        });
 
         gauge.highlightAreasProperty().addListener( ( s, o, n ) -> {
             if ( !Objects.equals(n, model_widget.propHighlightBar().getValue()) ) {
@@ -133,6 +146,7 @@ public class LinearMeterRepresentation extends BaseGaugeRepresentation<LinearMet
 
         super.registerListeners();
 
+        model_widget.propBarColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propOrientation().addUntypedPropertyListener(this::lookChanged);
 
         model_widget.propHighlightZones().addUntypedPropertyListener(this::limitsChanged);

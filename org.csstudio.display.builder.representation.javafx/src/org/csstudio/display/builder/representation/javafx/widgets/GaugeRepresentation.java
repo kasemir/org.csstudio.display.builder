@@ -55,6 +55,12 @@ public class GaugeRepresentation extends BaseGaugeRepresentation<GaugeWidget> {
                 jfx_node.setBarBackgroundColor((Color) value);
             }
 
+            value = JFXUtil.convert(model_widget.propBarColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getBarColor()) ) {
+                jfx_node.setBarColor((Color) value);
+            }
+
         }
 
     }
@@ -66,11 +72,18 @@ public class GaugeRepresentation extends BaseGaugeRepresentation<GaugeWidget> {
         Gauge gauge = super.createJFXNode(skinType);
 
         gauge.setBarBackgroundColor(JFXUtil.convert(model_widget.propBarBackgroundColor().getValue()));
+        gauge.setBarColor(JFXUtil.convert(model_widget.propBarColor().getValue()));
         gauge.setHighlightSections(false);
 
         gauge.barBackgroundColorProperty().addListener( ( s, o, n ) -> {
             if ( !Objects.equals(n, JFXUtil.convert(model_widget.propBarBackgroundColor().getValue())) ) {
                 model_widget.propBarBackgroundColor().setValue(JFXUtil.convert(n));
+            }
+        });
+
+        gauge.barColorProperty().addListener( ( s, o, n ) -> {
+            if ( !Objects.equals(n, JFXUtil.convert(model_widget.propBarColor().getValue())) ) {
+                model_widget.propBarColor().setValue(JFXUtil.convert(n));
             }
         });
 
@@ -85,6 +98,7 @@ public class GaugeRepresentation extends BaseGaugeRepresentation<GaugeWidget> {
 
         model_widget.propSkin().addUntypedPropertyListener(this::lookChanged);
         model_widget.propBarBackgroundColor().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propBarColor().addUntypedPropertyListener(this::lookChanged);
 
     }
 
