@@ -26,12 +26,14 @@ public class ModelLoader
 {
     /** Load model, resolved relative to parent, with classes applied (except for *.bcf itself)
      *
+     *  <p>Selects *.bob over *.opi.
+     *
      *  @param parent_display Path to a 'parent' file, may be <code>null</code>
      *  @param display_file Model file
      *  @return {@link DisplayModel}
      *  @throws Exception on error
      */
-    public static DisplayModel loadModel(final String parent_display, final String display_file) throws Exception
+    public static DisplayModel resolveAndLoadModel(final String parent_display, final String display_file) throws Exception
     {
         final String resolved_name = ModelResourceUtil.resolveResource(parent_display, display_file);
         return loadModel(resolved_name);

@@ -77,7 +77,7 @@ public class EmbeddedDisplayRepresentationUtil
             {   // Load model for displayFile, allowing lookup relative to this widget's model
                 final DisplayModel display = model_widget.getDisplayModel();
                 final String parent_display = display.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
-                embedded_model = ModelLoader.loadModel(parent_display, display_file);
+                embedded_model = ModelLoader.resolveAndLoadModel(parent_display, display_file);
                 // Tell embedded model that it is held by this widget,
                 // which provides access to macros of model_widget.
                 embedded_model.setUserData(DisplayModel.USER_DATA_EMBEDDING_WIDGET, model_widget);
