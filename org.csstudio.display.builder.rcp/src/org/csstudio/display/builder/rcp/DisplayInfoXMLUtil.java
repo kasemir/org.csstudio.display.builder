@@ -68,18 +68,18 @@ public class DisplayInfoXMLUtil
     }
 
     /** @param xml XML for one display info
-     *  @return DisplayInfo
+     *  @return DisplayInfo that will not 'resolve', using path exactly as found
      *  @throws Exception on error
      */
     public static DisplayInfo fromXML(final String xml) throws Exception
     {
         final ByteArrayInputStream stream = new ByteArrayInputStream(xml.getBytes());
         final Element root = XMLUtil.openXMLDocument(stream, XMLTags.DISPLAY);
-        return readDisplayInfo(root);
+        return readDisplayInfo(root, false);
     }
 
     /** @param xml XML for display infos, without a surrounding "&lt;displays>"
-     *  @return List of {@link DisplayInfo}s
+     *  @return List of {@link DisplayInfo}s that will 'resolve'
      *  @throws Exception on error
      */
     public static List<DisplayInfo> fromDisplaysXML(final String xml) throws Exception
@@ -89,20 +89,22 @@ public class DisplayInfoXMLUtil
         final ByteArrayInputStream stream = new ByteArrayInputStream(full_xml.getBytes());
         final Element root = XMLUtil.openXMLDocument(stream, "displays");
         for (Element display : XMLUtil.getChildElements(root, XMLTags.DISPLAY))
-            displays.add(readDisplayInfo(display));
+            displays.add(readDisplayInfo(display, true));
         return displays;
     }
 
     /** Read display info
      *  @param macros_xml
+     *  @param resolve
      *  @throws Exception on error
+     *  @return {@link DisplayInfo}
      */
-    public static DisplayInfo readDisplayInfo(final Element display) throws Exception
+    public static DisplayInfo readDisplayInfo(final Element display, final boolean resolve) throws Exception
     {
         final String path = XMLUtil.getChildString(display, XMLTags.FILE).orElseThrow(() -> new Exception("Missing display path"));
         final String name = XMLUtil.getChildString(display, XMLTags.NAME).orElse(path);
         final Element macros_xml = XMLUtil.getChildElement(display, XMLTags.MACROS);
         final Macros macros = macros_xml == null ? new Macros() : MacroXMLUtil.readMacros(macros_xml);
-        return new DisplayInfo(path, name, macros);
+        return new DisplayInfo(path, name, macros, resolve);
     }
 }
