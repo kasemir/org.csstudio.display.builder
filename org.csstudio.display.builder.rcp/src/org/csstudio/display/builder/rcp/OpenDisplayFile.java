@@ -26,7 +26,8 @@ public class OpenDisplayFile implements IOpenDisplayAction
     public void openDisplay(final String path, final String data) throws Exception
     {
         final Macros macros = MacroXMLUtil.readMacros(data);
-        final DisplayInfo info = new DisplayInfo(path, "Display from command line", macros);
+        // 'resolve', i.e. use *.bob over *.opi if found
+        final DisplayInfo info = new DisplayInfo(path, "Display from command line", macros, true);
         new OpenDisplayAction(info).run();
     }
 }
