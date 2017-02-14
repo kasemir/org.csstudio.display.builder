@@ -15,7 +15,9 @@ import org.csstudio.display.builder.runtime.WidgetRuntime;
 
 /** Runtime for the {@link EmbeddedDisplayWidget}
  *
- *  <p>Starts/stops the model of the embedded widget
+ *  <p>The EmbeddedDisplayRepresentation loads the
+ *  embedded display model to allow showing it in the editor.
+ *  The runtime tarts/stops the model of the embedded widget.
  *
  *  @author Kay Kasemir
  */
