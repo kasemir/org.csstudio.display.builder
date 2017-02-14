@@ -37,16 +37,19 @@ public class BaseLEDWidget extends PVWidget
             // was smaller than a non-a.s. LED */
             if (widget.getProperty(propBorderAlarmSensitive).getValue())
             {
-                final int border = Integer.parseInt(XMLUtil.getChildString(xml, "border_width").orElse("1"));
-                // In principle, border goes around the widget,
+                // Use old border width, defaulting to 2 for style 'None'
+                final int style = Integer.parseInt(XMLUtil.getChildString(xml, "border_style").orElse("0"));
+                final int border = style <= 0
+                                 ? 2
+                                 : Integer.parseInt(XMLUtil.getChildString(xml, "border_width").orElse("1"));
+
+                // Border goes around the widget,
                 // so X, Y get adjusted by 1*border
                 // and Width, Height by 2*border.
-                // But when comparing older files, border was added to X, Y twice
-                // as well as size?!
                 WidgetProperty<Integer> prop = widget.getProperty(propX);
-                prop.setValue(prop.getValue() + 2*border);
+                prop.setValue(prop.getValue() + border);
                 prop = widget.getProperty(propY);
-                prop.setValue(prop.getValue() + 2*border);
+                prop.setValue(prop.getValue() + border);
                 prop = widget.getProperty(propWidth);
                 prop.setValue(prop.getValue() - 2*border);
                 prop = widget.getProperty(propHeight);

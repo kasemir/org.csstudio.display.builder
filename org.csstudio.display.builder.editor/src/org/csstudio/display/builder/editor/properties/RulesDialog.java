@@ -18,13 +18,13 @@ import java.util.stream.Collectors;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
-import org.csstudio.display.builder.model.properties.RuleInfo;
-import org.csstudio.display.builder.model.properties.RuleInfo.ExprInfoString;
-import org.csstudio.display.builder.model.properties.RuleInfo.ExprInfoValue;
-import org.csstudio.display.builder.model.properties.RuleInfo.ExpressionInfo;
-import org.csstudio.display.builder.model.properties.RuleInfo.PropInfo;
 import org.csstudio.display.builder.model.properties.RulesWidgetProperty;
 import org.csstudio.display.builder.model.properties.ScriptPV;
+import org.csstudio.display.builder.model.rules.RuleInfo;
+import org.csstudio.display.builder.model.rules.RuleInfo.ExprInfoString;
+import org.csstudio.display.builder.model.rules.RuleInfo.ExprInfoValue;
+import org.csstudio.display.builder.model.rules.RuleInfo.ExpressionInfo;
+import org.csstudio.display.builder.model.rules.RuleInfo.PropInfo;
 import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.Messages;
@@ -726,10 +726,11 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             final int sel = rules_table.getSelectionModel().getSelectedIndex();
             if (sel >= 0)
             {
-                String content = rule_items.get(sel).getRuleInfo()
-                        .getTextPy(attached_widget);
+                final String content = rule_items.get(sel).getRuleInfo().getTextPy(attached_widget);
                 final MultiLineInputDialog dialog = new MultiLineInputDialog(content);
-                DialogHelper.positionDialog(dialog, btn_show_script, -200, -100);
+                DialogHelper.positionDialog(dialog, btn_show_script, -200, -300);
+                dialog.setTextHeight(600);
+                System.out.println("Heigher?");
                 dialog.show();
             }
         });

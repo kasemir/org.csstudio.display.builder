@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2017 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.regex.Pattern;
 
 import javax.xml.stream.XMLStreamWriter;
 
@@ -26,9 +27,10 @@ import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.persist.XMLTags;
 import org.csstudio.display.builder.model.persist.XMLUtil;
-import org.csstudio.display.builder.model.properties.RuleInfo.ExprInfoString;
-import org.csstudio.display.builder.model.properties.RuleInfo.ExprInfoValue;
-import org.csstudio.display.builder.model.properties.RuleInfo.ExpressionInfo;
+import org.csstudio.display.builder.model.rules.RuleInfo;
+import org.csstudio.display.builder.model.rules.RuleInfo.ExprInfoString;
+import org.csstudio.display.builder.model.rules.RuleInfo.ExprInfoValue;
+import org.csstudio.display.builder.model.rules.RuleInfo.ExpressionInfo;
 import org.w3c.dom.Element;
 
 /** Widget property that describes rules
@@ -38,6 +40,9 @@ import org.w3c.dom.Element;
 @SuppressWarnings("nls")
 public class RulesWidgetProperty extends WidgetProperty<List<RuleInfo>>
 {
+    /** Pattern for "pvSev0", "pvSev1", .. */
+    private static final Pattern PVSEV_PATTERN = Pattern.compile("pvSev([0-9]+)");
+
     private static final WidgetPropertyDescriptor<String> miscUnknownPropID =
             new WidgetPropertyDescriptor<String>(WidgetPropertyCategory.MISC,
                     "rule_unknown_propid", "RulesWidgetProperty:miscUnknownPropID", false)
@@ -232,13 +237,14 @@ public class RulesWidgetProperty extends WidgetProperty<List<RuleInfo>>
         setValue(rules);
     }
 
-
-
     private List<ExpressionInfo<?>> readExpressions(final ModelReader model_reader,
             final String prop_id,
             final boolean prop_as_expr,
             final Element xml) throws Exception
     {
+        // Replace "pvSev0" by "pvLegacySev0"?
+        final boolean patch_severity = model_reader.getVersion().getMajor() < 2;
+
         final List<ExpressionInfo<?>> exprs = new ArrayList<>();
         final Iterable<Element> exprs_xml = XMLUtil.getChildElements(xml, "exp");
         final String tagstr = (prop_as_expr) ? "expression" : "value";
@@ -249,13 +255,23 @@ public class RulesWidgetProperty extends WidgetProperty<List<RuleInfo>>
             if (bool_exp.isEmpty())
                 logger.log(Level.WARNING, "Missing exp 'bool_exp'");
 
+            if (patch_severity  &&  bool_exp.contains("pvSev"))
+            {
+                logger.log(Level.WARNING, "Patching rule with legacy '" + bool_exp + "' into 'pvLegacySev..'");
+                bool_exp = PVSEV_PATTERN.matcher(bool_exp).replaceAll("pvLegacySev$1");
+            }
+
             final Element tag_xml = XMLUtil.getChildElement(exp_xml, tagstr);
-            //legacy case where value is used for all value expression
+            // Legacy case where value is used for all value expression
             final Element val_xml = (tag_xml == null) ? XMLUtil.getChildElement(exp_xml, "value") : tag_xml;
 
             if (prop_as_expr)
             {
                 final String val_str = (val_xml != null) ? XMLUtil.getString(val_xml) : "";
+                // if (patch_severity  &&  val_str.contains("pvSev")) ..?
+                // val_str was a Javascript expression,
+                // now needs to be a python expression.
+                // -> Not patching for now
                 exprs.add(new ExprInfoString(bool_exp, val_str));
             }
             else

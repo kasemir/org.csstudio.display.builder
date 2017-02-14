@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.model.properties;
+package org.csstudio.display.builder.model.rules;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,6 +15,11 @@ import java.util.Objects;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
+import org.csstudio.display.builder.model.properties.ActionsWidgetProperty;
+import org.csstudio.display.builder.model.properties.MacrosWidgetProperty;
+import org.csstudio.display.builder.model.properties.RulesWidgetProperty;
+import org.csstudio.display.builder.model.properties.ScriptPV;
+import org.csstudio.display.builder.model.properties.ScriptsWidgetProperty;
 
 /** Information about a rule
  *
@@ -27,8 +32,6 @@ import org.csstudio.display.builder.model.WidgetPropertyCategory;
  *  @author Megan Grodowitz
  */
 @SuppressWarnings("nls")
-
-
 public class RuleInfo
 {
 
