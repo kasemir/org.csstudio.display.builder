@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.model.properties;
+package org.csstudio.display.builder.model.rules;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertThat;
@@ -14,6 +14,10 @@ import java.util.Arrays;
 
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.properties.ScriptPV;
+import org.csstudio.display.builder.model.properties.WidgetColor;
+import org.csstudio.display.builder.model.rules.RuleInfo;
+import org.csstudio.display.builder.model.rules.RuleToScript;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget;
 import org.junit.Test;
