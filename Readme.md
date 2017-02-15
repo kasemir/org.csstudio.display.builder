@@ -498,7 +498,7 @@ from org.csstudio.display.builder.runtime.script import PVUtil
 widget.setPropertyValue("text", PVUtil.getString(pvs[0]))
 ```
 
-__Pyton__
+__Python__
 
 In addition to Jython, the display builder supports real C-Python scripts.
 They are invoked via Py4J, and a helper library is provided that allows
