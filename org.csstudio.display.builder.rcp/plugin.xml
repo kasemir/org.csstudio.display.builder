@@ -138,7 +138,13 @@
          point="org.csstudio.openfile.openDisplay">
       <openDisplay
             class="org.csstudio.display.builder.rcp.OpenDisplayFile"
+            default="true"
             file_extension="bob">
+      </openDisplay>
+      <openDisplay
+            class="org.csstudio.display.builder.rcp.OpenDisplayFile"
+            default="false"
+            file_extension="opi">
       </openDisplay>
    </extension>
 </plugin>

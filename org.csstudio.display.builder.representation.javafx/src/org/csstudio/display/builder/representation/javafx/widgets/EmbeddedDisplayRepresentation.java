@@ -35,6 +35,14 @@ import javafx.scene.layout.Pane;
 import javafx.scene.transform.Scale;
 
 /** Creates JavaFX item for model widget
+ *
+ *  <p>Different from widget representations in general,
+ *  this one implements the loading of the embedded model,
+ *  an operation that could be considered a runtime aspect.
+ *  This was done to allow viewing the embedded content
+ *  in the editor.
+ *  The embedded model will be started by the EmbeddedDisplayRuntime.
+ *
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
