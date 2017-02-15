@@ -24,7 +24,7 @@ public class RulesJythonScriptTest
     @Test
     public void testJythonScript() throws Exception
     {
-        final DisplayModel display = ModelLoader.loadModel("../org.csstudio.display.builder.runtime.test/examples/dummy.opi", "rules_test.opi");
+        final DisplayModel display = ModelLoader.resolveAndLoadModel("../org.csstudio.display.builder.runtime.test/examples/dummy.opi", "rules_test.opi");
 
         final Widget widget = display.getChildren().parallelStream().filter(w -> w.getName().equals("Rectangle")).findFirst().get();
 

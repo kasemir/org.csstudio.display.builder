@@ -86,7 +86,7 @@ public class ActionUtil
             final String parent_file = widget_model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
 
             // Load new model. If that fails, no reason to continue.
-            final DisplayModel new_model = ModelLoader.loadModel(parent_file, expanded_path);
+            final DisplayModel new_model = ModelLoader.resolveAndLoadModel(parent_file, expanded_path);
 
             // Model is standalone; source_widget (Action button, ..) is _not_ the parent,
             // but it does add macros to those already defined in the display file.
