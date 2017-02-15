@@ -7,14 +7,18 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBorderAlarmSensitive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHeight;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propWidth;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propX;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propY;
 
+import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyCategory;
+import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
@@ -27,10 +31,15 @@ import org.w3c.dom.Element;
 @SuppressWarnings("nls")
 public class BaseLEDWidget extends PVWidget
 {
-    /** Helper for configurator to handle legacy LED sizing */
-    protected static void handle_legacy_position(final Widget widget, final Version xml_version, final Element xml)
+    /** 'square' property */
+    protected static final WidgetPropertyDescriptor<Boolean> propSquare =
+        newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "square", Messages.WidgetProperties_Square);
+
+    /** Helper for configurator to handle legacy LED sizing and common options */
+    protected static void handle_legacy_LED(final Widget widget, final Version xml_version, final Element xml)
                 throws Exception
     {
+        final BaseLEDWidget led = (BaseLEDWidget) widget;
         if (xml_version.getMajor() < 2)
         {   // Border was included in the size,
             // so with the same nominal size an "alarm sensitive" LED
@@ -46,20 +55,24 @@ public class BaseLEDWidget extends PVWidget
                 // Border goes around the widget,
                 // so X, Y get adjusted by 1*border
                 // and Width, Height by 2*border.
-                WidgetProperty<Integer> prop = widget.getProperty(propX);
+                WidgetProperty<Integer> prop = led.getProperty(propX);
                 prop.setValue(prop.getValue() + border);
-                prop = widget.getProperty(propY);
+                prop = led.getProperty(propY);
                 prop.setValue(prop.getValue() + border);
-                prop = widget.getProperty(propWidth);
+                prop = led.getProperty(propWidth);
                 prop.setValue(prop.getValue() - 2*border);
-                prop = widget.getProperty(propHeight);
+                prop = led.getProperty(propHeight);
                 prop.setValue(prop.getValue() - 2*border);
             }
+
+            // Legacy used "square_led" instead of "square"
+            led.propSquare().setValue(XMLUtil.getChildBoolean(xml, "square_led").orElse(false));
         }
     }
 
     protected volatile WidgetProperty<WidgetFont> font;
     protected volatile WidgetProperty<WidgetColor> foreground;
+    protected volatile WidgetProperty<Boolean> square;
 
     /** Widget constructor.
      *  @param type Widget type
@@ -75,7 +88,7 @@ public class BaseLEDWidget extends PVWidget
         return new Version(2, 0, 0);
     }
 
-    // Note: _NOT_ defining the  common font, foreground properties
+    // Note: _NOT_ defining the  common font, foreground, .. properties
     //       so that derived widgets can control their order within
     //       lists of properties.
     // protected void defineProperties(final List<WidgetProperty<?>> properties)
@@ -90,5 +103,11 @@ public class BaseLEDWidget extends PVWidget
     public WidgetProperty<WidgetColor> propForegroundColor()
     {
         return foreground;
+    }
+
+    /** @return 'square' property*/
+    public WidgetProperty<Boolean> propSquare()
+    {
+        return square;
     }
 }

@@ -21,6 +21,8 @@ import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.RadialGradient;
 import javafx.scene.paint.Stop;
 import javafx.scene.shape.Ellipse;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
 
 /** Base for LED type widgets
  *  @author Kay Kasemir
@@ -28,6 +30,7 @@ import javafx.scene.shape.Ellipse;
 @SuppressWarnings("nls")
 abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBaseRepresentation<Pane, LED>
 {
+    private final DirtyFlag typeChanged = new DirtyFlag();
     private final DirtyFlag styleChanged = new DirtyFlag();
     protected final DirtyFlag dirty_content = new DirtyFlag();
 
@@ -37,8 +40,8 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
 
     protected volatile String value_label;
 
-    /** Actual LED Ellipse inside {@link Pane} to allow for border */
-    private Ellipse led;
+    /** Actual LED Ellipse or Rectangle inside {@link Pane} to allow for border */
+    private Shape led;
 
     protected Label label;
 
@@ -48,24 +51,35 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
         colors = createColors();
         value_color = colors[0];
 
-        led = new Ellipse();
-        led.getStyleClass().add("led");
-        label = new Label();
-        label.setAlignment(Pos.CENTER);
-        final Pane pane = new Pane(led, label);
+        final Pane pane = new Pane();
         pane.setMinSize(Pane.USE_PREF_SIZE, Pane.USE_PREF_SIZE);
         pane.setMaxSize(Pane.USE_PREF_SIZE, Pane.USE_PREF_SIZE);
         return pane;
     }
 
+    private void createLED()
+    {
+        jfx_node.getChildren().clear();
+        if (model_widget.propSquare().getValue())
+            led = new Rectangle();
+        else
+            led = new Ellipse();
+        led.getStyleClass().add("led");
+        label = new Label();
+        label.setAlignment(Pos.CENTER);
+        jfx_node.getChildren().addAll(led, label);
+    }
+
     @Override
     public int[] getBorderRadii()
     {
-        return new int[]
-        {
-            model_widget.propWidth().getValue()/2,
-            model_widget.propHeight().getValue()/2,
-        };
+        if (led instanceof Ellipse)
+            return new int[]
+            {
+                model_widget.propWidth().getValue()/2,
+                model_widget.propHeight().getValue()/2,
+            };
+        return super.getBorderRadii();
     }
 
     /** Create colors for the states of the LED
@@ -89,12 +103,19 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
     protected void registerListeners()
     {
         super.registerListeners();
+        model_widget.propSquare().addPropertyListener(this::typeChanged);
         model_widget.propWidth().addUntypedPropertyListener(this::styleChanged);
         model_widget.propHeight().addUntypedPropertyListener(this::styleChanged);
         model_widget.propFont().addUntypedPropertyListener(this::styleChanged);
         model_widget.propForegroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.runtimePropValue().addPropertyListener(this::contentChanged);
         contentChanged(null, null, null);
+    }
+
+    private void typeChanged(final WidgetProperty<Boolean> property, final Boolean old_value, final Boolean new_value)
+    {
+        typeChanged.mark();
+        toolkit.scheduleUpdate(this);
     }
 
     private void styleChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -133,6 +154,12 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
     @Override
     public void updateChanges()
     {
+        if (typeChanged.checkAndClear())
+        {
+            createLED();
+            styleChanged.mark();
+            dirty_content.mark();
+        }
         super.updateChanges();
         if (styleChanged.checkAndClear())
         {
@@ -144,11 +171,20 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
             final int h = model_widget.propHeight().getValue();
 
             jfx_node.setPrefSize(w, h);
-            led.setCenterX(w/2);
-            led.setCenterY(h/2);
-            led.setRadiusX(w/2);
-            led.setRadiusY(h/2);
-
+            if (led instanceof Ellipse)
+            {
+                final Ellipse ell = (Ellipse) led;
+                ell.setCenterX(w/2);
+                ell.setCenterY(h/2);
+                ell.setRadiusX(w/2);
+                ell.setRadiusY(h/2);
+            }
+            else if (led instanceof Rectangle)
+            {
+                final Rectangle rect = (Rectangle) led;
+                rect.setWidth(w);
+                rect.setHeight(h);
+            }
             label.setPrefSize(w, h);
         }
         if (dirty_content.checkAndClear())

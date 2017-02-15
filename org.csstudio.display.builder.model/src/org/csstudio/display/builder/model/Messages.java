@@ -236,6 +236,7 @@ public class Messages extends NLS
     public static String WidgetProperties_ShowScale;
     public static String WidgetProperties_ShowUnits;
     public static String WidgetProperties_Skin;
+    public static String WidgetProperties_Square;
     public static String WidgetProperties_StretchToFit;
     public static String WidgetProperties_Text;
     public static String WidgetProperties_TextColor;
