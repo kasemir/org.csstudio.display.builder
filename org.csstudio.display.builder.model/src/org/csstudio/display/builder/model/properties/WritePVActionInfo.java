@@ -50,7 +50,7 @@ public class WritePVActionInfo extends ActionInfo
     public String toString()
     {
         if (getDescription().isEmpty())
-            return "Write " + pv + " = " + value;
+            return "Write " + value + " to " + pv;
         else
             return getDescription();
     }
