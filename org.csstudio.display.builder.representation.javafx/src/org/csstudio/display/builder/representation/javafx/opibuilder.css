@@ -33,15 +33,19 @@
  * }
  * Compared to BOY, this reduces many button "labels" to "lab...".
  * Since button labels are centered anyway,
- * setting the left and right padding to 0em makes no visual
+ * setting the left and right padding to near 0em makes no visual
  * difference for shorter labels, while at the same time allowing
  * for labels that are as wide as the button.
  * Removing the top/bottom padding helps with drop-down buttons,
  * while again no impact on "small" text because it's centered anyway.
+ * Enabling wrap since that's what BOY did with larger labels,
+ * using clip instead of "..." to see more of the text.
  */
 .action_button
 {
-   -fx-padding: 0em 0em 0em 0em;
+    -fx-padding: 0em 0em 0em 0.2em;
+    -fx-wrap-text: true;
+    -fx-text-overrun: clip;
 }
 
 /** Default text-input padding in modena.css:
