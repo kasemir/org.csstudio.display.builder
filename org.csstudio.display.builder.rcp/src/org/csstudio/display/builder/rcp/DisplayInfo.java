@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ public class DisplayInfo
 {
     private final String path, name;
     private final Macros macros;
+    private final boolean resolve;
 
     public static DisplayInfo forModel(final DisplayModel model)
     {
@@ -30,9 +31,20 @@ public class DisplayInfo
 
     public DisplayInfo(final String path, final String name, final Macros macros)
     {
+        this(path, name, macros, false);
+    }
+
+    /** @param path Path to the display
+     *  @param name Name to show
+     *  @param macros Macros
+     *  @param resolve Resolve the display, potentially using *.bob for a *.opi path?
+     */
+    public DisplayInfo(final String path, final String name, final Macros macros, final boolean resolve)
+    {
         this.path = path;
         this.name = name;
         this.macros = Objects.requireNonNull(macros);
+        this.resolve = resolve;
     }
 
     public String getPath()
@@ -48,6 +60,11 @@ public class DisplayInfo
     public Macros getMacros()
     {
         return macros;
+    }
+
+    public boolean shouldResolve()
+    {
+        return resolve;
     }
 
     @Override
@@ -76,7 +93,6 @@ public class DisplayInfo
     @Override
     public String toString()
     {
-        return "Display '" + name + "', file " + path + ", macros " + macros;
-
+        return "Display '" + name + "', file " + path + ", macros " + macros + (resolve ? " (resolve)" : "");
     }
 }
