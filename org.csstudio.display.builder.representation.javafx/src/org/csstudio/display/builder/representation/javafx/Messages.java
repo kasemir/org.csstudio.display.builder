@@ -29,6 +29,7 @@ public class Messages extends NLS
     public static String ActionsDialog_ScriptPath;
     public static String ActionsDialog_ScriptText;
     public static String ActionsDialog_Title;
+    public static String ActionsDialog_URL;
     public static String ActionsDialog_Value;
     public static String Add;
     public static String Blue;

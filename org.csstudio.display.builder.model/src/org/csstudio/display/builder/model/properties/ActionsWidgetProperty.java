@@ -45,6 +45,7 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
     private static final String EXECUTE_SCRIPT = "execute";
     private static final String EXECUTE_COMMAND = "command";
     private static final String OPEN_FILE = "open_file";
+    private static final String OPEN_WEBPAGE = "open_webpage";
 
     /** Constructor
      *  @param descriptor Property descriptor
@@ -152,6 +153,14 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                 writer.writeAttribute(XMLTags.TYPE, OPEN_FILE);
                 writer.writeStartElement(XMLTags.FILE);
                 writer.writeCharacters(action.getFile());
+                writer.writeEndElement();
+            }
+            else if (info instanceof OpenWebpageActionInfo)
+            {
+                final OpenWebpageActionInfo action = (OpenWebpageActionInfo) info;
+                writer.writeAttribute(XMLTags.TYPE, OPEN_WEBPAGE);
+                writer.writeStartElement(XMLTags.URL);
+                writer.writeCharacters(action.getURL());
                 writer.writeEndElement();
             }
             else if (info instanceof ExecuteCommandActionInfo)
@@ -281,6 +290,13 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                                            .orElse(XMLUtil.getChildString(action_xml, XMLTags.PATH)
                                            .orElse(""));
                 actions.add(new OpenFileActionInfo(description, file));
+            }
+            else if (OPEN_WEBPAGE.equalsIgnoreCase(type)) // legacy used uppercase type name
+            {   // Use <url>, falling back to legacy <hyperlink>
+                final String url = XMLUtil.getChildString(action_xml, XMLTags.URL)
+                                           .orElse(XMLUtil.getChildString(action_xml, "hyperlink")
+                                           .orElse(""));
+                actions.add(new OpenWebpageActionInfo(description, url));
             }
             else if (EXECUTE_COMMAND.equalsIgnoreCase(type) ||
                     "EXECUTE_CMD".equalsIgnoreCase(type))

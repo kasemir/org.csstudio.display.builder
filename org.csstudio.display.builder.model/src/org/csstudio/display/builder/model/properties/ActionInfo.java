@@ -32,7 +32,8 @@ public abstract class ActionInfo
         WRITE_PV("Write PV", "icons/write_pv.png"),
         EXECUTE_SCRIPT("Execute Script", "icons/execute_script.png"),
         EXECUTE_COMMAND("Execute Command", "icons/execute_script.png"),
-        OPEN_FILE("Open File", "icons/open_file.png");
+        OPEN_FILE("Open File", "icons/open_file.png"),
+        OPEN_WEBPAGE("Open Webpage", "icons/web_browser.png");
 
         private final String name, icon_path;
 
@@ -89,6 +90,8 @@ public abstract class ActionInfo
             return new ExecuteCommandActionInfo(type.toString(), "some_command");
         case OPEN_FILE:
             return new OpenFileActionInfo(type.toString(), "");
+        case OPEN_WEBPAGE:
+            return new OpenWebpageActionInfo(type.toString(), "");
         default:
             throw new IllegalStateException("Unknown type " + type);
         }
