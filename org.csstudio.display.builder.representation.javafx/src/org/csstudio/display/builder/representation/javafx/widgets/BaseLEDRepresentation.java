@@ -66,6 +66,7 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
             led = new Ellipse();
         led.getStyleClass().add("led");
         label = new Label();
+        label.getStyleClass().add("led_label");
         label.setAlignment(Pos.CENTER);
         jfx_node.getChildren().addAll(led, label);
     }
