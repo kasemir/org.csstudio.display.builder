@@ -32,7 +32,6 @@ public class Messages extends NLS
     public static String BoolWidget_OnLabel;
     public static String ByteMonitor_BitReverse;
     public static String ByteMonitor_NumBits;
-    public static String ByteMonitor_SquareLED;
     public static String ByteMonitor_StartBit;
     public static String Bottom;
     public static String Checkbox_Label;

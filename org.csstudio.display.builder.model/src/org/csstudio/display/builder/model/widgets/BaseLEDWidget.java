@@ -7,18 +7,14 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBorderAlarmSensitive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHeight;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propWidth;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propX;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propY;
 
-import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.model.WidgetPropertyCategory;
-import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
@@ -31,10 +27,6 @@ import org.w3c.dom.Element;
 @SuppressWarnings("nls")
 public class BaseLEDWidget extends PVWidget
 {
-    /** 'square' property */
-    protected static final WidgetPropertyDescriptor<Boolean> propSquare =
-        newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "square", Messages.WidgetProperties_Square);
-
     /** Helper for configurator to handle legacy LED sizing and common options */
     protected static void handle_legacy_LED(final Widget widget, final Version xml_version, final Element xml)
                 throws Exception

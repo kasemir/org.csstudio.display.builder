@@ -15,6 +15,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOffLabel;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOnColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOnLabel;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propSquare;
 
 import java.util.Arrays;
 import java.util.List;
