@@ -315,6 +315,9 @@ public class CommonWidgetProperties
     public static final WidgetPropertyDescriptor<Integer> propLineWidth =
             newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "line_width", Messages.WidgetProperties_LineWidth);
 
+    /** 'square' property: Whether for example LEDS are square (rectangular) or round (circular) */
+    public static final WidgetPropertyDescriptor<Boolean> propSquare =
+        newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "square", Messages.WidgetProperties_Square);
 
     /** Group widget style */
     public enum WidgetLineStyle

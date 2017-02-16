@@ -36,6 +36,7 @@ public interface XMLTags
     public static final String TEXT = "text";
     public static final String TRIGGER = "trigger";
     public static final String TYPE = "type";
+    public static final String URL = "url";
     public static final String USE_CLASS = "use_class";
     public static final String VALUE = "value";
     public static final String VERSION = "version";

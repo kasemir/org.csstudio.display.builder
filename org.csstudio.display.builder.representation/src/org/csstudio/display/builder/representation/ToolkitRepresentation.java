@@ -9,6 +9,7 @@ package org.csstudio.display.builder.representation;
 
 import java.awt.Desktop;
 import java.io.File;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -482,6 +483,19 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     public void openFile(final String path) throws Exception
     {
         Desktop.getDesktop().open(new File(path));
+    }
+
+    /** Open a URL with the OS-assigned default tool
+     *
+     *  <p>RCP-based representation can override with
+     *  RCP-based web browser
+     *
+     *  @param path URL
+     *  @throws Exception on error
+     */
+    public void openWebBrowser(final String url) throws Exception
+    {
+        Desktop.getDesktop().browse(new URI(url));
     }
 
     /** Execute callable in toolkit's UI thread.
