@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2017 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,50 +7,41 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.properties;
 
-/** Information about an action that writes a PV
+/** Information about an action that opens a web page
  *
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class WritePVActionInfo extends ActionInfo
+public class OpenWebpageActionInfo extends ActionInfo
 {
-    private final String pv;
-    private final String value;
+    private final String url;
 
     /** @param description Action description
-     *  @param pv PV name
-     *  @param value Value to write
+     *  @param url URL to open
      */
-    public WritePVActionInfo(final String description, final String pv, final String value)
+    public OpenWebpageActionInfo(final String description, final String url)
     {
         super(description);
-        this.pv = pv;
-        this.value = value;
+        this.url = url;
     }
 
     @Override
     public ActionType getType()
     {
-        return ActionType.WRITE_PV;
+        return ActionType.OPEN_WEBPAGE;
     }
 
-    /** @return PV name */
-    public String getPV()
+    /** @return URL */
+    public String getURL()
     {
-        return pv;
-    }
-
-    /** @return Value to write */
-    public String getValue()
-    {
-        return value;
+        return url;
     }
 
     @Override
     public String toString()
     {
         if (getDescription().isEmpty())
-            return "Write " + value + " to " + pv;
+            return "Open " + url;
         else
             return getDescription();
     }

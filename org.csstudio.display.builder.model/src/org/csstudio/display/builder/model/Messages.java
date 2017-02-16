@@ -32,7 +32,6 @@ public class Messages extends NLS
     public static String BoolWidget_OnLabel;
     public static String ByteMonitor_BitReverse;
     public static String ByteMonitor_NumBits;
-    public static String ByteMonitor_SquareLED;
     public static String ByteMonitor_StartBit;
     public static String Bottom;
     public static String Checkbox_Label;
@@ -236,6 +235,7 @@ public class Messages extends NLS
     public static String WidgetProperties_ShowScale;
     public static String WidgetProperties_ShowUnits;
     public static String WidgetProperties_Skin;
+    public static String WidgetProperties_Square;
     public static String WidgetProperties_StretchToFit;
     public static String WidgetProperties_Text;
     public static String WidgetProperties_TextColor;

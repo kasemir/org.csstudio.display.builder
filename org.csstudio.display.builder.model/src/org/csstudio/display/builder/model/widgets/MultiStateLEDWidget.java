@@ -9,6 +9,7 @@ package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propSquare;
 
 import java.util.Arrays;
 import java.util.List;
@@ -106,7 +107,7 @@ public class MultiStateLEDWidget extends BaseLEDWidget
             // If legacy contained only one state, we'll keep the second default state,
             // but then a 1-state LED is really illdefined
 
-            BaseLEDWidget.handle_legacy_position(widget, xml_version, xml);
+            handle_legacy_LED(widget, xml_version, xml);
 
             // If legacy widgets was configured to not use labels, clear them
             XMLUtil.getChildBoolean(xml, "show_boolean_label").ifPresent(show ->
@@ -187,11 +188,10 @@ public class MultiStateLEDWidget extends BaseLEDWidget
         properties.add(states = propStates.createProperty(this, Arrays.asList(new StateWidgetProperty(this, 0),
                                                                               new StateWidgetProperty(this, 1))));
         properties.add(fallback_label = propFallbackLabel.createProperty(this, "Err"));
-        properties.add(fallback_color =
-                       propFallbackColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.ALARM_INVALID)));
+        properties.add(fallback_color = propFallbackColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.ALARM_INVALID)));
         properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
-        properties.add(foreground =
-                       propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
+        properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
+        properties.add(square = propSquare.createProperty(this, false));
     }
 
     /** @return 'states' property */

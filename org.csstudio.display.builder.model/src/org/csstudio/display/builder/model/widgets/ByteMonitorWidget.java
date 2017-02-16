@@ -11,19 +11,26 @@ import static  org.csstudio.display.builder.model.properties.CommonWidgetPropert
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHorizontal;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOffColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOnColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propSquare;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
+import org.csstudio.display.builder.model.WidgetConfigurator;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.persist.ModelReader;
+import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.IntegerWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
+import org.osgi.framework.Version;
+import org.w3c.dom.Element;
 
 /** Widget that displays the bits in an Integer or Long Integer value as a set of LEDs
  *  @author Amanda Carpenter
@@ -72,9 +79,27 @@ public class ByteMonitorWidget extends PVWidget
     public static final WidgetPropertyDescriptor<Boolean> propBitReverse =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "bitReverse", Messages.ByteMonitor_BitReverse);
 
-    /** 'square LED' property: Whether LEDS are square (rectangular) or round (circular) */
-    public static final WidgetPropertyDescriptor<Boolean> propSquareLED =
-        newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "square_led", Messages.ByteMonitor_SquareLED);
+    private static class CustomConfigurator extends WidgetConfigurator
+    {
+        public CustomConfigurator(final Version xml_version)
+        {
+            super(xml_version);
+        }
+
+        @Override
+        public boolean configureFromXML(final ModelReader model_reader, final Widget widget,
+                                        final Element xml) throws Exception
+        {
+            if (! super.configureFromXML(model_reader, widget, xml))
+                return false;
+
+            final Optional<Boolean> square = XMLUtil.getChildBoolean(xml, "square_led");
+            if (square.isPresent())
+                ((ByteMonitorWidget) widget).propSquare().setValue(square.get());
+            return true;
+        }
+    };
+
 
     private volatile WidgetProperty<WidgetColor> off_color;
     private volatile WidgetProperty<WidgetColor> on_color;
@@ -82,7 +107,7 @@ public class ByteMonitorWidget extends PVWidget
     private volatile WidgetProperty<Integer> numBits;
     private volatile WidgetProperty<Boolean> bitReverse;
     private volatile WidgetProperty<Boolean> horizontal;
-    private volatile WidgetProperty<Boolean> square_led;
+    private volatile WidgetProperty<Boolean> square;
 
     public ByteMonitorWidget()
     {
@@ -97,9 +122,16 @@ public class ByteMonitorWidget extends PVWidget
         properties.add(numBits = propNumBits.createProperty(this,8));
         properties.add(bitReverse = propBitReverse.createProperty(this,false));
         properties.add(horizontal = propHorizontal.createProperty(this,true));
-        properties.add(square_led = propSquareLED.createProperty(this,false));
+        properties.add(square = propSquare.createProperty(this,false));
         properties.add(off_color = propOffColor.createProperty(this, new WidgetColor(60, 100, 60)));
         properties.add(on_color = propOnColor.createProperty(this, new WidgetColor(60, 255, 60)));
+    }
+
+    @Override
+    public WidgetConfigurator getConfigurator(Version persisted_version)
+            throws Exception
+    {
+        return new CustomConfigurator(persisted_version);
     }
 
     /** @return 'off_color' property */
@@ -138,10 +170,9 @@ public class ByteMonitorWidget extends PVWidget
         return horizontal;
     }
 
-    /** @return 'square_led' property */
-    public WidgetProperty<Boolean> propSquareLED()
+    /** @return 'square' property */
+    public WidgetProperty<Boolean> propSquare()
     {
-        return square_led;
+        return square;
     }
-
 }
