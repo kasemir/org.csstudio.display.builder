@@ -17,6 +17,7 @@ import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
+import org.csstudio.display.builder.model.util.FormatOptionHandler;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.BaseGaugeWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
@@ -40,10 +41,11 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
     private static final Color MINOR_COLOR = JFXUtil.convert(WidgetColorService.getColor(NamedWidgetColors.ALARM_MINOR));
     private static final Color MAJOR_COLOR = JFXUtil.convert(WidgetColorService.getColor(NamedWidgetColors.ALARM_MAJOR));
 
+    private final DirtyFlag     dirtyContent  = new DirtyFlag();
     private final DirtyFlag     dirtyGeometry = new DirtyFlag();
     private final DirtyFlag     dirtyLimits   = new DirtyFlag();
     private final DirtyFlag     dirtyLook     = new DirtyFlag();
-    private final DirtyFlag     dirty_style   = new DirtyFlag();
+    private final DirtyFlag     dirtyStyle    = new DirtyFlag();
     private final DirtyFlag     dirtyValue    = new DirtyFlag();
     private volatile boolean    enabled       = true;
     private volatile double     high          = Double.NaN;
@@ -102,6 +104,16 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
 
         }
 
+        if ( dirtyContent.checkAndClear() ) {
+
+            value = FormatOptionHandler.actualPrecision(model_widget.runtimePropValue().getValue(), model_widget.propPrecision().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getDecimals()) ) {
+                jfx_node.setDecimals((int) value);
+            }
+
+        }
+
         if ( dirtyLimits.checkAndClear() ) {
             jfx_node.setMaxValue(max);
             jfx_node.setMinValue(min);
@@ -109,7 +121,7 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
             jfx_node.setSections(createZones());
         }
 
-        if ( dirty_style.checkAndClear() ) {
+        if ( dirtyStyle.checkAndClear() ) {
 
             value = model_widget.propEnabled().getValue();
 
@@ -172,6 +184,7 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         jfx_node.setCheckAreasForValue(false);
         jfx_node.setCheckSectionsForValue(false);
         jfx_node.setCheckThreshold(false);
+        jfx_node.setDecimals(FormatOptionHandler.actualPrecision(model_widget.runtimePropValue().getValue(), model_widget.propPrecision().getValue()));
         jfx_node.setHighlightAreas(false);
         jfx_node.setLedVisible(false);
     }
@@ -193,6 +206,7 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
                 .checkAreasForValue(false)
                 .checkSectionsForValue(false)
                 .checkThreshold(false)
+                .decimals(FormatOptionHandler.actualPrecision(model_widget.runtimePropValue().getValue(), model_widget.propPrecision().getValue()))
                 .highlightAreas(false)
                 .ledVisible(false)
                 .maxValue(max)
@@ -296,6 +310,10 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
     protected void registerListeners ( ) {
 
         super.registerListeners();
+
+        model_widget.propPrecision().addUntypedPropertyListener(this::contentChanged);
+        model_widget.runtimePropValue().addUntypedPropertyListener(this::contentChanged);
+        model_widget.propPVName().addPropertyListener(this::contentChanged);
 
         model_widget.propVisible().addUntypedPropertyListener(this::geometryChanged);
         model_widget.propX().addUntypedPropertyListener(this::geometryChanged);
@@ -411,15 +429,9 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
 
     }
 
-    protected void valueChanged ( final WidgetProperty<? extends VType> property, final VType old_value, final VType new_value ) {
-
-        if ( model_widget.propLimitsFromPV().getValue() ) {
-            limitsChanged(null, null, null);
-        }
-
-        dirtyValue.mark();
+    private void contentChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
+        dirtyContent.mark();
         toolkit.scheduleUpdate(this);
-
     }
 
     private void geometryChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
@@ -440,8 +452,19 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
     }
 
     private void styleChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
-        dirty_style.mark();
+        dirtyStyle.mark();
         toolkit.scheduleUpdate(this);
+    }
+
+    private void valueChanged ( final WidgetProperty<? extends VType> property, final VType old_value, final VType new_value ) {
+
+        if ( model_widget.propLimitsFromPV().getValue() ) {
+            limitsChanged(null, null, null);
+        }
+
+        dirtyValue.mark();
+        toolkit.scheduleUpdate(this);
+
     }
 
 }

@@ -17,6 +17,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLimitsFromPV;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMaximum;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMinimum;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPrecision;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propTransparent;
 
 import java.util.List;
@@ -54,6 +55,7 @@ public abstract class BaseGaugeWidget extends PVWidget {
     private volatile WidgetProperty<Boolean>     limits_from_pv;
     private volatile WidgetProperty<Double>      maximum;
     private volatile WidgetProperty<Double>      minimum;
+    private volatile WidgetProperty<Integer>     precision;
     private volatile WidgetProperty<Boolean>     show_high;
     private volatile WidgetProperty<Boolean>     show_hihi;
     private volatile WidgetProperty<Boolean>     show_lolo;
@@ -107,6 +109,10 @@ public abstract class BaseGaugeWidget extends PVWidget {
         return minimum;
     }
 
+    public WidgetProperty<Integer> propPrecision ( ) {
+        return precision;
+    }
+
     public WidgetProperty<Boolean> propShowHiHi ( ) {
         return show_hihi;
     }
@@ -143,6 +149,7 @@ public abstract class BaseGaugeWidget extends PVWidget {
         properties.add(background_color = propBackgroundColor.createProperty(this, new WidgetColor(255, 254, 253)));
         properties.add(transparent      = propTransparent.createProperty(this, true));
 
+        properties.add(precision        = propPrecision.createProperty(this, -1));
         properties.add(level_hihi       = propLevelHiHi.createProperty(this, 90.0));
         properties.add(level_high       = propLevelHigh.createProperty(this, 80.0));
         properties.add(level_low        = propLevelLow.createProperty(this, 20.0));
