@@ -50,6 +50,7 @@ public class XYPlotWidget extends VisibleWidget
 {
     /** Matcher for detecting legacy property names */
     private static final Pattern LEGACY_AXIS_PATTERN = Pattern.compile("axis_([0-9]+)_([a-z_]+)");
+    private static final Pattern LEGACY_TRACE_PATTERN = Pattern.compile("trace_([0-9]+)_([a-z_]+)");
 
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
@@ -311,7 +312,7 @@ public class XYPlotWidget extends VisibleWidget
     {
         // Translate legacy property names:
         // 'axis_1_log_scale', 'axis_1_minimum', '..maximum', '.._axis_title', '.._auto_scale'
-        final Matcher matcher = LEGACY_AXIS_PATTERN.matcher(name);
+        Matcher matcher = LEGACY_AXIS_PATTERN.matcher(name);
         if (matcher.matches())
         {
             final int index = Integer.parseInt(matcher.group(1));
@@ -326,6 +327,20 @@ public class XYPlotWidget extends VisibleWidget
                 logger.log(Level.WARNING, "Deprecated access to " + this + " property '" + name + "'. Use '" + new_name + "'");
             return getProperty(new_name);
         }
+
+        // trace_0_y_pv, trace_0_name
+        matcher = LEGACY_TRACE_PATTERN.matcher(name);
+        if (matcher.matches())
+        {
+            final int index = Integer.parseInt(matcher.group(1));
+            // Check for index 0 (x_axis.*) or 1.. (y_axes[0].*)
+            final String trace = "traces[" + index + "].";
+            final String new_name = trace + matcher.group(2);
+            if (warnings_once.add(name))
+                logger.log(Level.WARNING, "Deprecated access to " + this + " property '" + name + "'. Use '" + new_name + "'");
+            return getProperty(new_name);
+        }
+
         return super.getProperty(name);
     }
 
