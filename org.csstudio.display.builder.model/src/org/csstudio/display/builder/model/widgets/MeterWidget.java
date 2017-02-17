@@ -12,6 +12,7 @@ package org.csstudio.display.builder.model.widgets;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newColorPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newIntegerPropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
 
 import java.util.List;
 
@@ -102,6 +103,7 @@ public class MeterWidget extends BaseGaugeWidget {
     private volatile WidgetProperty<Boolean>      average;
     private volatile WidgetProperty<WidgetColor>  average_color;
     private volatile WidgetProperty<Integer>      average_samples;
+    private volatile WidgetProperty<WidgetColor>  foreground;
     private volatile WidgetProperty<Boolean>      highligh_zones;
     private volatile WidgetProperty<KnobPosition> knob_position;
     private volatile WidgetProperty<Skin>         skin;
@@ -120,6 +122,10 @@ public class MeterWidget extends BaseGaugeWidget {
 
     public WidgetProperty<Integer> propAverageSamples ( ) {
         return average_samples;
+    }
+
+    public WidgetProperty<WidgetColor> propForegroundColor ( ) {
+        return foreground;
     }
 
     public WidgetProperty<Boolean> propHighlightZones ( ) {
@@ -141,6 +147,8 @@ public class MeterWidget extends BaseGaugeWidget {
 
         properties.add(skin            = propSkin.createProperty(this, Skin.HORIZONTAL));
         properties.add(knob_position   = propKnobPosition.createProperty(this, KnobPosition.BOTTOM_CENTER));
+
+        properties.add(foreground      = propForegroundColor.createProperty(this, new WidgetColor(13, 11, 7)));
 
         properties.add(highligh_zones  = propHighlightZones.createProperty(this, true));
 

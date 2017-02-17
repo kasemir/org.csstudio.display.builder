@@ -176,17 +176,24 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
      * @param skinType The new skin to be set.
      */
     protected void changeSkin ( final Gauge.SkinType skinType ) {
+
         jfx_node.setSkinType(skinType);
+
         jfx_node.setPrefWidth(model_widget.propWidth().getValue());
         jfx_node.setPrefHeight(model_widget.propHeight().getValue());
+
         jfx_node.setAnimated(false);
         jfx_node.setAutoScale(true);
+        jfx_node.setBackgroundPaint(model_widget.propTransparent().getValue() ? Color.TRANSPARENT : JFXUtil.convert(model_widget.propBackgroundColor().getValue()));
         jfx_node.setCheckAreasForValue(false);
         jfx_node.setCheckSectionsForValue(false);
         jfx_node.setCheckThreshold(false);
         jfx_node.setDecimals(FormatOptionHandler.actualPrecision(model_widget.runtimePropValue().getValue(), model_widget.propPrecision().getValue()));
         jfx_node.setHighlightAreas(false);
         jfx_node.setLedVisible(false);
+        jfx_node.setTitle(model_widget.propTitle().getValue());
+        jfx_node.setTitleColor(JFXUtil.convert(model_widget.propTitleColor().getValue()));
+
     }
 
     protected Gauge createJFXNode ( Gauge.SkinType skin ) throws Exception {
@@ -221,42 +228,6 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         enabled = model_widget.propEnabled().getValue();
 
         Styles.update(gauge, Styles.NOT_ENABLED, !enabled);
-
-        gauge.backgroundPaintProperty().addListener( ( s, o, n ) -> {
-            if ( !Objects.equals(n, JFXUtil.convert(model_widget.propBackgroundColor().getValue())) ) {
-                model_widget.propBackgroundColor().setValue(JFXUtil.convert((Color) n));
-            }
-        });
-        gauge.layoutXProperty().addListener( ( s, o, n ) -> {
-            if ( !Objects.equals(n, model_widget.propX().getValue()) ) {
-                model_widget.propX().setValue(n.intValue());
-            }
-        });
-        gauge.layoutYProperty().addListener( ( s, o, n ) -> {
-            if ( !Objects.equals(n, model_widget.propY().getValue()) ) {
-                model_widget.propY().setValue(n.intValue());
-            }
-        });
-        gauge.prefHeightProperty().addListener( ( s, o, n ) -> {
-            if ( !Objects.equals(n, model_widget.propHeight().getValue()) ) {
-                model_widget.propHeight().setValue(n.intValue());
-            }
-        });
-        gauge.prefWidthProperty().addListener( ( s, o, n ) -> {
-            if ( !Objects.equals(n, model_widget.propWidth().getValue()) ) {
-                model_widget.propWidth().setValue(n.intValue());
-            }
-        });
-        gauge.titleProperty().addListener( ( s, o, n ) -> {
-            if ( !Objects.equals(n, model_widget.propTitle().getValue()) ) {
-                model_widget.propTitle().setValue(n);
-            }
-        });
-        gauge.titleColorProperty().addListener( ( s, o, n ) -> {
-            if ( !Objects.equals(n, JFXUtil.convert(model_widget.propTitleColor().getValue())) ) {
-                model_widget.propTitleColor().setValue(JFXUtil.convert(n));
-            }
-        });
 
         return gauge;
 
@@ -312,7 +283,6 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         super.registerListeners();
 
         model_widget.propPrecision().addUntypedPropertyListener(this::contentChanged);
-        model_widget.runtimePropValue().addUntypedPropertyListener(this::contentChanged);
         model_widget.propPVName().addPropertyListener(this::contentChanged);
 
         model_widget.propVisible().addUntypedPropertyListener(this::geometryChanged);
@@ -460,6 +430,10 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
 
         if ( model_widget.propLimitsFromPV().getValue() ) {
             limitsChanged(null, null, null);
+        }
+
+        if ( model_widget.propPrecision().getValue() == -1 ) {
+            contentChanged(null, null, null);
         }
 
         dirtyValue.mark();

@@ -65,10 +65,6 @@ public class MeterRepresentation extends BaseGaugeRepresentation<MeterWidget> {
 
                 changeSkin(skinType);
 
-                jfx_node.setHighlightSections(zonesHighlight);
-                jfx_node.setKnobPosition(Pos.valueOf(knobPosition.name()));
-                jfx_node.setTickLabelLocation(TickLabelLocation.INSIDE);
-
                 switch ( skin ) {
                     case THREE_QUARTERS:
                         jfx_node.setAngleRange(270);
@@ -99,6 +95,12 @@ public class MeterRepresentation extends BaseGaugeRepresentation<MeterWidget> {
                 jfx_node.setAveragingPeriod((int) value);
             }
 
+            value = JFXUtil.convert(model_widget.propForegroundColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getForegroundPaint()) ) {
+                jfx_node.setForegroundPaint((Color) value);
+            }
+
             value = model_widget.propKnobPosition().getValue();
 
             if ( !Objects.equals(value,  knobPosition) ) {
@@ -126,6 +128,9 @@ public class MeterRepresentation extends BaseGaugeRepresentation<MeterWidget> {
         jfx_node.setAverageVisible(model_widget.propAverage().getValue());
         jfx_node.setAveragingEnabled(model_widget.propAverage().getValue());
         jfx_node.setAveragingPeriod(model_widget.propAverageSamples().getValue());
+        jfx_node.setForegroundPaint(JFXUtil.convert(model_widget.propForegroundColor().getValue()));
+        jfx_node.setHighlightSections(zonesHighlight);
+        jfx_node.setKnobPosition(Pos.valueOf(knobPosition.name()));
         jfx_node.setTickLabelLocation(TickLabelLocation.INSIDE);
 
     }
@@ -153,6 +158,7 @@ public class MeterRepresentation extends BaseGaugeRepresentation<MeterWidget> {
         gauge.setAverageVisible(model_widget.propAverage().getValue());
         gauge.setAveragingEnabled(model_widget.propAverage().getValue());
         gauge.setAveragingPeriod(model_widget.propAverageSamples().getValue());
+        gauge.setForegroundPaint(JFXUtil.convert(model_widget.propForegroundColor().getValue()));
         gauge.setHighlightSections(zonesHighlight);
         gauge.setKnobPosition(Pos.valueOf(knobPosition.name()));
         gauge.setTickLabelLocation(TickLabelLocation.INSIDE);
@@ -165,17 +171,6 @@ public class MeterRepresentation extends BaseGaugeRepresentation<MeterWidget> {
             default:
                 break;
         }
-
-        gauge.highlightSectionsProperty().addListener( ( s, o, n ) -> {
-            if ( !Objects.equals(n, model_widget.propHighlightZones().getValue()) ) {
-                model_widget.propHighlightZones().setValue(n);
-            }
-        });
-        gauge.knobPositionProperty().addListener( ( s, o, n ) -> {
-            if ( !Objects.equals(n, Pos.valueOf(model_widget.propKnobPosition().getValue().name())) ) {
-                model_widget.propKnobPosition().setValue(KnobPosition.valueOf(n.name()));
-            }
-        });
 
         return gauge;
 
@@ -215,6 +210,7 @@ public class MeterRepresentation extends BaseGaugeRepresentation<MeterWidget> {
         model_widget.propAverage().addUntypedPropertyListener(this::lookChanged);
         model_widget.propAverageColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propAverageSamples().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propForegroundColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propKnobPosition().addUntypedPropertyListener(this::lookChanged);
         model_widget.propSkin().addUntypedPropertyListener(this::lookChanged);
 

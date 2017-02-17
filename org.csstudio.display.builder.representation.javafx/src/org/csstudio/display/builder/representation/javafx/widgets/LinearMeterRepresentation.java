@@ -78,6 +78,23 @@ public class LinearMeterRepresentation extends BaseGaugeRepresentation<LinearMet
     }
 
     @Override
+    protected void changeSkin ( final Gauge.SkinType skinType ) {
+
+        super.changeSkin(skinType);
+
+        jfx_node.setAreaIconsVisible(false);
+        jfx_node.setAreaTextVisible(false);
+        jfx_node.setAreas(createAreas());
+        jfx_node.setAreasVisible(barHighlight);
+        jfx_node.setBarColor(JFXUtil.convert(model_widget.propBarColor().getValue()));
+        jfx_node.setBarEffectEnabled(!model_widget.propFlatBar().getValue());
+        jfx_node.setHighlightSections(zonesHighlight);
+        jfx_node.setOrientation(Orientation.valueOf(orientation.name()));
+        jfx_node.setTickLabelLocation(TickLabelLocation.INSIDE);
+
+    }
+
+    @Override
     protected Gauge createJFXNode ( ) throws Exception {
 
         orientation = model_widget.propOrientation().getValue();
@@ -93,32 +110,6 @@ public class LinearMeterRepresentation extends BaseGaugeRepresentation<LinearMet
         gauge.setHighlightSections(zonesHighlight);
         gauge.setOrientation(Orientation.valueOf(orientation.name()));
         gauge.setTickLabelLocation(TickLabelLocation.INSIDE);
-
-        gauge.barColorProperty().addListener( ( s, o, n ) -> {
-            if ( !Objects.equals(n, JFXUtil.convert(model_widget.propBarColor().getValue())) ) {
-                model_widget.propBarColor().setValue(JFXUtil.convert(n));
-            }
-        });
-        gauge.barEffectEnabledProperty().addListener( ( s, o, n ) -> {
-            if ( !Objects.equals(!n, model_widget.propFlatBar().getValue()) ) {
-                model_widget.propFlatBar().setValue(!n);
-            }
-        });
-        gauge.highlightAreasProperty().addListener( ( s, o, n ) -> {
-            if ( !Objects.equals(n, model_widget.propHighlightBar().getValue()) ) {
-                model_widget.propHighlightBar().setValue(n);
-            }
-        });
-        gauge.highlightSectionsProperty().addListener( ( s, o, n ) -> {
-            if ( !Objects.equals(n, model_widget.propHighlightZones().getValue()) ) {
-                model_widget.propHighlightZones().setValue(n);
-            }
-        });
-        gauge.orientationProperty().addListener( ( s, o, n ) -> {
-            if ( !Objects.equals(n, Orientation.valueOf(model_widget.propOrientation().getValue().name())) ) {
-                model_widget.propOrientation().setValue(LinearMeterWidget.Orientation.valueOf(n.name()));
-            }
-        });
 
         return gauge;
 

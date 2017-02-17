@@ -66,6 +66,17 @@ public class GaugeRepresentation extends BaseGaugeRepresentation<GaugeWidget> {
     }
 
     @Override
+    protected void changeSkin ( final Gauge.SkinType skinType ) {
+
+        super.changeSkin(skinType);
+
+        jfx_node.setBarBackgroundColor(JFXUtil.convert(model_widget.propBarBackgroundColor().getValue()));
+        jfx_node.setBarColor(JFXUtil.convert(model_widget.propBarColor().getValue()));
+        jfx_node.setHighlightSections(false);
+
+    }
+
+    @Override
     protected Gauge createJFXNode ( ) throws Exception {
 
         Gauge.SkinType skinType = Gauge.SkinType.valueOf(model_widget.propSkin().getValue().name());
@@ -74,18 +85,6 @@ public class GaugeRepresentation extends BaseGaugeRepresentation<GaugeWidget> {
         gauge.setBarBackgroundColor(JFXUtil.convert(model_widget.propBarBackgroundColor().getValue()));
         gauge.setBarColor(JFXUtil.convert(model_widget.propBarColor().getValue()));
         gauge.setHighlightSections(false);
-
-        gauge.barBackgroundColorProperty().addListener( ( s, o, n ) -> {
-            if ( !Objects.equals(n, JFXUtil.convert(model_widget.propBarBackgroundColor().getValue())) ) {
-                model_widget.propBarBackgroundColor().setValue(JFXUtil.convert(n));
-            }
-        });
-
-        gauge.barColorProperty().addListener( ( s, o, n ) -> {
-            if ( !Objects.equals(n, JFXUtil.convert(model_widget.propBarColor().getValue())) ) {
-                model_widget.propBarColor().setValue(JFXUtil.convert(n));
-            }
-        });
 
         return gauge;
 
