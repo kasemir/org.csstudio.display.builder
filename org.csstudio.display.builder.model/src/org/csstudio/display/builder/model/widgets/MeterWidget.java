@@ -99,12 +99,14 @@ public class MeterWidget extends BaseGaugeWidget {
     public static final WidgetPropertyDescriptor<Boolean>      propAverage        = newBooleanPropertyDescriptor              (WidgetPropertyCategory.MISC,     "average",         Messages.WidgetProperties_Average);
     public static final WidgetPropertyDescriptor<WidgetColor>  propAverageColor   = newColorPropertyDescriptor                (WidgetPropertyCategory.MISC,     "average_color",   Messages.WidgetProperties_AverageColor);
     public static final WidgetPropertyDescriptor<Integer>      propAverageSamples = newIntegerPropertyDescriptor              (WidgetPropertyCategory.MISC,     "average_samples", Messages.WidgetProperties_AverageSamples, 1, 1000);
+    public static final WidgetPropertyDescriptor<WidgetColor>  propKnobColor      = newColorPropertyDescriptor                (WidgetPropertyCategory.MISC,     "knob_color",      Messages.WidgetProperties_KnobColor);
 
     private volatile WidgetProperty<Boolean>      average;
     private volatile WidgetProperty<WidgetColor>  average_color;
     private volatile WidgetProperty<Integer>      average_samples;
     private volatile WidgetProperty<WidgetColor>  foreground;
     private volatile WidgetProperty<Boolean>      highligh_zones;
+    private volatile WidgetProperty<WidgetColor>  knob_color;
     private volatile WidgetProperty<KnobPosition> knob_position;
     private volatile WidgetProperty<Skin>         skin;
 
@@ -132,6 +134,10 @@ public class MeterWidget extends BaseGaugeWidget {
         return highligh_zones;
     }
 
+    public WidgetProperty<WidgetColor> propKnobColor ( ) {
+        return knob_color;
+    }
+
     public WidgetProperty<KnobPosition> propKnobPosition ( ) {
         return knob_position;
     }
@@ -155,6 +161,7 @@ public class MeterWidget extends BaseGaugeWidget {
         properties.add(average         = propAverage.createProperty(this, false));
         properties.add(average_color   = propAverageColor.createProperty(this, new WidgetColor(13, 23, 251)));
         properties.add(average_samples = propAverageSamples.createProperty(this, 100));
+        properties.add(knob_color      = propKnobColor.createProperty(this, new WidgetColor(177, 166, 155)));
 
     }
 

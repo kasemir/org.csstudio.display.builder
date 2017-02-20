@@ -190,6 +190,8 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         jfx_node.setCheckThreshold(false);
         jfx_node.setDecimals(FormatOptionHandler.actualPrecision(model_widget.runtimePropValue().getValue(), model_widget.propPrecision().getValue()));
         jfx_node.setHighlightAreas(false);
+        jfx_node.setInnerShadowEnabled(false);
+        jfx_node.setInteractive(false);
         jfx_node.setLedVisible(false);
         jfx_node.setTitle(model_widget.propTitle().getValue());
         jfx_node.setTitleColor(JFXUtil.convert(model_widget.propTitleColor().getValue()));
@@ -215,6 +217,8 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
                 .checkThreshold(false)
                 .decimals(FormatOptionHandler.actualPrecision(model_widget.runtimePropValue().getValue(), model_widget.propPrecision().getValue()))
                 .highlightAreas(false)
+                .innerShadowEnabled(false)
+                .interactive(false)
                 .ledVisible(false)
                 .maxValue(max)
                 .minValue(min)

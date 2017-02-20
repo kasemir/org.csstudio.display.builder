@@ -101,6 +101,12 @@ public class MeterRepresentation extends BaseGaugeRepresentation<MeterWidget> {
                 jfx_node.setForegroundPaint((Color) value);
             }
 
+            value = JFXUtil.convert(model_widget.propKnobColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getKnobColor()) ) {
+                jfx_node.setKnobColor((Color) value);
+            }
+
             value = model_widget.propKnobPosition().getValue();
 
             if ( !Objects.equals(value,  knobPosition) ) {
@@ -130,6 +136,7 @@ public class MeterRepresentation extends BaseGaugeRepresentation<MeterWidget> {
         jfx_node.setAveragingPeriod(model_widget.propAverageSamples().getValue());
         jfx_node.setForegroundPaint(JFXUtil.convert(model_widget.propForegroundColor().getValue()));
         jfx_node.setHighlightSections(zonesHighlight);
+        jfx_node.setKnobColor(JFXUtil.convert(model_widget.propKnobColor().getValue()));
         jfx_node.setKnobPosition(Pos.valueOf(knobPosition.name()));
         jfx_node.setTickLabelLocation(TickLabelLocation.INSIDE);
 
@@ -160,6 +167,7 @@ public class MeterRepresentation extends BaseGaugeRepresentation<MeterWidget> {
         gauge.setAveragingPeriod(model_widget.propAverageSamples().getValue());
         gauge.setForegroundPaint(JFXUtil.convert(model_widget.propForegroundColor().getValue()));
         gauge.setHighlightSections(zonesHighlight);
+        gauge.setKnobColor(JFXUtil.convert(model_widget.propKnobColor().getValue()));
         gauge.setKnobPosition(Pos.valueOf(knobPosition.name()));
         gauge.setTickLabelLocation(TickLabelLocation.INSIDE);
 
@@ -211,6 +219,7 @@ public class MeterRepresentation extends BaseGaugeRepresentation<MeterWidget> {
         model_widget.propAverageColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propAverageSamples().addUntypedPropertyListener(this::lookChanged);
         model_widget.propForegroundColor().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propKnobColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propKnobPosition().addUntypedPropertyListener(this::lookChanged);
         model_widget.propSkin().addUntypedPropertyListener(this::lookChanged);
 
