@@ -49,7 +49,7 @@ public class MeterWidget extends BaseGaugeWidget {
     };
 
     /**
-     * The position of the knov in non-LINEAR meters.
+     * The position of the knob.
      *
      * @author Claudio Rosati, European Spallation Source ERIC
      * @version 1.0.0 7 Feb 2017
@@ -64,6 +64,19 @@ public class MeterWidget extends BaseGaugeWidget {
         TOP_CENTER,
         TOP_LEFT,
         TOP_RIGHT
+    }
+
+    /**
+     * The position of the knob.
+     *
+     * @author Claudio Rosati, European Spallation Source ERIC
+     * @version 1.0.0 20 Feb 2017
+     */
+    public enum KnobType {
+        FLAT,
+        METAL,
+        PLAIN,
+        STANDARD
     }
 
     /**
@@ -100,6 +113,12 @@ public class MeterWidget extends BaseGaugeWidget {
     public static final WidgetPropertyDescriptor<WidgetColor>  propAverageColor   = newColorPropertyDescriptor                (WidgetPropertyCategory.MISC,     "average_color",   Messages.WidgetProperties_AverageColor);
     public static final WidgetPropertyDescriptor<Integer>      propAverageSamples = newIntegerPropertyDescriptor              (WidgetPropertyCategory.MISC,     "average_samples", Messages.WidgetProperties_AverageSamples, 1, 1000);
     public static final WidgetPropertyDescriptor<WidgetColor>  propKnobColor      = newColorPropertyDescriptor                (WidgetPropertyCategory.MISC,     "knob_color",      Messages.WidgetProperties_KnobColor);
+    public static final WidgetPropertyDescriptor<KnobType>     propKnobType       = new WidgetPropertyDescriptor<KnobType>    (WidgetPropertyCategory.MISC,     "knob_type",       Messages.WidgetProperties_KnobType) {
+        @Override
+        public EnumWidgetProperty<KnobType> createProperty ( Widget widget, KnobType defaultValue ) {
+            return new EnumWidgetProperty<>(this, widget, defaultValue);
+        }
+    };
 
     private volatile WidgetProperty<Boolean>      average;
     private volatile WidgetProperty<WidgetColor>  average_color;
@@ -108,6 +127,7 @@ public class MeterWidget extends BaseGaugeWidget {
     private volatile WidgetProperty<Boolean>      highligh_zones;
     private volatile WidgetProperty<WidgetColor>  knob_color;
     private volatile WidgetProperty<KnobPosition> knob_position;
+    private volatile WidgetProperty<KnobType>     knob_type;
     private volatile WidgetProperty<Skin>         skin;
 
     public MeterWidget ( ) {
@@ -142,6 +162,10 @@ public class MeterWidget extends BaseGaugeWidget {
         return knob_position;
     }
 
+    public WidgetProperty<KnobType> propKnobType ( ) {
+        return knob_type;
+    }
+
     public WidgetProperty<Skin> propSkin ( ) {
         return skin;
     }
@@ -162,6 +186,7 @@ public class MeterWidget extends BaseGaugeWidget {
         properties.add(average_color   = propAverageColor.createProperty(this, new WidgetColor(13, 23, 251)));
         properties.add(average_samples = propAverageSamples.createProperty(this, 100));
         properties.add(knob_color      = propKnobColor.createProperty(this, new WidgetColor(177, 166, 155)));
+        properties.add(knob_type       = propKnobType.createProperty(this, KnobType.STANDARD));
 
     }
 

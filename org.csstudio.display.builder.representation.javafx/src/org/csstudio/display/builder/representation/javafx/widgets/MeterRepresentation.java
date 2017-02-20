@@ -14,8 +14,6 @@ import java.util.Objects;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.MeterWidget;
-import org.csstudio.display.builder.model.widgets.MeterWidget.KnobPosition;
-import org.csstudio.display.builder.model.widgets.MeterWidget.Skin;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
 import eu.hansolo.medusa.Gauge;
@@ -35,6 +33,7 @@ public class MeterRepresentation extends BaseGaugeRepresentation<MeterWidget> {
     private final DirtyFlag          dirtyLook      = new DirtyFlag();
     private MeterWidget.Skin         skin           = null;
     private MeterWidget.KnobPosition knobPosition   = null;
+    private MeterWidget.KnobType     knobType       = null;
     private volatile boolean         zonesHighlight = true;
 
     @Override
@@ -50,7 +49,7 @@ public class MeterRepresentation extends BaseGaugeRepresentation<MeterWidget> {
 
             if ( !Objects.equals(value, skin) ) {
 
-                skin = (Skin) value;
+                skin = (MeterWidget.Skin) value;
 
                 final Gauge.SkinType skinType;
 
@@ -111,9 +110,19 @@ public class MeterRepresentation extends BaseGaugeRepresentation<MeterWidget> {
 
             if ( !Objects.equals(value,  knobPosition) ) {
 
-                knobPosition = (KnobPosition) value;
+                knobPosition = (MeterWidget.KnobPosition) value;
 
                 jfx_node.setKnobPosition(Pos.valueOf(knobPosition.name()));
+
+            }
+
+            value = model_widget.propKnobType().getValue();
+
+            if ( !Objects.equals(value,  knobType) ) {
+
+                knobType = (MeterWidget.KnobType) value;
+
+                jfx_node.setKnobType(Gauge.KnobType.valueOf(knobType.name()));
 
             }
 
@@ -138,6 +147,7 @@ public class MeterRepresentation extends BaseGaugeRepresentation<MeterWidget> {
         jfx_node.setHighlightSections(zonesHighlight);
         jfx_node.setKnobColor(JFXUtil.convert(model_widget.propKnobColor().getValue()));
         jfx_node.setKnobPosition(Pos.valueOf(knobPosition.name()));
+        jfx_node.setKnobType(Gauge.KnobType.valueOf(knobType.name()));
         jfx_node.setTickLabelLocation(TickLabelLocation.INSIDE);
 
     }
@@ -146,6 +156,7 @@ public class MeterRepresentation extends BaseGaugeRepresentation<MeterWidget> {
     protected Gauge createJFXNode ( ) throws Exception {
 
         knobPosition = model_widget.propKnobPosition().getValue();
+        knobType = model_widget.propKnobType().getValue();
         skin = model_widget.propSkin().getValue();
 
         Gauge.SkinType skinType;
@@ -169,6 +180,7 @@ public class MeterRepresentation extends BaseGaugeRepresentation<MeterWidget> {
         gauge.setHighlightSections(zonesHighlight);
         gauge.setKnobColor(JFXUtil.convert(model_widget.propKnobColor().getValue()));
         gauge.setKnobPosition(Pos.valueOf(knobPosition.name()));
+        gauge.setKnobType(Gauge.KnobType.valueOf(knobType.name()));
         gauge.setTickLabelLocation(TickLabelLocation.INSIDE);
 
         switch ( skin ) {
@@ -221,6 +233,7 @@ public class MeterRepresentation extends BaseGaugeRepresentation<MeterWidget> {
         model_widget.propForegroundColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propKnobColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propKnobPosition().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propKnobType().addUntypedPropertyListener(this::lookChanged);
         model_widget.propSkin().addUntypedPropertyListener(this::lookChanged);
 
         model_widget.propHighlightZones().addUntypedPropertyListener(this::limitsChanged);

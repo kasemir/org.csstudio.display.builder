@@ -195,6 +195,7 @@ public class Messages extends NLS
     public static String WidgetProperties_Interpolation;
     public static String WidgetProperties_KnobColor;
     public static String WidgetProperties_KnobPosition;
+    public static String WidgetProperties_KnobType;
     public static String WidgetProperties_LabelsFromPV;
     public static String WidgetProperties_LcdCrystalEnabled;
     public static String WidgetProperties_LcdDesign;
