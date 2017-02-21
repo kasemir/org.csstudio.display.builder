@@ -467,16 +467,19 @@ public class SelectedWidgetUITracker extends Tracker
 
         // Add a highlight to each selected widget
         // (tracker area may cover widgets that are not actually selected)
+        // Only do that for 2 or more widgets.
+        // For a single widget, the tracker rectangle is sufficient.
         widget_highlights.getChildren().clear();
-        for (Widget widget : widgets)
-        {
-            final Rectangle2D bounds = GeometryTools.getDisplayBounds(widget);
-            final Rectangle highlight = new Rectangle(bounds.getMinX(), bounds.getMinY(), bounds.getWidth(), bounds.getHeight());
-            highlight.getStyleClass().add("tracker_highlight");
-            // highlight is 'behind' rest of tracker, but still pass mouse clicks through to widgets
-            highlight.setMouseTransparent(true);
-            widget_highlights.getChildren().add(highlight);
-        }
+        if (widgets.size() > 1)
+            for (Widget widget : widgets)
+            {
+                final Rectangle2D bounds = GeometryTools.getDisplayBounds(widget);
+                final Rectangle highlight = new Rectangle(bounds.getMinX(), bounds.getMinY(), bounds.getWidth(), bounds.getHeight());
+                highlight.getStyleClass().add("tracker_highlight");
+                // highlight is 'behind' rest of tracker, but still pass mouse clicks through to widgets
+                highlight.setMouseTransparent(true);
+                widget_highlights.getChildren().add(highlight);
+            }
 
         updating = false;
     }
