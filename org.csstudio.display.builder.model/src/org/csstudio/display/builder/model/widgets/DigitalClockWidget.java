@@ -84,17 +84,32 @@ public class DigitalClockWidget extends BaseClockWidget {
         YOCTOPUCE
     }
 
-    public static final WidgetPropertyDescriptor<Design>  propLcdDesign         = new WidgetPropertyDescriptor<Design>(WidgetPropertyCategory.WIDGET, "lcd_design",          Messages.WidgetProperties_LcdDesign) {
+    public enum LCDFont {
+        DIGITAL,
+        DIGITAL_BOLD,
+        ELEKTRA,
+        LCD,
+        STANDARD
+    }
+
+    public static final WidgetPropertyDescriptor<Design>  propLcdDesign         = new WidgetPropertyDescriptor<Design> (WidgetPropertyCategory.WIDGET, "lcd_design",          Messages.WidgetProperties_LcdDesign) {
         @Override
         public EnumWidgetProperty<Design> createProperty ( Widget widget, Design defaultValue ) {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
+    public static final WidgetPropertyDescriptor<LCDFont> propLcdFont           = new WidgetPropertyDescriptor<LCDFont>(WidgetPropertyCategory.WIDGET, "lcd_font",            Messages.WidgetProperties_LcdFont) {
+        @Override
+        public EnumWidgetProperty<LCDFont> createProperty ( Widget widget, LCDFont defaultValue ) {
+            return new EnumWidgetProperty<>(this, widget, defaultValue);
+        }
+    };
 
-    public static final WidgetPropertyDescriptor<Boolean> propLcdCrystalEnabled = newBooleanPropertyDescriptor        (WidgetPropertyCategory.MISC,   "lcd_crystal_enabled", Messages.WidgetProperties_LcdCrystalEnabled);
+    public static final WidgetPropertyDescriptor<Boolean> propLcdCrystalEnabled = newBooleanPropertyDescriptor         (WidgetPropertyCategory.MISC,   "lcd_crystal_enabled", Messages.WidgetProperties_LcdCrystalEnabled);
 
     private volatile WidgetProperty<Boolean> lcdCrystalEnabled;
     private volatile WidgetProperty<Design>  lcdDesign;
+    private volatile WidgetProperty<LCDFont> lcdFont;
 
     public DigitalClockWidget ( ) {
         super(WIDGET_DESCRIPTOR.getType(), 170, 90);
@@ -108,12 +123,17 @@ public class DigitalClockWidget extends BaseClockWidget {
         return lcdDesign;
     }
 
+    public WidgetProperty<LCDFont> propLcdFont ( ) {
+        return lcdFont;
+    }
+
     @Override
     protected void defineProperties ( final List<WidgetProperty<?>> properties ) {
 
         super.defineProperties(properties);
 
         properties.add(lcdDesign         = propLcdDesign.createProperty(this, Design.SECTIONS));
+        properties.add(lcdFont           = propLcdFont.createProperty(this, LCDFont.DIGITAL_BOLD));
 
         properties.add(lcdCrystalEnabled = propLcdCrystalEnabled.createProperty(this, false));
 

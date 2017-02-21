@@ -19,6 +19,7 @@ import org.csstudio.display.builder.model.widgets.DigitalClockWidget.Design;
 import eu.hansolo.medusa.Clock;
 import eu.hansolo.medusa.Clock.ClockSkinType;
 import eu.hansolo.medusa.LcdDesign;
+import eu.hansolo.medusa.LcdFont;
 
 
 /**
@@ -39,16 +40,22 @@ public class DigitalClockRepresentation extends BaseClockRepresentation<DigitalC
 
         if ( dirtyLook.checkAndClear() ) {
 
+            value = model_widget.propLcdCrystalEnabled().getValue();
+
+            if ( !Objects.equals(value, jfx_node.isLcdCrystalEnabled()) ) {
+                jfx_node.setLcdCrystalEnabled((boolean) value);
+            }
+
             value = LcdDesign.valueOf(model_widget.propLcdDesign().getValue().name());
 
             if ( !Objects.equals(value, jfx_node.getLcdDesign()) ) {
                 jfx_node.setLcdDesign((LcdDesign) value);
             }
 
-            value = model_widget.propLcdCrystalEnabled().getValue();
+            value = LcdFont.valueOf(model_widget.propLcdFont().getValue().name());
 
-            if ( !Objects.equals(value, jfx_node.isLcdCrystalEnabled()) ) {
-                jfx_node.setLcdCrystalEnabled((boolean) value);
+            if ( !Objects.equals(value, jfx_node.getLcdFont()) ) {
+                jfx_node.setLcdFont((LcdFont) value);
             }
 
         }
@@ -60,8 +67,9 @@ public class DigitalClockRepresentation extends BaseClockRepresentation<DigitalC
 
         Clock clock = super.createJFXNode(ClockSkinType.LCD);
 
-        clock.setLcdDesign(LcdDesign.valueOf(model_widget.propLcdDesign().getValue().name()));
         clock.setLcdCrystalEnabled(model_widget.propLcdCrystalEnabled().getValue());
+        clock.setLcdDesign(LcdDesign.valueOf(model_widget.propLcdDesign().getValue().name()));
+        clock.setLcdFont(LcdFont.valueOf(model_widget.propLcdFont().getValue().name()));
         clock.setTextVisible(true);
 
         clock.lcdCrystalEnabledProperty().addListener( ( s, o, n ) -> {
@@ -86,6 +94,7 @@ public class DigitalClockRepresentation extends BaseClockRepresentation<DigitalC
 
         model_widget.propLcdCrystalEnabled().addUntypedPropertyListener(this::lookChanged);
         model_widget.propLcdDesign().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propLcdFont().addUntypedPropertyListener(this::lookChanged);
 
     }
 

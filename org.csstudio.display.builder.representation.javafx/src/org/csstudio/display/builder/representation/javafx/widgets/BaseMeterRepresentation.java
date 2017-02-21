@@ -17,6 +17,7 @@ import org.csstudio.display.builder.model.widgets.BaseMeterWidget;
 
 import eu.hansolo.medusa.Gauge;
 import eu.hansolo.medusa.LcdDesign;
+import eu.hansolo.medusa.LcdFont;
 import eu.hansolo.medusa.Section;
 import javafx.scene.paint.Color;
 
@@ -44,6 +45,12 @@ public abstract class BaseMeterRepresentation<W extends BaseMeterWidget> extends
                 jfx_node.setLcdDesign((LcdDesign) value);
             }
 
+            value = LcdFont.valueOf(model_widget.propLcdFont().getValue().name());
+
+            if ( !Objects.equals(value, jfx_node.getLcdFont()) ) {
+                jfx_node.setLcdFont((LcdFont) value);
+            }
+
             value = model_widget.propLcdVisible().getValue();
 
             if ( !Objects.equals(value, jfx_node.isLcdVisible()) ) {
@@ -60,6 +67,7 @@ public abstract class BaseMeterRepresentation<W extends BaseMeterWidget> extends
         super.changeSkin(skinType);
 
         jfx_node.setLcdDesign(LcdDesign.valueOf(model_widget.propLcdDesign().getValue().name()));
+        jfx_node.setLcdFont(LcdFont.valueOf(model_widget.propLcdFont().getValue().name()));
         jfx_node.setLcdVisible(model_widget.propLcdVisible().getValue());
 
     }
@@ -70,6 +78,7 @@ public abstract class BaseMeterRepresentation<W extends BaseMeterWidget> extends
         Gauge gauge = super.createJFXNode(Gauge.SkinType.LINEAR);
 
         gauge.setLcdDesign(LcdDesign.valueOf(model_widget.propLcdDesign().getValue().name()));
+        gauge.setLcdFont(LcdFont.valueOf(model_widget.propLcdFont().getValue().name()));
         gauge.setLcdVisible(model_widget.propLcdVisible().getValue());
 
         return gauge;
@@ -108,6 +117,7 @@ public abstract class BaseMeterRepresentation<W extends BaseMeterWidget> extends
         super.registerListeners();
 
         model_widget.propLcdDesign().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propLcdFont().addUntypedPropertyListener(this::lookChanged);
         model_widget.propLcdVisible().addUntypedPropertyListener(this::lookChanged);
 
     }

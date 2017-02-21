@@ -68,6 +68,14 @@ public abstract class BaseMeterWidget extends BaseGaugeWidget {
         YOCTOPUCE
     }
 
+    public enum LCDFont {
+        DIGITAL,
+        DIGITAL_BOLD,
+        ELEKTRA,
+        LCD,
+        STANDARD
+    }
+
     public static final WidgetPropertyDescriptor<Boolean>   propHighlightZones = newBooleanPropertyDescriptor           (WidgetPropertyCategory.BEHAVIOR, "highligh_zones", Messages.WidgetProperties_HighlightZones);
     public static final WidgetPropertyDescriptor<LCDDesign> propLcdDesign      = new WidgetPropertyDescriptor<LCDDesign>(WidgetPropertyCategory.MISC,     "lcd_design",     Messages.WidgetProperties_LcdDesign) {
         @Override
@@ -75,10 +83,17 @@ public abstract class BaseMeterWidget extends BaseGaugeWidget {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
+    public static final WidgetPropertyDescriptor<LCDFont>   propLcdFont        = new WidgetPropertyDescriptor<LCDFont>  (WidgetPropertyCategory.MISC,     "lcd_font",       Messages.WidgetProperties_LcdFont) {
+        @Override
+        public EnumWidgetProperty<LCDFont> createProperty ( Widget widget, LCDFont defaultValue ) {
+            return new EnumWidgetProperty<>(this, widget, defaultValue);
+        }
+    };
     public static final WidgetPropertyDescriptor<Boolean>   propLcdVisible     = newBooleanPropertyDescriptor           (WidgetPropertyCategory.MISC,     "lcd_visible",    Messages.WidgetProperties_LcdVisible);
 
     private volatile WidgetProperty<Boolean>   highligh_zones;
     private volatile WidgetProperty<LCDDesign> lcdDesign;
+    private volatile WidgetProperty<LCDFont>   lcdFont;
     private volatile WidgetProperty<Boolean>   lcdVisible;
 
     /**
@@ -98,6 +113,10 @@ public abstract class BaseMeterWidget extends BaseGaugeWidget {
         return lcdDesign;
     }
 
+    public WidgetProperty<LCDFont> propLcdFont ( ) {
+        return lcdFont;
+    }
+
     public WidgetProperty<Boolean> propLcdVisible ( ) {
         return lcdVisible;
     }
@@ -110,6 +129,7 @@ public abstract class BaseMeterWidget extends BaseGaugeWidget {
         properties.add(highligh_zones = propHighlightZones.createProperty(this, true));
 
         properties.add(lcdDesign      = propLcdDesign.createProperty(this, LCDDesign.SECTIONS));
+        properties.add(lcdFont        = propLcdFont.createProperty(this, LCDFont.DIGITAL_BOLD));
         properties.add(lcdVisible     = propLcdVisible.createProperty(this, true));
 
     }
