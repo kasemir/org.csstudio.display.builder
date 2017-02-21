@@ -111,29 +111,34 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Pane, DataBrowse
 
     private void fileChanged(final WidgetProperty<String> property, final String old_value, final String new_value)
     {
-        try
-        {
-            // Data browser model updates currently need to happen on the UI thread. Bummer.
-            // At least use background thread to read file into memory, avoiding file access delays on UI thread.
-            final InputStream file_stream = Objects.requireNonNull(model_widget.getFileInputStream(new_value));
-            final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-            byte[] temp = new byte[1024];
-            while (true)
-            {
-                final int len = file_stream.read(temp);
-                if (len < 0)
-                    break;
-                buffer.write(temp, 0, len);
-            }
-            file_stream.close();
-            buffer.close();
-            model_file_stream = new ByteArrayInputStream(buffer.toByteArray());
-        }
-        catch (Exception ex)
-        {
-            logger.log(Level.WARNING, "Failure resolving image path from base path: " + new_value, ex);
+        if (new_value.isEmpty())
             model_file_stream = null;
-            return;
+        else
+        {
+            try
+            {
+                // Data browser model updates currently need to happen on the UI thread. Bummer.
+                // At least use background thread to read file into memory, avoiding file access delays on UI thread.
+                final InputStream file_stream = Objects.requireNonNull(model_widget.getFileInputStream(new_value));
+                final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                byte[] temp = new byte[1024];
+                while (true)
+                {
+                    final int len = file_stream.read(temp);
+                    if (len < 0)
+                        break;
+                    buffer.write(temp, 0, len);
+                }
+                file_stream.close();
+                buffer.close();
+                model_file_stream = new ByteArrayInputStream(buffer.toByteArray());
+            }
+            catch (Exception ex)
+            {
+                logger.log(Level.WARNING, "Failure resolving image path from base path: " + new_value, ex);
+                model_file_stream = null;
+                return;
+            }
         }
 
         dirty_file.mark();
@@ -146,13 +151,18 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Pane, DataBrowse
         super.updateChanges();
         if (dirty_file.checkAndClear())
         {
-            //This is being done here because the load function causes effects that need to happen on the FxUserThread
+            // This is being done here because the load function causes effects that need to happen on the FxUserThread
             final InputStream safe_stream = model_file_stream;
             model_file_stream = null;
+
+            // Clear model that might already contain items
+            final Model db_model = model_widget.getDataBrowserModel();
+            db_model.clear();
+
+            // Load new model
             if (safe_stream != null)
                 try
                 {
-                    final Model db_model = model_widget.getDataBrowserModel();
                     db_model.setMacros(model_widget.getEffectiveMacros());
                     new XMLPersistence().load(db_model, safe_stream);
 
