@@ -79,31 +79,42 @@ public class NewDisplayWizardPage extends WizardPage
         fileText = new Text(container, SWT.BORDER | SWT.SINGLE);
         fileText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         fileText.addModifyListener(value_check);
-        initialize();
+        final boolean have_container = initialize();
         checkValues();
         setControl(container);
+        if (have_container)
+        {   // Focus on the file name, container already set
+            fileText.selectAll();
+            fileText.forceFocus();
+        }
+        else // First need container
+            containerText.forceFocus();
     }
 
-    private void initialize()
+    private boolean initialize()
     {
+        boolean have_container = false;
         // Try to determine container from selection
         if (selection instanceof IStructuredSelection  &&  !selection.isEmpty())
         {
             final IStructuredSelection ssel = (IStructuredSelection) selection;
-            if (ssel.size() > 1)
-                return;
-            final Object obj = ssel.getFirstElement();
-            if (obj instanceof IResource)
+            if (ssel.size() >= 1)
             {
-                final IContainer container;
-                if (obj instanceof IContainer)
-                    container = (IContainer) obj;
-                else
-                    container = ((IResource) obj).getParent();
-                containerText.setText(container.getFullPath().toString());
+                final Object obj = ssel.getFirstElement();
+                if (obj instanceof IResource)
+                {
+                    final IContainer container;
+                    if (obj instanceof IContainer)
+                        container = (IContainer) obj;
+                    else
+                        container = ((IResource) obj).getParent();
+                    containerText.setText(container.getFullPath().toString());
+                    have_container = true;
+                }
             }
         }
         fileText.setText(Messages.NewDisplay_InitialName);
+        return have_container;
     }
 
     private void handleBrowse()

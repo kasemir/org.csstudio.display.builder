@@ -39,12 +39,9 @@ public class AllWidgetsAllProperties
                 ActionButtonWidget button = (ActionButtonWidget) widget;
                 final Macros macros = new Macros();
                 macros.add("S", "Test");
-                macros.add("N", "1");
-                button.propMacros().setValue(macros);
-                final Macros macros2 = new Macros();
-                macros2.add("N", "2");
+                macros.add("N", "2");
                 button.propActions().setValue(Arrays.asList(
-                    new OpenDisplayActionInfo("Display", "other.opi", macros2, Target.REPLACE)));
+                    new OpenDisplayActionInfo("Display", "other.opi", macros, Target.REPLACE)));
             }
 
             model.runtimeChildren().addChild(widget);
