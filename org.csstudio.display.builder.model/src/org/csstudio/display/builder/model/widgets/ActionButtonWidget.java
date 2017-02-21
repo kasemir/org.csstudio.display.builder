@@ -11,7 +11,6 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMacros;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propText;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropPVWritable;
@@ -26,7 +25,6 @@ import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetConfigurator;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
@@ -135,7 +133,6 @@ public class ActionButtonWidget extends VisibleWidget
     // Has pv_name and pv_writable, but no pv_value which would make it a WritablePVWidget
     private volatile WidgetProperty<String> pv_name;
     private volatile WidgetProperty<Boolean> enabled;
-    private volatile WidgetProperty<Macros> macros;
     private volatile WidgetProperty<String> text;
     private volatile WidgetProperty<WidgetFont> font;
     private volatile WidgetProperty<WidgetColor> background;
@@ -161,7 +158,6 @@ public class ActionButtonWidget extends VisibleWidget
         super.defineProperties(properties);
         properties.add(pv_name = propPVName.createProperty(this, ""));
         properties.add(text = propText.createProperty(this, "$(actions)"));
-        properties.add(macros = propMacros.createProperty(this, new Macros()));
         properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
         properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BUTTON_BACKGROUND)));
@@ -180,12 +176,6 @@ public class ActionButtonWidget extends VisibleWidget
     /** @return 'pv_name' property */
     public final WidgetProperty<String> propPVName ( ) {
         return pv_name;
-    }
-
-    /** @return Widget 'macros' */
-    public WidgetProperty<Macros> propMacros()
-    {
-        return macros;
     }
 
     /** @return 'text' property */
@@ -222,16 +212,5 @@ public class ActionButtonWidget extends VisibleWidget
     public final WidgetProperty<Boolean> runtimePropPVWritable()
     {
         return pv_writable;
-    }
-
-    /** Action button widget extends parent macros
-     *  @return {@link Macros}
-     */
-    @Override
-    public Macros getEffectiveMacros()
-    {
-        final Macros base = super.getEffectiveMacros();
-        final Macros my_macros = propMacros().getValue();
-        return Macros.merge(base, my_macros);
     }
 }
