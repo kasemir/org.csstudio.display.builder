@@ -27,7 +27,7 @@ import javafx.scene.paint.Color;
  * @author Claudio Rosati, European Spallation Source ERIC
  * @version 1.0.0 25 Jan 2017
  */
-public class LinearMeterRepresentation extends BaseGaugeRepresentation<LinearMeterWidget> {
+public class LinearMeterRepresentation extends BaseMeterRepresentation<LinearMeterWidget> {
 
     private volatile boolean              barHighlight   = true;
     private final DirtyFlag               dirtyLimits    = new DirtyFlag();
@@ -73,6 +73,7 @@ public class LinearMeterRepresentation extends BaseGaugeRepresentation<LinearMet
             jfx_node.setAreas(createAreas());
             jfx_node.setAreasVisible(barHighlight && areZonesVisible());
             jfx_node.setHighlightSections(zonesHighlight);
+            jfx_node.setSections(createZones());
         }
 
     }
@@ -129,16 +130,8 @@ public class LinearMeterRepresentation extends BaseGaugeRepresentation<LinearMet
 
         if ( updatingAreas ) {
             return super.createZone(start, end, name, color);
-        } else if ( zonesHighlight ) {
-
-            Section s = new Section(start, end, color.deriveColor(0.0, 1.0, 1.0, 0.2), color);
-
-            s.setText(name);
-
-            return s;
-
         } else {
-            return super.createZone(start, end, name, color);
+            return createZone(zonesHighlight, start, end, name, color);
         }
 
     }

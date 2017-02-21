@@ -27,7 +27,7 @@ import javafx.scene.paint.Color;
  * @author Claudio Rosati, European Spallation Source ERIC
  * @version 1.0.0 25 Jan 2017
  */
-public class MeterRepresentation extends BaseGaugeRepresentation<MeterWidget> {
+public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
 
     private final DirtyFlag          dirtyLimits    = new DirtyFlag();
     private final DirtyFlag          dirtyLook      = new DirtyFlag();
@@ -130,6 +130,7 @@ public class MeterRepresentation extends BaseGaugeRepresentation<MeterWidget> {
 
         if ( dirtyLimits.checkAndClear() ) {
             jfx_node.setHighlightSections(zonesHighlight);
+            jfx_node.setSections(createZones());
         }
 
     }
@@ -148,6 +149,7 @@ public class MeterRepresentation extends BaseGaugeRepresentation<MeterWidget> {
         jfx_node.setKnobColor(JFXUtil.convert(model_widget.propKnobColor().getValue()));
         jfx_node.setKnobPosition(Pos.valueOf(knobPosition.name()));
         jfx_node.setKnobType(Gauge.KnobType.valueOf(knobType.name()));
+        jfx_node.setKnobVisible(true);
         jfx_node.setTickLabelLocation(TickLabelLocation.INSIDE);
 
     }
@@ -181,6 +183,7 @@ public class MeterRepresentation extends BaseGaugeRepresentation<MeterWidget> {
         gauge.setKnobColor(JFXUtil.convert(model_widget.propKnobColor().getValue()));
         gauge.setKnobPosition(Pos.valueOf(knobPosition.name()));
         gauge.setKnobType(Gauge.KnobType.valueOf(knobType.name()));
+        gauge.setKnobVisible(true);
         gauge.setTickLabelLocation(TickLabelLocation.INSIDE);
 
         switch ( skin ) {
@@ -207,19 +210,7 @@ public class MeterRepresentation extends BaseGaugeRepresentation<MeterWidget> {
      */
     @Override
     protected Section createZone ( double start, double end, String name, Color color ) {
-
-        if ( zonesHighlight ) {
-
-            Section s = new Section(start, end, color.deriveColor(0.0, 1.0, 1.0, 0.2), color);
-
-            s.setText(name);
-
-            return s;
-
-        } else {
-            return super.createZone(start, end, name, color);
-        }
-
+        return createZone(zonesHighlight, start, end, name, color);
     }
 
     @Override

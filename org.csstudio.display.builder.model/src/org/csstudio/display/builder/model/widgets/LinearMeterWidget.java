@@ -31,7 +31,7 @@ import org.csstudio.display.builder.model.properties.WidgetColor;
  * @author Claudio Rosati, European Spallation Source ERIC
  * @version 1.0.0 25 Jan 2017
  */
-public class LinearMeterWidget extends BaseGaugeWidget {
+public class LinearMeterWidget extends BaseMeterWidget {
 
     public static final WidgetDescriptor WIDGET_DESCRIPTOR = new WidgetDescriptor(
         "linear-meter",
@@ -51,23 +51,21 @@ public class LinearMeterWidget extends BaseGaugeWidget {
         VERTICAL
     }
 
-    public static final WidgetPropertyDescriptor<Orientation> propOrientation    = new WidgetPropertyDescriptor<Orientation>(WidgetPropertyCategory.WIDGET,   "orientation",    Messages.WidgetProperties_Orientation) {
+    public static final WidgetPropertyDescriptor<Orientation> propOrientation  = new WidgetPropertyDescriptor<Orientation>(WidgetPropertyCategory.WIDGET,   "orientation",  Messages.WidgetProperties_Orientation) {
         @Override
         public EnumWidgetProperty<Orientation> createProperty ( Widget widget, Orientation defaultValue ) {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
 
-    public static final WidgetPropertyDescriptor<Boolean>     propHighlightBar   = newBooleanPropertyDescriptor             (WidgetPropertyCategory.BEHAVIOR, "highligh_bar",   Messages.WidgetProperties_HighlightBar);
-    public static final WidgetPropertyDescriptor<Boolean>     propHighlightZones = newBooleanPropertyDescriptor             (WidgetPropertyCategory.BEHAVIOR, "highligh_zones", Messages.WidgetProperties_HighlightZones);
+    public static final WidgetPropertyDescriptor<Boolean>     propHighlightBar = newBooleanPropertyDescriptor             (WidgetPropertyCategory.BEHAVIOR, "highligh_bar", Messages.WidgetProperties_HighlightBar);
 
-    public static final WidgetPropertyDescriptor<WidgetColor> propBarColor       = newColorPropertyDescriptor               (WidgetPropertyCategory.MISC,     "bar_color",      Messages.WidgetProperties_BarColor);
-    public static final WidgetPropertyDescriptor<Boolean>     propFlatBar        = newBooleanPropertyDescriptor             (WidgetPropertyCategory.MISC,     "flat_bar",       Messages.WidgetProperties_FlatBar);
+    public static final WidgetPropertyDescriptor<WidgetColor> propBarColor     = newColorPropertyDescriptor               (WidgetPropertyCategory.MISC,     "bar_color",    Messages.WidgetProperties_BarColor);
+    public static final WidgetPropertyDescriptor<Boolean>     propFlatBar      = newBooleanPropertyDescriptor             (WidgetPropertyCategory.MISC,     "flat_bar",     Messages.WidgetProperties_FlatBar);
 
     private volatile WidgetProperty<WidgetColor> bar_color;
     private volatile WidgetProperty<Boolean>     flat_bar;
     private volatile WidgetProperty<Boolean>     highligh_bar;
-    private volatile WidgetProperty<Boolean>     highligh_zones;
     private volatile WidgetProperty<Orientation> orientation;
 
     public LinearMeterWidget ( ) {
@@ -86,10 +84,6 @@ public class LinearMeterWidget extends BaseGaugeWidget {
         return highligh_bar;
     }
 
-    public WidgetProperty<Boolean> propHighlightZones ( ) {
-        return highligh_zones;
-    }
-
     public WidgetProperty<Orientation> propOrientation ( ) {
         return orientation;
     }
@@ -102,7 +96,6 @@ public class LinearMeterWidget extends BaseGaugeWidget {
         properties.add(orientation    = propOrientation.createProperty(this, Orientation.HORIZONTAL));
 
         properties.add(highligh_bar   = propHighlightBar.createProperty(this, true));
-        properties.add(highligh_zones = propHighlightZones.createProperty(this, true));
 
         properties.add(bar_color      = propBarColor.createProperty(this, new WidgetColor(0, 183, 0)));
         properties.add(flat_bar       = propFlatBar.createProperty(this, false));

@@ -199,6 +199,7 @@ public class Messages extends NLS
     public static String WidgetProperties_LabelsFromPV;
     public static String WidgetProperties_LcdCrystalEnabled;
     public static String WidgetProperties_LcdDesign;
+    public static String WidgetProperties_LcdVisible;
     public static String WidgetProperties_LevelHigh;
     public static String WidgetProperties_LevelHiHi;
     public static String WidgetProperties_LevelLow;

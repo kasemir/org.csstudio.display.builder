@@ -33,7 +33,7 @@ import org.csstudio.display.builder.model.properties.WidgetColor;
  * @author Claudio Rosati, European Spallation Source ERIC
  * @version 1.0.0 25 Jan 2017
  */
-public class MeterWidget extends BaseGaugeWidget {
+public class MeterWidget extends BaseMeterWidget {
 
     public static final WidgetDescriptor WIDGET_DESCRIPTOR = new WidgetDescriptor(
         "meter",
@@ -107,8 +107,6 @@ public class MeterWidget extends BaseGaugeWidget {
         }
     };
 
-    public static final WidgetPropertyDescriptor<Boolean>      propHighlightZones = newBooleanPropertyDescriptor              (WidgetPropertyCategory.BEHAVIOR, "highligh_zones",  Messages.WidgetProperties_HighlightZones);
-
     public static final WidgetPropertyDescriptor<Boolean>      propAverage        = newBooleanPropertyDescriptor              (WidgetPropertyCategory.MISC,     "average",         Messages.WidgetProperties_Average);
     public static final WidgetPropertyDescriptor<WidgetColor>  propAverageColor   = newColorPropertyDescriptor                (WidgetPropertyCategory.MISC,     "average_color",   Messages.WidgetProperties_AverageColor);
     public static final WidgetPropertyDescriptor<Integer>      propAverageSamples = newIntegerPropertyDescriptor              (WidgetPropertyCategory.MISC,     "average_samples", Messages.WidgetProperties_AverageSamples, 1, 1000);
@@ -124,7 +122,6 @@ public class MeterWidget extends BaseGaugeWidget {
     private volatile WidgetProperty<WidgetColor>  average_color;
     private volatile WidgetProperty<Integer>      average_samples;
     private volatile WidgetProperty<WidgetColor>  foreground;
-    private volatile WidgetProperty<Boolean>      highligh_zones;
     private volatile WidgetProperty<WidgetColor>  knob_color;
     private volatile WidgetProperty<KnobPosition> knob_position;
     private volatile WidgetProperty<KnobType>     knob_type;
@@ -148,10 +145,6 @@ public class MeterWidget extends BaseGaugeWidget {
 
     public WidgetProperty<WidgetColor> propForegroundColor ( ) {
         return foreground;
-    }
-
-    public WidgetProperty<Boolean> propHighlightZones ( ) {
-        return highligh_zones;
     }
 
     public WidgetProperty<WidgetColor> propKnobColor ( ) {
@@ -179,8 +172,6 @@ public class MeterWidget extends BaseGaugeWidget {
         properties.add(knob_position   = propKnobPosition.createProperty(this, KnobPosition.BOTTOM_CENTER));
 
         properties.add(foreground      = propForegroundColor.createProperty(this, new WidgetColor(13, 11, 7)));
-
-        properties.add(highligh_zones  = propHighlightZones.createProperty(this, true));
 
         properties.add(average         = propAverage.createProperty(this, false));
         properties.add(average_color   = propAverageColor.createProperty(this, new WidgetColor(13, 23, 251)));
