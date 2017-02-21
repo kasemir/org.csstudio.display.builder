@@ -41,6 +41,7 @@ import org.csstudio.javafx.Tracker;
 
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.TextField;
@@ -49,6 +50,7 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
+import javafx.scene.shape.Rectangle;
 
 /** Rubber-band-type tracker of currently selected widgets in UI.
  *
@@ -81,6 +83,8 @@ public class SelectedWidgetUITracker extends Tracker
 
     /** Update tracker to match changed widget position */
     private final WidgetPropertyListener<Integer> position_listener = (p, o, n) -> updateTrackerFromWidgets();
+
+    private Group widget_highlights = new Group();
 
     /** Construct a tracker.
      *
@@ -147,6 +151,10 @@ public class SelectedWidgetUITracker extends Tracker
 
         // When tracker moved, update widgets
         setListener(this::updateWidgetsFromTracker);
+
+        // Add highlights _before_ rest of tracker so they're behind
+        // the tracker and not selectable
+        getChildren().add(0, widget_highlights);
     }
 
     public void setModel(final DisplayModel model)
@@ -453,7 +461,23 @@ public class SelectedWidgetUITracker extends Tracker
             return;
         final Rectangle2D rect = GeometryTools.getDisplayBounds(widgets);
         updating = true;
+
+        // Update overall tracker rectangle
         setPosition(rect);
+
+        // Add a highlight to each selected widget
+        // (tracker area may cover widgets that are not actually selected)
+        widget_highlights.getChildren().clear();
+        for (Widget widget : widgets)
+        {
+            final Rectangle2D bounds = GeometryTools.getDisplayBounds(widget);
+            final Rectangle highlight = new Rectangle(bounds.getMinX(), bounds.getMinY(), bounds.getWidth(), bounds.getHeight());
+            highlight.getStyleClass().add("tracker_highlight");
+            // highlight is 'behind' rest of tracker, but still pass mouse clicks through to widgets
+            highlight.setMouseTransparent(true);
+            widget_highlights.getChildren().add(highlight);
+        }
+
         updating = false;
     }
 

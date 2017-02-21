@@ -138,3 +138,9 @@
 {
     -fx-background-color: rgb(180, 180, 255);
 }
+
+/* Tracker: Individually selected widget within the tracker rectangle */
+.tracker_highlight
+{
+    -fx-fill: rgba(150, 100, 255, 0.3);
+}
