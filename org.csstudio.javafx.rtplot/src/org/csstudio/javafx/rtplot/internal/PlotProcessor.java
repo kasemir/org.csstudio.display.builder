@@ -122,24 +122,29 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
             {
                 double low = Double.MAX_VALUE;
                 double high = -Double.MAX_VALUE;
+                PlotDataSearch<XTYPE> search = new PlotDataSearch<XTYPE>();
                 data.getLock().lock();
                 try
                 {
-                    final int N = data.size();
-                    for (int i=0; i<N; ++i)
-                    {
-                        final PlotDataItem<XTYPE> item = data.get(i);
-                        if (position_range.contains(item.getPosition()))
-                        {
-                            final double value = item.getValue();
-                            if (! Double.isFinite(value))
-                                continue;
-                            if (value < low)
-                                low = value;
-                            if (value > high)
-                                high = value;
-                        }
+                    int start = search.findSampleLessOrEqual(data, position_range.getLow());
+                    if (start < 0)
+                        start = 0;
+
+                    int stop = search.findSampleLessOrEqual(data, position_range.getHigh());
+                    if (stop < 0)
+                        stop = 0;
+
+                    for (int idx = start; idx < stop; idx++) {
+                        final PlotDataItem<XTYPE> item = data.get(idx);
+                        final double value = item.getValue();
+                        if (!Double.isFinite(value))
+                            continue;
+                        if (value < low)
+                            low = value;
+                        if (value > high)
+                            high = value;
                     }
+
                 }
                 finally
                 {
