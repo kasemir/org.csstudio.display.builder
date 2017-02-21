@@ -120,6 +120,7 @@ public abstract class BaseClockRepresentation<W extends BaseClockWidget> extends
     protected Clock createJFXNode ( Clock.ClockSkinType skin ) throws Exception {
 
         Clock clock = ClockBuilder.create()
+                                  .skinType(skin)
                                   .prefHeight(model_widget.propHeight().getValue())
                                   .prefWidth(model_widget.propWidth().getValue())
                                   //--------------------------------------------------------
