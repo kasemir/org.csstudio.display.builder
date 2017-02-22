@@ -125,25 +125,31 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
                 final PlotDataSearch<XTYPE> search = new PlotDataSearch<XTYPE>();
                 data.getLock().lock();
                 try
-                {   // Consider first sample at-or-before start
-                    int start = search.findSampleLessOrEqual(data, position_range.getLow());
-                    if (start < 0)
-                        start = 0;
-                    // Last sample is the one just inside end of range.
-                    int stop = search.findSampleLessOrEqual(data, position_range.getHigh());
-                    if (stop < 0)
-                        stop = 0;
-                    // Check [start .. stop], including stop
-                    for (int idx = start; idx <= stop; idx++)
+                {
+                    if (data.size() > 0)
                     {
-                        final PlotDataItem<XTYPE> item = data.get(idx);
-                        final double value = item.getValue();
-                        if (!Double.isFinite(value))
-                            continue;
-                        if (value < low)
-                            low = value;
-                        if (value > high)
-                            high = value;
+                        // Consider first sample at-or-before start
+                        int start = search.findSampleLessOrEqual(data, position_range.getLow());
+                        if (start < 0)
+                            start = 0;
+                        // Last sample is the one just inside end of range.
+                        int stop = search.findSampleLessOrEqual(data, position_range.getHigh());
+                        if (stop < 0)
+                            stop = 0;
+                        // If data is completely outside the position_range,
+                        // we end up using just data[0]
+                        // Check [start .. stop], including stop
+                        for (int idx = start; idx <= stop; idx++)
+                        {
+                            final PlotDataItem<XTYPE> item = data.get(idx);
+                            final double value = item.getValue();
+                            if (!Double.isFinite(value))
+                                continue;
+                            if (value < low)
+                                low = value;
+                            if (value > high)
+                                high = value;
+                        }
                     }
                 }
                 finally
