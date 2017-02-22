@@ -10,7 +10,6 @@ package org.csstudio.display.builder.model.widgets;
 
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newColorPropertyDescriptor;
 
 import java.util.List;
 
@@ -20,7 +19,6 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
-import org.csstudio.display.builder.model.properties.WidgetColor;
 
 
 /**
@@ -78,28 +76,26 @@ public abstract class BaseMeterWidget extends BaseGaugeWidget {
         STANDARD
     }
 
-    public static final WidgetPropertyDescriptor<Boolean>     propHighlightZones = newBooleanPropertyDescriptor           (WidgetPropertyCategory.BEHAVIOR, "highligh_zones",   Messages.WidgetProperties_HighlightZones);
+    public static final WidgetPropertyDescriptor<Boolean>   propHighlightZones = newBooleanPropertyDescriptor           (WidgetPropertyCategory.BEHAVIOR, "highligh_zones", Messages.WidgetProperties_HighlightZones);
 
-    public static final WidgetPropertyDescriptor<LCDDesign>   propLcdDesign      = new WidgetPropertyDescriptor<LCDDesign>(WidgetPropertyCategory.MISC,     "lcd_design",       Messages.WidgetProperties_LcdDesign) {
+    public static final WidgetPropertyDescriptor<LCDDesign> propLcdDesign      = new WidgetPropertyDescriptor<LCDDesign>(WidgetPropertyCategory.MISC,     "lcd_design",     Messages.WidgetProperties_LcdDesign) {
         @Override
         public EnumWidgetProperty<LCDDesign> createProperty ( Widget widget, LCDDesign defaultValue ) {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
-    public static final WidgetPropertyDescriptor<LCDFont>     propLcdFont        = new WidgetPropertyDescriptor<LCDFont>  (WidgetPropertyCategory.MISC,     "lcd_font",         Messages.WidgetProperties_LcdFont) {
+    public static final WidgetPropertyDescriptor<LCDFont>   propLcdFont        = new WidgetPropertyDescriptor<LCDFont>  (WidgetPropertyCategory.MISC,     "lcd_font",       Messages.WidgetProperties_LcdFont) {
         @Override
         public EnumWidgetProperty<LCDFont> createProperty ( Widget widget, LCDFont defaultValue ) {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
-    public static final WidgetPropertyDescriptor<Boolean>     propLcdVisible     = newBooleanPropertyDescriptor           (WidgetPropertyCategory.MISC,     "lcd_visible",      Messages.WidgetProperties_LcdVisible);
-    public static final WidgetPropertyDescriptor<WidgetColor> propMajorTickColor = newColorPropertyDescriptor             (WidgetPropertyCategory.MISC,     "major_tick_color", Messages.WidgetProperties_MajorTickColor);
+    public static final WidgetPropertyDescriptor<Boolean>   propLcdVisible     = newBooleanPropertyDescriptor           (WidgetPropertyCategory.MISC,     "lcd_visible",    Messages.WidgetProperties_LcdVisible);
 
-    private volatile WidgetProperty<Boolean>     highligh_zones;
-    private volatile WidgetProperty<LCDDesign>   lcdDesign;
-    private volatile WidgetProperty<LCDFont>     lcdFont;
-    private volatile WidgetProperty<Boolean>     lcdVisible;
-    private volatile WidgetProperty<WidgetColor> major_tick_color;
+    private volatile WidgetProperty<Boolean>   highligh_zones;
+    private volatile WidgetProperty<LCDDesign> lcdDesign;
+    private volatile WidgetProperty<LCDFont>   lcdFont;
+    private volatile WidgetProperty<Boolean>   lcdVisible;
 
     /**
      * @param type Widget type.
@@ -126,21 +122,16 @@ public abstract class BaseMeterWidget extends BaseGaugeWidget {
         return lcdVisible;
     }
 
-    public WidgetProperty<WidgetColor> propMajorTickColor ( ) {
-        return major_tick_color;
-    }
-
     @Override
     protected void defineProperties ( final List<WidgetProperty<?>> properties ) {
 
         super.defineProperties(properties);
 
-        properties.add(highligh_zones   = propHighlightZones.createProperty(this, true));
+        properties.add(highligh_zones = propHighlightZones.createProperty(this, true));
 
-        properties.add(lcdDesign        = propLcdDesign.createProperty(this, LCDDesign.SECTIONS));
-        properties.add(lcdFont          = propLcdFont.createProperty(this, LCDFont.DIGITAL_BOLD));
-        properties.add(lcdVisible       = propLcdVisible.createProperty(this, true));
-        properties.add(major_tick_color = propMajorTickColor.createProperty(this, new WidgetColor(4, 2, 0)));
+        properties.add(lcdDesign      = propLcdDesign.createProperty(this, LCDDesign.SECTIONS));
+        properties.add(lcdFont        = propLcdFont.createProperty(this, LCDFont.DIGITAL_BOLD));
+        properties.add(lcdVisible     = propLcdVisible.createProperty(this, true));
 
     }
 

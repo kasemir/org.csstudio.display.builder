@@ -212,6 +212,8 @@ public class Messages extends NLS
     public static String WidgetProperties_Macros;
     public static String WidgetProperties_MajorTickColor;
     public static String WidgetProperties_MajorTickStepHint;
+    public static String WidgetProperties_MajorTickType;
+    public static String WidgetProperties_MajorTickVisible;
     public static String WidgetProperties_Maximum;
     public static String WidgetProperties_Minimum;
     public static String WidgetProperties_MinuteColor;

@@ -18,7 +18,7 @@ import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
 import eu.hansolo.medusa.Gauge;
 import eu.hansolo.medusa.Section;
-import eu.hansolo.medusa.TickLabelLocation;
+import eu.hansolo.medusa.TickMarkType;
 import javafx.geometry.Pos;
 import javafx.scene.paint.Color;
 
@@ -111,6 +111,24 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
 
             }
 
+            value = JFXUtil.convert(model_widget.propMajorTickColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getMajorTickMarkColor()) ) {
+                jfx_node.setMajorTickMarkColor((Color) value);
+            }
+
+            value = TickMarkType.valueOf(model_widget.propMajorTickType().getValue().name());
+
+            if ( !Objects.equals(value, jfx_node.getMajorTickMarkType()) ) {
+                jfx_node.setMajorTickMarkType((TickMarkType) value);
+            }
+
+            value = model_widget.propMajorTickVisible().getValue();
+
+            if ( !Objects.equals(value, jfx_node.getMajorTickMarksVisible()) ) {
+                jfx_node.setMajorTickMarksVisible((boolean) value);
+            }
+
         }
 
         if ( dirtyLimits.checkAndClear() ) {
@@ -134,7 +152,10 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
         jfx_node.setKnobPosition(Pos.valueOf(knobPosition.name()));
         jfx_node.setKnobType(Gauge.KnobType.valueOf(knobType.name()));
         jfx_node.setKnobVisible(true);
-        jfx_node.setTickLabelLocation(TickLabelLocation.INSIDE);
+        jfx_node.setMajorTickMarkColor(JFXUtil.convert(model_widget.propMajorTickColor().getValue()));
+        jfx_node.setMajorTickMarkLengthFactor(0.515);
+        jfx_node.setMajorTickMarkType(TickMarkType.valueOf(model_widget.propMajorTickType().getValue().name()));
+        jfx_node.setMajorTickMarksVisible(model_widget.propMajorTickVisible().getValue());
 
         switch ( skin ) {
             case HORIZONTAL:
@@ -191,7 +212,10 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
         gauge.setKnobPosition(Pos.valueOf(knobPosition.name()));
         gauge.setKnobType(Gauge.KnobType.valueOf(knobType.name()));
         gauge.setKnobVisible(true);
-        gauge.setTickLabelLocation(TickLabelLocation.INSIDE);
+        gauge.setMajorTickMarkColor(JFXUtil.convert(model_widget.propMajorTickColor().getValue()));
+        gauge.setMajorTickMarkLengthFactor(0.515);
+        gauge.setMajorTickMarkType(TickMarkType.valueOf(model_widget.propMajorTickType().getValue().name()));
+        gauge.setMajorTickMarksVisible(model_widget.propMajorTickVisible().getValue());
 
         return gauge;
 
@@ -222,6 +246,9 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
         model_widget.propKnobColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propKnobPosition().addUntypedPropertyListener(this::lookChanged);
         model_widget.propKnobType().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propMajorTickColor().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propMajorTickType().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propMajorTickVisible().addUntypedPropertyListener(this::lookChanged);
         model_widget.propSkin().addUntypedPropertyListener(this::lookChanged);
 
         model_widget.propHighlightZones().addUntypedPropertyListener(this::limitsChanged);

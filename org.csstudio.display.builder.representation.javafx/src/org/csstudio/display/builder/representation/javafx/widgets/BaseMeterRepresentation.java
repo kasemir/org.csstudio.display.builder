@@ -14,7 +14,6 @@ import java.util.Objects;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.BaseMeterWidget;
-import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
 import eu.hansolo.medusa.Gauge;
 import eu.hansolo.medusa.LcdDesign;
@@ -58,12 +57,6 @@ public abstract class BaseMeterRepresentation<W extends BaseMeterWidget> extends
                 jfx_node.setLcdVisible((boolean) value);
             }
 
-            value = JFXUtil.convert(model_widget.propMajorTickColor().getValue());
-
-            if ( !Objects.equals(value, jfx_node.getMajorTickMarkColor()) ) {
-                jfx_node.setMajorTickMarkColor((Color) value);
-            }
-
         }
 
     }
@@ -76,7 +69,6 @@ public abstract class BaseMeterRepresentation<W extends BaseMeterWidget> extends
         jfx_node.setLcdDesign(LcdDesign.valueOf(model_widget.propLcdDesign().getValue().name()));
         jfx_node.setLcdFont(LcdFont.valueOf(model_widget.propLcdFont().getValue().name()));
         jfx_node.setLcdVisible(model_widget.propLcdVisible().getValue());
-        jfx_node.setMajorTickMarkColor(JFXUtil.convert(model_widget.propMajorTickColor().getValue()));
 
     }
 
@@ -88,7 +80,6 @@ public abstract class BaseMeterRepresentation<W extends BaseMeterWidget> extends
         gauge.setLcdDesign(LcdDesign.valueOf(model_widget.propLcdDesign().getValue().name()));
         gauge.setLcdFont(LcdFont.valueOf(model_widget.propLcdFont().getValue().name()));
         gauge.setLcdVisible(model_widget.propLcdVisible().getValue());
-        gauge.setMajorTickMarkColor(JFXUtil.convert(model_widget.propMajorTickColor().getValue()));
 
         return gauge;
 
@@ -128,7 +119,6 @@ public abstract class BaseMeterRepresentation<W extends BaseMeterWidget> extends
         model_widget.propLcdDesign().addUntypedPropertyListener(this::lookChanged);
         model_widget.propLcdFont().addUntypedPropertyListener(this::lookChanged);
         model_widget.propLcdVisible().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propMajorTickColor().addUntypedPropertyListener(this::lookChanged);
 
     }
 
