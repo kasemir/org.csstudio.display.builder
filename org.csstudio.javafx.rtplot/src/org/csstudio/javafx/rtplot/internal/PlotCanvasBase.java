@@ -76,8 +76,12 @@ abstract class PlotCanvasBase extends ImageView
     /** Area of this plot */
     protected volatile Rectangle area = new Rectangle(0, 0, 0, 0);
 
-    /** Suppress updates triggered by axis changes from layout or autoscale */
-    protected volatile boolean in_update = false;
+    /** Suppress updates triggered by axis changes from layout or autoscale
+     *
+     *  Calling updateImageBuffer can trigger axis changes because of layout
+     *  or autoscale, which call the plot_part_listener.
+     */
+    private volatile boolean in_update = false;
 
     /** Does layout need to be re-computed? */
     protected final AtomicBoolean need_layout = new AtomicBoolean(true);
@@ -156,7 +160,13 @@ abstract class PlotCanvasBase extends ImageView
         update_throttle = new RTPlotUpdateThrottle(50, TimeUnit.MILLISECONDS, () ->
         {
             if (need_update.getAndSet(false))
-                plot_image = updateImageBuffer();
+            {
+                in_update = true;
+                final BufferedImage latest = updateImageBuffer();
+                in_update = false;
+                if (latest != null)
+                    plot_image = latest;
+            }
             Platform.runLater(redraw_runnable);
         });
 
