@@ -12,7 +12,6 @@ package org.csstudio.display.builder.model.widgets;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newColorPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newIntegerPropertyDescriptor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
 
 import java.util.List;
 
@@ -86,7 +85,6 @@ public class MeterWidget extends BaseMeterWidget {
      * @version 1.0.0 25 Jan 2017
      */
     public enum Skin {
-        AMP,
         GAUGE,
         HORIZONTAL,
         QUARTER,
@@ -121,7 +119,6 @@ public class MeterWidget extends BaseMeterWidget {
     private volatile WidgetProperty<Boolean>      average;
     private volatile WidgetProperty<WidgetColor>  average_color;
     private volatile WidgetProperty<Integer>      average_samples;
-    private volatile WidgetProperty<WidgetColor>  foreground;
     private volatile WidgetProperty<WidgetColor>  knob_color;
     private volatile WidgetProperty<KnobPosition> knob_position;
     private volatile WidgetProperty<KnobType>     knob_type;
@@ -141,10 +138,6 @@ public class MeterWidget extends BaseMeterWidget {
 
     public WidgetProperty<Integer> propAverageSamples ( ) {
         return average_samples;
-    }
-
-    public WidgetProperty<WidgetColor> propForegroundColor ( ) {
-        return foreground;
     }
 
     public WidgetProperty<WidgetColor> propKnobColor ( ) {
@@ -170,8 +163,6 @@ public class MeterWidget extends BaseMeterWidget {
 
         properties.add(skin            = propSkin.createProperty(this, Skin.HORIZONTAL));
         properties.add(knob_position   = propKnobPosition.createProperty(this, KnobPosition.BOTTOM_CENTER));
-
-        properties.add(foreground      = propForegroundColor.createProperty(this, new WidgetColor(13, 11, 7)));
 
         properties.add(average         = propAverage.createProperty(this, false));
         properties.add(average_color   = propAverageColor.createProperty(this, new WidgetColor(13, 23, 251)));
