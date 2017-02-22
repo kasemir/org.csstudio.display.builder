@@ -155,6 +155,7 @@ public class TextEntryWidget extends WritablePVWidget
 
         private void addDateTimeSelector(final TextEntryWidget text_widget, final Element xml)
         {
+            // XXX Implement a Date/TimeWidget
             logger.log(Level.WARNING, text_widget + ": Support for Date/Time selector not implemented");
             // Enforce String format
             text_widget.propFormat().setValue(FormatOption.STRING);
