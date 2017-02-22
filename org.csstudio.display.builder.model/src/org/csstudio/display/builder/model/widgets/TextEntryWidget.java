@@ -7,20 +7,23 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFormat;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPrecision;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propShowUnits;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propWrapWords;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
 
+import org.csstudio.display.builder.model.MacroizedWidgetProperty;
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
@@ -33,11 +36,13 @@ import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
+import org.csstudio.display.builder.model.persist.XMLTags;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.FormatOption;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.osgi.framework.Version;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Widget that displays a changing text
@@ -79,14 +84,80 @@ public class TextEntryWidget extends WritablePVWidget
                 return false;
             if (xml_version.getMajor() < 3)
             {
-                TextEntryWidget text_widget = (TextEntryWidget)widget;
+                final TextEntryWidget text_widget = (TextEntryWidget)widget;
                 TextUpdateWidget.readLegacyFormat(xml, text_widget.format, text_widget.precision, text_widget.propPVName());
 
                 final Optional<String> text = XMLUtil.getChildString(xml, "multiline_input");
                 if (text.isPresent()  &&  Boolean.parseBoolean(text.get()))
                     text_widget.propMultiLine().setValue(true);
+
+                // Legacy 'selector'
+                final int selector = XMLUtil.getChildInteger(xml, "selector_type").orElse(0);
+                if (selector == 1)
+                    addFileSelector(text_widget, xml);
+                else if (selector == 2)
+                    addDateTimeSelector(text_widget, xml);
             }
             return true;
+        }
+
+        private void addFileSelector(final TextEntryWidget text_widget, final Element xml) throws Exception
+        {   // Create FileSelectorWidget (RCP only, so cannot access its source code here)
+            final Document doc = xml.getOwnerDocument();
+
+            final Element file_selector = doc.createElement(XMLTags.WIDGET);
+            file_selector.setAttribute(XMLTags.TYPE, "fileselector");
+
+            // Enforce String format
+            text_widget.propFormat().setValue(FormatOption.STRING);
+
+            // FileSelectorWidget happens to be about 40 pixels wide,
+            // shrink text entry by that amount
+            text_widget.propWidth().setValue(text_widget.propWidth().getValue() - 40);
+
+            // Position at right end of TextEntry
+            // Requires numbers, not macros in X and WIDTH (where BOY didn't support macros anyway)
+            Element prop = doc.createElement(XMLTags.X);
+            prop.appendChild(doc.createTextNode(Integer.toString(text_widget.propX().getValue() + text_widget.propWidth().getValue())));
+            file_selector.appendChild(prop);
+
+            prop = doc.createElement(XMLTags.Y);
+            prop.appendChild(doc.createTextNode(((MacroizedWidgetProperty<?>)text_widget.propY()).getSpecification()));
+            file_selector.appendChild(prop);
+
+            prop = doc.createElement(XMLTags.HEIGHT);
+            prop.appendChild(doc.createTextNode(((MacroizedWidgetProperty<?>)text_widget.propHeight()).getSpecification()));
+            file_selector.appendChild(prop);
+
+            prop = doc.createElement(XMLTags.PV_NAME);
+            prop.appendChild(doc.createTextNode(((MacroizedWidgetProperty<?>)text_widget.propPVName()).getSpecification()));
+            file_selector.appendChild(prop);
+
+            // Filespace: Workspace, file system (same ordinals as BOY)
+            final int file_source = XMLUtil.getChildInteger(xml, "file_source").orElse(0);
+            prop = doc.createElement("filespace");
+            prop.appendChild(doc.createTextNode(Integer.toString(file_source)));
+            file_selector.appendChild(prop);
+
+            // BOY ordinals: Full path, Name&ext, Name, Directory
+            // Component: Full path, Directory, Name&ext, Base Name
+            int part = XMLUtil.getChildInteger(xml, "file_return_part").orElse(0);
+            final String[] legacy_file_part_2_component = new String[] { "0", "2", "3", "1" };
+            if (part >= legacy_file_part_2_component.length)
+                part = 0;
+
+            prop = doc.createElement("component");
+            prop.appendChild(doc.createTextNode(legacy_file_part_2_component[part]));
+            file_selector.appendChild(prop);
+
+            xml.getParentNode().appendChild(file_selector);
+        }
+
+        private void addDateTimeSelector(final TextEntryWidget text_widget, final Element xml)
+        {
+            logger.log(Level.WARNING, text_widget + ": Support for Date/Time selector not implemented");
+            // Enforce String format
+            text_widget.propFormat().setValue(FormatOption.STRING);
         }
     }
 
