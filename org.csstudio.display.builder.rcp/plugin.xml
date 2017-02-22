@@ -19,6 +19,16 @@
       </view>
    </extension>
    <extension
+         point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            class="org.csstudio.display.builder.rcp.top.HaveTopDisplays"
+            id="org.csstudio.display.builder.rcp.haveTopDisplays"
+            namespace="org.csstudio.display.builder.rcp"
+            properties="haveTopDisplays"
+            type="java.lang.String">
+      </propertyTester>
+   </extension>
+   <extension
          point="org.eclipse.ui.commands">
       <command
             defaultHandler="org.csstudio.display.builder.rcp.top.ToolbarTopDisplaysHandler"
@@ -45,6 +55,14 @@
                   commandId="ToolbarTopDisplays"
                   icon="platform:/plugin/org.csstudio.display.builder.model/icons/runtime.png"
                   style="pulldown">
+               <!-- 'haveTopDisplays' will only be invoked if there is some 'with' variable to test.
+                    It's defined to expect a String, so passing the activePerspective.
+                 -->   
+               <visibleWhen>
+                  <with variable="activeWorkbenchWindow.activePerspective"> 
+                     <test forcePluginActivation="true" property="org.csstudio.display.builder.rcp.haveTopDisplays"/>
+                  </with>
+               </visibleWhen>
             </command>
          </toolbar>
       </menuContribution>

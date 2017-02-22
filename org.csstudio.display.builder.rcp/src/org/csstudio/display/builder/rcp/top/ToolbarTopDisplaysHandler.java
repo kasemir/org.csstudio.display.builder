@@ -1,3 +1,10 @@
+/*******************************************************************************
+ * Copyright (c) 2016 Oak Ridge National Laboratory.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *******************************************************************************/
 package org.csstudio.display.builder.rcp.top;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -23,7 +30,7 @@ import org.eclipse.swt.widgets.ToolItem;
 public class ToolbarTopDisplaysHandler extends AbstractHandler
 {
     @Override
-    public Object execute(ExecutionEvent event) throws ExecutionException
+    public Object execute(final ExecutionEvent event) throws ExecutionException
     {
         // See https://www.eclipse.org/forums/index.php/t/488692/
         if (event == null  ||
