@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 
+import org.csstudio.display.builder.model.Preferences;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.ActionInfo;
@@ -387,6 +388,8 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
             final RadioButton target = new RadioButton(modes[i].toString());
             target.setToggleGroup(open_display_targets);
             target.selectedProperty().addListener(update);
+            if (modes[i] == Target.STANDALONE  &&  !Preferences.isStandaloneWindowSupported())
+                target.setDisable(true);
             modes_box.getChildren().add(target);
         }
         open_display_details.add(modes_box, 0, 2, 2, 1);

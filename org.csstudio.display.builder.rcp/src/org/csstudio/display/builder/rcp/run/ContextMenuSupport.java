@@ -16,6 +16,7 @@ import java.util.logging.Level;
 
 import org.csstudio.csdata.ProcessVariable;
 import org.csstudio.display.builder.model.ModelPlugin;
+import org.csstudio.display.builder.model.Preferences;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.properties.ActionInfo;
@@ -62,6 +63,8 @@ import javafx.scene.Scene;
 @SuppressWarnings("nls")
 public class ContextMenuSupport
 {
+    private static final boolean support_standalone = Preferences.isStandaloneWindowSupported();
+
     private final RuntimeViewPart view;
     private Shell shell;
 
@@ -243,7 +246,9 @@ public class ContextMenuSupport
             manager.add(new SendEMailAction(shell, scene));
             manager.add(new SendLogbookAction(shell, scene));
             manager.add(new FullScreenAction(view.getSite().getPage()));
-            manager.add(new StandaloneAction(view));
+
+            if (support_standalone)
+                manager.add(new StandaloneAction(view));
         }
 
         // Placeholder for the display editor.

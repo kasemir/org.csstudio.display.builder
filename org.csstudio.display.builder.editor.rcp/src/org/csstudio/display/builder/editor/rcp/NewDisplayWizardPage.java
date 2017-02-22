@@ -37,6 +37,7 @@ public class NewDisplayWizardPage extends WizardPage
     private final ISelection selection;
     private Text containerText;
     private Text fileText;
+    private boolean have_container;
 
     public NewDisplayWizardPage(final ISelection selection)
     {
@@ -46,6 +47,12 @@ public class NewDisplayWizardPage extends WizardPage
         setDescription(Messages.NewDisplay_Description);
     }
 
+    /** Called to create the controls for this wizard,
+     *  either as a standalone dialog when opened via the
+     *  "New Display" entry of the display editor perspective,
+     *  or as a sub-page of the New/Other/.. wizard
+     *  when called from other perspectives.
+     */
     @Override
     public void createControl(final Composite parent)
     {
@@ -79,16 +86,30 @@ public class NewDisplayWizardPage extends WizardPage
         fileText = new Text(container, SWT.BORDER | SWT.SINGLE);
         fileText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         fileText.addModifyListener(value_check);
-        final boolean have_container = initialize();
+        have_container = initialize();
         checkValues();
         setControl(container);
-        if (have_container)
-        {   // Focus on the file name, container already set
-            fileText.selectAll();
-            fileText.forceFocus();
+        // The controls are not necessarily visible at time time,
+        // so can't set focus
+    }
+
+    /** Called to make this page visible,
+     *  at which time we can set the focus
+     */
+    @Override
+    public void setVisible(boolean visible)
+    {
+        if (visible)
+        {
+            if (have_container)
+            {   // Focus on the file name, container already set
+                fileText.selectAll();
+                fileText.forceFocus();
+            }
+            else // First need container
+                containerText.forceFocus();
         }
-        else // First need container
-            containerText.forceFocus();
+        super.setVisible(visible);
     }
 
     private boolean initialize()
