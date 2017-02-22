@@ -543,7 +543,10 @@ public class DataBrowserEditor extends EditorPart
     @Override
     public void dispose()
     {
-        model.removeListener(model_listener);
+        // If editor is disposed because of error during init(),
+        // model_listener will be null
+        if (model_listener != null)
+            model.removeListener(model_listener);
         if (controller != null)
         {
             controller.stop();

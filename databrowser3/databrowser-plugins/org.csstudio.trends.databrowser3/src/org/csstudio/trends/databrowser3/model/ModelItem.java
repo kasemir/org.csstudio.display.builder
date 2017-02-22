@@ -21,9 +21,9 @@ import org.csstudio.trends.databrowser3.SWTMediaPool;
 import org.csstudio.trends.databrowser3.persistence.XMLPersistence;
 import org.csstudio.trends.databrowser3.preferences.Preferences;
 import org.eclipse.swt.graphics.RGB;
+import org.w3c.dom.Element;
 
 import javafx.scene.paint.Color;
-import org.w3c.dom.Element;
 
 /** Base of {@link PVItem} and {@link FormulaItem},
  *  i.e. the items held by the {@link Model}.
@@ -51,7 +51,7 @@ abstract public class ModelItem
 
     /** RGB for item's color
      *  <p>
-     *  Technically, swt.graphics.RGB adds a UI dependency to the Model.
+     *  Technically, javafx.scene.paint.Color adds a UI dependency to the Model.
      *  As long as the Model can still run without a Display
      *  or Shell, this might be OK.
      */
@@ -386,7 +386,10 @@ abstract public class ModelItem
         axis = model.getAxis(axis_index);
         line_width = DOMHelper.getSubelementInt(node, XMLPersistence.TAG_LINEWIDTH, line_width);
         point_size = DOMHelper.getSubelementInt(node, XMLPersistence.TAG_POINT_SIZE, point_size);
-        color = SWTMediaPool.getJFX(XMLPersistence.loadColorFromDocument(node).orElse(null));
+
+        final Optional<RGB> col = XMLPersistence.loadColorFromDocument(node);
+        if (col.isPresent())
+            color = SWTMediaPool.getJFX(col.get());
 
         // First load PointType, which may be replaced by legacy point-in-TraceType below
         try

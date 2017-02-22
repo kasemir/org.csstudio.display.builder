@@ -160,6 +160,16 @@ public class Model
         end_spec = RelativeTime.NOW;
     }
 
+    /** Remove all items and axes */
+    public void clear()
+    {
+        for (ModelItem item : items)
+            removeItem(item);
+
+        while (getAxisCount() > 1)
+            removeAxis(getAxis(getAxisCount()-1));
+    }
+
     /** @return Should UI ask to save changes to the model? */
     public boolean shouldSaveChanges()
     {
@@ -988,6 +998,4 @@ public class Model
         }
         return Optional.empty();
     }
-
-
 }

@@ -8,7 +8,9 @@
 package org.csstudio.display.builder.editor.rcp.actions;
 
 import org.csstudio.display.builder.editor.DisplayEditor;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
+import org.eclipse.ui.actions.ActionFactory.IWorkbenchAction;
 
 /** Action to cut to clipboard
  *  @author Kay Kasemir
@@ -20,6 +22,11 @@ public class CutDeleteAction extends RetargetActionHandler
         super(editor, cut_or_delete
                       ? ActionFactory.CUT.getCommandId()
                       : ActionFactory.DELETE.getCommandId());
+
+        IWorkbenchAction action = ActionFactory.DELETE.create(PlatformUI.getWorkbench().getActiveWorkbenchWindow());
+        setText(action.getText());
+        setImageDescriptor(action.getImageDescriptor());
+        action = null;
     }
 
     @Override

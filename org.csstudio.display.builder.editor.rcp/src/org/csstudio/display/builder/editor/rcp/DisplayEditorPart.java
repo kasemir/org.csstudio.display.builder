@@ -495,7 +495,7 @@ public class DisplayEditorPart extends EditorPart
     {
         if (adapter == IContentOutlinePage.class)
         {
-            outline_page = new OutlinePage(editor.getWidgetSelectionHandler());
+            outline_page = new OutlinePage(editor);
             outline_page.setModel(editor.getModel());
             return outline_page;
         }
