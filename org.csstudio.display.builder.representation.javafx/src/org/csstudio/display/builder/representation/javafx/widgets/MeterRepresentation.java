@@ -65,13 +65,28 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
                 changeSkin(skinType);
 
                 switch ( skin ) {
+                    case HORIZONTAL:
+                        knobPosition = MeterWidget.KnobPosition.BOTTOM_CENTER;
+                        break;
+                    case QUARTER:
+                        knobPosition = MeterWidget.KnobPosition.BOTTOM_RIGHT;
+                        break;
                     case THREE_QUARTERS:
+                        knobPosition = MeterWidget.KnobPosition.CENTER;
                         jfx_node.setAngleRange(270);
                         jfx_node.setStartAngle(0);
                         break;
+                    case VERTICAL:
+                        knobPosition = MeterWidget.KnobPosition.CENTER_RIGHT;
+                        break;
+                    case GAUGE:
                     default:
+                        knobPosition = MeterWidget.KnobPosition.CENTER;
                         break;
                 }
+
+                model_widget.propKnobPosition().setValue(knobPosition);
+                jfx_node.setKnobPosition(Pos.valueOf(knobPosition.name()));
 
             }
 
