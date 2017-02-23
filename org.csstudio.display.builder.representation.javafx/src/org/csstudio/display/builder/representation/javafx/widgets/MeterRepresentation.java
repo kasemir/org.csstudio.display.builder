@@ -129,6 +129,24 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
                 jfx_node.setMajorTickMarksVisible((boolean) value);
             }
 
+            value = JFXUtil.convert(model_widget.propMediumTickColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getMediumTickMarkColor()) ) {
+                jfx_node.setMediumTickMarkColor((Color) value);
+            }
+
+            value = TickMarkType.valueOf(model_widget.propMediumTickType().getValue().name());
+
+            if ( !Objects.equals(value, jfx_node.getMediumTickMarkType()) ) {
+                jfx_node.setMediumTickMarkType((TickMarkType) value);
+            }
+
+            value = model_widget.propMediumTickVisible().getValue();
+
+            if ( !Objects.equals(value, jfx_node.getMediumTickMarksVisible()) ) {
+                jfx_node.setMediumTickMarksVisible((boolean) value);
+            }
+
         }
 
         if ( dirtyLimits.checkAndClear() ) {
@@ -156,6 +174,10 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
         jfx_node.setMajorTickMarkLengthFactor(0.515);
         jfx_node.setMajorTickMarkType(TickMarkType.valueOf(model_widget.propMajorTickType().getValue().name()));
         jfx_node.setMajorTickMarksVisible(model_widget.propMajorTickVisible().getValue());
+        jfx_node.setMediumTickMarkColor(JFXUtil.convert(model_widget.propMediumTickColor().getValue()));
+        jfx_node.setMediumTickMarkLengthFactor(0.475);
+        jfx_node.setMediumTickMarkType(TickMarkType.valueOf(model_widget.propMediumTickType().getValue().name()));
+        jfx_node.setMediumTickMarksVisible(model_widget.propMediumTickVisible().getValue());
 
         switch ( skin ) {
             case HORIZONTAL:
@@ -216,6 +238,10 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
         gauge.setMajorTickMarkLengthFactor(0.515);
         gauge.setMajorTickMarkType(TickMarkType.valueOf(model_widget.propMajorTickType().getValue().name()));
         gauge.setMajorTickMarksVisible(model_widget.propMajorTickVisible().getValue());
+        gauge.setMediumTickMarkColor(JFXUtil.convert(model_widget.propMediumTickColor().getValue()));
+        gauge.setMediumTickMarkLengthFactor(0.475);
+        gauge.setMediumTickMarkType(TickMarkType.valueOf(model_widget.propMediumTickType().getValue().name()));
+        gauge.setMediumTickMarksVisible(model_widget.propMediumTickVisible().getValue());
 
         return gauge;
 
@@ -249,6 +275,9 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
         model_widget.propMajorTickColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propMajorTickType().addUntypedPropertyListener(this::lookChanged);
         model_widget.propMajorTickVisible().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propMediumTickColor().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propMediumTickType().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propMediumTickVisible().addUntypedPropertyListener(this::lookChanged);
         model_widget.propSkin().addUntypedPropertyListener(this::lookChanged);
 
         model_widget.propHighlightZones().addUntypedPropertyListener(this::limitsChanged);
