@@ -237,6 +237,7 @@ public class Messages extends NLS
     public static String WidgetProperties_OnColor;
     public static String WidgetProperties_OnImage;
     public static String WidgetProperties_OnLabel;
+    public static String WidgetProperties_OnlyExtremaVisible;
     public static String WidgetProperties_Orientation;
     public static String WidgetProperties_Points;
     public static String WidgetProperties_Precision;
