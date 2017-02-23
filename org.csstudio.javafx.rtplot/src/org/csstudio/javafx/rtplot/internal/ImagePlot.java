@@ -398,7 +398,6 @@ public class ImagePlot extends PlotCanvasBase
         if (area_copy.width <= 0  ||  area_copy.height <= 0)
             return null;
 
-        in_update = true;
         final BufferUtil buffer = BufferUtil.getBufferedImage(area_copy.width, area_copy.height);
         if (buffer == null)
             return null;
@@ -539,8 +538,6 @@ public class ImagePlot extends PlotCanvasBase
             drawROI(gc, roi);
 
         gc.dispose();
-
-        in_update = false;
 
         return image;
     }
