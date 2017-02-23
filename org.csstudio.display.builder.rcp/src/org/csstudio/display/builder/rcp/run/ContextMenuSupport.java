@@ -16,6 +16,7 @@ import java.util.logging.Level;
 
 import org.csstudio.csdata.ProcessVariable;
 import org.csstudio.display.builder.model.ModelPlugin;
+import org.csstudio.display.builder.model.Preferences;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.properties.ActionInfo;
@@ -38,7 +39,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchActionConstants;
@@ -62,6 +63,8 @@ import javafx.scene.Scene;
 @SuppressWarnings("nls")
 public class ContextMenuSupport
 {
+    private static final boolean support_standalone = Preferences.isStandaloneWindowSupported();
+
     private final RuntimeViewPart view;
     private Shell shell;
 
@@ -128,7 +131,7 @@ public class ContextMenuSupport
      *  @param parent Parent SWT widget
      *  @param representation Representation
      */
-    public ContextMenuSupport(final RuntimeViewPart view, final Composite parent, final RCP_JFXRepresentation representation)
+    public ContextMenuSupport(final RuntimeViewPart view, final Control parent, final RCP_JFXRepresentation representation)
     {
         this.view = view;
         final IWorkbenchPartSite site = view.getSite();
@@ -243,7 +246,9 @@ public class ContextMenuSupport
             manager.add(new SendEMailAction(shell, scene));
             manager.add(new SendLogbookAction(shell, scene));
             manager.add(new FullScreenAction(view.getSite().getPage()));
-            manager.add(new StandaloneAction(view));
+
+            if (support_standalone)
+                manager.add(new StandaloneAction(view));
         }
 
         // Placeholder for the display editor.

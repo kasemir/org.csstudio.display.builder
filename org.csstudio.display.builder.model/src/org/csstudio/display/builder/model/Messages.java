@@ -32,7 +32,6 @@ public class Messages extends NLS
     public static String BoolWidget_OnLabel;
     public static String ByteMonitor_BitReverse;
     public static String ByteMonitor_NumBits;
-    public static String ByteMonitor_SquareLED;
     public static String ByteMonitor_StartBit;
     public static String Bottom;
     public static String Checkbox_Label;
@@ -127,6 +126,7 @@ public class Messages extends NLS
     public static String TraceType_LineErrorbar;
     public static String TraceType_None;
     public static String TraceType_Step;
+    public static String ValueNoPV;
     public static String Vertical;
     public static String WebBrowser_showToolbar;
     public static String WebBrowser_URL;
@@ -235,6 +235,7 @@ public class Messages extends NLS
     public static String WidgetProperties_ShowScale;
     public static String WidgetProperties_ShowUnits;
     public static String WidgetProperties_Skin;
+    public static String WidgetProperties_Square;
     public static String WidgetProperties_StretchToFit;
     public static String WidgetProperties_Text;
     public static String WidgetProperties_TextColor;
@@ -254,6 +255,7 @@ public class Messages extends NLS
     public static String WidgetProperties_Width;
     public static String WidgetProperties_WidthPVName;
     public static String WidgetProperties_WrapWords;
+    public static String WidgetProperties_Writable;
     public static String WidgetProperties_X;
     public static String WidgetProperties_XPVName;
     public static String WidgetProperties_Y;

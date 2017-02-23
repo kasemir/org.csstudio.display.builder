@@ -7,6 +7,8 @@
  ******************************************************************************/
 package org.csstudio.trends.databrowser3.editor;
 
+import static org.csstudio.trends.databrowser3.Activator.logger;
+
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -17,9 +19,10 @@ import java.util.logging.Level;
 
 import org.csstudio.apputil.ui.workbench.OpenViewAction;
 import org.csstudio.csdata.ProcessVariable;
-import org.csstudio.display.builder.rcp.JFXCursorFix;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.email.EMailSender;
+import org.csstudio.javafx.swt.JFXCursorFix;
+import org.csstudio.javafx.swt.JFX_SWT_Wrapper;
 import org.csstudio.trends.databrowser3.Activator;
 import org.csstudio.trends.databrowser3.Messages;
 import org.csstudio.trends.databrowser3.Perspective;
@@ -62,7 +65,6 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -84,7 +86,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.views.properties.IPropertySheetPage;
 
-import javafx.embed.swt.FXCanvas;
 import javafx.scene.Scene;
 
 /** Eclipse 'editor' for the Data Browser
@@ -106,9 +107,6 @@ public class DataBrowserEditor extends EditorPart
 
     /** Listener to model that updates this editor*/
     private ModelListener model_listener;
-
-    /** Canvas that holds the plot's JFX content */
-    private FXCanvas plot_canvas;
 
     /** GUI for the plot */
     private ModelBasedPlot plot;
@@ -139,7 +137,7 @@ public class DataBrowserEditor extends EditorPart
         }
         catch (Exception ex)
         {
-            Activator.getLogger().log(Level.SEVERE, "Cannot create DataBrowserEditor", ex); //$NON-NLS-1$
+            logger.log(Level.SEVERE, "Cannot create DataBrowserEditor", ex);
             return null;
         }
         return editor;
@@ -309,19 +307,22 @@ public class DataBrowserEditor extends EditorPart
         // Create GUI elements (Plot)
         parent.setLayout(new FillLayout());
 
+        final JFX_SWT_Wrapper wrapper = new JFX_SWT_Wrapper(parent, () ->
+        {
+            try
+            {
+                plot = new ModelBasedPlot(true);
+            }
+            catch (Exception ex)
+            {
+                logger.log(Level.WARNING, "Cannot create plot", ex);
+            }
+            return new Scene(plot.getPlot());
+        });
 
-        plot_canvas = new FXCanvas(parent, SWT.NONE);
-        try
-        {
-            plot = new ModelBasedPlot(true);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        final Scene scene = new Scene(plot.getPlot());
-        plot_canvas.setScene(scene);
-        JFXCursorFix.apply(scene, plot_canvas);
+        final Control plot_canvas = wrapper.getFXCanvas();
+        final Scene scene = wrapper.getScene();
+        JFXCursorFix.apply(scene, parent.getDisplay());
         fixCanvasDragAndDrop(plot_canvas);
 
         // Create and start controller
@@ -386,7 +387,7 @@ public class DataBrowserEditor extends EditorPart
         createContextMenu(plot_canvas);
     }
 
-    private void fixCanvasDragAndDrop(final FXCanvas canvas)
+    private void fixCanvasDragAndDrop(final Control canvas)
     {
         // The droptarget gets set automatically for fxcanvas in setscene
         // Which will cause the ControlSystemDropTarget constructor to fail
@@ -542,7 +543,10 @@ public class DataBrowserEditor extends EditorPart
     @Override
     public void dispose()
     {
-        model.removeListener(model_listener);
+        // If editor is disposed because of error during init(),
+        // model_listener will be null
+        if (model_listener != null)
+            model.removeListener(model_listener);
         if (controller != null)
         {
             controller.stop();
@@ -555,8 +559,7 @@ public class DataBrowserEditor extends EditorPart
     @Override
     public void setFocus()
     {
-        //TODO: plot set focus
-        //plot.getPlot().setFocus();
+        // NOP
     }
 
     /** {@inheritDoc} */

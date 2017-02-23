@@ -19,6 +19,7 @@ import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.BoolButtonWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
+import org.csstudio.javafx.Styles;
 import org.diirt.vtype.VEnum;
 import org.diirt.vtype.VType;
 
@@ -38,8 +39,8 @@ import javafx.scene.shape.Ellipse;
 @SuppressWarnings("nls")
 public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBase, BoolButtonWidget>
 {
-
     private final DirtyFlag dirty_representation = new DirtyFlag();
+    private final DirtyFlag dirty_enablement = new DirtyFlag();
     private final DirtyFlag dirty_value = new DirtyFlag();
     private volatile int on_state = 1;
     private volatile int use_bit = 0;
@@ -107,12 +108,14 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
         model_widget.propFont().addUntypedPropertyListener(this::representationChanged);
         model_widget.propForegroundColor().addUntypedPropertyListener(this::representationChanged);
         model_widget.propBackgroundColor().addUntypedPropertyListener(this::representationChanged);
-        model_widget.propEnabled().addUntypedPropertyListener(this::representationChanged);
+        model_widget.propEnabled().addPropertyListener(this::enablementChanged);
+        model_widget.runtimePropPVWritable().addPropertyListener(this::enablementChanged);
         model_widget.propBit().addPropertyListener(this::bitChanged);
         model_widget.runtimePropValue().addPropertyListener(this::valueChanged);
 
         imagesChanged(null, null, null);
         bitChanged(model_widget.propBit(), null, model_widget.propBit().getValue());
+        enablementChanged(null, null, null);
     }
 
     private void stateChanged()
@@ -193,6 +196,12 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
         toolkit.scheduleUpdate(this);
     }
 
+    private void enablementChanged(final WidgetProperty<Boolean> property, final Boolean old_value, final Boolean new_value)
+    {
+        dirty_enablement.mark();
+        toolkit.scheduleUpdate(this);
+    }
+
     @Override
     public void updateChanges()
     {
@@ -210,8 +219,15 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
             final int size = Math.max(wid, hei);
             led.setRadiusX(size / 15.0);
             led.setRadiusY(size / 10.0);
-            jfx_node.setDisable(! model_widget.propEnabled().getValue());
+
             update_value = true;
+        }
+        if (dirty_enablement.checkAndClear())
+        {
+            final boolean enabled = model_widget.propEnabled().getValue()  &&
+                                    model_widget.runtimePropPVWritable().getValue();
+            jfx_node.setDisable(! enabled);
+            Styles.update(jfx_node, Styles.NOT_ENABLED, !enabled);
         }
         if (update_value)
         {

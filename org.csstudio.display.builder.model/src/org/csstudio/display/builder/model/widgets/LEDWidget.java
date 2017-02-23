@@ -15,6 +15,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOffLabel;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOnColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOnLabel;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propSquare;
 
 import java.util.Arrays;
 import java.util.List;
@@ -74,7 +75,7 @@ public class LEDWidget extends BaseLEDWidget
             super.configureFromXML(model_reader, widget, xml);
 
             final LEDWidget led = (LEDWidget) widget;
-            BaseLEDWidget.handle_legacy_position(led, xml_version, xml);
+            handle_legacy_LED(led, xml_version, xml);
 
             // If legacy widgets was configured to not use labels, clear them
             XMLUtil.getChildBoolean(xml, "show_boolean_label").ifPresent(show ->
@@ -112,6 +113,7 @@ public class LEDWidget extends BaseLEDWidget
         properties.add(on_color = propOnColor.createProperty(this, new WidgetColor(60, 255, 60)));
         properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
+        properties.add(square = propSquare.createProperty(this, false));
         // Ideally, widgets should fetch their information from a PV,
         // but the LED does not allow much room for text,
         // so the default text from the PV is likely too large..

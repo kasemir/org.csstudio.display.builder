@@ -25,6 +25,7 @@ public class Preferences
     public static final String READ_TIMEOUT = "read_timeout";
     public static final String LEGACY_FONT_CALIBRATION = "legacy_font_calibration";
     public static final String MACROS = "macros";
+    public static final String SUPPORT_STANDALONE_WINDOW = "support_standalone_window";
 
     public static String[] getClassFiles()
     {
@@ -85,6 +86,12 @@ public class Preferences
         {
             return null;
         }
+    }
+
+    /** @return Do support standalone window option? */
+    public static boolean isStandaloneWindowSupported()
+    {
+        return Boolean.parseBoolean(getPreference(SUPPORT_STANDALONE_WINDOW, "true"));
     }
 
     /** @param key Preference key

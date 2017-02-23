@@ -157,6 +157,26 @@ public class PVUtil
         if (value instanceof Alarm)
         {
             final Alarm alarm = (Alarm) value;
+            return alarm.getAlarmSeverity().ordinal();
+        }
+        return -1;
+    }
+
+    /** Get alarm severity of the PV as an integer value.
+     *
+     *  <p>This uses the legacy mapping of alarm severities
+     *
+     *  @param pv PV
+     *  @return 0: OK;  1: Major; 2:Minor, -1: Invalid or Undefined
+     *  @deprecated Use getSeverity
+     */
+    @Deprecated
+    public final static int getLegacySeverity(final RuntimePV pv)
+    {
+        final VType value = pv.read();
+        if (value instanceof Alarm)
+        {
+            final Alarm alarm = (Alarm) value;
             switch (alarm.getAlarmSeverity())
             {
             case NONE:
@@ -176,7 +196,7 @@ public class PVUtil
 
     /** Get alarm severity of the PV as a string
      *  @param pv PV
-     *  @return String representation of alarm severity
+     *  @return Alarm severity as "NONE", "MINOR", "MAJOR", "INVALID", "UNDEFINED"
      */
     public final static String getSeverityString(final RuntimePV pv)
     {
@@ -184,9 +204,9 @@ public class PVUtil
         if (value instanceof Alarm)
         {
             final Alarm alarm = (Alarm) value;
-            return alarm.getAlarmSeverity().toString();
+            return alarm.getAlarmSeverity().name();
         }
-        return AlarmSeverity.UNDEFINED.toString();
+        return AlarmSeverity.UNDEFINED.name();
     }
 
     /** Get alarm status, i.e. text that might describe the alarm severity

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,6 +23,7 @@ import org.csstudio.display.builder.model.properties.ExecuteCommandActionInfo;
 import org.csstudio.display.builder.model.properties.ExecuteScriptActionInfo;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
 import org.csstudio.display.builder.model.properties.OpenFileActionInfo;
+import org.csstudio.display.builder.model.properties.OpenWebpageActionInfo;
 import org.csstudio.display.builder.model.properties.WritePVActionInfo;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
@@ -51,6 +52,8 @@ public class ActionUtil
             RuntimeUtil.getExecutor().execute(() -> executeCommand(source_widget, (ExecuteCommandActionInfo) action));
         else if (action instanceof OpenFileActionInfo)
             RuntimeUtil.getExecutor().execute(() -> openFile(source_widget, (OpenFileActionInfo) action));
+        else if (action instanceof OpenWebpageActionInfo)
+            RuntimeUtil.getExecutor().execute(() -> openWebpage(source_widget, (OpenWebpageActionInfo) action));
         else
             logger.log(Level.SEVERE, "Cannot handle unknown " + action);
     }
@@ -86,7 +89,7 @@ public class ActionUtil
             final String parent_file = widget_model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
 
             // Load new model. If that fails, no reason to continue.
-            final DisplayModel new_model = ModelLoader.loadModel(parent_file, expanded_path);
+            final DisplayModel new_model = ModelLoader.resolveAndLoadModel(parent_file, expanded_path);
 
             // Model is standalone; source_widget (Action button, ..) is _not_ the parent,
             // but it does add macros to those already defined in the display file.
@@ -245,43 +248,83 @@ public class ActionUtil
      */
     private static void openFile(final Widget source_widget, final OpenFileActionInfo action)
     {
-       if (action.getFile().isEmpty())
-       {
-           logger.log(Level.WARNING, "Action without file: {0}", action);
-           return;
-       }
-       try
-       {
-           // Path to resolve, after expanding macros
-           final Macros macros = source_widget.getEffectiveMacros();
-           final String expanded_path = MacroHandler.replace(macros, action.getFile());
-           logger.log(Level.FINER, "{0}, effective macros {1} ({2})", new Object[] { action, macros, expanded_path });
+        if (action.getFile().isEmpty())
+        {
+            logger.log(Level.WARNING, "Action without file: {0}", action);
+            return;
+        }
+        try
+        {
+            final String resolved_name = resolve(source_widget, action.getFile());
+            final DisplayModel top_model = source_widget.getTopDisplayModel();
+            final ToolkitRepresentation<Object, Object> toolkit = ToolkitRepresentation.getToolkit(top_model);
+            toolkit.execute(() ->
+            {
+                try
+                {
+                    toolkit.openFile(resolved_name);
+                }
+                catch (Exception ex)
+                {
+                    logger.log(Level.WARNING, "Cannot open " + action, ex);
+                    toolkit.showErrorDialog(source_widget, "Cannot open " + resolved_name);
+                }
+            });
+        }
+        catch (final Exception ex)
+        {
+            logger.log(Level.WARNING, "Error handling " + action, ex);
+            ScriptUtil.showErrorDialog(source_widget, "Cannot open " + action.getFile() + ".\n\nSee log for details.");
+        }
+    }
 
-           // Resolve file relative to the source widget model (not 'top'!)
-           final DisplayModel widget_model = source_widget.getDisplayModel();
-           final String parent_file = widget_model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
-           final String resolved_name = ModelResourceUtil.resolveResource(parent_file, expanded_path);
+    /** Open a web page
+     *  @param source_widget Widget from which the action is invoked.
+     *                       Used to resolve the potentially relative path of the
+     *                       file specified in the action
+     *  @param action        Information on which URL to open
+     */
+    private static void openWebpage(final Widget source_widget, final OpenWebpageActionInfo action)
+    {
+        if (action.getURL().isEmpty())
+        {
+            logger.log(Level.WARNING, "Action without URL: {0}", action);
+            return;
+        }
+        try
+        {
+            final String resolved_name = resolve(source_widget, action.getURL());
+            final DisplayModel top_model = source_widget.getTopDisplayModel();
+            final ToolkitRepresentation<Object, Object> toolkit = ToolkitRepresentation.getToolkit(top_model);
+            toolkit.execute(() ->
+            {
+                try
+                {
+                    toolkit.openWebBrowser(resolved_name);
+                }
+                catch (Exception ex)
+                {
+                    logger.log(Level.WARNING, "Cannot open " + action, ex);
+                    toolkit.showErrorDialog(source_widget, "Cannot open " + resolved_name);
+                }
+            });
+        }
+        catch (final Exception ex)
+        {
+            logger.log(Level.WARNING, "Error handling " + action, ex);
+            ScriptUtil.showErrorDialog(source_widget, "Cannot open " + action.getURL() + ".\n\nSee log for details.");
+        }
+    }
 
-           // On UI thread...
-           final DisplayModel top_model = source_widget.getTopDisplayModel();
-           final ToolkitRepresentation<Object, Object> toolkit = ToolkitRepresentation.getToolkit(top_model);
-           toolkit.execute(() ->
-           {
-               try
-               {
-                   toolkit.openFile(resolved_name);
-               }
-               catch (Exception ex)
-               {
-                   logger.log(Level.WARNING, "Cannot open " + action, ex);
-                   toolkit.showErrorDialog(source_widget, "Cannot open " + resolved_name);
-               }
-           });
-       }
-       catch (final Exception ex)
-       {
-           logger.log(Level.WARNING, "Error handling " + action, ex);
-           ScriptUtil.showErrorDialog(source_widget, "Cannot open " + action.getFile() + ".\n\nSee log for details.");
-       }
-   }
+    private static String resolve(final Widget source_widget, final String path) throws Exception
+    {
+        // Path to resolve, after expanding macros
+        final Macros macros = source_widget.getEffectiveMacros();
+        final String expanded_path = MacroHandler.replace(macros, path);
+
+        // Resolve file relative to the source widget model (not 'top'!)
+        final DisplayModel widget_model = source_widget.getDisplayModel();
+        final String parent_file = widget_model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
+        return ModelResourceUtil.resolveResource(parent_file, expanded_path);
+    }
 }

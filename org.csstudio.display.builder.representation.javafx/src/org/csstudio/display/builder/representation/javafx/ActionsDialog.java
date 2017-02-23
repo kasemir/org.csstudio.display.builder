@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 
+import org.csstudio.display.builder.model.Preferences;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.ActionInfo;
@@ -22,6 +23,7 @@ import org.csstudio.display.builder.model.properties.ExecuteScriptActionInfo;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo.Target;
 import org.csstudio.display.builder.model.properties.OpenFileActionInfo;
+import org.csstudio.display.builder.model.properties.OpenWebpageActionInfo;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.WritePVActionInfo;
 
@@ -86,11 +88,14 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
     private TextField execute_script_description, execute_script_file;
     private TextArea execute_script_text;
 
-    // UI elements for ExecuteCommnadAction
+    // UI elements for ExecuteCommandAction
     private TextField execute_command_description, execute_command_file;
 
     // UI elements for OpenFileAction
     private TextField open_file_description, open_file_file;
+
+    // UI elements for OpenWebpageAction
+    private TextField open_web_description, open_web_url;
 
     /** Prevent circular updates */
     private boolean updating = false;
@@ -243,14 +248,18 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
         final GridPane execute_script_details = createExecuteScriptDetails();
         final GridPane execute_command_details = createExecuteCommandDetails();
         final GridPane open_file_details = createOpenFileDetails();
+        final GridPane open_web_details = createOpenWebDetails();
+
         open_display_details.setVisible(false);
         write_pv_details.setVisible(false);
         execute_script_details.setVisible(false);
         execute_command_details.setVisible(false);
         open_file_details.setVisible(false);
+        open_web_details.setVisible(false);
 
         final StackPane details = new StackPane(open_display_details, write_pv_details,
-                                                execute_script_details, execute_command_details, open_file_details);
+                                                execute_script_details, execute_command_details,
+                                                open_file_details, open_web_details);
         layout.add(details, 2, 1);
         GridPane.setHgrow(details, Priority.ALWAYS);
         GridPane.setVgrow(details, Priority.ALWAYS);
@@ -297,6 +306,11 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
             {
                 selectStackPane(details, open_file_details);
                 showOpenFileAction((OpenFileActionInfo)action);
+            }
+            else if (action instanceof OpenWebpageActionInfo)
+            {
+                selectStackPane(details, open_web_details);
+                showOpenWebAction((OpenWebpageActionInfo)action);
             }
             else
                 selectStackPane(details, null);
@@ -374,6 +388,8 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
             final RadioButton target = new RadioButton(modes[i].toString());
             target.setToggleGroup(open_display_targets);
             target.selectedProperty().addListener(update);
+            if (modes[i] == Target.STANDALONE  &&  !Preferences.isStandaloneWindowSupported())
+                target.setDisable(true);
             modes_box.getChildren().add(target);
         }
         open_display_details.add(modes_box, 0, 2, 2, 1);
@@ -648,7 +664,7 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
                                             execute_command_file.getText());
     }
 
-    /** @return Sub-pane for PpenFile action */
+    /** @return Sub-pane for OpenFile action */
     private GridPane createOpenFileDetails()
     {
         final InvalidationListener update = whatever ->
@@ -713,5 +729,55 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
     {
         return new OpenFileActionInfo(open_file_description.getText(),
                                       open_file_file.getText().trim());
+    }
+
+    /** @return Sub-pane for OpenWeb action */
+    private GridPane createOpenWebDetails()
+    {
+        final InvalidationListener update = whatever ->
+        {
+            if (updating  ||  selected_action_index < 0)
+                return;
+            actions.set(selected_action_index, getOpenWebAction());
+        };
+
+        final GridPane open_web_details = new GridPane();
+        open_web_details.setHgap(10);
+        open_web_details.setVgap(10);
+
+        open_web_details.add(new Label(Messages.ActionsDialog_Description), 0, 0);
+        open_web_description = new TextField();
+        open_web_description.textProperty().addListener(update);
+        open_web_details.add(open_web_description, 1, 0);
+        GridPane.setHgrow(open_web_description, Priority.ALWAYS);
+
+        open_web_details.add(new Label(Messages.ActionsDialog_URL), 0, 1);
+        open_web_url = new TextField();
+        open_web_url.textProperty().addListener(update);
+        open_web_details.add(open_web_url, 1, 1);
+
+        return open_web_details;
+    }
+
+    /** @param action {@link OpenWebpageActionInfo} to show */
+    private void showOpenWebAction(final OpenWebpageActionInfo action)
+    {
+        updating = true;
+        try
+        {
+            open_web_description.setText(action.getDescription());
+            open_web_url.setText(action.getURL());
+        }
+        finally
+        {
+            updating = false;
+        }
+    }
+
+    /** @return {@link OpenWebpageActionInfo} from sub pane */
+    private OpenWebpageActionInfo getOpenWebAction()
+    {
+        return new OpenWebpageActionInfo(open_web_description.getText(),
+                                         open_web_url.getText().trim());
     }
 }

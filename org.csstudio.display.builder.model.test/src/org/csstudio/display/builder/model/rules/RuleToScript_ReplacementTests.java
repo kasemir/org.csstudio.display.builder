@@ -5,11 +5,12 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.model.properties;
+package org.csstudio.display.builder.model.rules;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
+import org.csstudio.display.builder.model.rules.RuleToScript;
 import org.junit.Test;
 
 /** Test replacement of logical operators in RuleToScript.

@@ -101,27 +101,42 @@ public class XMLUtil
 
     /** Iterator over all Elements (not just Nodes) of a parent
      *  that have specific name.
+     *
+     *  This iterator allows appending new elements to the document,
+     *  after the current iterator position, and the next() call will
+     *  then find them.
+     *  For that reason 'next' cannot already identify the following
+     *  element, because it may not exist, yet.
      */
     private static class NamedElementIterator implements Iterator<Element>
     {
-        private Element next_node;
+        private final String name;
+        private Node first;
+        private Element current;
 
         NamedElementIterator(final Node parent, final String name)
         {
-            next_node = findElementByName(parent.getFirstChild(), name);
+            this.name = name;
+            first = parent.getFirstChild();
+            current = null;
         }
 
         @Override
         public boolean hasNext()
         {
-            return next_node != null;
+            if (first != null)
+            {
+                current = findElementByName(first, name);
+                first = null;
+            }
+            else if (current != null)
+                current = findElementByName(current.getNextSibling(), name);
+            return current != null;
         }
 
         @Override
         public Element next()
         {
-            final Element current = next_node;
-            next_node = findElementByName(current.getNextSibling(), current.getNodeName());
             return current;
         }
     }

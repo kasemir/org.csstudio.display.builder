@@ -58,12 +58,13 @@ public interface Axis<T extends Comparable<T>>
     /** Configure the Axis to auto-scale or not.
      *  <p>
      *  Initial default is <code>false</code>, i.e. no auto-scale.
+     *  @return <code>true</code> if autoscale setting was changed
      */
-    public void setAutoscale(boolean do_autoscale);
+    public boolean setAutoscale(boolean do_autoscale);
 
     /** @return <code>true</code> if the axis is auto-scaling. */
     public boolean isAutoscale();
-    
+
     /** Get the screen coordinates of the given value.
      *  <p>
      *  Values are mapped from value to screen coordinates via

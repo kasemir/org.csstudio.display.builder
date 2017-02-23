@@ -104,8 +104,9 @@ public class ScriptSupport
             //     .. new API
             // else:
             //     from org.csstudio.opibuilder.scriptUtil
-            if (line.length() > 0  &&
-                (line.charAt(0) == ' ' || line.charAt(0) == '\t') &&
+            if (line.length() > 0      &&
+                line.charAt(0) != ' '  &&
+                line.charAt(0) != '\t' &&
                 line.contains("org.csstudio.opibuilder.scriptUtil"))
             {
                 if (! warned)

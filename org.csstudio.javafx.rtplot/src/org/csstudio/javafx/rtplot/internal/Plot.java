@@ -79,7 +79,11 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     private boolean show_crosshair = false;
 
     private AxisRange<XTYPE> mouse_start_x_range;
+
+    /** Initial range of the mouse_y_axis or all Y axes, depending on mouse mode */
     private List<AxisRange<Double>> mouse_start_y_ranges = new ArrayList<>();
+    /** Initial autorange setting of the mouse_y_axis or all Y axes, depending on mouse mode */
+    private List<Boolean> pre_pan_auto_scales = new ArrayList<>();
     private int mouse_y_axis = -1;
 
     // Annotation-related info. If mouse_annotation is set, the rest should be set.
@@ -470,6 +474,8 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         plot_processor.autoscale();
 
         final BufferUtil buffer = BufferUtil.getBufferedImage(area_copy.width, area_copy.height);
+        if (buffer == null)
+            return null;
         final BufferedImage image = buffer.getImage();
         final Graphics2D gc = buffer.getGraphics();
 
@@ -594,21 +600,39 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
             return;
         else if (mouse_mode == MouseMode.PAN)
         {   // Determine start of 'pan'
+            // For affected Y axes, i.e. mouse_y_axis or all,
+            // store the pre-pan auto scale state for un-do
+            // and disable autoscaling during mouse actions.
             mouse_start_x_range = x_axis.getValueRange();
             mouse_start_y_ranges.clear();
+            pre_pan_auto_scales.clear();
+            mouse_y_axis = -1;
             for (int i=0; i<y_axes.size(); ++i)
             {
                 final YAxisImpl<XTYPE> axis = y_axes.get(i);
-                mouse_start_y_ranges.add(axis.getValueRange());
                 if (axis.getBounds().contains(current.getX(), current.getY()))
                 {
                     mouse_y_axis = i;
                     mouse_mode = MouseMode.PAN_Y;
+
+                    mouse_start_y_ranges.add(axis.getValueRange());
+                    pre_pan_auto_scales.add(axis.isAutoscale());
+                    if (axis.setAutoscale(false))
+                        fireAutoScaleChange(axis);
                     return;
                 }
             }
             if (plot_area.getBounds().contains(current.getX(), current.getY()))
+            {
                 mouse_mode = MouseMode.PAN_PLOT;
+                for (YAxisImpl<XTYPE> axis : y_axes)
+                {
+                    mouse_start_y_ranges.add(axis.getValueRange());
+                    pre_pan_auto_scales.add(axis.isAutoscale());
+                    if (axis.setAutoscale(false))
+                        fireAutoScaleChange(axis);
+                }
+            }
             else if (x_axis.getBounds().contains(current.getX(), current.getY()))
                 mouse_mode = MouseMode.PAN_X;
         }
@@ -664,7 +688,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         else if (mouse_mode == MouseMode.PAN_Y  &&  start != null)
         {
             final YAxisImpl<XTYPE> axis = y_axes.get(mouse_y_axis);
-            axis.pan(mouse_start_y_ranges.get(mouse_y_axis), axis.getValue((int)start.getY()), axis.getValue((int)current.getY()));
+            axis.pan(mouse_start_y_ranges.get(0), axis.getValue((int)start.getY()), axis.getValue((int)current.getY()));
         }
         else if (mouse_mode == MouseMode.PAN_PLOT  &&  start != null)
         {
@@ -738,23 +762,30 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
             final YAxisImpl<XTYPE> y_axis = y_axes.get(mouse_y_axis);
             undo.add(new ChangeAxisRanges<XTYPE>(this, Messages.Pan_Y,
                     Arrays.asList(y_axis),
-                    Arrays.asList(mouse_start_y_ranges.get(mouse_y_axis)),
-                    Arrays.asList(y_axis.getValueRange())));
+                    mouse_start_y_ranges,
+                    Arrays.asList(y_axis.getValueRange()),
+                    pre_pan_auto_scales));
+            if (y_axis.setAutoscale(false))
+                fireAutoScaleChange(y_axis);
             fireYAxisChange(y_axis);
             mouse_mode = MouseMode.PAN;
         }
         else if (mouse_mode == MouseMode.PAN_PLOT)
         {
             mouseMove(e);
-            List<AxisRange<Double>> current_y_ranges = new ArrayList<>();
+            final List<AxisRange<Double>> current_y_ranges = new ArrayList<>();
             for (YAxisImpl<XTYPE> axis : y_axes)
                 current_y_ranges.add(axis.getValueRange());
             undo.add(new ChangeAxisRanges<XTYPE>(this, Messages.Pan,
                     x_axis, mouse_start_x_range, x_axis.getValueRange(),
-                    y_axes, mouse_start_y_ranges, current_y_ranges));
+                    y_axes, mouse_start_y_ranges, current_y_ranges, pre_pan_auto_scales));
             fireXAxisChange();
             for (YAxisImpl<XTYPE> axis : y_axes)
+            {
+                if (axis.setAutoscale(false))
+                    fireAutoScaleChange(axis);
                 fireYAxisChange(axis);
+            }
             mouse_mode = MouseMode.PAN;
         }
         else if (mouse_mode == MouseMode.ZOOM_IN_X)
@@ -779,7 +810,8 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
                 undo.execute(new ChangeAxisRanges<XTYPE>(this, Messages.Zoom_In_Y,
                         Arrays.asList(axis),
                         Arrays.asList(axis.getValueRange()),
-                        Arrays.asList(new AxisRange<Double>(axis.getValue(low), axis.getValue(high)))));
+                        Arrays.asList(new AxisRange<Double>(axis.getValue(low), axis.getValue(high))),
+                        Arrays.asList(axis.isAutoscale())));
             }
             mouse_mode = MouseMode.ZOOM_IN;
         }
@@ -796,14 +828,17 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
                 // Mouse 'y' increases going _down_ the screen
                 final List<AxisRange<Double>> original_y_ranges = new ArrayList<>();
                 final List<AxisRange<Double>> new_y_ranges = new ArrayList<>();
+                final List<Boolean> original_autoscale_values = new ArrayList<>();
                 high = (int) Math.min(start.getY(), current.getY());
                 low = (int) Math.max(start.getY(), current.getY());
                 for (YAxisImpl<XTYPE> axis : y_axes)
                 {
                     original_y_ranges.add(axis.getValueRange());
                     new_y_ranges.add(new AxisRange<Double>(axis.getValue(low), axis.getValue(high)));
+                    original_autoscale_values.add(axis.isAutoscale());
                 }
-                undo.execute(new ChangeAxisRanges<XTYPE>(this, Messages.Zoom_In, x_axis, original_x_range, new_x_range, y_axes, original_y_ranges, new_y_ranges));
+                undo.execute(new ChangeAxisRanges<XTYPE>(this, Messages.Zoom_In, x_axis, original_x_range, new_x_range,
+                                                         y_axes, original_y_ranges, new_y_ranges, original_autoscale_values));
             }
             mouse_mode = MouseMode.ZOOM_IN;
         }
@@ -830,17 +865,20 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
             x_axis.zoom((int)x, factor);
             fireXAxisChange();
             // .. and Y axes
+            final List<Boolean> old_autoscale = new ArrayList<>(y_axes.size());
             final List<AxisRange<Double>> old_range = new ArrayList<>(y_axes.size()),
-                    new_range = new ArrayList<>(y_axes.size());
+                                          new_range = new ArrayList<>(y_axes.size());
             for (YAxisImpl<XTYPE> axis : y_axes)
             {
+                old_autoscale.add(axis.isAutoscale());
                 old_range.add(axis.getValueRange());
                 axis.zoom((int)y, factor);
                 new_range.add(axis.getValueRange());
                 fireYAxisChange(axis);
             }
             undo.execute(new ChangeAxisRanges<XTYPE>(this, Messages.Zoom_Out,
-                    x_axis, orig_x, x_axis.getValueRange(), y_axes, old_range, new_range));
+                    x_axis, orig_x, x_axis.getValueRange(),
+                    y_axes, old_range, new_range, old_autoscale));
         }
         else
         {   // Zoom specific Y axis
@@ -848,12 +886,16 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
                 if (axis.getBounds().contains(x, y))
                 {
                     final AxisRange<Double> orig = axis.getValueRange();
+                    final boolean orig_autoscale = axis.isAutoscale();
+                    if (axis.setAutoscale(false))
+                        fireAutoScaleChange(axis);
                     axis.zoom((int)y, factor);
                     fireYAxisChange(axis);
                     undo.add(new ChangeAxisRanges<XTYPE>(this, Messages.Zoom_Out_Y,
                             Arrays.asList(axis),
                             Arrays.asList(orig),
-                            Arrays.asList(axis.getValueRange())));
+                            Arrays.asList(axis.getValueRange()),
+                            Arrays.asList(orig_autoscale)));
                     break;
                 }
         }
@@ -871,10 +913,56 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
             requestRedraw();
     }
 
-    /** Stagger the range of axes */
-    public void stagger()
+    /** Stagger the range of axes
+     *  @param disable_autoscale Disable autoscaling, or keep it as is?
+     */
+    public void stagger(final boolean disable_autoscale)
     {
+        if (disable_autoscale)
+            for (YAxisImpl<XTYPE> axis : y_axes)
+                if (axis.setAutoscale(false))
+                    fireAutoScaleChange(axis);
         plot_processor.stagger();
+    }
+
+    /** Enable autoscale
+     *
+     *  <p>.. for the value axis currently under the cursor,
+     *  or all axes.
+     */
+    public void enableAutoScale()
+    {
+        final Point2D current = mouse_current.orElse(null);
+        if (current == null)
+            return;
+
+        // Which axes to autoscale?
+        final List<YAxisImpl<XTYPE>> axes = new ArrayList<>();
+        final List<AxisRange<Double>> ranges =  new ArrayList<>();
+        final List<Boolean> original_auto = new ArrayList<>();
+        final List<Boolean> new_auto = new ArrayList<>();
+
+        // Autoscale all if mouse in general plot region
+        final boolean all = plot_area.getBounds().contains(current.getX(), current.getY());
+        for (YAxisImpl<XTYPE> axis : y_axes)
+            if (all  ||  axis.getBounds().contains(current.getX(), current.getY()))
+            {   // Autoscale this axis
+                if (!axis.isAutoscale())
+                {
+                    axes.add(axis);
+                    ranges.add(axis.getValueRange());
+                    original_auto.add(false);
+                    new_auto.add(true);
+                }
+                // Only this axis?
+                if (! all)
+                    break;
+            }
+        if (! axes.isEmpty())
+            undo.execute(new ChangeAxisRanges<XTYPE>(this, Messages.Zoom_In,
+                                                     null, null, null,
+                                                     axes, ranges, ranges,
+                                                     original_auto, new_auto));
     }
 
     /** Notify listeners */
@@ -889,6 +977,13 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     {
         for (RTPlotListener<XTYPE> listener : listeners)
             listener.changedYAxis(axis);
+    }
+
+    /** Notify listeners */
+    public void fireAutoScaleChange(final YAxisImpl<XTYPE> axis)
+    {
+        for (RTPlotListener<XTYPE> listener : listeners)
+            listener.changedAutoScale(axis);
     }
 
     /** Notify listeners */

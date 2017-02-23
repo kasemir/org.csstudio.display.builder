@@ -43,7 +43,7 @@ import org.w3c.dom.Element;
  *  @author Amanda Carpenter
  */
 @SuppressWarnings("nls")
-public class ComboWidget extends PVWidget
+public class ComboWidget extends WritablePVWidget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =

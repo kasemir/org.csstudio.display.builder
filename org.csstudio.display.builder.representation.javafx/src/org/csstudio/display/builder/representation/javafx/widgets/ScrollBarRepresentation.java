@@ -13,6 +13,7 @@ import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.ScrollBarWidget;
+import org.csstudio.javafx.Styles;
 import org.diirt.vtype.Display;
 import org.diirt.vtype.VType;
 import org.diirt.vtype.ValueUtil;
@@ -30,12 +31,14 @@ import javafx.scene.input.MouseEvent;
 public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar, ScrollBarWidget>
 {
     private final DirtyFlag dirty_size = new DirtyFlag();
+    private final DirtyFlag dirty_enablement = new DirtyFlag();
     private final DirtyFlag dirty_value = new DirtyFlag();
 
     private volatile double min = 0.0;
     private volatile double max = 100.0;
     private volatile boolean active = false; //is updating UI to match PV?
     private volatile boolean isValueChanging = false; //is user interacting with UI (need to suppress UI updates)?
+    private volatile boolean enabled = false;
 
     @Override
     protected ScrollBar createJFXNode() throws Exception
@@ -67,6 +70,7 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
             scrollbar.addEventFilter(MouseEvent.MOUSE_PRESSED,  event -> isValueChanging = true);
             scrollbar.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> isValueChanging = false);
         }
+        enablementChanged(null, null, null);
         limitsChanged(null, null, null);
 
         return scrollbar;
@@ -89,7 +93,8 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
         model_widget.propHorizontal().addPropertyListener(this::sizeChanged);
         model_widget.propBarLength().addPropertyListener(this::sizeChanged);
         model_widget.propIncrement().addPropertyListener(this::sizeChanged);
-        model_widget.propEnabled().addPropertyListener(this::sizeChanged);
+
+        model_widget.propEnabled().addPropertyListener(this::enablementChanged);
 
         //Since both the widget's PV value and the ScrollBar node's value property might be
         //written to independently during runtime, both must be listened to.
@@ -101,6 +106,14 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
     private void sizeChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         dirty_size.mark();
+        toolkit.scheduleUpdate(this);
+    }
+
+    private void enablementChanged(final WidgetProperty<Boolean> property, final Boolean old_value, final Boolean new_value)
+    {
+        enabled = model_widget.propEnabled().getValue()  &&
+                  model_widget.runtimePropPVWritable().getValue();
+        dirty_enablement.mark();
         toolkit.scheduleUpdate(this);
     }
 
@@ -160,9 +173,13 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
     public void updateChanges()
     {
         super.updateChanges();
+        if (dirty_enablement.checkAndClear())
+        {
+            jfx_node.setDisable(! enabled);
+            Styles.update(jfx_node, Styles.NOT_ENABLED, !enabled);
+        }
         if (dirty_size.checkAndClear())
         {
-            jfx_node.setDisable(! model_widget.propEnabled().getValue());
             jfx_node.setPrefHeight(model_widget.propHeight().getValue());
             jfx_node.setPrefWidth(model_widget.propWidth().getValue());
             jfx_node.setMin(min);

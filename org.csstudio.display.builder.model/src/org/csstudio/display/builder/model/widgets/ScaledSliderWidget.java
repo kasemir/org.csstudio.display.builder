@@ -48,7 +48,7 @@ import org.w3c.dom.Element;
  *  @author Amanda Carpenter
  */
 @SuppressWarnings("nls")
-public class ScaledSliderWidget extends PVWidget
+public class ScaledSliderWidget extends WritablePVWidget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =

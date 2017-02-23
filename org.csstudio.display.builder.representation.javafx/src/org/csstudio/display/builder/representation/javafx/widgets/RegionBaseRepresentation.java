@@ -8,7 +8,7 @@
 package org.csstudio.display.builder.representation.javafx.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBorderAlarmSensitive;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropPVValue;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -138,7 +138,7 @@ abstract public class RegionBaseRepresentation<JFX extends Region, MW extends Vi
             return;
         // In runtime mode, handle alarm-sensitive border
         final Optional<WidgetProperty<Boolean>> border = model_widget.checkProperty(propBorderAlarmSensitive);
-        final Optional<WidgetProperty<VType>> value = model_widget.checkProperty(runtimePropValue);
+        final Optional<WidgetProperty<VType>> value = model_widget.checkProperty(runtimePropPVValue);
         if (border.isPresent()  &&  value.isPresent())
         {
             value_prop = value.get();
@@ -187,7 +187,7 @@ abstract public class RegionBaseRepresentation<JFX extends Region, MW extends Vi
             else if (value != null)
                 // Not a vtype, but non-null, assume OK
                 severity = AlarmSeverity.NONE;
-            else// null
+            else // null
                 severity = AlarmSeverity.UNDEFINED;
         }
         else

@@ -19,12 +19,10 @@ org.csstudio.display.builder.editor.rcp/doc/java/
 # or JavaFX and we want to allow access to them,
 # while the Eclipse-generated .classpath will prohibit it
 .classpath
-!databrowser3/databrowser-plugins/org.csstudio.trends.databrowser3/.classpath
-!databrowser3/databrowser-plugins/org.csstudio.trends.databrowser3.opiwidget/.classpath
 !org.csstudio.display.builder.editor/.classpath
 !org.csstudio.display.builder.editor.rcp/.classpath
 !org.csstudio.display.builder.rcp/.classpath
 !org.csstudio.display.builder.representation.javafx/.classpath
-!org.csstudio.display.builder.representation.test/.classpath
 !org.csstudio.javafx/.classpath
 !org.csstudio.javafx.rtplot/.classpath
+!org.csstudio.javafx.swt/.classpath

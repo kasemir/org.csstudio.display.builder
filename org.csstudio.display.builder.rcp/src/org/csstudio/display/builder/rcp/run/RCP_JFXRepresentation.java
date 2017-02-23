@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.rcp.run;
 
+import java.net.URL;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -33,6 +34,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.browser.IWebBrowser;
+import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 import org.eclipse.ui.ide.IDE;
 
 import javafx.scene.Node;
@@ -170,5 +173,14 @@ public class RCP_JFXRepresentation extends JFXRepresentation
             final IFileStore localFile = EFS.getLocalFileSystem().getStore(rcp_path);
             IDE.openEditorOnFileStore(page, localFile);
         }
+    }
+
+    @Override
+    public void openWebBrowser(final String url) throws Exception
+    {
+        final IWebBrowser browser = PlatformUI.getWorkbench().getBrowserSupport()
+                  .createBrowser(IWorkbenchBrowserSupport.NAVIGATION_BAR | IWorkbenchBrowserSupport.LOCATION_BAR,
+                                 "CSS", null, null);
+        browser.openURL(new URL(url));
     }
 }

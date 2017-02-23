@@ -7,9 +7,9 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropPVValue;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropPVWritable;
 import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
 
 import java.util.ArrayList;
@@ -31,9 +31,10 @@ import org.csstudio.display.builder.model.macros.MacroValueProvider;
 import org.csstudio.display.builder.model.persist.WidgetClassesService;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.ExecuteScriptActionInfo;
-import org.csstudio.display.builder.model.properties.RuleInfo;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.WritePVActionInfo;
+import org.csstudio.display.builder.model.rules.RuleInfo;
+import org.csstudio.display.builder.model.widgets.PVWidget;
 import org.csstudio.display.builder.runtime.internal.RuntimePVs;
 import org.csstudio.display.builder.runtime.pv.PVFactory;
 import org.csstudio.display.builder.runtime.pv.RuntimePV;
@@ -59,7 +60,9 @@ import org.diirt.vtype.VType;
 @SuppressWarnings("nls")
 public class WidgetRuntime<MW extends Widget>
 {
+    /** Extension point for contributing custom widget runtime */
     public static final String EXTENSION_POINT = "org.csstudio.display.builder.runtime.widgets";
+
     /** The widget handled by this runtime */
     protected MW widget;
 
@@ -146,16 +149,15 @@ public class WidgetRuntime<MW extends Widget>
             disconnectPrimaryPV();
 
             if (pv_name.isEmpty())
-            {   // Send 'null' update on value.
-                // In runtime mode, this will create a 'disconnected' representation.
-                widget.getProperty(runtimePropValue).setValue(null);
+            {
+                widget.getProperty(runtimePropPVValue).setValue(PVWidget.RUNTIME_VALUE_NO_PV);
                 return;
             }
 
             logger.log(Level.FINER, "Connecting {0} to {1}",  new Object[] { widget, pv_name });
 
             // Create listener, which marks the value as disconnected
-            primary_pv_listener = new PropertyUpdater(widget.getProperty(runtimePropValue));
+            primary_pv_listener = new PropertyUpdater(widget.getProperty(runtimePropPVValue));
             // Then connect PV, which either gets a value soon,
             // or may throw exception -> widget already shows disconnected
             try
@@ -166,10 +168,8 @@ public class WidgetRuntime<MW extends Widget>
                     primary_pv = Optional.of(pv);
                 }
                 pv.addListener(primary_pv_listener);
-                // For widgets that can be 'enabled',
-                // update the enablement based on write access
-                // to the primary PV
-                addPV(pv, widget.checkProperty(propEnabled).isPresent());
+                // For widgets that have a "pv_writable" property, update it
+                addPV(pv, widget.checkProperty(runtimePropPVWritable).isPresent());
             }
             catch (Exception ex)
             {
@@ -263,7 +263,7 @@ public class WidgetRuntime<MW extends Widget>
     {
         // Update "value" property from primary PV, if defined
         final Optional<WidgetProperty<String>> name = widget.checkProperty(propPVName);
-        final Optional<WidgetProperty<VType>> value = widget.checkProperty(runtimePropValue);
+        final Optional<WidgetProperty<VType>> value = widget.checkProperty(runtimePropPVValue);
 
         if (name.isPresent() &&  value.isPresent())
         {

@@ -122,17 +122,28 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
             {
                 double low = Double.MAX_VALUE;
                 double high = -Double.MAX_VALUE;
+                final PlotDataSearch<XTYPE> search = new PlotDataSearch<XTYPE>();
                 data.getLock().lock();
                 try
                 {
-                    final int N = data.size();
-                    for (int i=0; i<N; ++i)
+                    if (data.size() > 0)
                     {
-                        final PlotDataItem<XTYPE> item = data.get(i);
-                        if (position_range.contains(item.getPosition()))
+                        // Consider first sample at-or-before start
+                        int start = search.findSampleLessOrEqual(data, position_range.getLow());
+                        if (start < 0)
+                            start = 0;
+                        // Last sample is the one just inside end of range.
+                        int stop = search.findSampleLessOrEqual(data, position_range.getHigh());
+                        if (stop < 0)
+                            stop = 0;
+                        // If data is completely outside the position_range,
+                        // we end up using just data[0]
+                        // Check [start .. stop], including stop
+                        for (int idx = start; idx <= stop; idx++)
                         {
+                            final PlotDataItem<XTYPE> item = data.get(idx);
                             final double value = item.getValue();
-                            if (! Double.isFinite(value))
+                            if (!Double.isFinite(value))
                                 continue;
                             if (value < low)
                                 low = value;
@@ -299,7 +310,7 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
             // 'Stagger' tends to be on-demand,
             // or executed infrequently as archived data arrives after a zoom operation
             // -> Use undo, which also notifies listeners
-            plot.getUndoableActionManager().execute(new ChangeAxisRanges<>(plot, Messages.Zoom_Stagger, y_axes, original_ranges, new_ranges));
+            plot.getUndoableActionManager().execute(new ChangeAxisRanges<>(plot, Messages.Zoom_Stagger, y_axes, original_ranges, new_ranges, null));
         });
     }
 

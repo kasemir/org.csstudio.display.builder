@@ -56,7 +56,7 @@ public class RuntimeDemoJavaFX extends Application
     {
         try
         {
-            final DisplayModel model = ModelLoader.loadModel("examples/dummy.opi", Settings.display_path);
+            final DisplayModel model = ModelLoader.resolveAndLoadModel("examples/dummy.opi", Settings.display_path);
 
             // Representation needs to be created in UI thread
             toolkit.execute(() -> representModel(model));

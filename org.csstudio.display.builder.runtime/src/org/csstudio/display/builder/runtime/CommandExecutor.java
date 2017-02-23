@@ -32,6 +32,7 @@ import java.util.logging.Level;
  *
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class CommandExecutor implements Callable<Integer>
 {
     /** Seconds to wait for a launched program */

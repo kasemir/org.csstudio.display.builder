@@ -10,6 +10,7 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.FormatOptionHandler;
+import org.csstudio.display.builder.model.widgets.PVWidget;
 import org.csstudio.display.builder.model.widgets.TextUpdateWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.diirt.vtype.VType;
@@ -77,6 +78,8 @@ public class TextUpdateRepresentation extends RegionBaseRepresentation<Label, Te
     {
         if (value == null)
             return "<" + model_widget.propPVName().getValue() + ">";
+        if (value == PVWidget.RUNTIME_VALUE_NO_PV)
+            return "";
         return FormatOptionHandler.format(value,
                                           model_widget.propFormat().getValue(),
                                           model_widget.propPrecision().getValue(),

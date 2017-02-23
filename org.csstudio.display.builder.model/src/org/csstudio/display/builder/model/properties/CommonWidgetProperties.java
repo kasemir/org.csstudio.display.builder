@@ -16,6 +16,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.macros.Macros;
+import org.csstudio.display.builder.model.rules.RuleInfo;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
 import org.diirt.vtype.VType;
 
@@ -284,6 +285,9 @@ public class CommonWidgetProperties
     public static final WidgetPropertyDescriptor<Integer> propLineWidth =
             newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "line_width", Messages.WidgetProperties_LineWidth);
 
+    /** 'square' property: Whether for example LEDS are square (rectangular) or round (circular) */
+    public static final WidgetPropertyDescriptor<Boolean> propSquare =
+        newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "square", Messages.WidgetProperties_Square);
 
     /** Group widget style */
     public enum WidgetLineStyle
@@ -581,11 +585,14 @@ public class CommonWidgetProperties
             newDoublePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "maximum", Messages.WidgetProperties_Maximum);
 
     /** Runtime 'pv_value' property: Typically read from primary PV */
-    public static final WidgetPropertyDescriptor<VType> runtimePropValue =
+    public static final WidgetPropertyDescriptor<VType> runtimePropPVValue =
             newRuntimeValue("pv_value", Messages.WidgetProperties_Value);
+
+    /** Runtime 'pv_writable' property: Are all PVs of the widget connected? */
+    public static final WidgetPropertyDescriptor<Boolean> runtimePropPVWritable =
+            newBooleanPropertyDescriptor(WidgetPropertyCategory.RUNTIME, "pv_writable", Messages.WidgetProperties_Writable);
 
     /** Runtime 'connected' property: Are all PVs of the widget connected? */
     public static final WidgetPropertyDescriptor<Boolean> runtimePropConnected =
             newBooleanPropertyDescriptor(WidgetPropertyCategory.RUNTIME, "connected", Messages.WidgetProperties_Connected);
-
 }

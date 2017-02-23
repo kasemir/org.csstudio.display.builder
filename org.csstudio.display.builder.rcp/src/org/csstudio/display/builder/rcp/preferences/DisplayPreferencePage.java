@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -217,6 +217,16 @@ public class DisplayPreferencePage extends FieldEditorPreferencePage
 
         addField(new BooleanFieldEditor(org.csstudio.display.builder.rcp.Preferences.SHOW_RUNTIME_STACKS,
                 "Show Runtime Perspective Placeholders", getFieldEditorParent()));
+
+        addField(new BooleanFieldEditor(org.csstudio.display.builder.model.Preferences.SUPPORT_STANDALONE_WINDOW,
+                "Support 'standalone' window mode", getFieldEditorParent())
+        {
+            @Override
+            public IPreferenceStore getPreferenceStore()
+            {
+                return model_prefs;
+            }
+        });
     }
 
     @Override

@@ -60,9 +60,6 @@ Development Details
  * Eclipse IDE for RCP Development with `Tycho Configurator`.
    In `Preferences`, `Maven`, `Discovery`, `Open Catalog`, search for "tycho" and install it.
  * In `Preferences`, `Maven`, `Errors/Warnings`, disable all errors, for example select "Ignore" for all of them.
- * In Eclipse `Preferences`, `Java`, `Build Path`, `Classpath Variables`:
-   Set `JFXSWT` to the `lib/jfxswt.jar` file within your JRE.
-   For example, on Mac OS X this could be `/Library/Java/JavaVirtualMachines/jdk1.8.0_71.jdk/Contents/Home/jre/lib/jfxswt.jar`.
  * In Eclipse `Preferences`, `Java`, `Compiler`, `Errors/Warnings`, `Deprecated and restricted API`, change the level for "Forbidden Reference (access rules)" from `Error` to `Warning`.
  * In Eclipse `Preferences`, `Plugin Development`, `Target platform`,
    define target that's suitable for CS-Studio development.
@@ -83,8 +80,7 @@ __Note:__ The Tycho Configurator will adjust `.classpath` files,
 the Team (git) support will indicate changes.
 Replace the changes with the HEAD version of the repository.
 
-(These .classfiles add the `JFXSWT` variable defined above to the IDE classpath,
- and add access rules to permit use of javafx.* classes)
+(These .classfiles add access rules to permit use of javafx.* classes without warnings in the IDE)
 
 
 ### Entry Points
@@ -502,7 +498,7 @@ from org.csstudio.display.builder.runtime.script import PVUtil
 widget.setPropertyValue("text", PVUtil.getString(pvs[0]))
 ```
 
-__Pyton__
+__Python__
 
 In addition to Jython, the display builder supports real C-Python scripts.
 They are invoked via Py4J, and a helper library is provided that allows

@@ -31,6 +31,7 @@ import org.csstudio.display.builder.model.persist.XMLTags;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo.Target;
 import org.eclipse.osgi.util.NLS;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Widget property that describes actions.
@@ -45,6 +46,7 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
     private static final String EXECUTE_SCRIPT = "execute";
     private static final String EXECUTE_COMMAND = "command";
     private static final String OPEN_FILE = "open_file";
+    private static final String OPEN_WEBPAGE = "open_webpage";
 
     /** Constructor
      *  @param descriptor Property descriptor
@@ -154,6 +156,14 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                 writer.writeCharacters(action.getFile());
                 writer.writeEndElement();
             }
+            else if (info instanceof OpenWebpageActionInfo)
+            {
+                final OpenWebpageActionInfo action = (OpenWebpageActionInfo) info;
+                writer.writeAttribute(XMLTags.TYPE, OPEN_WEBPAGE);
+                writer.writeStartElement(XMLTags.URL);
+                writer.writeCharacters(action.getURL());
+                writer.writeEndElement();
+            }
             else if (info instanceof ExecuteCommandActionInfo)
             {
                 final ExecuteCommandActionInfo action = (ExecuteCommandActionInfo) info;
@@ -181,7 +191,19 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
         final List<ActionInfo> actions = new ArrayList<>();
         for (final Element action_xml : XMLUtil.getChildElements(property_xml, XMLTags.ACTION))
         {
-            final String type = action_xml.getAttribute(XMLTags.TYPE);
+            String type = action_xml.getAttribute(XMLTags.TYPE);
+
+            if ("OPEN_OPI_IN_VIEW".equals(type))
+            {   // No longer supporting open-in-view with <Position>
+                // to select left, right, ...  part stack.
+                // Change into 'open display' for new tab
+                type = OPEN_DISPLAY;
+                final Document doc = action_xml.getOwnerDocument();
+                final Element target = doc.createElement(XMLTags.TARGET);
+                target.appendChild(doc.createTextNode(OpenDisplayActionInfo.Target.TAB.name()));
+                action_xml.appendChild(target);
+            }
+
             final String description = XMLUtil.getChildString(action_xml, XMLTags.DESCRIPTION).orElse("");
             if (OPEN_DISPLAY.equalsIgnoreCase(type)) // legacy used uppercase type name
             {   // Use <file>, falling back to legacy <path>
@@ -281,6 +303,13 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                                            .orElse(XMLUtil.getChildString(action_xml, XMLTags.PATH)
                                            .orElse(""));
                 actions.add(new OpenFileActionInfo(description, file));
+            }
+            else if (OPEN_WEBPAGE.equalsIgnoreCase(type)) // legacy used uppercase type name
+            {   // Use <url>, falling back to legacy <hyperlink>
+                final String url = XMLUtil.getChildString(action_xml, XMLTags.URL)
+                                           .orElse(XMLUtil.getChildString(action_xml, "hyperlink")
+                                           .orElse(""));
+                actions.add(new OpenWebpageActionInfo(description, url));
             }
             else if (EXECUTE_COMMAND.equalsIgnoreCase(type) ||
                     "EXECUTE_CMD".equalsIgnoreCase(type))

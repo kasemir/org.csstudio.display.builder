@@ -19,31 +19,46 @@
  */
 package org.csstudio.display.builder.model.widgets;
 
-
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBorderAlarmSensitive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropPVValue;
 
+import java.time.Instant;
 import java.util.List;
 
+import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.diirt.vtype.AlarmSeverity;
 import org.diirt.vtype.VType;
+import org.diirt.vtype.ValueFactory;
 
-
-/**
- * A base class for all widgets having a PV variable.
+/** A base class for all widgets having a primary PV and value.
  *
- * @author claudiorosati, European Spallation Source ERIC
- * @version 1.0.0 15 Sep 2016
+ *  <p>Default WidgetRuntime will connect PV to "pv_name"
+ *  and update "pv_value" with received updates.
+ *
+ *  @author Kay Kasemir
+ *  @author claudiorosati, European Spallation Source ERIC
  */
 @SuppressWarnings("nls")
 public class PVWidget extends VisibleWidget
 {
+    /** Special value of runtimePropValue that indicates that there is no PV (empty PV name).
+     *
+     *  <p> Widget representation can detect this as a special case
+     *  and for example show a general "OK" state.
+     *
+     *  <p>When the widget has a PV but becomes disconnected, the value will be <code>null</code>
+     */
+    public static final VType RUNTIME_VALUE_NO_PV = ValueFactory.newVString(Messages.ValueNoPV,
+                                                                            ValueFactory.newAlarm(AlarmSeverity.NONE, Messages.ValueNoPV),
+                                                                            ValueFactory.newTime(Instant.ofEpochSecond(0)));
+
     private volatile WidgetProperty<String> pv_name;
-    private volatile WidgetProperty<VType>  value;
+    private volatile WidgetProperty<VType>  pv_value;
 
     /** @param type Widget type. */
-    public PVWidget(final String type )
+    public PVWidget(final String type)
     {
         super(type);
     }
@@ -62,7 +77,7 @@ public class PVWidget extends VisibleWidget
     {
         super.defineProperties(properties);
         properties.add(pv_name = propPVName.createProperty(this, ""));
-        properties.add(value = runtimePropValue.createProperty(this, null));
+        properties.add(pv_value = runtimePropPVValue.createProperty(this, RUNTIME_VALUE_NO_PV));
         properties.add(propBorderAlarmSensitive.createProperty(this, true));
     }
 
@@ -82,6 +97,6 @@ public class PVWidget extends VisibleWidget
     /** @return Runtime 'pv_value' property */
     public WidgetProperty<VType> runtimePropValue()
     {
-        return value;
+        return pv_value;
     }
 }

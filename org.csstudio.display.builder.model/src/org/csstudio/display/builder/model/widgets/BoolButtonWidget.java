@@ -44,7 +44,7 @@ import org.w3c.dom.Element;
  *  @author Megan Grodowitz
  */
 @SuppressWarnings("nls")
-public class BoolButtonWidget extends PVWidget
+public class BoolButtonWidget extends WritablePVWidget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =

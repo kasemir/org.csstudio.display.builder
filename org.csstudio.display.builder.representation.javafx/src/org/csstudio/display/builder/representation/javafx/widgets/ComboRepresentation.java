@@ -16,6 +16,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.ComboWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
+import org.csstudio.javafx.Styles;
 import org.diirt.vtype.VEnum;
 import org.diirt.vtype.VType;
 
@@ -80,6 +81,7 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
         model_widget.propItemsFromPV().addUntypedPropertyListener(this::contentChanged);
         model_widget.propItems().addUntypedPropertyListener(this::contentChanged);
         model_widget.propEnabled().addUntypedPropertyListener(this::enableChanged);
+        model_widget.runtimePropPVWritable().addUntypedPropertyListener(this::enableChanged);
 
         styleChanged(null, null, null);
     }
@@ -189,6 +191,11 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
             }
         }
         if (dirty_enable.checkAndClear())
-            jfx_node.setDisable(! model_widget.propEnabled().getValue());
+        {
+            final boolean enabled = model_widget.propEnabled().getValue()  &&
+                                    model_widget.runtimePropPVWritable().getValue();
+            jfx_node.setDisable(! enabled);
+            Styles.update(jfx_node, Styles.NOT_ENABLED, !enabled);
+        }
     }
 }

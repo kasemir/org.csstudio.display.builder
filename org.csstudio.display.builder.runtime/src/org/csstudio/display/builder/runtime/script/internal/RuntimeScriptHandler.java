@@ -19,10 +19,10 @@ import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.macros.MacroValueProvider;
-import org.csstudio.display.builder.model.properties.RuleInfo;
-import org.csstudio.display.builder.model.properties.RuleToScript;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.ScriptPV;
+import org.csstudio.display.builder.model.rules.RuleInfo;
+import org.csstudio.display.builder.model.rules.RuleToScript;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.csstudio.display.builder.runtime.WidgetRuntime;
@@ -109,7 +109,7 @@ public class RuntimeScriptHandler implements RuntimePVListener
 
         final String script = rule_info.getTextPy(widget);
         final InputStream stream = new ByteArrayInputStream(script.getBytes());
-        String dummy_name = widget.getName() + ":" + rule_info.getName() + ".rule.py";
+        String dummy_name = widget.getType() + ":" + widget.getName() + ":" + rule_info.getName() + ".rule.py";
 
         logger.log(Level.FINER, () -> "Compiling rule script for " + dummy_name + "\n" + RuleToScript.addLineNumbers(script));
         try

@@ -44,11 +44,12 @@ import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
 import org.csstudio.display.builder.rcp.DisplayInfo;
-import org.csstudio.display.builder.rcp.JFXCursorFix;
 import org.csstudio.display.builder.rcp.Preferences;
 import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.util.undo.UndoRedoListener;
+import org.csstudio.javafx.swt.JFXCursorFix;
+import org.csstudio.javafx.swt.JFX_SWT_Wrapper;
 import org.csstudio.ui.util.dialogs.ExceptionDetailsErrorDialog;
 import org.csstudio.ui.util.perspective.OpenPerspectiveAction;
 import org.eclipse.core.resources.IFile;
@@ -66,7 +67,6 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.window.Window;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -86,7 +86,6 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.eclipse.ui.views.properties.IPropertySheetPage;
 
-import javafx.embed.swt.FXCanvas;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 
@@ -100,8 +99,6 @@ public class DisplayEditorPart extends EditorPart
     public static final String ID = "org.csstudio.display.builder.editor.rcp.editor";
 
     private final JFXRepresentation toolkit = new JFXRepresentation(true);
-
-    private FXCanvas fx_canvas;
 
     private DisplayEditor editor;
 
@@ -153,33 +150,27 @@ public class DisplayEditorPart extends EditorPart
     {
         parent.setLayout(new FillLayout());
 
-        // Must first create FXCanvas, because that initializes JFX.
-        // When creating FXCanvas later, there will be JFX errors
-        // like "Not on FX application thread", "Toolkit not initialized"
-        fx_canvas = new FXCanvas(parent, SWT.NONE);
+        final JFX_SWT_Wrapper wrapper = new JFX_SWT_Wrapper(parent, () ->
+        {
+            editor = new DisplayEditor(toolkit, Preferences.getUndoSize());
+            final Parent root = editor.create();
+            return new Scene(root);
+        });
 
-        editor = new DisplayEditor(toolkit, Preferences.getUndoSize());
+        final Scene scene = wrapper.getScene();
 
-        final Parent root = editor.create();
-        final Scene scene = new Scene(root);
         EditorUtil.setSceneStyle(scene);
-
-        JFXCursorFix.apply(scene, fx_canvas);
-
-        // Observed UI freeze in this call.
-        // Unsure what to do.
-        // Scene could be created in background,
-        // but setting the canvas' scene has to be on UI thread
-        fx_canvas.setScene(scene);
+        JFXCursorFix.apply(scene, parent.getDisplay());
 
         final AutocompleteMenu ac_menu = editor.getSelectedWidgetUITracker().getAutocompleteMenu();
         ac_menu.setUpdater(new AutoCompleteUpdater(ac_menu));
 
-        createRetargetableActionHandlers();
 
         editor.getUndoableActionManager().addListener(undo_redo_listener);
 
+        final Control fx_canvas = wrapper.getFXCanvas();
         fx_canvas.setMenu(createContextMenu(fx_canvas));
+        createRetargetableActionHandlers(fx_canvas);
 
         PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.csstudio.display.builder.editor.rcp.display_builder");
 
@@ -290,7 +281,7 @@ public class DisplayEditorPart extends EditorPart
         model.propName().addPropertyListener(model_name_listener);
     }
 
-    private void createRetargetableActionHandlers()
+    private void createRetargetableActionHandlers(final Control fx_canvas)
     {
         actions.put(ActionFactory.UNDO.getId(), new UndoAction(editor));
         actions.put(ActionFactory.REDO.getId(), new RedoAction(editor));
@@ -319,7 +310,7 @@ public class DisplayEditorPart extends EditorPart
     @Override
     public void setFocus()
     {
-        fx_canvas.setFocus();
+        // TODO  fx_canvas.setFocus();
     }
 
     @Override
@@ -504,7 +495,7 @@ public class DisplayEditorPart extends EditorPart
     {
         if (adapter == IContentOutlinePage.class)
         {
-            outline_page = new OutlinePage(editor.getWidgetSelectionHandler());
+            outline_page = new OutlinePage(editor);
             outline_page.setModel(editor.getModel());
             return outline_page;
         }

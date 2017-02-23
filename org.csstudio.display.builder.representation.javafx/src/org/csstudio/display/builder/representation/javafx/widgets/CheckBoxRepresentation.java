@@ -16,6 +16,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.CheckBoxWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
+import org.csstudio.javafx.Styles;
 import org.diirt.vtype.VType;
 
 import javafx.scene.control.ButtonBase;
@@ -25,16 +26,17 @@ import javafx.scene.control.CheckBox;
  *  @author Amanda Carpenter
  */
 @SuppressWarnings("nls")
-public class CheckBoxRepresentation extends JFXBaseRepresentation<CheckBox, CheckBoxWidget>
+public class CheckBoxRepresentation extends RegionBaseRepresentation<CheckBox, CheckBoxWidget>
 {
     private final DirtyFlag dirty_size = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
-    private final DirtyFlag dirty_label = new DirtyFlag();
+    private final DirtyFlag dirty_style = new DirtyFlag();
 
     protected volatile int bit = 0;
     protected volatile int value = 0;
     protected volatile boolean state = false;
     protected volatile String label = "";
+    protected volatile boolean enabled = true;
 
     @Override
     protected final CheckBox createJFXNode() throws Exception
@@ -51,6 +53,11 @@ public class CheckBoxRepresentation extends JFXBaseRepresentation<CheckBox, Chec
     /** @param respond to button press */
     private void handlePress()
     {
+        if (! enabled)
+        {   // Ignore, restore current state of PV
+            jfx_node.setSelected(state);
+            return;
+        }
         logger.log(Level.FINE, "{0} pressed", model_widget);
         int new_val = (bit < 0) ? (value == 0 ? 1 : 0) : (value ^ (1 << bit));
         toolkit.fireWrite(model_widget, new_val);
@@ -71,7 +78,9 @@ public class CheckBoxRepresentation extends JFXBaseRepresentation<CheckBox, Chec
 
         labelChanged(model_widget.propLabel(), null, model_widget.propLabel().getValue());
         model_widget.propLabel().addPropertyListener(this::labelChanged);
-        model_widget.propFont().addUntypedPropertyListener(this::fontChanged);
+        model_widget.propFont().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propEnabled().addUntypedPropertyListener(this::styleChanged);
+        model_widget.runtimePropPVWritable().addUntypedPropertyListener(this::styleChanged);
 
         bitChanged(model_widget.propBit(), null, model_widget.propBit().getValue());
         model_widget.propBit().addPropertyListener(this::bitChanged);
@@ -90,13 +99,13 @@ public class CheckBoxRepresentation extends JFXBaseRepresentation<CheckBox, Chec
     private void labelChanged(final WidgetProperty<String> property, final String old_value, final String new_value)
     {
         label = new_value != null ? new_value : model_widget.propLabel().getValue();
-        dirty_label.mark();
+        dirty_style.mark();
         toolkit.scheduleUpdate(this);
     }
 
-    private void fontChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    private void styleChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        dirty_label.mark();
+        dirty_style.mark();
         toolkit.scheduleUpdate(this);
     }
 
@@ -132,10 +141,17 @@ public class CheckBoxRepresentation extends JFXBaseRepresentation<CheckBox, Chec
         }
         if (dirty_content.checkAndClear())
             jfx_node.setSelected(state);
-        if (dirty_label.checkAndClear())
+        if (dirty_style.checkAndClear())
         {
             jfx_node.setText(label);
             jfx_node.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
+
+            // Don't disable the widget, because that would also remove the
+            // context menu etc.
+            // Just apply a style that matches the disabled look.
+            enabled = model_widget.propEnabled().getValue() &&
+                      model_widget.runtimePropPVWritable().getValue();
+            Styles.update(jfx_node, Styles.NOT_ENABLED, !enabled);
         }
     }
 }

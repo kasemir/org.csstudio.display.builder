@@ -121,7 +121,7 @@ public abstract class ControllerBase
             // All completed. Do something to the plot?
             final ArchiveRescale rescale = model.getArchiveRescale();
             if (rescale == ArchiveRescale.STAGGER)
-                plot.getPlot().stagger();
+                plot.getPlot().stagger(false);
             else
                 doUpdate();
         }
@@ -338,8 +338,6 @@ public abstract class ControllerBase
                         }
                         ++i;
                     }
-                    //TODO: separate config for x axis?
-                    //plot.updateXAxis(model.getXAxis());
                 }
                 else  // New or removed axis: Recreate the whole plot
                     createPlotTraces();

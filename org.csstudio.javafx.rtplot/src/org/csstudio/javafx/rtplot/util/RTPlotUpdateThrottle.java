@@ -65,6 +65,11 @@ public class RTPlotUpdateThrottle
                 pending_trigger.set(false);
                 update.run();
             }
+            catch (InterruptedException ex)
+            {
+                // Shutdown, don't schedule another wakeup
+                return;
+            }
             catch (Throwable ex)
             {
                 logger.log(Level.WARNING, "Update failed", ex);
@@ -124,17 +129,14 @@ public class RTPlotUpdateThrottle
     /** Call to cancel scheduled updates */
     public void dispose()
     {
-        // In case an update is running right now, wait for that to finish
-        timer.shutdown();
-        try
-        {
-            if (! timer.awaitTermination(2, TimeUnit.SECONDS))
-                logger.log(Level.WARNING, "Plot update throttle failed to terminate within 2 seconds");
-        }
-        catch (InterruptedException e)
-        {
-            // Ignore
-        }
+        // In case an update is running right now, terminate()
+        timer.shutdownNow();
+        // Waiting for updates to complete via
+        //  timer.shutdown();
+        //  timer.awaitTermination(2, TimeUnit.SECONDS)
+        // doesn't help because threads may be in BufferUtil.getBufferedImage(),
+        // waiting on UI thread, i.e. the current thread, and would need some time to time out.
+        // terminate() is faster.
 
         pending_trigger.set(false);
         if (scheduled_wakeup != null)

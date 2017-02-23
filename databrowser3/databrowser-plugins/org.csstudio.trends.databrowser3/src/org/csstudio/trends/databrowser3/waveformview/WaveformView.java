@@ -22,9 +22,12 @@ import org.csstudio.javafx.rtplot.RTValuePlot;
 import org.csstudio.javafx.rtplot.Trace;
 import org.csstudio.javafx.rtplot.TraceType;
 import org.csstudio.javafx.rtplot.data.TimeDataSearch;
+import org.csstudio.javafx.swt.JFX_SWT_Wrapper;
 import org.csstudio.trends.databrowser3.Activator;
 import org.csstudio.trends.databrowser3.Messages;
 import org.csstudio.trends.databrowser3.editor.DataBrowserAwareView;
+import org.csstudio.trends.databrowser3.editor.ToggleLegendAction;
+import org.csstudio.trends.databrowser3.editor.ToggleToolbarAction;
 import org.csstudio.trends.databrowser3.model.AnnotationInfo;
 import org.csstudio.trends.databrowser3.model.Model;
 import org.csstudio.trends.databrowser3.model.ModelItem;
@@ -34,6 +37,9 @@ import org.csstudio.trends.databrowser3.model.PlotSample;
 import org.csstudio.trends.databrowser3.model.PlotSamples;
 import org.diirt.vtype.VNumberArray;
 import org.diirt.vtype.VType;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
@@ -45,11 +51,12 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Slider;
 import org.eclipse.swt.widgets.Text;
 
-import javafx.embed.swt.FXCanvas;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 
@@ -63,6 +70,27 @@ import javafx.scene.Scene;
 @SuppressWarnings("nls")
 public class WaveformView extends DataBrowserAwareView
 {
+    private class ToggleYAxisAction extends Action
+    {
+        public ToggleYAxisAction()
+        {
+            updateText();
+        }
+
+        public void updateText()
+        {
+            setText(plot.getYAxes().get(0).isLogarithmic() ? "Linear Axis" : "Logarithmic Axis");
+        }
+
+        @Override
+        public void run()
+        {
+            plot.getYAxes().get(0).setLogarithmic(!plot.getYAxes().get(0).isLogarithmic());
+            plot.requestLayout();
+            updateText();
+        }
+    }
+
     /** View ID registered in plugin.xml */
     final public static String ID = "org.csstudio.trends.databrowser.waveformview.WaveformView";
 
@@ -218,12 +246,15 @@ public class WaveformView extends DataBrowserAwareView
         // =====================
         // ======= Plot ========
         // =====================
-        final FXCanvas plot_canvas = new FXCanvas(parent, SWT.NONE);
-        plot = new RTValuePlot(true);
-        plot.getXAxis().setName(Messages.WaveformIndex);
-        plot.getYAxes().get(0).setName(Messages.WaveformAmplitude);
-        plot.getYAxes().get(0).setAutoscale(true);
-        plot_canvas.setScene(new Scene(plot));
+        final JFX_SWT_Wrapper wrapper = new JFX_SWT_Wrapper(parent, () ->
+        {
+            plot = new RTValuePlot(true);
+            plot.getXAxis().setName(Messages.WaveformIndex);
+            plot.getYAxes().get(0).setName(Messages.WaveformAmplitude);
+            plot.getYAxes().get(0).setAutoscale(true);
+            return new Scene(plot);
+        });
+        final Control plot_canvas = wrapper.getFXCanvas();
         plot_canvas.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, layout.numColumns, 1));
 
         // <<<<<< Slider >>>>>>
@@ -251,6 +282,21 @@ public class WaveformView extends DataBrowserAwareView
         l.setLayoutData(new GridData());
         status = new Text(parent, SWT.BORDER | SWT.READ_ONLY);
         status.setLayoutData(new GridData(SWT.FILL, 0, true, false));
+
+        // Context Menu
+        final MenuManager mm = new MenuManager();
+        mm.setRemoveAllWhenShown(true);
+
+        final Menu menu = mm.createContextMenu(plot_canvas);
+        plot_canvas.setMenu(menu);
+        getSite().registerContextMenu(mm, null);
+        mm.addMenuListener(manager ->
+        {
+            mm.add(new ToggleToolbarAction(plot, true));
+            mm.add(new ToggleLegendAction(plot, true));
+            mm.add(new Separator());
+            mm.add(new ToggleYAxisAction());
+        });
     }
 
     /** {@inheritDoc} */

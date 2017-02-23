@@ -7,19 +7,23 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.rcp;
 
+import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.EditorUtil;
-import org.csstudio.display.builder.editor.WidgetSelectionHandler;
 import org.csstudio.display.builder.editor.tree.WidgetTree;
 import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.javafx.swt.JFX_SWT_Wrapper;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.Page;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
-import javafx.embed.swt.FXCanvas;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 
@@ -30,13 +34,44 @@ import javafx.scene.layout.StackPane;
  */
 public class OutlinePage extends Page implements IContentOutlinePage
 {
+    private class CopyAction extends Action
+    {
+        public CopyAction()
+        {
+            super(Messages.Copy);
+            setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_COPY));
+        }
+
+        @Override
+        public void run()
+        {
+            editor.copyToClipboard();
+        }
+    }
+
+    private class DeleteAction extends Action
+    {
+        public DeleteAction()
+        {
+            super(Messages.Delete);
+            setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_DELETE));
+        }
+
+        @Override
+        public void run()
+        {
+            editor.cutToClipboard();
+        }
+    }
+    private final DisplayEditor editor;
     private final WidgetTree tree;
 
-    private FXCanvas canvas;
+    private Control canvas;
 
-    public OutlinePage(final WidgetSelectionHandler widget_selection)
+    public OutlinePage(final DisplayEditor editor)
     {
-        tree = new WidgetTree(widget_selection);
+        this.editor = editor;
+        tree = new WidgetTree(editor.getWidgetSelectionHandler());
     }
 
     public void setModel(final DisplayModel model)
@@ -47,12 +82,25 @@ public class OutlinePage extends Page implements IContentOutlinePage
     @Override
     public void createControl(final Composite parent)
     {
-        canvas = new FXCanvas(parent, SWT.NONE);
-        // StackPane w/ tree as single child to 'fill' the available space.
-        final StackPane root = new StackPane(tree.create());
-        final Scene scene = new Scene(root, 200.0, 400.0);
-        EditorUtil.setSceneStyle(scene);
-        canvas.setScene(scene);
+        final JFX_SWT_Wrapper wrapper = new JFX_SWT_Wrapper(parent, () ->
+        {
+            // StackPane w/ tree as single child to 'fill' the available space.
+            final StackPane root = new StackPane(tree.create());
+            return new Scene(root, 200.0, 400.0);
+        });
+        canvas = wrapper.getFXCanvas();
+        EditorUtil.setSceneStyle(wrapper.getScene());
+
+        createContextMenu();
+    }
+
+    private void createContextMenu()
+    {
+        final MenuManager manager = new MenuManager();
+        manager.add(new CopyAction());
+        manager.add(new DeleteAction());
+        final Menu menu = manager.createContextMenu(canvas);
+        canvas.setMenu(menu);
     }
 
     @Override
@@ -67,15 +115,17 @@ public class OutlinePage extends Page implements IContentOutlinePage
         canvas.setFocus();
     }
 
+    // Pass selection from WidgetTree on to SWT/RCP?
+    // Seems unnecessary, the WidgetTree and DisplayEditor
+    // use their own WidgetSelectionHandler, not RCP.
+
     @Override
     public void addSelectionChangedListener(ISelectionChangedListener listener)
     {
-        // TODO Pass selection from WidgetTree on to SWT/RCP
     }
 
     @Override
-    public void removeSelectionChangedListener(
-            ISelectionChangedListener listener)
+    public void removeSelectionChangedListener(ISelectionChangedListener listener)
     {
     }
 
