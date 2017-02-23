@@ -147,6 +147,24 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
                 jfx_node.setMediumTickMarksVisible((boolean) value);
             }
 
+            value = JFXUtil.convert(model_widget.propMinorTickColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getMinorTickMarkColor()) ) {
+                jfx_node.setMinorTickMarkColor((Color) value);
+            }
+
+            value = TickMarkType.valueOf(model_widget.propMinorTickType().getValue().name());
+
+            if ( !Objects.equals(value, jfx_node.getMinorTickMarkType()) ) {
+                jfx_node.setMinorTickMarkType((TickMarkType) value);
+            }
+
+            value = model_widget.propMinorTickVisible().getValue();
+
+            if ( !Objects.equals(value, jfx_node.getMinorTickMarksVisible()) ) {
+                jfx_node.setMinorTickMarksVisible((boolean) value);
+            }
+
         }
 
         if ( dirtyLimits.checkAndClear() ) {
@@ -178,6 +196,9 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
         jfx_node.setMediumTickMarkLengthFactor(0.475);
         jfx_node.setMediumTickMarkType(TickMarkType.valueOf(model_widget.propMediumTickType().getValue().name()));
         jfx_node.setMediumTickMarksVisible(model_widget.propMediumTickVisible().getValue());
+        jfx_node.setMinorTickMarkColor(JFXUtil.convert(model_widget.propMinorTickColor().getValue()));
+        jfx_node.setMinorTickMarkType(TickMarkType.valueOf(model_widget.propMinorTickType().getValue().name()));
+        jfx_node.setMinorTickMarksVisible(model_widget.propMinorTickVisible().getValue());
 
         switch ( skin ) {
             case HORIZONTAL:
@@ -242,6 +263,9 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
         gauge.setMediumTickMarkLengthFactor(0.475);
         gauge.setMediumTickMarkType(TickMarkType.valueOf(model_widget.propMediumTickType().getValue().name()));
         gauge.setMediumTickMarksVisible(model_widget.propMediumTickVisible().getValue());
+        gauge.setMinorTickMarkColor(JFXUtil.convert(model_widget.propMinorTickColor().getValue()));
+        gauge.setMinorTickMarkType(TickMarkType.valueOf(model_widget.propMinorTickType().getValue().name()));
+        gauge.setMinorTickMarksVisible(model_widget.propMinorTickVisible().getValue());
 
         return gauge;
 
@@ -278,6 +302,9 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
         model_widget.propMediumTickColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propMediumTickType().addUntypedPropertyListener(this::lookChanged);
         model_widget.propMediumTickVisible().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propMinorTickColor().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propMinorTickType().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propMinorTickVisible().addUntypedPropertyListener(this::lookChanged);
         model_widget.propSkin().addUntypedPropertyListener(this::lookChanged);
 
         model_widget.propHighlightZones().addUntypedPropertyListener(this::limitsChanged);

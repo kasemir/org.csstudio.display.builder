@@ -214,11 +214,14 @@ public class Messages extends NLS
     public static String WidgetProperties_MajorTickStepHint;
     public static String WidgetProperties_MajorTickType;
     public static String WidgetProperties_MajorTickVisible;
+    public static String WidgetProperties_Maximum;
     public static String WidgetProperties_MediumTickColor;
     public static String WidgetProperties_MediumTickType;
     public static String WidgetProperties_MediumTickVisible;
-    public static String WidgetProperties_Maximum;
     public static String WidgetProperties_Minimum;
+    public static String WidgetProperties_MinorTickColor;
+    public static String WidgetProperties_MinorTickType;
+    public static String WidgetProperties_MinorTickVisible;
     public static String WidgetProperties_MinuteColor;
     public static String WidgetProperties_MinuteTickMarkColor;
     public static String WidgetProperties_MinuteTickMarkVisible;

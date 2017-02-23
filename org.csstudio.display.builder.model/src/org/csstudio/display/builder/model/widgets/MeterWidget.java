@@ -123,6 +123,14 @@ public class MeterWidget extends BaseMeterWidget {
         }
     };
     public static final WidgetPropertyDescriptor<Boolean>      propMediumTickVisible = newBooleanPropertyDescriptor              (WidgetPropertyCategory.MISC,     "medium_tick_visible", Messages.WidgetProperties_MediumTickVisible);
+    public static final WidgetPropertyDescriptor<WidgetColor>  propMinorTickColor    = newColorPropertyDescriptor                (WidgetPropertyCategory.MISC,     "minor_tick_color",    Messages.WidgetProperties_MinorTickColor);
+    public static final WidgetPropertyDescriptor<TickType>     propMinorTickType     = new WidgetPropertyDescriptor<TickType>    (WidgetPropertyCategory.MISC,     "minor_tick_type",     Messages.WidgetProperties_MinorTickType) {
+        @Override
+        public EnumWidgetProperty<TickType> createProperty ( Widget widget, TickType defaultValue ) {
+            return new EnumWidgetProperty<>(this, widget, defaultValue);
+        }
+    };
+    public static final WidgetPropertyDescriptor<Boolean>      propMinorTickVisible  = newBooleanPropertyDescriptor              (WidgetPropertyCategory.MISC,     "minor_tick_visible",  Messages.WidgetProperties_MinorTickVisible);
 
     private volatile WidgetProperty<Boolean>      average;
     private volatile WidgetProperty<WidgetColor>  average_color;
@@ -136,6 +144,9 @@ public class MeterWidget extends BaseMeterWidget {
     private volatile WidgetProperty<WidgetColor>  medium_tick_color;
     private volatile WidgetProperty<TickType>     medium_tick_type;
     private volatile WidgetProperty<Boolean>      medium_tick_visible;
+    private volatile WidgetProperty<WidgetColor>  minor_tick_color;
+    private volatile WidgetProperty<TickType>     minor_tick_type;
+    private volatile WidgetProperty<Boolean>      minor_tick_visible;
     private volatile WidgetProperty<Skin>         skin;
 
     public MeterWidget ( ) {
@@ -190,6 +201,18 @@ public class MeterWidget extends BaseMeterWidget {
         return medium_tick_visible;
     }
 
+    public WidgetProperty<WidgetColor> propMinorTickColor ( ) {
+        return minor_tick_color;
+    }
+
+    public WidgetProperty<TickType> propMinorTickType ( ) {
+        return minor_tick_type;
+    }
+
+    public WidgetProperty<Boolean> propMinorTickVisible ( ) {
+        return minor_tick_visible;
+    }
+
     public WidgetProperty<Skin> propSkin ( ) {
         return skin;
     }
@@ -213,6 +236,9 @@ public class MeterWidget extends BaseMeterWidget {
         properties.add(medium_tick_color   = propMediumTickColor.createProperty(this, new WidgetColor(4, 2, 0)));
         properties.add(medium_tick_type    = propMediumTickType.createProperty(this, TickType.LINE));
         properties.add(medium_tick_visible = propMediumTickVisible.createProperty(this, true));
+        properties.add(minor_tick_color    = propMinorTickColor.createProperty(this, new WidgetColor(4, 2, 0)));
+        properties.add(minor_tick_type     = propMinorTickType.createProperty(this, TickType.LINE));
+        properties.add(minor_tick_visible  = propMinorTickVisible.createProperty(this, true));
 
     }
 
