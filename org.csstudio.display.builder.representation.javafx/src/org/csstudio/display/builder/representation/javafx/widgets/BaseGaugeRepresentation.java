@@ -193,6 +193,7 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         jfx_node.setInnerShadowEnabled(false);
         jfx_node.setInteractive(false);
         jfx_node.setLedVisible(false);
+        jfx_node.setReturnToZero(false);
         jfx_node.setTitle(model_widget.propTitle().getValue());
         jfx_node.setTitleColor(JFXUtil.convert(model_widget.propTitleColor().getValue()));
 
@@ -222,6 +223,7 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
                 .ledVisible(false)
                 .maxValue(max)
                 .minValue(min)
+                .returnToZero(false)
                 .sections(createZones())
                 .sectionsVisible(areZonesVisible())
                 .title(model_widget.propTitle().getValue())
