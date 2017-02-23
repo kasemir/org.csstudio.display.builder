@@ -57,6 +57,8 @@ public class BufferUtil
 
         try
         {
+            // Simulate frequent timeout
+            // if (Math.random() > 0.5) throw new TimeoutException("Test");
             return result.get(500, TimeUnit.MILLISECONDS);
         }
         catch (InterruptedException ex)

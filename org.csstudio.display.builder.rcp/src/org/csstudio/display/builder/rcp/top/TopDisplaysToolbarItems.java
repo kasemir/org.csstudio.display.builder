@@ -1,3 +1,10 @@
+/*******************************************************************************
+ * Copyright (c) 2016 Oak Ridge National Laboratory.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *******************************************************************************/
 package org.csstudio.display.builder.rcp.top;
 
 import static org.csstudio.display.builder.rcp.Plugin.logger;
@@ -24,6 +31,8 @@ import org.eclipse.ui.services.IServiceLocator;
  *  <li>plugin.xml declares menuContribution for toolbar:org.eclipse.ui.main.toolbar,
  *      adding a toolbar with an "ToolbarTopDisplays" command of style "pulldown"
  *  <li>plugin.xml declares a "ToolbarTopDisplays" command.
+ *      That command uses a 'visibleWhen' expression to only show
+ *      when there are top displays defined.
  *      The handler class, {@link ToolbarTopDisplaysHandler}, could be a NOP.
  *      In this case, it offers another way to open the drop-down.
  *  <li>plugin.xml declares another menuContribution for menu:ToolbarTopDisplays,
