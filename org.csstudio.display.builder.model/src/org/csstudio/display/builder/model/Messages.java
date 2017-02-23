@@ -227,6 +227,10 @@ public class Messages extends NLS
     public static String WidgetProperties_MinuteTickMarkVisible;
     public static String WidgetProperties_MultiLine;
     public static String WidgetProperties_Name;
+    public static String WidgetProperties_NeedleColor;
+    public static String WidgetProperties_NeedleShape;
+    public static String WidgetProperties_NeedleSize;
+    public static String WidgetProperties_NeedleType;
     public static String WidgetProperties_OffColor;
     public static String WidgetProperties_OffImage;
     public static String WidgetProperties_OffLabel;

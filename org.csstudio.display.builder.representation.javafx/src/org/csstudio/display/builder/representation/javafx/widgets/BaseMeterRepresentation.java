@@ -69,6 +69,7 @@ public abstract class BaseMeterRepresentation<W extends BaseMeterWidget> extends
         jfx_node.setLcdDesign(LcdDesign.valueOf(model_widget.propLcdDesign().getValue().name()));
         jfx_node.setLcdFont(LcdFont.valueOf(model_widget.propLcdFont().getValue().name()));
         jfx_node.setLcdVisible(model_widget.propLcdVisible().getValue());
+        jfx_node.setNeedleBehavior(Gauge.NeedleBehavior.STANDARD);
 
     }
 
@@ -80,6 +81,7 @@ public abstract class BaseMeterRepresentation<W extends BaseMeterWidget> extends
         gauge.setLcdDesign(LcdDesign.valueOf(model_widget.propLcdDesign().getValue().name()));
         gauge.setLcdFont(LcdFont.valueOf(model_widget.propLcdFont().getValue().name()));
         gauge.setLcdVisible(model_widget.propLcdVisible().getValue());
+        gauge.setNeedleBehavior(Gauge.NeedleBehavior.STANDARD);
 
         return gauge;
 

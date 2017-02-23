@@ -84,6 +84,27 @@ public class MeterWidget extends BaseMeterWidget {
         TRIANGLE
     }
 
+    public enum NeedleShape {
+        ANGLED,
+        FLAT,
+        ROUND
+    }
+
+    public enum NeedleSize {
+        STANDARD,
+        THICK,
+        THIN
+    }
+
+    public enum NeedleType {
+        AVIONIC,
+        BIG,
+        FAT,
+        SCIENTIFIC,
+        STANDARD,
+        VARIOMETER
+    }
+
     public static final WidgetPropertyDescriptor<Skin>         propSkin              = new WidgetPropertyDescriptor<Skin>        (WidgetPropertyCategory.WIDGET,   "skin",                Messages.WidgetProperties_Skin) {
         @Override
         public EnumWidgetProperty<Skin> createProperty ( Widget widget, Skin defaultValue ) {
@@ -131,6 +152,25 @@ public class MeterWidget extends BaseMeterWidget {
         }
     };
     public static final WidgetPropertyDescriptor<Boolean>      propMinorTickVisible  = newBooleanPropertyDescriptor              (WidgetPropertyCategory.MISC,     "minor_tick_visible",  Messages.WidgetProperties_MinorTickVisible);
+    public static final WidgetPropertyDescriptor<WidgetColor>  propNeedleColor       = newColorPropertyDescriptor                (WidgetPropertyCategory.MISC,     "needle_color",        Messages.WidgetProperties_NeedleColor);
+    public static final WidgetPropertyDescriptor<NeedleShape>  propNeedleShape       = new WidgetPropertyDescriptor<NeedleShape> (WidgetPropertyCategory.MISC,     "needle_shape",        Messages.WidgetProperties_NeedleShape) {
+        @Override
+        public EnumWidgetProperty<NeedleShape> createProperty ( Widget widget, NeedleShape defaultValue ) {
+            return new EnumWidgetProperty<>(this, widget, defaultValue);
+        }
+    };
+    public static final WidgetPropertyDescriptor<NeedleSize>   propNeedleSize        = new WidgetPropertyDescriptor<NeedleSize>  (WidgetPropertyCategory.MISC,     "needle_size",         Messages.WidgetProperties_NeedleSize) {
+        @Override
+        public EnumWidgetProperty<NeedleSize> createProperty ( Widget widget, NeedleSize defaultValue ) {
+            return new EnumWidgetProperty<>(this, widget, defaultValue);
+        }
+    };
+    public static final WidgetPropertyDescriptor<NeedleType>   propNeedleType        = new WidgetPropertyDescriptor<NeedleType>  (WidgetPropertyCategory.MISC,     "needle_type",         Messages.WidgetProperties_NeedleType) {
+        @Override
+        public EnumWidgetProperty<NeedleType> createProperty ( Widget widget, NeedleType defaultValue ) {
+            return new EnumWidgetProperty<>(this, widget, defaultValue);
+        }
+    };
 
     private volatile WidgetProperty<Boolean>      average;
     private volatile WidgetProperty<WidgetColor>  average_color;
@@ -147,6 +187,10 @@ public class MeterWidget extends BaseMeterWidget {
     private volatile WidgetProperty<WidgetColor>  minor_tick_color;
     private volatile WidgetProperty<TickType>     minor_tick_type;
     private volatile WidgetProperty<Boolean>      minor_tick_visible;
+    private volatile WidgetProperty<WidgetColor>  needle_color;
+    private volatile WidgetProperty<NeedleShape>  needle_shape;
+    private volatile WidgetProperty<NeedleSize>   needle_size;
+    private volatile WidgetProperty<NeedleType>   needle_type;
     private volatile WidgetProperty<Skin>         skin;
 
     public MeterWidget ( ) {
@@ -213,6 +257,22 @@ public class MeterWidget extends BaseMeterWidget {
         return minor_tick_visible;
     }
 
+    public WidgetProperty<WidgetColor> propNeedleColor ( ) {
+        return needle_color;
+    }
+
+    public WidgetProperty<NeedleShape> propNeedleShape ( ) {
+        return needle_shape;
+    }
+
+    public WidgetProperty<NeedleSize> propNeedleSize ( ) {
+        return needle_size;
+    }
+
+    public WidgetProperty<NeedleType> propNeedleType ( ) {
+        return needle_type;
+    }
+
     public WidgetProperty<Skin> propSkin ( ) {
         return skin;
     }
@@ -233,12 +293,16 @@ public class MeterWidget extends BaseMeterWidget {
         properties.add(major_tick_color    = propMajorTickColor.createProperty(this, new WidgetColor(4, 2, 0)));
         properties.add(major_tick_type     = propMajorTickType.createProperty(this, TickType.LINE));
         properties.add(major_tick_visible  = propMajorTickVisible.createProperty(this, true));
-        properties.add(medium_tick_color   = propMediumTickColor.createProperty(this, new WidgetColor(4, 2, 0)));
+        properties.add(medium_tick_color   = propMediumTickColor.createProperty(this, new WidgetColor(10, 8, 6)));
         properties.add(medium_tick_type    = propMediumTickType.createProperty(this, TickType.LINE));
         properties.add(medium_tick_visible = propMediumTickVisible.createProperty(this, true));
-        properties.add(minor_tick_color    = propMinorTickColor.createProperty(this, new WidgetColor(4, 2, 0)));
+        properties.add(minor_tick_color    = propMinorTickColor.createProperty(this, new WidgetColor(16, 14, 12)));
         properties.add(minor_tick_type     = propMinorTickType.createProperty(this, TickType.LINE));
         properties.add(minor_tick_visible  = propMinorTickVisible.createProperty(this, true));
+        properties.add(needle_color        = propNeedleColor.createProperty(this, new WidgetColor(255, 5, 7)));
+        properties.add(needle_shape        = propNeedleShape.createProperty(this, NeedleShape.ANGLED));
+        properties.add(needle_size         = propNeedleSize.createProperty(this, NeedleSize.STANDARD));
+        properties.add(needle_type         = propNeedleType.createProperty(this, NeedleType.STANDARD));
 
     }
 

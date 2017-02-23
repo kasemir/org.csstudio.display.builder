@@ -17,6 +17,9 @@ import org.csstudio.display.builder.model.widgets.MeterWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
 import eu.hansolo.medusa.Gauge;
+import eu.hansolo.medusa.Gauge.NeedleShape;
+import eu.hansolo.medusa.Gauge.NeedleSize;
+import eu.hansolo.medusa.Gauge.NeedleType;
 import eu.hansolo.medusa.Section;
 import eu.hansolo.medusa.TickMarkType;
 import javafx.geometry.Pos;
@@ -165,6 +168,31 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
                 jfx_node.setMinorTickMarksVisible((boolean) value);
             }
 
+            value = JFXUtil.convert(model_widget.propNeedleColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getNeedleColor()) ) {
+                jfx_node.setNeedleColor((Color) value);
+                jfx_node.setNeedleBorderColor(((Color) value).darker());
+            }
+
+            value = NeedleShape.valueOf(model_widget.propNeedleShape().getValue().name());
+
+            if ( !Objects.equals(value, jfx_node.getNeedleShape()) ) {
+                jfx_node.setNeedleShape((NeedleShape) value);
+            }
+
+            value = NeedleSize.valueOf(model_widget.propNeedleSize().getValue().name());
+
+            if ( !Objects.equals(value, jfx_node.getNeedleSize()) ) {
+                jfx_node.setNeedleSize((NeedleSize) value);
+            }
+
+            value = NeedleType.valueOf(model_widget.propNeedleType().getValue().name());
+
+            if ( !Objects.equals(value, jfx_node.getNeedleType()) ) {
+                jfx_node.setNeedleType((NeedleType) value);
+            }
+
         }
 
         if ( dirtyLimits.checkAndClear() ) {
@@ -199,6 +227,11 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
         jfx_node.setMinorTickMarkColor(JFXUtil.convert(model_widget.propMinorTickColor().getValue()));
         jfx_node.setMinorTickMarkType(TickMarkType.valueOf(model_widget.propMinorTickType().getValue().name()));
         jfx_node.setMinorTickMarksVisible(model_widget.propMinorTickVisible().getValue());
+        jfx_node.setNeedleBorderColor(JFXUtil.convert(model_widget.propNeedleColor().getValue()).darker());
+        jfx_node.setNeedleColor(JFXUtil.convert(model_widget.propNeedleColor().getValue()));
+        jfx_node.setNeedleShape(NeedleShape.valueOf(model_widget.propNeedleShape().getValue().name()));
+        jfx_node.setNeedleSize(NeedleSize.valueOf(model_widget.propNeedleSize().getValue().name()));
+        jfx_node.setNeedleType(NeedleType.valueOf(model_widget.propNeedleType().getValue().name()));
 
         switch ( skin ) {
             case HORIZONTAL:
@@ -266,6 +299,11 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
         gauge.setMinorTickMarkColor(JFXUtil.convert(model_widget.propMinorTickColor().getValue()));
         gauge.setMinorTickMarkType(TickMarkType.valueOf(model_widget.propMinorTickType().getValue().name()));
         gauge.setMinorTickMarksVisible(model_widget.propMinorTickVisible().getValue());
+        gauge.setNeedleBorderColor(JFXUtil.convert(model_widget.propNeedleColor().getValue()).darker());
+        gauge.setNeedleColor(JFXUtil.convert(model_widget.propNeedleColor().getValue()));
+        gauge.setNeedleShape(NeedleShape.valueOf(model_widget.propNeedleShape().getValue().name()));
+        gauge.setNeedleSize(NeedleSize.valueOf(model_widget.propNeedleSize().getValue().name()));
+        gauge.setNeedleType(NeedleType.valueOf(model_widget.propNeedleType().getValue().name()));
 
         return gauge;
 
@@ -305,6 +343,10 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
         model_widget.propMinorTickColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propMinorTickType().addUntypedPropertyListener(this::lookChanged);
         model_widget.propMinorTickVisible().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propNeedleColor().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propNeedleShape().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propNeedleSize().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propNeedleType().addUntypedPropertyListener(this::lookChanged);
         model_widget.propSkin().addUntypedPropertyListener(this::lookChanged);
 
         model_widget.propHighlightZones().addUntypedPropertyListener(this::limitsChanged);
