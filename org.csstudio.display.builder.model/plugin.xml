@@ -132,6 +132,17 @@
          </alternates>
       </widget>
       <widget
+            category="MONITOR"
+            class="org.csstudio.display.builder.model.widgets.GaugeWidget"
+            description="%GaugeWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/gauge.png"
+            name="%GaugeWidget_Name"
+            type="gauge">
+         <alternates
+               type="org.csstudio.opibuilder.widgets.gauge">
+         </alternates>
+      </widget>
+      <widget
             category="STRUCTURE"
             class="org.csstudio.display.builder.model.widgets.GroupWidget"
             description="%GroupWidget_Description"
@@ -173,6 +184,25 @@
             type="led">
          <alternates
                type="org.csstudio.opibuilder.widgets.LED">
+         </alternates>
+      </widget>
+      <widget
+            category="MONITOR"
+            class="org.csstudio.display.builder.model.widgets.LinearMeterWidget"
+            description="%LinearMeterWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/linear-meter.png"
+            name="%LinearMeterWidget_Name"
+            type="linear-meter">
+      </widget>
+      <widget
+            category="MONITOR"
+            class="org.csstudio.display.builder.model.widgets.MeterWidget"
+            description="%MeterWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/meter.png"
+            name="%MeterWidget_Name"
+            type="meter">
+         <alternates
+               type="org.csstudio.opibuilder.widgets.meter">
          </alternates>
       </widget>
       <widget
