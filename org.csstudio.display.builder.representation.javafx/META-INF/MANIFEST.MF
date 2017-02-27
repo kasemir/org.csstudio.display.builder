@@ -15,7 +15,7 @@ Require-Bundle: org.eclipse.osgi,
  org.csstudio.display.builder.model;bundle-version="1.0.0";visibility:=reexport,
  org.csstudio.display.builder.representation;bundle-version="1.0.0";visibility:=reexport,
  org.csstudio.display.builder.util;bundle-version="1.0.0",
- org.csstudio.vtype.pv;bundle-version="4.0.2",
- eu.hansolo.medusa
+ org.csstudio.platform.libs.gauges,
+ org.csstudio.vtype.pv;bundle-version="4.0.2"
 Export-Package: org.csstudio.display.builder.representation.javafx,
  org.csstudio.display.builder.representation.javafx.widgets
