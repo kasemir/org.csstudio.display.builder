@@ -20,6 +20,7 @@ import eu.hansolo.medusa.Gauge;
 import eu.hansolo.medusa.Gauge.NeedleShape;
 import eu.hansolo.medusa.Gauge.NeedleSize;
 import eu.hansolo.medusa.Gauge.NeedleType;
+import eu.hansolo.medusa.Gauge.ScaleDirection;
 import eu.hansolo.medusa.Section;
 import eu.hansolo.medusa.TickMarkType;
 import javafx.geometry.Pos;
@@ -199,6 +200,12 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
                 jfx_node.setOnlyFirstAndLastTickLabelVisible((boolean) value);
             }
 
+            value = ScaleDirection.valueOf(model_widget.propScaleDirection().getValue().name());
+
+            if ( !Objects.equals(value, jfx_node.getScaleDirection()) ) {
+                jfx_node.setScaleDirection((ScaleDirection) value);
+            }
+
         }
 
         if ( dirtyLimits.checkAndClear() ) {
@@ -239,6 +246,7 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
         jfx_node.setNeedleSize(NeedleSize.valueOf(model_widget.propNeedleSize().getValue().name()));
         jfx_node.setNeedleType(NeedleType.valueOf(model_widget.propNeedleType().getValue().name()));
         jfx_node.setOnlyFirstAndLastTickLabelVisible(model_widget.propOnlyExtremaVisible().getValue());
+        jfx_node.setScaleDirection(ScaleDirection.valueOf(model_widget.propScaleDirection().getValue().name()));
 
         switch ( skin ) {
             case HORIZONTAL:
@@ -312,6 +320,7 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
         gauge.setNeedleSize(NeedleSize.valueOf(model_widget.propNeedleSize().getValue().name()));
         gauge.setNeedleType(NeedleType.valueOf(model_widget.propNeedleType().getValue().name()));
         gauge.setOnlyFirstAndLastTickLabelVisible(model_widget.propOnlyExtremaVisible().getValue());
+        gauge.setScaleDirection(ScaleDirection.valueOf(model_widget.propScaleDirection().getValue().name()));
 
         return gauge;
 
@@ -356,6 +365,7 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
         model_widget.propNeedleSize().addUntypedPropertyListener(this::lookChanged);
         model_widget.propNeedleType().addUntypedPropertyListener(this::lookChanged);
         model_widget.propOnlyExtremaVisible().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propScaleDirection().addUntypedPropertyListener(this::lookChanged);
         model_widget.propSkin().addUntypedPropertyListener(this::lookChanged);
 
         model_widget.propHighlightZones().addUntypedPropertyListener(this::limitsChanged);

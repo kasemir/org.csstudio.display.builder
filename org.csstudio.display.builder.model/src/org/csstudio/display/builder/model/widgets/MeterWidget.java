@@ -105,95 +105,107 @@ public class MeterWidget extends BaseMeterWidget {
         VARIOMETER
     }
 
-    public static final WidgetPropertyDescriptor<Skin>         propSkin               = new WidgetPropertyDescriptor<Skin>        (WidgetPropertyCategory.WIDGET,   "skin",                 Messages.WidgetProperties_Skin) {
+    public enum ScaleDirection {
+        CLOCKWISE,
+        COUNTER_CLOCKWISE
+    }
+
+    public static final WidgetPropertyDescriptor<Skin>           propSkin               = new WidgetPropertyDescriptor<Skin>          (WidgetPropertyCategory.WIDGET,   "skin",                 Messages.WidgetProperties_Skin) {
         @Override
         public EnumWidgetProperty<Skin> createProperty ( Widget widget, Skin defaultValue ) {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
-    public static final WidgetPropertyDescriptor<KnobPosition> propKnobPosition       = new WidgetPropertyDescriptor<KnobPosition>(WidgetPropertyCategory.WIDGET,   "knob_position",        Messages.WidgetProperties_KnobPosition) {
+    public static final WidgetPropertyDescriptor<KnobPosition>   propKnobPosition       = new WidgetPropertyDescriptor<KnobPosition>  (WidgetPropertyCategory.WIDGET,   "knob_position",        Messages.WidgetProperties_KnobPosition) {
         @Override
         public EnumWidgetProperty<KnobPosition> createProperty ( Widget widget, KnobPosition defaultValue ) {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
 
-    public static final WidgetPropertyDescriptor<Boolean>      propAverage            = newBooleanPropertyDescriptor              (WidgetPropertyCategory.MISC,     "average",              Messages.WidgetProperties_Average);
-    public static final WidgetPropertyDescriptor<WidgetColor>  propAverageColor       = newColorPropertyDescriptor                (WidgetPropertyCategory.MISC,     "average_color",        Messages.WidgetProperties_AverageColor);
-    public static final WidgetPropertyDescriptor<Integer>      propAverageSamples     = newIntegerPropertyDescriptor              (WidgetPropertyCategory.MISC,     "average_samples",      Messages.WidgetProperties_AverageSamples, 1, 1000);
-    public static final WidgetPropertyDescriptor<WidgetColor>  propKnobColor          = newColorPropertyDescriptor                (WidgetPropertyCategory.MISC,     "knob_color",           Messages.WidgetProperties_KnobColor);
-    public static final WidgetPropertyDescriptor<KnobType>     propKnobType           = new WidgetPropertyDescriptor<KnobType>    (WidgetPropertyCategory.MISC,     "knob_type",            Messages.WidgetProperties_KnobType) {
+    public static final WidgetPropertyDescriptor<Boolean>        propAverage            = newBooleanPropertyDescriptor                (WidgetPropertyCategory.MISC,     "average",              Messages.WidgetProperties_Average);
+    public static final WidgetPropertyDescriptor<WidgetColor>    propAverageColor       = newColorPropertyDescriptor                  (WidgetPropertyCategory.MISC,     "average_color",        Messages.WidgetProperties_AverageColor);
+    public static final WidgetPropertyDescriptor<Integer>        propAverageSamples     = newIntegerPropertyDescriptor                (WidgetPropertyCategory.MISC,     "average_samples",      Messages.WidgetProperties_AverageSamples, 1, 1000);
+    public static final WidgetPropertyDescriptor<WidgetColor>    propKnobColor          = newColorPropertyDescriptor                  (WidgetPropertyCategory.MISC,     "knob_color",           Messages.WidgetProperties_KnobColor);
+    public static final WidgetPropertyDescriptor<KnobType>       propKnobType           = new WidgetPropertyDescriptor<KnobType>      (WidgetPropertyCategory.MISC,     "knob_type",            Messages.WidgetProperties_KnobType) {
         @Override
         public EnumWidgetProperty<KnobType> createProperty ( Widget widget, KnobType defaultValue ) {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
-    public static final WidgetPropertyDescriptor<WidgetColor>  propMajorTickColor     = newColorPropertyDescriptor                (WidgetPropertyCategory.MISC,     "major_tick_color",     Messages.WidgetProperties_MajorTickColor);
-    public static final WidgetPropertyDescriptor<TickType>     propMajorTickType      = new WidgetPropertyDescriptor<TickType>    (WidgetPropertyCategory.MISC,     "major_tick_type",      Messages.WidgetProperties_MajorTickType) {
+    public static final WidgetPropertyDescriptor<WidgetColor>    propMajorTickColor     = newColorPropertyDescriptor                  (WidgetPropertyCategory.MISC,     "major_tick_color",     Messages.WidgetProperties_MajorTickColor);
+    public static final WidgetPropertyDescriptor<TickType>       propMajorTickType      = new WidgetPropertyDescriptor<TickType>      (WidgetPropertyCategory.MISC,     "major_tick_type",      Messages.WidgetProperties_MajorTickType) {
         @Override
         public EnumWidgetProperty<TickType> createProperty ( Widget widget, TickType defaultValue ) {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
-    public static final WidgetPropertyDescriptor<Boolean>      propMajorTickVisible   = newBooleanPropertyDescriptor              (WidgetPropertyCategory.MISC,     "major_tick_visible",   Messages.WidgetProperties_MajorTickVisible);
-    public static final WidgetPropertyDescriptor<WidgetColor>  propMediumTickColor    = newColorPropertyDescriptor                (WidgetPropertyCategory.MISC,     "medium_tick_color",    Messages.WidgetProperties_MediumTickColor);
-    public static final WidgetPropertyDescriptor<TickType>     propMediumTickType     = new WidgetPropertyDescriptor<TickType>    (WidgetPropertyCategory.MISC,     "medium_tick_type",     Messages.WidgetProperties_MediumTickType) {
+    public static final WidgetPropertyDescriptor<Boolean>        propMajorTickVisible   = newBooleanPropertyDescriptor                (WidgetPropertyCategory.MISC,     "major_tick_visible",   Messages.WidgetProperties_MajorTickVisible);
+    public static final WidgetPropertyDescriptor<WidgetColor>    propMediumTickColor    = newColorPropertyDescriptor                  (WidgetPropertyCategory.MISC,     "medium_tick_color",    Messages.WidgetProperties_MediumTickColor);
+    public static final WidgetPropertyDescriptor<TickType>       propMediumTickType     = new WidgetPropertyDescriptor<TickType>      (WidgetPropertyCategory.MISC,     "medium_tick_type",     Messages.WidgetProperties_MediumTickType) {
         @Override
         public EnumWidgetProperty<TickType> createProperty ( Widget widget, TickType defaultValue ) {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
-    public static final WidgetPropertyDescriptor<Boolean>      propMediumTickVisible  = newBooleanPropertyDescriptor              (WidgetPropertyCategory.MISC,     "medium_tick_visible",  Messages.WidgetProperties_MediumTickVisible);
-    public static final WidgetPropertyDescriptor<WidgetColor>  propMinorTickColor     = newColorPropertyDescriptor                (WidgetPropertyCategory.MISC,     "minor_tick_color",     Messages.WidgetProperties_MinorTickColor);
-    public static final WidgetPropertyDescriptor<TickType>     propMinorTickType      = new WidgetPropertyDescriptor<TickType>    (WidgetPropertyCategory.MISC,     "minor_tick_type",      Messages.WidgetProperties_MinorTickType) {
+    public static final WidgetPropertyDescriptor<Boolean>        propMediumTickVisible  = newBooleanPropertyDescriptor                (WidgetPropertyCategory.MISC,     "medium_tick_visible",  Messages.WidgetProperties_MediumTickVisible);
+    public static final WidgetPropertyDescriptor<WidgetColor>    propMinorTickColor     = newColorPropertyDescriptor                  (WidgetPropertyCategory.MISC,     "minor_tick_color",     Messages.WidgetProperties_MinorTickColor);
+    public static final WidgetPropertyDescriptor<TickType>       propMinorTickType      = new WidgetPropertyDescriptor<TickType>      (WidgetPropertyCategory.MISC,     "minor_tick_type",      Messages.WidgetProperties_MinorTickType) {
         @Override
         public EnumWidgetProperty<TickType> createProperty ( Widget widget, TickType defaultValue ) {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
-    public static final WidgetPropertyDescriptor<Boolean>      propMinorTickVisible   = newBooleanPropertyDescriptor              (WidgetPropertyCategory.MISC,     "minor_tick_visible",   Messages.WidgetProperties_MinorTickVisible);
-    public static final WidgetPropertyDescriptor<WidgetColor>  propNeedleColor        = newColorPropertyDescriptor                (WidgetPropertyCategory.MISC,     "needle_color",         Messages.WidgetProperties_NeedleColor);
-    public static final WidgetPropertyDescriptor<NeedleShape>  propNeedleShape        = new WidgetPropertyDescriptor<NeedleShape> (WidgetPropertyCategory.MISC,     "needle_shape",         Messages.WidgetProperties_NeedleShape) {
+    public static final WidgetPropertyDescriptor<Boolean>        propMinorTickVisible   = newBooleanPropertyDescriptor                (WidgetPropertyCategory.MISC,     "minor_tick_visible",   Messages.WidgetProperties_MinorTickVisible);
+    public static final WidgetPropertyDescriptor<WidgetColor>    propNeedleColor        = newColorPropertyDescriptor                  (WidgetPropertyCategory.MISC,     "needle_color",         Messages.WidgetProperties_NeedleColor);
+    public static final WidgetPropertyDescriptor<NeedleShape>    propNeedleShape        = new WidgetPropertyDescriptor<NeedleShape>   (WidgetPropertyCategory.MISC,     "needle_shape",         Messages.WidgetProperties_NeedleShape) {
         @Override
         public EnumWidgetProperty<NeedleShape> createProperty ( Widget widget, NeedleShape defaultValue ) {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
-    public static final WidgetPropertyDescriptor<NeedleSize>   propNeedleSize         = new WidgetPropertyDescriptor<NeedleSize>  (WidgetPropertyCategory.MISC,     "needle_size",          Messages.WidgetProperties_NeedleSize) {
+    public static final WidgetPropertyDescriptor<NeedleSize>     propNeedleSize         = new WidgetPropertyDescriptor<NeedleSize>    (WidgetPropertyCategory.MISC,     "needle_size",          Messages.WidgetProperties_NeedleSize) {
         @Override
         public EnumWidgetProperty<NeedleSize> createProperty ( Widget widget, NeedleSize defaultValue ) {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
-    public static final WidgetPropertyDescriptor<NeedleType>   propNeedleType         = new WidgetPropertyDescriptor<NeedleType>  (WidgetPropertyCategory.MISC,     "needle_type",          Messages.WidgetProperties_NeedleType) {
+    public static final WidgetPropertyDescriptor<NeedleType>     propNeedleType         = new WidgetPropertyDescriptor<NeedleType>    (WidgetPropertyCategory.MISC,     "needle_type",          Messages.WidgetProperties_NeedleType) {
         @Override
         public EnumWidgetProperty<NeedleType> createProperty ( Widget widget, NeedleType defaultValue ) {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
-    public static final WidgetPropertyDescriptor<Boolean>      propOnlyExtremaVisible = newBooleanPropertyDescriptor              (WidgetPropertyCategory.MISC,     "only_extrema_visible", Messages.WidgetProperties_OnlyExtremaVisible);
+    public static final WidgetPropertyDescriptor<Boolean>        propOnlyExtremaVisible = newBooleanPropertyDescriptor                (WidgetPropertyCategory.MISC,     "only_extrema_visible", Messages.WidgetProperties_OnlyExtremaVisible);
+    public static final WidgetPropertyDescriptor<ScaleDirection> propScaleDirection     = new WidgetPropertyDescriptor<ScaleDirection>(WidgetPropertyCategory.MISC,     "scale_direction",      Messages.WidgetProperties_ScaleDirection) {
+        @Override
+        public EnumWidgetProperty<ScaleDirection> createProperty ( Widget widget, ScaleDirection defaultValue ) {
+            return new EnumWidgetProperty<>(this, widget, defaultValue);
+        }
+    };
 
-    private volatile WidgetProperty<Boolean>      average;
-    private volatile WidgetProperty<WidgetColor>  average_color;
-    private volatile WidgetProperty<Integer>      average_samples;
-    private volatile WidgetProperty<WidgetColor>  knob_color;
-    private volatile WidgetProperty<KnobPosition> knob_position;
-    private volatile WidgetProperty<KnobType>     knob_type;
-    private volatile WidgetProperty<WidgetColor>  major_tick_color;
-    private volatile WidgetProperty<TickType>     major_tick_type;
-    private volatile WidgetProperty<Boolean>      major_tick_visible;
-    private volatile WidgetProperty<WidgetColor>  medium_tick_color;
-    private volatile WidgetProperty<TickType>     medium_tick_type;
-    private volatile WidgetProperty<Boolean>      medium_tick_visible;
-    private volatile WidgetProperty<WidgetColor>  minor_tick_color;
-    private volatile WidgetProperty<TickType>     minor_tick_type;
-    private volatile WidgetProperty<Boolean>      minor_tick_visible;
-    private volatile WidgetProperty<WidgetColor>  needle_color;
-    private volatile WidgetProperty<NeedleShape>  needle_shape;
-    private volatile WidgetProperty<NeedleSize>   needle_size;
-    private volatile WidgetProperty<NeedleType>   needle_type;
-    private volatile WidgetProperty<Boolean>      only_extrema_visible;
-    private volatile WidgetProperty<Skin>         skin;
+    private volatile WidgetProperty<Boolean>        average;
+    private volatile WidgetProperty<WidgetColor>    average_color;
+    private volatile WidgetProperty<Integer>        average_samples;
+    private volatile WidgetProperty<WidgetColor>    knob_color;
+    private volatile WidgetProperty<KnobPosition>   knob_position;
+    private volatile WidgetProperty<KnobType>       knob_type;
+    private volatile WidgetProperty<WidgetColor>    major_tick_color;
+    private volatile WidgetProperty<TickType>       major_tick_type;
+    private volatile WidgetProperty<Boolean>        major_tick_visible;
+    private volatile WidgetProperty<WidgetColor>    medium_tick_color;
+    private volatile WidgetProperty<TickType>       medium_tick_type;
+    private volatile WidgetProperty<Boolean>        medium_tick_visible;
+    private volatile WidgetProperty<WidgetColor>    minor_tick_color;
+    private volatile WidgetProperty<TickType>       minor_tick_type;
+    private volatile WidgetProperty<Boolean>        minor_tick_visible;
+    private volatile WidgetProperty<WidgetColor>    needle_color;
+    private volatile WidgetProperty<NeedleShape>    needle_shape;
+    private volatile WidgetProperty<NeedleSize>     needle_size;
+    private volatile WidgetProperty<NeedleType>     needle_type;
+    private volatile WidgetProperty<Boolean>        only_extrema_visible;
+    private volatile WidgetProperty<ScaleDirection> scale_direction;
+    private volatile WidgetProperty<Skin>           skin;
 
     public MeterWidget ( ) {
         super(WIDGET_DESCRIPTOR.getType(), 240, 120);
@@ -279,6 +291,10 @@ public class MeterWidget extends BaseMeterWidget {
         return only_extrema_visible;
     }
 
+    public WidgetProperty<ScaleDirection> propScaleDirection ( ) {
+        return scale_direction;
+    }
+
     public WidgetProperty<Skin> propSkin ( ) {
         return skin;
     }
@@ -310,6 +326,7 @@ public class MeterWidget extends BaseMeterWidget {
         properties.add(needle_size          = propNeedleSize.createProperty(this, NeedleSize.STANDARD));
         properties.add(needle_type          = propNeedleType.createProperty(this, NeedleType.STANDARD));
         properties.add(only_extrema_visible = propOnlyExtremaVisible.createProperty(this, false));
+        properties.add(scale_direction      = propScaleDirection.createProperty(this, ScaleDirection.CLOCKWISE));
 
     }
 
