@@ -183,6 +183,7 @@ public class MeterWidget extends BaseMeterWidget {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
+    public static final WidgetPropertyDescriptor<Boolean>        propShadowsEnabled     = newBooleanPropertyDescriptor                (WidgetPropertyCategory.MISC,     "shadows_enabled",      Messages.WidgetProperties_ShadowsEnabled);
 
     private volatile WidgetProperty<Boolean>        average;
     private volatile WidgetProperty<WidgetColor>    average_color;
@@ -205,6 +206,7 @@ public class MeterWidget extends BaseMeterWidget {
     private volatile WidgetProperty<NeedleType>     needle_type;
     private volatile WidgetProperty<Boolean>        only_extrema_visible;
     private volatile WidgetProperty<ScaleDirection> scale_direction;
+    private volatile WidgetProperty<Boolean>        shadowsEnabled;
     private volatile WidgetProperty<Skin>           skin;
 
     public MeterWidget ( ) {
@@ -295,6 +297,10 @@ public class MeterWidget extends BaseMeterWidget {
         return scale_direction;
     }
 
+    public WidgetProperty<Boolean> propShadowsEnabled ( ) {
+        return shadowsEnabled;
+    }
+
     public WidgetProperty<Skin> propSkin ( ) {
         return skin;
     }
@@ -327,6 +333,7 @@ public class MeterWidget extends BaseMeterWidget {
         properties.add(needle_type          = propNeedleType.createProperty(this, NeedleType.STANDARD));
         properties.add(only_extrema_visible = propOnlyExtremaVisible.createProperty(this, false));
         properties.add(scale_direction      = propScaleDirection.createProperty(this, ScaleDirection.CLOCKWISE));
+        properties.add(shadowsEnabled       = propShadowsEnabled.createProperty(this, true));
 
     }
 

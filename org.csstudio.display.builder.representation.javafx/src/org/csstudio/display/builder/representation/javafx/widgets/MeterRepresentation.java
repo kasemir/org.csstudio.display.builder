@@ -206,6 +206,12 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
                 jfx_node.setScaleDirection((ScaleDirection) value);
             }
 
+            value = model_widget.propShadowsEnabled().getValue();
+
+            if ( !Objects.equals(value, jfx_node.isShadowsEnabled()) ) {
+                jfx_node.setShadowsEnabled((boolean) value);
+            }
+
         }
 
         if ( dirtyLimits.checkAndClear() ) {
@@ -247,6 +253,7 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
         jfx_node.setNeedleType(NeedleType.valueOf(model_widget.propNeedleType().getValue().name()));
         jfx_node.setOnlyFirstAndLastTickLabelVisible(model_widget.propOnlyExtremaVisible().getValue());
         jfx_node.setScaleDirection(ScaleDirection.valueOf(model_widget.propScaleDirection().getValue().name()));
+        jfx_node.setShadowsEnabled(model_widget.propShadowsEnabled().getValue());
 
         switch ( skin ) {
             case HORIZONTAL:
@@ -321,6 +328,7 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
         gauge.setNeedleType(NeedleType.valueOf(model_widget.propNeedleType().getValue().name()));
         gauge.setOnlyFirstAndLastTickLabelVisible(model_widget.propOnlyExtremaVisible().getValue());
         gauge.setScaleDirection(ScaleDirection.valueOf(model_widget.propScaleDirection().getValue().name()));
+        gauge.setShadowsEnabled(model_widget.propShadowsEnabled().getValue());
 
         return gauge;
 
@@ -366,6 +374,7 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
         model_widget.propNeedleType().addUntypedPropertyListener(this::lookChanged);
         model_widget.propOnlyExtremaVisible().addUntypedPropertyListener(this::lookChanged);
         model_widget.propScaleDirection().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propShadowsEnabled().addUntypedPropertyListener(this::lookChanged);
         model_widget.propSkin().addUntypedPropertyListener(this::lookChanged);
 
         model_widget.propHighlightZones().addUntypedPropertyListener(this::limitsChanged);
