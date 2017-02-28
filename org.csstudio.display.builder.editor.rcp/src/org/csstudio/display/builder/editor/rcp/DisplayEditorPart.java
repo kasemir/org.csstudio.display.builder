@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -310,7 +310,7 @@ public class DisplayEditorPart extends EditorPart
     @Override
     public void setFocus()
     {
-        // TODO  fx_canvas.setFocus();
+        // NOP: fx_canvas.setFocus();
     }
 
     @Override
@@ -500,7 +500,7 @@ public class DisplayEditorPart extends EditorPart
             return outline_page;
         }
         else if (adapter == IPropertySheetPage.class)
-            return new PropertyPage(editor);
+            return new PropertyPage(this);
         return super.getAdapter(adapter);
     }
 
