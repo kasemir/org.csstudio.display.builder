@@ -51,6 +51,7 @@ public class TextUpdateRepresentation extends RegionBaseRepresentation<Label, Te
         model_widget.propHeight().addUntypedPropertyListener(this::styleChanged);
         model_widget.propForegroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.propBackgroundColor().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propTransparent().addUntypedPropertyListener(this::styleChanged);
         model_widget.propFont().addUntypedPropertyListener(this::styleChanged);
         model_widget.propHorizontalAlignment().addUntypedPropertyListener(this::styleChanged);
         model_widget.propVerticalAlignment().addUntypedPropertyListener(this::styleChanged);
@@ -115,8 +116,13 @@ public class TextUpdateRepresentation extends RegionBaseRepresentation<Label, Te
 
             Color color = JFXUtil.convert(model_widget.propForegroundColor().getValue());
             jfx_node.setTextFill(color);
-            color = JFXUtil.convert(model_widget.propBackgroundColor().getValue());
-            jfx_node.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY)));
+            if (model_widget.propTransparent().getValue())
+                jfx_node.setBackground(null); // No fill
+            else
+            {
+                color = JFXUtil.convert(model_widget.propBackgroundColor().getValue());
+                jfx_node.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY)));
+            }
             jfx_node.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
             jfx_node.setAlignment(pos);
             jfx_node.setWrapText(model_widget.propWrapWords().getValue());
