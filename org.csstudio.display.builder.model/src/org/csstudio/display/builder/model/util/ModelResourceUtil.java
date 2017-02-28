@@ -257,13 +257,13 @@ public class ModelResourceUtil extends ResourceUtil
     }
 
     /** Attempt to resolve a resource relative to a display
-    *
-    *  <p>For *.opi files, checks if there is an updated .bob file.
-    *
-    *  @param model {@link DisplayModel}
-    *  @param resource_name Resource path. If relative, it is resolved relative to the parent display
-    *  @return Resolved file name. May also be the original name if no idea how to adjust it
-    */
+     *
+     *  <p>For *.opi files, checks if there is an updated .bob file.
+     *
+     *  @param model {@link DisplayModel}
+     *  @param resource_name Resource path. If relative, it is resolved relative to the parent display
+     *  @return Resolved file name. May also be the original name if no idea how to adjust it
+     */
     public static String resolveResource(final DisplayModel model, final String resource_name)
     {
         final String parent_display = model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
