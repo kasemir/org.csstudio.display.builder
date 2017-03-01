@@ -68,7 +68,7 @@ public class GroupWidgetsAction extends UndoableAction
             final int orig_y = widget.propY().getValue();
             widget.propX().setValue((int) (orig_x - x_offset));
             widget.propY().setValue((int) (orig_y - y_offset));
-            group.runtimePropChildren().addChild(widget);
+            group.runtimeChildren().addChild(widget);
         }
         parent_children.addChild(group);
     }
@@ -79,7 +79,7 @@ public class GroupWidgetsAction extends UndoableAction
         parent_children.removeChild(group);
         for (Widget widget : widgets)
         {
-            group.runtimePropChildren().removeChild(widget);
+            group.runtimeChildren().removeChild(widget);
             final int orig_x = widget.propX().getValue();
             final int orig_y = widget.propY().getValue();
             widget.propX().setValue((int) (orig_x + x_offset));

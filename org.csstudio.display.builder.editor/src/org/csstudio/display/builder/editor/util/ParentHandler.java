@@ -130,7 +130,7 @@ public class ParentHandler
                     continue;
                 final ChildrenProperty child_prop;
                 if (widget instanceof GroupWidget)
-                    child_prop = ((GroupWidget) widget).runtimePropChildren();
+                    child_prop = ((GroupWidget) widget).runtimeChildren();
                 else if (widget instanceof TabsWidget)
                 {   // Check children of _selected_ Tab
                     final TabsWidget tabwid = (TabsWidget) widget;
@@ -139,9 +139,9 @@ public class ParentHandler
                 }
                 else if (widget instanceof ArrayWidget)
                 {
-                    List<Widget> widgets = ((ArrayWidget) widget).runtimePropChildren().getValue();
+                    List<Widget> widgets = ((ArrayWidget) widget).runtimeChildren().getValue();
                     if (widgets.isEmpty() || (!ignore.isEmpty() && widgets.get(0).getType().equals(ignore.get(0).getType())))
-                        child_prop = ((ArrayWidget) widget).runtimePropChildren();
+                        child_prop = ((ArrayWidget) widget).runtimeChildren();
                     else
                         continue;
                 }

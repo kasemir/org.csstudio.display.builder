@@ -52,7 +52,7 @@ public class ExampleModels
             label.setPropertyValue(CommonWidgetProperties.propWidth, 15);
             label.setPropertyValue(CommonWidgetProperties.propHeight, 15);
             label.setPropertyValue(CommonWidgetProperties.propText, Integer.toString(i));
-            group.runtimePropChildren().addChild(label);
+            group.runtimeChildren().addChild(label);
 
             // For SWT implementation, rect. is not 'transparent',
             // so needs to be behind text
@@ -66,7 +66,7 @@ public class ExampleModels
                     Arrays.asList(new ScriptInfo("../org.csstudio.display.builder.runtime.test/examples/fudge_width.py",
                                                  true,
                                                  new ScriptPV("noise"))));
-            group.runtimePropChildren().addChild(rect);
+            group.runtimeChildren().addChild(rect);
 
             final TextUpdateWidget text = new TextUpdateWidget();
             text.setPropertyValue(CommonWidgetProperties.propName, "Text " + i);
@@ -75,7 +75,7 @@ public class ExampleModels
             text.setPropertyValue(CommonWidgetProperties.propWidth, 45);
             text.setPropertyValue(CommonWidgetProperties.propHeight, 15);
             text.setPropertyValue(CommonWidgetProperties.propPVName, "ramp");
-            group.runtimePropChildren().addChild(text);
+            group.runtimeChildren().addChild(text);
 
             model.runtimeChildren().addChild(group);
         }
