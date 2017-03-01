@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
@@ -478,7 +477,7 @@ public class TableWidget extends VisibleWidget
             // * Avoid changes to widget's value
             // * If a script fetches the value, modifies it, then sets that as a new value,
             //   passing out a deep copy asserts that the 'new' value is indeed recognized
-            //   as new, instead of referencing the old value and thus seem a no-change OP.
+            //   as new, instead of referencing the old value and thus seen as no-change OP.
             final List<List<String>> deep_copy = new ArrayList<>(((List)the_value).size());
             for (List<String> row : (List<List<String>>)the_value)
             {
@@ -533,28 +532,60 @@ public class TableWidget extends VisibleWidget
      */
     public void setCellColor(final int row, final int column, final WidgetColor color)
     {
-        List<List<WidgetColor>> colors = cell_colors.getValue();
         // Assert that there is a _new_ list instance,
-        // because otherwise the property's equality check
-        // would suppress updates.
-        // Thread-safe CopyOnWriteArrayList may be unnecessary
+        // because otherwise we modify the current value,
+        // and the property's equality check would then suppress the update.
+        List<List<WidgetColor>> colors = cell_colors.getValue();
+        // Thread-safe CopyOnWriteArrayList?
+        // Unnecessary when using setCellColor because all access to cell_colors' value
+        // is read-only, replacing it with a new one.
         if (colors == null)
-            colors = new CopyOnWriteArrayList<>();
+            colors = new ArrayList<>();
         else
-            colors = new CopyOnWriteArrayList<>(colors);
+            colors = new ArrayList<>(colors);
         // Assert table with enough (sparse) rows
         while (row >= colors.size())
             colors.add(null);
         // Assert row with enough (sparse) cell colors
         List<WidgetColor> row_colors = colors.get(row);
         if (row_colors == null)
-            colors.set(row, row_colors = new CopyOnWriteArrayList<>());
+            colors.set(row, row_colors = new ArrayList<>());
+        else // Create copy to assert truly new value for equality check
+            colors.set(row, row_colors = new ArrayList<>(row_colors));
         while (column >= row_colors.size())
             row_colors.add(null);
         // Set cell color
         row_colors.set(column, color);
+
+//        System.out.println("Setting " + row + ", " + column + " to " + str(color));
+//        dumpColors(colors);
         cell_colors.setValue(colors);
     }
+
+//    private void dumpColors(List<List<WidgetColor>> colors)
+//    {
+//        if (colors == null)
+//        {
+//            System.out.println("None");
+//            return;
+//        }
+//        for (List<WidgetColor> row : colors)
+//            if (row == null)
+//                System.out.println("-- null row --");
+//            else
+//            {
+//                for (WidgetColor col : row)
+//                    System.out.print(str(col));
+//                System.out.println();
+//            }
+//    }
+//
+//    private String str(WidgetColor col)
+//    {
+//        if (col == null)
+//            return " null        ";
+//        return String.format("%3d,%3d,%3d  ",  col.getRed(), col.getGreen(), col.getBlue());
+//    }
 
     /** @return 'editable' property */
     public WidgetProperty<Boolean> propEditable()
