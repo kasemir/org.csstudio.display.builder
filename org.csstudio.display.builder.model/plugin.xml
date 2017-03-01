@@ -17,6 +17,9 @@
          <alternates
                type="org.csstudio.opibuilder.widgets.MenuButton">
          </alternates>
+         <alternates
+               type="org.csstudio.opibuilder.widgets.NativeButton">
+         </alternates>
       </widget>
       <widget
             category="GRAPHIC"
