@@ -107,31 +107,35 @@ public class Palette
      */
     private void createWidgetEntries(final Map<WidgetCategory, Pane> palette_groups)
     {
-        for (final WidgetDescriptor desc : WidgetFactory.getInstance().getWidgetDescriptions())
-        {
+        //  Sort alphabetically-case-insensitive widgets inside their group
+        //  based on the widget's name, instead of the original set order or class name.
+        WidgetFactory.getInstance().getWidgetDescriptions().stream().sorted((d1,d2) -> String.CASE_INSENSITIVE_ORDER.compare(d1.getName(), d2.getName())).forEach(desc -> {
+
             final ToggleButton button = new ToggleButton(desc.getName());
             final Image icon = WidgetIcons.getIcon(desc.getType());
-            if (icon != null)
+
+            if ( icon != null ) {
                 button.setGraphic(new ImageView(icon));
+            }
+
             button.setPrefWidth(PREFERRED_WIDTH);
             button.setAlignment(Pos.BASELINE_LEFT);
             button.setTooltip(new Tooltip(desc.getDescription()));
-            palette_groups.get(desc.getCategory()).getChildren().add(button);
-
-            button.setOnAction(event ->
-            {
+            button.setOnAction(event -> {
                 // Remember the widget-to-create via rubberband
                 active_widget_type = desc;
 
                 // De-select all _other_ buttons
-                for (Pane pane : groups)
-                    for (Node other : pane.getChildren())
-                        if (other instanceof ToggleButton  && other != button)
-                            ((ToggleButton)other).setSelected(false);
+                for ( Pane pane : groups )
+                    for ( Node other : pane.getChildren() )
+                        if ( other instanceof ToggleButton && other != button )
+                            ( (ToggleButton) other ).setSelected(false);
             });
 
+            palette_groups.get(desc.getCategory()).getChildren().add(button);
             WidgetTransfer.addDragSupport(button, editor, this, desc, icon);
-        }
+
+        });
     }
 
     /** @return Selected widget type or <code>null</code> */

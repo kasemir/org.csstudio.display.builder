@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<display version="1.0.0">
+<display version="2.0.0">
   <name>Table</name>
   <width>1200</width>
   <height>1100</height>
@@ -30,10 +30,6 @@ and finally another script can fetch the data and use it in some way.
     <y>271</y>
     <width>491</width>
     <height>200</height>
-    <font>
-      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
-      </font>
-    </font>
     <columns>
       <column>
         <name>PV</name>
@@ -329,15 +325,24 @@ and writing the result back to the table.</text>
     <actions>
       <action type="execute">
         <script file="EmbeddedPy">
-          <text><![CDATA[from org.csstudio.display.builder.runtime.script import ScriptUtil
+          <text><![CDATA[# Example for updating individual cell colors
+
+from org.csstudio.display.builder.runtime.script import ScriptUtil
 from org.csstudio.display.builder.model.properties import WidgetColor
+from java.lang import Math
 
 # 'widget' is the action button that invoked the script
 # Locate the table widget by name
 table = ScriptUtil.findWidgetByName(widget, "user_table")
 
-table.setCellColor(0, 0, WidgetColor(255, 0, 0))
-table.setCellColor(1, 1, WidgetColor(0, 255, 0))
+if Math.random() > 0.5:
+    ScriptUtil.getLogger().info("One way, cell by cell..")
+    table.setCellColor(0, 0, WidgetColor(255, 0, 0))
+    table.setCellColor(1, 1, WidgetColor(0, 255, 0))
+else:
+    ScriptUtil.getLogger().info("Other way, cell by cell..")
+    table.setCellColor(1, 1, WidgetColor(255, 0, 0))
+    table.setCellColor(0, 0, WidgetColor(0, 255, 0))
 ]]></text>
         </script>
         <description>Color Cells</description>
@@ -376,5 +381,70 @@ table.setCellValue(1, 0, "Thingy")
     <x>521</x>
     <y>811</y>
     <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_3</name>
+    <actions>
+      <action type="execute">
+        <script file="EmbeddedPy">
+          <text><![CDATA[# This example sets a complete table of colors
+
+from org.csstudio.display.builder.runtime.script import ScriptUtil
+from org.csstudio.display.builder.model.properties import WidgetColor
+from java.lang import Math
+from java.util import ArrayList
+
+# 'widget' is the action button that invoked the script
+# Locate the table widget by name
+table = ScriptUtil.findWidgetByName(widget, "user_table")
+
+# Table can be sparse with None for empty rows
+# as well as rows that are shorter than the table width
+colors = [
+  None,
+  [ None ],
+  [ None, None ]
+]
+
+if Math.random() > 0.5:
+    ScriptUtil.getLogger().info("One way, complete array..")
+    colors[1][0] = WidgetColor(255, 0, 0)
+    colors[2][1] = WidgetColor(0, 255, 0)
+else:
+    ScriptUtil.getLogger().info("Other way, complete array..")
+    colors[1][0] = WidgetColor(0, 255, 0)
+    colors[2][1] = WidgetColor(255, 0, 0)
+
+table.setPropertyValue("cell_colors", colors)]]></text>
+        </script>
+        <description>Color Table</description>
+      </action>
+    </actions>
+    <x>630</x>
+    <y>880</y>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_11</name>
+    <class>COMMENT</class>
+    <text>Left button changes the color of individual cells.
+Right button sets a new matrix of cell colors.
+
+Changing the value of a table removes all cell colors.
+</text>
+    <x>520</x>
+    <y>920</y>
+    <width>391</width>
+    <height>100</height>
+    <font use_class="true">
+      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
+      </font>
+    </font>
+    <foreground_color use_class="true">
+      <color name="Text" red="0" green="0" blue="0">
+      </color>
+    </foreground_color>
+    <transparent use_class="true">true</transparent>
+    <wrap_words use_class="true">true</wrap_words>
   </widget>
 </display>

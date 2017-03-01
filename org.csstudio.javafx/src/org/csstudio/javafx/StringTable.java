@@ -625,7 +625,7 @@ public class StringTable extends BorderPane
         if (colors != null  &&  row < colors.size())
         {
             final List<Color> row_colors = colors.get(row);
-            if (col < row_colors.size())
+            if (row_colors != null  &&  col < row_colors.size())
                 return row_colors.get(col);
         }
         return null;

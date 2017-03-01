@@ -15,8 +15,6 @@ import java.util.List;
 
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
-import org.csstudio.display.builder.model.WidgetCategory;
-import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
@@ -24,28 +22,14 @@ import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
 
 
 /**
- * Widget displaying date and/or time.
+ * Widget displaying and editing a numeric PV value.
  *
  * @author Claudio Rosati, European Spallation Source ERIC
- * @version 1.0.0 23 Jan 2017
+ * @version 1.0.0 20 Feb 2017
  */
-@SuppressWarnings("nls")
-public class DigitalClockWidget extends BaseClockWidget {
+public abstract class BaseMeterWidget extends BaseGaugeWidget {
 
-    public static final WidgetDescriptor WIDGET_DESCRIPTOR = new WidgetDescriptor(
-        "digital_clock",
-        WidgetCategory.MISC,
-        "DigitalClock",
-        "platform:/plugin/org.csstudio.display.builder.model/icons/digital-clock.png",
-        "Digital clock"
-    ) {
-        @Override
-        public Widget createWidget ( ) {
-            return new DigitalClockWidget();
-        }
-    };
-
-    public enum Design {
+    public enum LCDDesign {
         AMBER,
         BEIGE,
         BLACK,
@@ -92,34 +76,41 @@ public class DigitalClockWidget extends BaseClockWidget {
         STANDARD
     }
 
-    public static final WidgetPropertyDescriptor<Design>  propLcdDesign         = new WidgetPropertyDescriptor<Design> (WidgetPropertyCategory.WIDGET, "lcd_design",          Messages.WidgetProperties_LcdDesign) {
+    public static final WidgetPropertyDescriptor<Boolean>   propHighlightZones = newBooleanPropertyDescriptor           (WidgetPropertyCategory.BEHAVIOR, "highligh_zones", Messages.WidgetProperties_HighlightZones);
+
+    public static final WidgetPropertyDescriptor<LCDDesign> propLcdDesign      = new WidgetPropertyDescriptor<LCDDesign>(WidgetPropertyCategory.MISC,     "lcd_design",     Messages.WidgetProperties_LcdDesign) {
         @Override
-        public EnumWidgetProperty<Design> createProperty ( Widget widget, Design defaultValue ) {
+        public EnumWidgetProperty<LCDDesign> createProperty ( Widget widget, LCDDesign defaultValue ) {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
-    public static final WidgetPropertyDescriptor<LCDFont> propLcdFont           = new WidgetPropertyDescriptor<LCDFont>(WidgetPropertyCategory.WIDGET, "lcd_font",            Messages.WidgetProperties_LcdFont) {
+    public static final WidgetPropertyDescriptor<LCDFont>   propLcdFont        = new WidgetPropertyDescriptor<LCDFont>  (WidgetPropertyCategory.MISC,     "lcd_font",       Messages.WidgetProperties_LcdFont) {
         @Override
         public EnumWidgetProperty<LCDFont> createProperty ( Widget widget, LCDFont defaultValue ) {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
+    public static final WidgetPropertyDescriptor<Boolean>   propLcdVisible     = newBooleanPropertyDescriptor           (WidgetPropertyCategory.MISC,     "lcd_visible",    Messages.WidgetProperties_LcdVisible);
 
-    public static final WidgetPropertyDescriptor<Boolean> propLcdCrystalEnabled = newBooleanPropertyDescriptor         (WidgetPropertyCategory.MISC,   "lcd_crystal_enabled", Messages.WidgetProperties_LcdCrystalEnabled);
+    private volatile WidgetProperty<Boolean>   highligh_zones;
+    private volatile WidgetProperty<LCDDesign> lcdDesign;
+    private volatile WidgetProperty<LCDFont>   lcdFont;
+    private volatile WidgetProperty<Boolean>   lcdVisible;
 
-    private volatile WidgetProperty<Boolean> lcdCrystalEnabled;
-    private volatile WidgetProperty<Design>  lcdDesign;
-    private volatile WidgetProperty<LCDFont> lcdFont;
-
-    public DigitalClockWidget ( ) {
-        super(WIDGET_DESCRIPTOR.getType(), 170, 90);
+    /**
+     * @param type Widget type.
+     * @param default_width Default widget width.
+     * @param default_height Default widget height.
+     */
+    public BaseMeterWidget ( final String type, final int default_width, final int default_height ) {
+        super(type, default_width, default_height);
     }
 
-    public WidgetProperty<Boolean> propLcdCrystalEnabled ( ) {
-        return lcdCrystalEnabled;
+    public WidgetProperty<Boolean> propHighlightZones ( ) {
+        return highligh_zones;
     }
 
-    public WidgetProperty<Design> propLcdDesign ( ) {
+    public WidgetProperty<LCDDesign> propLcdDesign ( ) {
         return lcdDesign;
     }
 
@@ -127,15 +118,20 @@ public class DigitalClockWidget extends BaseClockWidget {
         return lcdFont;
     }
 
+    public WidgetProperty<Boolean> propLcdVisible ( ) {
+        return lcdVisible;
+    }
+
     @Override
     protected void defineProperties ( final List<WidgetProperty<?>> properties ) {
 
         super.defineProperties(properties);
 
-        properties.add(lcdDesign         = propLcdDesign.createProperty(this, Design.SECTIONS));
-        properties.add(lcdFont           = propLcdFont.createProperty(this, LCDFont.DIGITAL_BOLD));
+        properties.add(highligh_zones = propHighlightZones.createProperty(this, true));
 
-        properties.add(lcdCrystalEnabled = propLcdCrystalEnabled.createProperty(this, false));
+        properties.add(lcdDesign      = propLcdDesign.createProperty(this, LCDDesign.SECTIONS));
+        properties.add(lcdFont        = propLcdFont.createProperty(this, LCDFont.DIGITAL_BOLD));
+        properties.add(lcdVisible     = propLcdVisible.createProperty(this, true));
 
     }
 
