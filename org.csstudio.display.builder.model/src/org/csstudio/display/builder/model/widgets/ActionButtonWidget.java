@@ -56,7 +56,9 @@ public class ActionButtonWidget extends VisibleWidget
                     "Action Button",
                     "platform:/plugin/org.csstudio.display.builder.model/icons/action_button.png",
                     "Button that can open related displays or write PVs",
-                    Arrays.asList("org.csstudio.opibuilder.widgets.ActionButton", "org.csstudio.opibuilder.widgets.MenuButton"))
+                    Arrays.asList("org.csstudio.opibuilder.widgets.ActionButton",
+                                  "org.csstudio.opibuilder.widgets.MenuButton",
+                                  "org.csstudio.opibuilder.widgets.NativeButton"))
     {
         @Override
         public Widget createWidget()

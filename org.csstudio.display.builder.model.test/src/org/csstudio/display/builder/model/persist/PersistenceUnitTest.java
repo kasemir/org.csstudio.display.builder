@@ -101,7 +101,7 @@ public class PersistenceUnitTest
 
             final Widget child = new Widget("base");
             child.setPropertyValue(propName, "Jänner");
-            group.runtimePropChildren().addChild(child);
+            group.runtimeChildren().addChild(child);
 
             writer.writeWidget(group);
         }
@@ -138,7 +138,7 @@ public class PersistenceUnitTest
         assertThat(names, equalTo(Arrays.asList("Demo", "My Group")));
 
         assertThat(widgets.get(1), instanceOf(GroupWidget.class));
-        assertThat(((GroupWidget)widgets.get(1)).runtimePropChildren().getValue().get(0).getName(), equalTo("Jänner"));
+        assertThat(((GroupWidget)widgets.get(1)).runtimeChildren().getValue().get(0).getName(), equalTo("Jänner"));
    }
 
     /** Write and read multi-line string property
