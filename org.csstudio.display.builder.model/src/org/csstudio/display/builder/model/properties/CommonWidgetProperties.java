@@ -313,7 +313,8 @@ public class CommonWidgetProperties
 
     /** 'line_width' property */
     public static final WidgetPropertyDescriptor<Integer> propLineWidth =
-            newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "line_width", Messages.WidgetProperties_LineWidth);
+            newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "line_width", Messages.WidgetProperties_LineWidth,
+                                         0, Integer.MAX_VALUE);
 
     /** 'square' property: Whether for example LEDS are square (rectangular) or round (circular) */
     public static final WidgetPropertyDescriptor<Boolean> propSquare =
