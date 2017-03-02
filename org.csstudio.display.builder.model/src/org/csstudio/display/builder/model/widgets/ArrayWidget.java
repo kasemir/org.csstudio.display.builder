@@ -113,7 +113,7 @@ public class ArrayWidget extends PVWidget
     }
 
     /** @return Runtime 'children' property*/
-    public ChildrenProperty runtimePropChildren()
+    public ChildrenProperty runtimeChildren()
     {
         return children;
     }

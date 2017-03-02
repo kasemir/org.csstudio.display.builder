@@ -134,7 +134,7 @@ public class EmbeddedDisplayRepresentationUtil
         model.runtimeChildren().removeChild(group);
         int xmin = Integer.MAX_VALUE, ymin = Integer.MAX_VALUE,
             xmax = 0,                 ymax = 0;
-        for (Widget child : group.runtimePropChildren().getValue())
+        for (Widget child : group.runtimeChildren().getValue())
         {
             // Not removing child from 'group', since group
             // will be GC'ed anyway.

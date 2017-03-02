@@ -42,7 +42,7 @@ public class RemoveGroupAction extends Action
     {
         editor.getWidgetSelectionHandler().clear();
         // Group's children list will be empty, create copy to select la
-        final List<Widget> widgets = new ArrayList<>(group.runtimePropChildren().getValue());
+        final List<Widget> widgets = new ArrayList<>(group.runtimeChildren().getValue());
 
         final UndoableActionManager undo = editor.getUndoableActionManager();
         undo.execute(new UnGroupWidgetsAction(group));

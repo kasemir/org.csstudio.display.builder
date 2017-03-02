@@ -24,7 +24,7 @@ public class UnGroupWidgetsAction extends GroupWidgetsAction
               ChildrenProperty.getParentsChildren(group),
               group,
               // Create copy since underlying list of group's children changes
-              new ArrayList<>(group.runtimePropChildren().getValue()),
+              new ArrayList<>(group.runtimeChildren().getValue()),
               group.propX().getValue() + group.runtimePropInsets().getValue()[0],
               group.propY().getValue() + group.runtimePropInsets().getValue()[1]);
     }
