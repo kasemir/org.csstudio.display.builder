@@ -46,11 +46,18 @@ public class BasicPlotDemo extends Application
         final ArrayPlotDataProvider<Double> data2 = new ArrayPlotDataProvider<>();
         final ArrayPlotDataProvider<Double> data3 = new ArrayPlotDataProvider<>();
         for (double x = -10.0; x <= 10.0; x += 1.0)
-        {
-        	data1.add(new SimpleDataItem<Double>(x, x*x - 5.0));
-        	data2.add(new SimpleDataItem<Double>(x, 2*x));
-            data3.add(new SimpleDataItem<Double>(x, x*x + 5.0));
-        }
+            if (x == 2.0)
+            {
+            	data1.add(new SimpleDataItem<Double>(x, Double.NaN));
+            	data2.add(new SimpleDataItem<Double>(x, Double.NaN));
+                data3.add(new SimpleDataItem<Double>(x, Double.NaN));
+            }
+            else
+            {
+                data1.add(new SimpleDataItem<Double>(x, x*x - 5.0));
+                data2.add(new SimpleDataItem<Double>(x, 2*x));
+                data3.add(new SimpleDataItem<Double>(x, x*x + 5.0));
+            }
 		plot.addTrace(new TraceImpl<Double>("Demo Data", "socks", data1, Color.BLUE, TraceType.BARS, 0, PointType.NONE, 15, 0));
         plot.addTrace(new TraceImpl<Double>("Demo Data", "socks", data1, Color.VIOLET, TraceType.BARS, 10, PointType.NONE, 15, 0));
 		plot.addTrace(new TraceImpl<Double>("More Data", "pants", data2, Color.RED, TraceType.AREA, 3, PointType.SQUARES, 15, 1));
