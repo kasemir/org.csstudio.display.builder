@@ -196,7 +196,8 @@ public class PlotWidgetProperties
             }
         };
     private static final WidgetPropertyDescriptor<Integer> tracePointSize =
-        CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "point_size", Messages.PlotWidget_PointSize);
+        CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "point_size", Messages.PlotWidget_PointSize,
+                                                            0, Integer.MAX_VALUE);
     private static final WidgetPropertyDescriptor<VType> traceXValue =
         CommonWidgetProperties.newRuntimeValue("x_value", Messages.PlotWidget_X);
     private static final WidgetPropertyDescriptor<VType> traceYValue =
