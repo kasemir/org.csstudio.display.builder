@@ -19,7 +19,6 @@ import java.util.concurrent.Future;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.Widget;
-import org.csstudio.display.builder.runtime.LogWriter;
 import org.csstudio.display.builder.runtime.pv.RuntimePV;
 import org.csstudio.display.builder.runtime.script.PVUtil;
 import org.csstudio.display.builder.runtime.script.ScriptUtil;
@@ -42,28 +41,6 @@ public class PythonScriptSupport
 
     // See comments on queued_scripts in JythonScriptSupport
     private final Set<PythonScript> queued_scripts = Collections.newSetFromMap(new ConcurrentHashMap<PythonScript, Boolean>());
-
-    /** @return <code>true</code> if connect2j is installed */
-    public static boolean isConnect2jInstalled()
-    {
-        try
-        {
-            final Process process = new ProcessBuilder("python", "-c", "import connect2j").start();
-            final Thread stdout = new LogWriter(process.getInputStream(), "Python", Level.INFO);
-            final Thread stderr = new LogWriter(process.getErrorStream(), "Python", Level.WARNING);
-            stdout.start();
-            stderr.start();
-            process.waitFor();
-            stderr.join();
-            stdout.join();
-            return process.exitValue() == 0;
-        }
-        catch (Exception ex)
-        {
-            logger.log(Level.WARNING, "Python error", ex);
-        }
-        return false;
-    }
 
     public PythonScriptSupport(final ScriptSupport support) throws Exception
     {
