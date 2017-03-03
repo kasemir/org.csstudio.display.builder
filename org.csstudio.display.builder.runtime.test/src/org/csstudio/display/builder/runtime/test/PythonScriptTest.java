@@ -13,6 +13,7 @@ import static org.junit.Assert.assertThat;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.persist.ModelLoader;
+import org.csstudio.display.builder.runtime.script.internal.PythonScriptSupport;
 import org.csstudio.display.builder.runtime.script.internal.Script;
 import org.csstudio.display.builder.runtime.script.internal.ScriptSupport;
 import org.junit.Test;
@@ -27,7 +28,11 @@ public class PythonScriptTest
     @Test
     public void testPythonScript() throws Exception
     {
-        System.setProperty("python.import.site", "false");
+        if (! PythonScriptSupport.isConnect2jInstalled())
+        {
+            System.err.println("Skipping PythonScriptTest because there is no python with connect2j");
+            return;
+        }
 
         final DisplayModel display = ModelLoader.resolveAndLoadModel("../org.csstudio.display.builder.runtime.test/examples/dummy.opi", "script_test.opi");
 
