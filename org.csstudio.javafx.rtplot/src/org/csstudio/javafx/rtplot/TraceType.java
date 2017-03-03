@@ -37,7 +37,10 @@ public enum TraceType
     LINES_ERROR_BARS(Messages.TraceType_ErrorBars),
 
     /** Error bars */
-    ERROR_BARS(Messages.TraceType_LinesErrorBars);
+    ERROR_BARS(Messages.TraceType_LinesErrorBars),
+
+    /** Bars */
+    BARS(Messages.TraceType_Bars);
 
     final private String name;
 
