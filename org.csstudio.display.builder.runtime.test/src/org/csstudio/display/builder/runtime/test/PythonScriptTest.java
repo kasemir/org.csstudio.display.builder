@@ -38,15 +38,8 @@ public class PythonScriptTest
         // Set widget variable in script
         final ScriptSupport scripting = new ScriptSupport();
         final Script script = scripting.compile("../org.csstudio.display.builder.runtime.test/examples", "updateText_python.py", null);
-
         for (int run = 0; run < 10; ++run)
         {
-            widget.setPropertyValue("text", "Initial");
-            String text = widget.getPropertyValue("text");
-            assertThat(text, equalTo("Initial"));
-            script.submit(widget).get();
-            assertThat(widget.getPropertyValue("text"), equalTo("Hello"));
-
             widget.setPropertyValue("text", "Initial");
             assertThat(widget.getPropertyValue("text"), equalTo("Initial"));
             script.submit(widget).get();
