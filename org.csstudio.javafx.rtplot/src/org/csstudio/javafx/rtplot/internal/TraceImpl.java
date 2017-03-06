@@ -28,6 +28,8 @@ public class TraceImpl<XTYPE extends Comparable<XTYPE>> implements Trace<XTYPE>
 {
     final private PlotDataProvider<XTYPE> data;
 
+    private volatile boolean visible = true;
+
     private volatile String name;
 
     private volatile String units;
@@ -64,6 +66,20 @@ public class TraceImpl<XTYPE extends Comparable<XTYPE>> implements Trace<XTYPE>
         this.point_type = Objects.requireNonNull(point_type);
         this.size = size;
         this.y_axis = y_axis;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean isVisible()
+    {
+        return visible;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setVisible(final boolean visible)
+    {
+        this.visible = visible;
     }
 
     /** {@inheritDoc} */
