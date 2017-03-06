@@ -162,6 +162,13 @@ public class TracePainter<XTYPE extends Comparable<XTYPE>>
                 // drawMinMaxLines(gc, x_transform, y_axis, data, trace.getWidth());
                 drawErrorBars(gc, x_transform, y_axis, data, trace.getPointSize());
                 break;
+            case BARS:
+                final int width = trace.getWidth();
+                if (width > 0)
+                    drawBars(gc, x_transform, y_axis, data, width);
+                else
+                    drawHistogram(gc, x_transform, y_axis, data);
+                break;
             default:
                 drawValueStaircase(gc, x_transform, y_axis, data, trace.getWidth());
             }
@@ -407,10 +414,10 @@ public class TracePainter<XTYPE extends Comparable<XTYPE>>
         for (int i=0; i<N; ++i)
         {
             final PlotDataItem<XTYPE> item = data.get(i);
-            final int x = clipX(Math.round(x_transform.transform(item.getPosition())));
             final double value = item.getValue();
             if (!Double.isNaN(value))
             {
+                final int x = clipX(Math.round(x_transform.transform(item.getPosition())));
                 final int y = clipY(y_axis.getScreenCoord(value));
                 final double min = item.getMin();
                 if (!Double.isNaN(min))
@@ -447,10 +454,10 @@ public class TracePainter<XTYPE extends Comparable<XTYPE>>
         for (int i=0; i<N; ++i)
         {
             final PlotDataItem<XTYPE> item = data.get(i);
-            final int x = clipX(Math.round(x_transform.transform(item.getPosition())));
             final double value = item.getValue();
             if (!Double.isNaN(value))
             {
+                final int x = clipX(Math.round(x_transform.transform(item.getPosition())));
                 final int y = clipY(y_axis.getScreenCoord(value));
                 if (x == last_x  &&  y == last_y)
                     continue;
@@ -497,7 +504,6 @@ public class TracePainter<XTYPE extends Comparable<XTYPE>>
      *  @param min Minimum 'y' values in screen coords
      *  @param max .. maximum
      */
-    //    @SuppressWarnings("unused")
     final private void flushPolyFill(final Graphics2D gc, final IntList pos, final IntList min, final IntList max)
     {
         final int N = pos.size();
@@ -523,5 +529,100 @@ public class TracePainter<XTYPE extends Comparable<XTYPE>>
         pos.clear();
         min.clear();
         max.clear();
+    }
+
+    /** Draw bar for each value
+     *
+     *  <p>Bars are centered on each sample.
+     *
+     *  @param gc GC
+     *  @param x_transform Horizontal axis
+     *  @param y_axis Value axis
+     *  @param data Data
+     *  @param width Width of each bar
+     */
+    final private void drawBars(final Graphics2D gc,
+            final ScreenTransform<XTYPE> x_transform, final YAxisImpl<XTYPE> y_axis,
+            final PlotDataProvider<XTYPE> data, int width)
+    {
+        final int N = data.size();
+        final int y0 = clipY(y_axis.getScreenCoord(0.0));
+        for (int i=0; i<N; ++i)
+        {
+            final PlotDataItem<XTYPE> item = data.get(i);
+            final double value = item.getValue();
+            if (Double.isNaN(value))
+                continue;
+            final int x = (int) Math.round(x_transform.transform(item.getPosition()));
+            final int y = clipY(y_axis.getScreenCoord(value));
+            if (y0 > y)
+                gc.fillRect(x-width/2, y, width, y0-y);
+            else // Value is below zero, draw down from y0
+                gc.fillRect(x-width/2, y0, width, y-y0);
+        }
+    }
+
+    /** Draw bar for each value
+     *
+     *  <p>Adjacent bars which start/end at the midpoints between samples.
+     *
+     *  @param gc GC
+     *  @param x_transform Horizontal axis
+     *  @param y_axis Value axis
+     *  @param data Data
+     */
+    final private void drawHistogram(final Graphics2D gc,
+            final ScreenTransform<XTYPE> x_transform, final YAxisImpl<XTYPE> y_axis,
+            final PlotDataProvider<XTYPE> data)
+    {
+        // Bars need the x0, x1 center points between samples.
+        // Each bar is drawn for the (last_x,last_y) while on sample (x,y):
+        // Samples      :       (last_x,y)        (x,y)
+        // Bar start/end:   x0              x1
+        final int N = data.size();
+        final int y0 = clipY(y_axis.getScreenCoord(0.0));
+        int last_x1 = -1, last_x = -1, last_y = -1;
+        for (int i=0; i<N; ++i)
+        {
+            final PlotDataItem<XTYPE> item = data.get(i);
+            final double value = item.getValue();
+            final int x = (int) Math.round(x_transform.transform(item.getPosition()));
+            final int y = Double.isNaN(value) ?  -1  :  clipY(y_axis.getScreenCoord(value));
+            if (last_x >= 0)
+            {
+                final int x0;
+                if (last_x1 < 0)
+                {   // 2nd sample. Make up a left edge for the first bar.
+                    final int width = x - last_x;
+                    x0 = last_x - width/2;
+                }
+                else
+                    x0 = last_x1;
+                final int x1 = (last_x + x)/2;
+                if (last_y >= 0)
+                    drawBar(gc, x0, x1, y0, last_y);
+                last_x1 = x1;
+            }
+            last_x = x;
+            last_y = y;
+        }
+
+        // Draw the last one..
+        if (last_y >= 0)
+        {   // Make up a left edge if there's only one sample
+            if (last_x1 < 0)
+                last_x1 = last_x - 10;
+            final int width = (last_x - last_x1)*2;
+            drawBar(gc, last_x1, last_x1 + width, y0, last_y);
+        }
+    }
+
+    private void drawBar(final Graphics2D gc, final int x0, final int x1, final int y0, final int y)
+    {
+        final int width = x1 - x0;
+        if (y > y0)
+            gc.fillRect(x0, y0, width, y - y0);
+        else
+            gc.fillRect(x0, y, width, y0 - y);
     }
 }

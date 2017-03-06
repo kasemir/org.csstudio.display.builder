@@ -9,10 +9,7 @@ package org.csstudio.display.builder.runtime;
 
 import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -37,38 +34,6 @@ public class CommandExecutor implements Callable<Integer>
 {
     /** Seconds to wait for a launched program */
     private static final int WAIT_SECONDS = 5;
-
-    /** Thread that writes data from stream to log */
-    private static class LogWriter extends Thread
-    {
-        private final BufferedReader reader;
-        private final String cmd;
-        private Level level;
-
-        public LogWriter(final InputStream stream, final String cmd, final Level level)
-        {
-            super("LogWriter " + level.getName() + " " + cmd);
-            reader = new BufferedReader(new InputStreamReader(stream));
-            this.cmd = cmd;
-            this.level = level;
-            setDaemon(true);
-        }
-
-        @Override
-        public void run()
-        {
-            try
-            {
-                String line;
-                while ((line = reader.readLine()) != null)
-                    logger.log(level, "Cmd {0}: {1}", new Object[] { cmd, line });
-            }
-            catch (Exception ex)
-            {
-                logger.log(Level.WARNING, "Error reading cmd output", ex);
-            }
-        }
-    };
 
     private final ProcessBuilder process_builder;
     private volatile Process process;

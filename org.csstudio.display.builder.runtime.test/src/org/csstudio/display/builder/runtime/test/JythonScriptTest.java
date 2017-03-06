@@ -45,12 +45,6 @@ public class JythonScriptTest
         for (int run=0; run<10; ++run)
         {
             widget.setPropertyValue("text", "Initial");
-            String text = widget.getPropertyValue("text");
-            assertThat(text, equalTo("Initial"));
-            script.submit(widget).get();
-            assertThat(widget.getPropertyValue("text"), equalTo("Hello"));
-
-            widget.setPropertyValue("text", "Initial");
             assertThat(widget.getPropertyValue("text"), equalTo("Initial"));
             script.submit(widget).get();
             assertThat(widget.getPropertyValue("text"), equalTo("Hello"));

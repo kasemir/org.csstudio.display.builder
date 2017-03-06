@@ -18,7 +18,8 @@ public enum PlotWidgetTraceType
     LINE(Messages.TraceType_Line),
     STEP(Messages.TraceType_Step),
     ERRORBAR(Messages.TraceType_Errorbar),
-    LINE_ERRORBAR(Messages.TraceType_LineErrorbar);
+    LINE_ERRORBAR(Messages.TraceType_LineErrorbar),
+    BARS(Messages.TraceType_Bars);
 
     final private String name;
 

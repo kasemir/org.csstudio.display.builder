@@ -1,33 +1,59 @@
+/*******************************************************************************
+ * Copyright (c) 2016 Oak Ridge National Laboratory.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *******************************************************************************/
 package org.csstudio.display.builder.runtime.script.internal;
 
 import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.Map;
 import java.util.logging.Level;
 
+import org.csstudio.display.builder.runtime.LogWriter;
+
 import py4j.GatewayServer;
 
-/**
- * Provides a gateway through which to run Python scripts. Java objects are made
- * accessible to Python through the gateway using a map.
- * 
- * Error logging written with suggestions from Kay Kasemir.
- * 
- * @author Amanda Carpenter
+/** Provides a gateway through which to run Python scripts. Java objects are made
+ *  accessible to Python through the gateway using a map.
+ *
+ *  @author Amanda Carpenter
  */
 @SuppressWarnings("nls")
 public class PythonGatewaySupport
 {
+    /** Check if the local python setup can import 'connect2j'
+     *  @return <code>true</code> if connect2j is installed
+     */
+    public static boolean isConnect2jInstalled()
+    {
+        try
+        {
+            final Process process = new ProcessBuilder("python", "-c", "import connect2j").start();
+            final Thread stdout = new LogWriter(process.getInputStream(), "Python", Level.INFO);
+            final Thread stderr = new LogWriter(process.getErrorStream(), "Python", Level.WARNING);
+            stdout.start();
+            stderr.start();
+            process.waitFor();
+            stderr.join();
+            stdout.join();
+            return process.exitValue() == 0;
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Python error", ex);
+        }
+        return false;
+    }
 
     /**
      * Run a Python script, with a map of Java objects made accessible through a
      * gateway to Python. The port to which the gateway server is listening is
      * passed as an argument to the script.
-     * 
+     *
      * @param map Map which is to be accessed by the script
      * @param script Path (including name) of script which is to be run
      * @throws Exception If unable to execute command to run script
@@ -43,15 +69,11 @@ public class PythonGatewaySupport
             throw new Exception("Exception instantiating PythonGatewaySupport: GatewayServer not listening");
         }
 
-        //start Python process, passing port used to connect to Py4J Java Gateway
-        final ProcessBuilder process_builder = new ProcessBuilder(new String[] {
-                "python", script, Integer.toString(port)
-        });
-        final Process process = process_builder.start();
-
-        final Thread error_log = new StreamLogger("PythonErrors", process.getErrorStream(), Level.WARNING);
+        // start Python process, passing port used to connect to Py4J Java Gateway
+        final Process process = new ProcessBuilder("python", script, Integer.toString(port)).start();
+        final Thread error_log = new LogWriter(process.getErrorStream(), "PythonErrors", Level.WARNING);
+        final Thread python_out = new LogWriter(process.getInputStream(), "PythonOutput", Level.INFO);
         error_log.start();
-        final Thread python_out = new StreamLogger("PythonPrint", process.getInputStream(), Level.INFO);
         python_out.start();
 
         try
@@ -60,7 +82,7 @@ public class PythonGatewaySupport
         }
         catch (InterruptedException ex)
         {
-            //ignore; closing display creates interruption
+            // ignore; closing display creates interruption
         }
         finally
         {
@@ -72,38 +94,10 @@ public class PythonGatewaySupport
         server.shutdown();
     }
 
-    static class StreamLogger extends Thread
-    {
-        private final InputStream stream;
-        private final Level log_level;
-
-        public StreamLogger(final String name, final InputStream stream, final Level log_level)
-        {
-            super(name);
-            setDaemon(true);
-            this.stream = stream;
-            this.log_level = log_level;
-        }
-
-        @Override
-        public void run()
-        {
-            try (
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-                )
-            {
-                String line;
-                while ((line = reader.readLine()) != null)
-                    logger.log(log_level, "Python: " + line);
-            }
-            catch (Exception ex)
-            {
-                logger.log(Level.WARNING, this.getName() + " stream failed", ex);
-            }
-        }
-    }
-
-    /** Wrapper class which allows access to map for PythonGatewaySupport */
+    /** Wrapper class which allows access to map for PythonGatewaySupport
+     *
+     *  'unused' methods are accessed by python script via gateway
+     */
     @SuppressWarnings("unused")
     private static class MapWrapper
     {
