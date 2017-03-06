@@ -121,6 +121,7 @@ public class Messages extends NLS
     public static String Target_Tab;
     public static String Target_Window;
     public static String Top;
+    public static String TraceType_Bars;
     public static String TraceType_Errorbar;
     public static String TraceType_Line;
     public static String TraceType_LineErrorbar;

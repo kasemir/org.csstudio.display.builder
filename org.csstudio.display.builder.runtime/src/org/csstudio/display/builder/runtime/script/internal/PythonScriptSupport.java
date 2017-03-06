@@ -1,3 +1,10 @@
+/*******************************************************************************
+ * Copyright (c) 2016 Oak Ridge National Laboratory.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *******************************************************************************/
 package org.csstudio.display.builder.runtime.script.internal;
 
 import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
@@ -16,17 +23,16 @@ import org.csstudio.display.builder.runtime.pv.RuntimePV;
 import org.csstudio.display.builder.runtime.script.PVUtil;
 import org.csstudio.display.builder.runtime.script.ScriptUtil;
 
-/**
- * Python script support. Unlike Jython, executes Python scripts through a
- * gateway server, in a separate process and using the Python interpreter,
- * libraries, etc. installed on the system.
- * 
- * Based on {@link JavaScriptSupport} and {@link JythonScriptSupport} by Kay
- * Kasemir.
- * 
- * @author Amanda Carpenter
+/** Python script support. Unlike Jython, executes Python scripts through a
+ *  gateway server, in a separate process and using the Python interpreter,
+ *  libraries, etc. installed on the system.
  *
+ *  Based on {@link JavaScriptSupport} and {@link JythonScriptSupport} by Kay
+ *  Kasemir.
+ *
+ * @author Amanda Carpenter
  */
+@SuppressWarnings("nls")
 public class PythonScriptSupport
 {
     ScriptSupport support;
@@ -43,13 +49,12 @@ public class PythonScriptSupport
 
     /**
      * Request that a script gets executed
-     * 
+     *
      * @param script {@link PythonScript}
      * @param widget Widget that requests execution
      * @param pvs PVs that are available to the script
      * @return Future for script that was just submitted
      */
-    @SuppressWarnings("nls")
     public Future<Object> submit(PythonScript script, Widget widget, RuntimePV[] pvs)
     {
         // Skip script that's already in the queue.
@@ -96,13 +101,12 @@ public class PythonScriptSupport
      * Obtain a Python script object which can be submitted for execution. This
      * naming scheme is consistent with {@link JythonScriptSupport} and
      * {@link JavaScriptSupport}.
-     * 
+     *
      * @param path Path to script file
      * @param name Name of script file
      * @return {@link Script}
      * @throws Exception on error
      */
-    @SuppressWarnings("nls")
     PythonScript compile(String path, final String name) throws Exception
     {
         String filename = new File(name).getName();
