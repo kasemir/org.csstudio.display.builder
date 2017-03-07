@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.javafx.rtplot;
 
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,6 +18,7 @@ import org.csstudio.javafx.rtplot.data.SimpleDataItem;
 import org.csstudio.javafx.rtplot.internal.MouseMode;
 import org.csstudio.javafx.rtplot.internal.Plot;
 import org.csstudio.javafx.rtplot.internal.TraceImpl;
+import org.csstudio.javafx.rtplot.internal.YAxisImpl;
 
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
@@ -89,7 +92,46 @@ public class BasicPlotDemo extends Application
         stage.setTitle("Basic Plot Demo");
         stage.show();
 
-        stage.setOnCloseRequest((event) -> plot.dispose());
+        // Thread that periodically hides an axis and its traces
+        final AtomicBoolean run = new AtomicBoolean(true);
+        final Runnable hider = () ->
+        {
+            try
+            {
+                while (run.get())
+                {
+                    TimeUnit.SECONDS.sleep(2);
+                    final int axis_index = 1;
+                    final YAxisImpl<Double> axis = plot.getYAxes().get(axis_index);
+                    final boolean visible = ! axis.isVisible();
+                    for (Trace<?> trace : plot.getTraces())
+                        if (trace.getYAxis() == axis_index)
+                            trace.setVisible(visible);
+                    axis.setVisible(visible);
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.printStackTrace();
+            }
+        };
+        final Thread thread = new Thread(hider);
+        thread.setDaemon(true);
+        thread.start();
+
+        stage.setOnCloseRequest(event ->
+        {
+            run.set(false);
+            try
+            {
+                thread.join();
+            }
+            catch (Exception ex)
+            {
+                // Ignore, shutting down
+            }
+            plot.dispose();
+        });
     }
 
     public static void main(final String[] args)

@@ -68,6 +68,8 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
                 {
                     for (Trace<XTYPE> trace : yaxis.getTraces())
                     {
+                        if (! trace.isVisible())
+                            continue;
                         final PlotDataProvider<XTYPE> data = trace.getData();
                         data.getLock().lock();
                         try
@@ -176,7 +178,8 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
                 // In parallel, determine range of all traces in this axis
                 final List<Future<ValueRange>> ranges = new ArrayList<Future<ValueRange>>();
                 for (Trace<XTYPE> trace : axis.getTraces())
-                    ranges.add(determineValueRange(trace.getData(), position_range));
+                    if (trace.isVisible())
+                        ranges.add(determineValueRange(trace.getData(), position_range));
 
                 // Merge the trace ranges into overall axis range
                 double low = Double.MAX_VALUE;
@@ -333,6 +336,8 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
             for (YAxisImpl<XTYPE> axis : plot.getYAxes())
                 for (TraceImpl<XTYPE> trace : axis.getTraces())
                 {
+                    if (! trace.isVisible())
+                        continue;
                     final PlotDataProvider<XTYPE> data = trace.getData();
                     final PlotDataItem<XTYPE> sample;
                     data.getLock().lock();
