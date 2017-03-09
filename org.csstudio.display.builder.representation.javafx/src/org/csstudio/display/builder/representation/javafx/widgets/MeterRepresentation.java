@@ -68,6 +68,25 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
 
                 changeSkin(skinType);
 
+                switch ( skin ) {
+                    case GAUGE:
+                        switch ( model_widget.propScaleDirection().getValue() ) {
+                            case CLOCKWISE:
+                                jfx_node.setStartAngle(320);
+                                break;
+                            case COUNTER_CLOCKWISE:
+                                jfx_node.setStartAngle(40);
+                                break;
+                        }
+                        break;
+                    case THREE_QUARTERS:
+                        jfx_node.setAngleRange(270);
+                        jfx_node.setStartAngle(0);
+                        break;
+                    default:
+                        break;
+                }
+
             }
 
             value = model_widget.propAverage().getValue();
@@ -203,7 +222,28 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
             value = ScaleDirection.valueOf(model_widget.propScaleDirection().getValue().name());
 
             if ( !Objects.equals(value, jfx_node.getScaleDirection()) ) {
+
                 jfx_node.setScaleDirection((ScaleDirection) value);
+
+                switch ( model_widget.propSkin().getValue() ) {
+                    case GAUGE:
+                        switch ( model_widget.propScaleDirection().getValue() ) {
+                            case CLOCKWISE:
+                                jfx_node.setStartAngle(320);
+                                break;
+                            case COUNTER_CLOCKWISE:
+                                jfx_node.setStartAngle(40);
+                                break;
+                        }
+                        break;
+                    case THREE_QUARTERS:
+                        jfx_node.setAngleRange(270);
+                        jfx_node.setStartAngle(0);
+                        break;
+                    default:
+                        break;
+                }
+
             }
 
             value = model_widget.propShadowsEnabled().getValue();
@@ -271,6 +311,16 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
                 knobPosition = MeterWidget.KnobPosition.CENTER_RIGHT;
                 break;
             case GAUGE:
+                knobPosition = MeterWidget.KnobPosition.CENTER;
+                switch ( model_widget.propScaleDirection().getValue() ) {
+                    case CLOCKWISE:
+                        jfx_node.setStartAngle(320);
+                        break;
+                    case COUNTER_CLOCKWISE:
+                        jfx_node.setStartAngle(40);
+                        break;
+                }
+                break;
             default:
                 knobPosition = MeterWidget.KnobPosition.CENTER;
                 break;
@@ -329,6 +379,25 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
         gauge.setOnlyFirstAndLastTickLabelVisible(model_widget.propOnlyExtremaVisible().getValue());
         gauge.setScaleDirection(ScaleDirection.valueOf(model_widget.propScaleDirection().getValue().name()));
         gauge.setShadowsEnabled(model_widget.propShadowsEnabled().getValue());
+
+        switch ( model_widget.propSkin().getValue() ) {
+            case GAUGE:
+                switch ( model_widget.propScaleDirection().getValue() ) {
+                    case CLOCKWISE:
+                        jfx_node.setStartAngle(320);
+                        break;
+                    case COUNTER_CLOCKWISE:
+                        jfx_node.setStartAngle(40);
+                        break;
+                }
+                break;
+            case THREE_QUARTERS:
+                jfx_node.setAngleRange(270);
+                jfx_node.setStartAngle(0);
+                break;
+            default:
+                break;
+        }
 
         return gauge;
 
