@@ -381,7 +381,6 @@ public class DisplayEditorPart extends EditorPart
      */
     private void saveModelToFile(final IProgressMonitor save_monitor, final IFile file)
     {
-
         // Save on background thread
         final Job job = new Job("Save")
         {
@@ -390,14 +389,13 @@ public class DisplayEditorPart extends EditorPart
             {
                 final SubMonitor progress = SubMonitor.convert(monitor, 100);
 
-                // Update workspace information about the file
+                // Refresh file to detect modification outside of workspace
                 try
                 {
                     file.refreshLocal(IResource.DEPTH_ONE, progress);
                 }
                 catch (CoreException ex)
                 {
-                    // TODO Auto-generated catch block
                     logger.log(Level.WARNING, "Cannot refresh " + file, ex);
                 }
 
@@ -421,6 +419,7 @@ public class DisplayEditorPart extends EditorPart
                     // Wait for the UI task to complete
                     try
                     {
+                        // On cancel, return without calling save_monitor.done()
                         if (! prompt.get())
                             return Status.OK_STATUS;
                     }
