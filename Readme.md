@@ -52,9 +52,9 @@ The display builder uses Java FX as its graphics library.
 If the display builder editor and runtime don't open up,
 try other JavaFX-based components of CS-Studio,
 for example invoke the Menu `CS-Studio`, `Debugging`, `Logging Configuration`,
-so check if there is a general problem with JavaFX support on your computer.
+to check if there is a general problem with JavaFX support on your computer.
 
- * Install the Oracle Java 8 JDK. When you fetch the JDK from Oracle, it will include JavaFX. If you install the JDK as for example packaged by RedHat, assert that you get all the pieces, including lib/jfxswt.jar and lib/ext/jfxrt.jar.
+ * Install the Oracle Java 8 JDK. When you fetch the JDK from Oracle, it will include JavaFX. If you install the JDK as for example packaged by RedHat, assert that you get all the pieces, including `lib/jfxswt.jar` and `lib/ext/jfxrt.jar`.
  * Start css with command-line options `-vmargs -Dorg.osgi.framework.bundle.parent=ext  -Dosgi.framework.extensions=org.eclipse.fx.osgi`. Instead of using the command line option, these settings can also be added to the product's css.ini file (Windows, Linux) or the css.app/Contents/Info.plist (Mac OS X).
  * On Linux, either set the environment variable `export SWT_GTK3=0` or add `--launcher.GTK_version 2` to the command line parameters. Eclipse SWT can use either GTK 2 or GTK 3, and will prefer the latter. JavaFX, however, is still limited to GTK 2, so SWT must be configured to also use GTK 2.
  * On Linux, including remote login to Linux via ssh, check that OpenGL is supported. See https://github.com/ControlSystemStudio/cs-studio/issues/1828 for details on adding the `iglx` option to the X server on Mac OS X and Linux.
