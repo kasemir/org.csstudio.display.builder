@@ -27,12 +27,9 @@ with improvements:
 Try Nightly Snapshot
 --------------------
 
-Since Feb. 2017, the SNS products include the display builder:
+Since Feb. 2017, the SNS products include the display builder.
 
-1. Download the 'Basic EPICS' or SNS version of CS-Studio from http://ics-web.sns.ornl.gov/css/nightly
-2. Start css with command-line options `-vmargs -Dorg.osgi.framework.bundle.parent=ext  -Dosgi.framework.extensions=org.eclipse.fx.osgi`. Instead of using the command line option,
-   these settings can also be added to the product's css.ini file (Windows, Linux)
-   or the css.app/Contents/Info.plist (Mac OS X).
+Download the 'Basic EPICS' or SNS version of CS-Studio from http://ics-web.sns.ornl.gov/css/nightly
 
 When you use a different CS-Studio product that doesn't already include the display builder,
 you may be able to add it.
@@ -48,12 +45,27 @@ Finally, check the display builder examples:
 3. In the Navigator, right-click on some folder and invoke `New/Other..`, `Display Editor/New Display` to create your first own display.
 
 
+JavaFX Issues
+-------------
+
+The display builder uses Java FX as its graphics library.
+If the display builder editor and runtime don't open up,
+try other JavaFX-based components of CS-Studio,
+for example invoke the Menu `CS-Studio`, `Debugging`, `Logging Configuration`,
+to check if there is a general problem with JavaFX support on your computer.
+
+ * Install the Oracle Java 8 JDK. When you fetch the JDK from Oracle, it will include JavaFX. If you install the JDK as for example packaged by RedHat, assert that you get all the pieces, including `lib/jfxswt.jar` and `lib/ext/jfxrt.jar`.
+ * Start css with command-line options `-vmargs -Dorg.osgi.framework.bundle.parent=ext  -Dosgi.framework.extensions=org.eclipse.fx.osgi`. Instead of using the command line option, these settings can also be added to the product's css.ini file (Windows, Linux) or the css.app/Contents/Info.plist (Mac OS X).
+ * On Linux, either set the environment variable `export SWT_GTK3=0` or add `--launcher.GTK_version 2` to the command line parameters. Eclipse SWT can use either GTK 2 or GTK 3, and will prefer the latter. JavaFX, however, is still limited to GTK 2, so SWT must be configured to also use GTK 2.
+ * On Linux, including remote login to Linux via ssh, check that OpenGL is supported. See https://github.com/ControlSystemStudio/cs-studio/issues/1828 for details on adding the `iglx` option to the X server on Mac OS X and Linux.
+
+
 Development Details
 -------------------
 
 ### Dependencies
 
- * Java 8 SDK, at least 1.8.0_7x.
+ * Oracle Java 8 JDK, at least 1.8.0_7x.
    Needs 1.8.0_60 for TableView.refresh().
    Needs 1.8.0_40 for javafx.scene.control.Dialog.
    1.8.0_51 causes ComboBoxes in editor's property panel to hang on Windows, fixed in later releases.
@@ -344,8 +356,8 @@ Both `RuntimeDemoJavaFX` and CSS can execute
 Linux: RuntimeDemo 10% CPU, CSS 20% CPU.
 
 
-JavaFX Issues
--------------
+JavaFX Development Notes
+------------------------
 
 The default style sheet for JavaFX applications is modena.css, which is found in the JavaFX runtime JAR file, jfxrt.jar.
 This style sheet defines styles for the root node and the UI controls.
