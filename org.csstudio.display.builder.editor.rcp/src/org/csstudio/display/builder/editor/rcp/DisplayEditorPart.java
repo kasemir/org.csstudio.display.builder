@@ -53,8 +53,10 @@ import org.csstudio.javafx.swt.JFX_SWT_Wrapper;
 import org.csstudio.ui.util.dialogs.ExceptionDetailsErrorDialog;
 import org.csstudio.ui.util.perspective.OpenPerspectiveAction;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -65,6 +67,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.layout.FillLayout;
@@ -102,6 +105,9 @@ public class DisplayEditorPart extends EditorPart
 
     private DisplayEditor editor;
 
+    /** Modification time marker of the resource currently loaded by the editor */
+    private volatile long modification_marker;
+
     private OutlinePage outline_page = null;
 
     /** Actions by ID */
@@ -118,6 +124,7 @@ public class DisplayEditorPart extends EditorPart
     {
         toolkit.execute(() ->  setPartName(property.getValue()));
     };
+
 
     /** Open editor on a file
      *
@@ -234,7 +241,9 @@ public class DisplayEditorPart extends EditorPart
         try
         {
             final String ws_location = file.getFullPath().toOSString();
-            return ModelLoader.loadModel(ws_location);
+            final DisplayModel new_model = ModelLoader.loadModel(ws_location);
+            modification_marker = file.getModificationStamp();
+            return new_model;
         }
         catch (Exception ex)
         {
@@ -371,13 +380,56 @@ public class DisplayEditorPart extends EditorPart
      *  @param file File to save
      */
     private void saveModelToFile(final IProgressMonitor save_monitor, final IFile file)
-    {   // Save on background thread
+    {
+        // Save on background thread
         final Job job = new Job("Save")
         {
             @Override
             protected IStatus run(final IProgressMonitor monitor)
             {
                 final SubMonitor progress = SubMonitor.convert(monitor, 100);
+
+                // Refresh file to detect modification outside of workspace
+                try
+                {
+                    file.refreshLocal(IResource.DEPTH_ONE, progress);
+                }
+                catch (CoreException ex)
+                {
+                    logger.log(Level.WARNING, "Cannot refresh " + file, ex);
+                }
+
+                // Check if the file has changed
+                final long mod = file.getModificationStamp();
+                if (mod != IResource.NULL_STAMP  &&
+                    modification_marker != IResource.NULL_STAMP  &&
+                    mod != modification_marker)
+                {
+                    // Prompt on UI thread
+                    final Future<Boolean> prompt = toolkit.submit(() ->
+                    {
+                        return MessageDialog.openConfirm(getSite().getShell(),
+                                "File has changed",
+                                "The file\n   " + file.getFullPath().toString() + "\n" +
+                                "has been changed while you were editing it.\n\n" +
+                                "'OK' to save and thus overwrite what somebody else has written,\n" +
+                                "or\n" +
+                                "'Cancel' and then re-load the file or save it under a different name.");
+                    });
+                    // Wait for the UI task to complete
+                    try
+                    {
+                        // On cancel, return without calling save_monitor.done()
+                        if (! prompt.get())
+                            return Status.OK_STATUS;
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.log(Level.WARNING, "Cannot prompt about changed file", ex);
+                        return Status.OK_STATUS;
+                    }
+                }
+
                 final DisplayModel model = editor.getModel();
                 logger.log(Level.FINE, "Save as {0}", file);
 
@@ -398,6 +450,7 @@ public class DisplayEditorPart extends EditorPart
                     else
                         file.create(stream, true, monitor);
                     progress.worked(40);
+                    modification_marker = file.getModificationStamp();
                 }
                 catch (Exception ex)
                 {
