@@ -32,6 +32,7 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.util.converter.FormatStringConverter;
 
@@ -105,6 +106,7 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         model_widget.propHorizontal().addUntypedPropertyListener(this::layoutChanged);
         model_widget.propForegroundColor().addUntypedPropertyListener(this::layoutChanged);
         model_widget.propBackgroundColor().addUntypedPropertyListener(this::layoutChanged);
+        model_widget.propTransparent().addUntypedPropertyListener(this::layoutChanged);
         model_widget.propFont().addUntypedPropertyListener(this::layoutChanged);
         model_widget.propShowScale().addUntypedPropertyListener(this::layoutChanged);
         model_widget.propScaleFormat().addUntypedPropertyListener(this::layoutChanged);
@@ -350,7 +352,12 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
             else
                 slider.setMaxSize(Double.MAX_VALUE, height);
 
-            final Background background = new Background(new BackgroundFill(JFXUtil.convert(model_widget.propBackgroundColor().getValue()), CornerRadii.EMPTY, Insets.EMPTY));
+            final Color background_color;
+            if (model_widget.propTransparent().getValue())
+                background_color = Color.TRANSPARENT;
+            else
+                background_color = JFXUtil.convert(model_widget.propBackgroundColor().getValue());
+            final Background background = new Background(new BackgroundFill(background_color, CornerRadii.EMPTY, Insets.EMPTY));
             jfx_node.setBackground(background);
             markers.setBackground(background);
 
