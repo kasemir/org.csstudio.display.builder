@@ -18,12 +18,16 @@ import org.csstudio.display.builder.model.util.FormatOptionHandler;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.diirt.util.array.CollectionNumbers;
 import org.diirt.util.array.ListDouble;
+import org.diirt.util.array.ListInt;
 import org.diirt.util.array.ListNumber;
 import org.diirt.vtype.Time;
 import org.diirt.vtype.VByteArray;
+import org.diirt.vtype.VDoubleArray;
 import org.diirt.vtype.VEnum;
+import org.diirt.vtype.VEnumArray;
 import org.diirt.vtype.VNumber;
 import org.diirt.vtype.VNumberArray;
+import org.diirt.vtype.VStringArray;
 import org.diirt.vtype.VTable;
 import org.diirt.vtype.VType;
 
@@ -31,6 +35,7 @@ import org.diirt.vtype.VType;
  *
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class ValueUtil
 {
     /** Try to get a 'double' type number from a value.
@@ -157,7 +162,7 @@ public class ValueUtil
     }
 
     /** Get string array from pv.
-     *  @param pv The PV.
+     *  @param value Value of a PV
      *  @return String array.
      *          For string array, it's the actual strings.
      *          For numeric arrays, the numbers are formatted as strings.
@@ -166,10 +171,44 @@ public class ValueUtil
      */
     public final static String[] getStringArray(final VType value)
     {
-        // TODO
-        return new String[0];
+        if (value instanceof VStringArray)
+        {
+            final List<String> list = ((VStringArray)value).getData();
+            return list.toArray(new String[list.size()]);
+        }
+        else if (value instanceof VDoubleArray)
+        {
+            final ListNumber list = ((VNumberArray)value).getData();
+            final String[] text = new String[list.size()];
+            for (int i=0; i<text.length; ++i)
+                text[i] = Double.toString(list.getDouble(i));
+            return text;
+        }
+        else if (value instanceof VNumberArray)
+        {
+            final ListNumber list = ((VNumberArray)value).getData();
+            final String[] text = new String[list.size()];
+            for (int i=0; i<text.length; ++i)
+                text[i] = Long.toString(list.getLong(i));
+            return text;
+        }
+        else if (value instanceof VEnumArray)
+        {
+            final List<String> labels = ((VEnumArray)value).getLabels();
+            final ListInt list = ((VEnumArray)value).getIndexes();
+            final String[] text = new String[list.size()];
+            for (int i=0; i<text.length; ++i)
+            {
+                final int index = list.getInt(i);
+                if (index >= 0  &&  index <= labels.size())
+                    text[i] = labels.get(index);
+                else
+                    text[i] = "<" + index + ">";
+            }
+            return text;
+        }
+        return new String[] { getString(value) };
     }
-
 
     /** Get time stamp of a value.
      *
