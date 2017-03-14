@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propAutoSize;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
@@ -65,6 +66,7 @@ public class LabelWidget extends VisibleWidget
     private volatile WidgetProperty<HorizontalAlignment> horizontal_alignment;
     private volatile WidgetProperty<VerticalAlignment> vertical_alignment;
     private volatile WidgetProperty<RotationStep> rotation_step;
+    private volatile WidgetProperty<Boolean> auto_size;
     private volatile WidgetProperty<Boolean> wrap_words;
 
     public LabelWidget()
@@ -76,14 +78,15 @@ public class LabelWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(text = propText.createProperty(this, Messages.LabelWidget_Text));
+        properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
         properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
         properties.add(transparent = propTransparent.createProperty(this, true));
         properties.add(horizontal_alignment = propHorizontalAlignment.createProperty(this, HorizontalAlignment.LEFT));
         properties.add(vertical_alignment = propVerticalAlignment.createProperty(this, VerticalAlignment.TOP));
         properties.add(rotation_step = propRotationStep.createProperty(this, RotationStep.NONE));
+        properties.add(auto_size = propAutoSize.createProperty(this, false));
         properties.add(wrap_words = propWrapWords.createProperty(this, true));
     }
 
@@ -104,6 +107,12 @@ public class LabelWidget extends VisibleWidget
         return text;
     }
 
+    /** @return 'font' property */
+    public WidgetProperty<WidgetFont> propFont()
+    {
+        return font;
+    }
+
     /** @return 'foreground_color' property */
     public WidgetProperty<WidgetColor> propForegroundColor()
     {
@@ -122,12 +131,6 @@ public class LabelWidget extends VisibleWidget
         return transparent;
     }
 
-    /** @return 'font' property */
-    public WidgetProperty<WidgetFont> propFont()
-    {
-        return font;
-    }
-
     /** @return 'horizontal_alignment' property */
     public WidgetProperty<HorizontalAlignment> propHorizontalAlignment()
     {
@@ -144,6 +147,12 @@ public class LabelWidget extends VisibleWidget
     public WidgetProperty<RotationStep> propRotationStep()
     {
         return rotation_step;
+    }
+
+    /** @return 'auto_size' property */
+    public WidgetProperty<Boolean> propAutoSize()
+    {
+        return auto_size;
     }
 
     /** @return 'wrap_words' property */

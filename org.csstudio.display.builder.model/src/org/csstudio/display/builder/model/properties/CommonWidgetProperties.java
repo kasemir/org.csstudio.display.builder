@@ -38,7 +38,7 @@ public class CommonWidgetProperties
      *  @param description Human-readable description
      */
     public static final WidgetPropertyDescriptor<String> newStringPropertyDescriptor(final WidgetPropertyCategory category,
-            final String name, final String description)
+                                                                                     final String name, final String description)
     {
         return new WidgetPropertyDescriptor<String>(category, name, description)
         {
@@ -56,7 +56,7 @@ public class CommonWidgetProperties
      *  @param description Human-readable description
      */
     public static final WidgetPropertyDescriptor<String> newFilenamePropertyDescriptor(final WidgetPropertyCategory category,
-            final String name, final String description)
+                                                                                       final String name, final String description)
     {
         return new WidgetPropertyDescriptor<String>(category, name, description)
         {
@@ -74,7 +74,7 @@ public class CommonWidgetProperties
      *  @param description Human-readable description
      */
     public static final WidgetPropertyDescriptor<Integer> newIntegerPropertyDescriptor(final WidgetPropertyCategory category,
-            final String name, final String description)
+                                                                                       final String name, final String description)
     {
         return newIntegerPropertyDescriptor(category, name, description, Integer.MIN_VALUE, Integer.MAX_VALUE);
     }
@@ -87,8 +87,8 @@ public class CommonWidgetProperties
      *  @param max Maximum value
      */
     public static final WidgetPropertyDescriptor<Integer> newIntegerPropertyDescriptor(final WidgetPropertyCategory category,
-            final String name, final String description,
-            final int min, final int max)
+                                                                                       final String name, final String description,
+                                                                                       final int min, final int max)
     {
         return new WidgetPropertyDescriptor<Integer>(category, name, description)
         {
@@ -100,30 +100,35 @@ public class CommonWidgetProperties
         };
     }
 
-    /**
-     * Constructor for Long property
+    /** Constructor for Long property
      *
-     * @param category Widget property category
-     * @param name Internal name of the property
-     * @param description Human-readable description
+     *  @param category Widget property category
+     *  @param name Internal name of the property
+     *  @param description Human-readable description
      */
-    public static final WidgetPropertyDescriptor<Long> newLongPropertyDescriptor ( final WidgetPropertyCategory category, final String name, final String description ) {
+    public static final WidgetPropertyDescriptor<Long> newLongPropertyDescriptor(final WidgetPropertyCategory category,
+                                                                                 final String name, final String description)
+    {
         return newLongPropertyDescriptor(category, name, description, Long.MIN_VALUE, Long.MAX_VALUE);
     }
 
-    /**
-     * Constructor for Long property
+    /** Constructor for Long property
      *
-     * @param category Widget property category
-     * @param name Internal name of the property
-     * @param description Human-readable description
-     * @param min Minimum value
-     * @param max Maximum value
+     *  @param category Widget property category
+     *  @param name Internal name of the property
+     *  @param description Human-readable description
+     *  @param min Minimum value
+     *  @param max Maximum value
      */
-    public static final WidgetPropertyDescriptor<Long> newLongPropertyDescriptor ( final WidgetPropertyCategory category, final String name, final String description, final long min, final long max ) {
-        return new WidgetPropertyDescriptor<Long>(category, name, description) {
+    public static final WidgetPropertyDescriptor<Long> newLongPropertyDescriptor(final WidgetPropertyCategory category,
+                                                                                 final String name, final String description,
+                                                                                 final long min, final long max)
+    {
+        return new WidgetPropertyDescriptor<Long>(category, name, description)
+        {
             @Override
-            public WidgetProperty<Long> createProperty ( final Widget widget, final Long value ) {
+            public WidgetProperty<Long> createProperty(final Widget widget, final Long value)
+            {
                 return new LongWidgetProperty(this, widget, value, min, max);
             }
         };
@@ -135,7 +140,7 @@ public class CommonWidgetProperties
      *  @param description Human-readable description
      */
     public static final WidgetPropertyDescriptor<Double> newDoublePropertyDescriptor(final WidgetPropertyCategory category,
-            final String name, final String description)
+                                                                                     final String name, final String description)
     {
         return new WidgetPropertyDescriptor<Double>(category, name, description)
         {
@@ -153,7 +158,7 @@ public class CommonWidgetProperties
      *  @param description Human-readable description
      */
     public static final WidgetPropertyDescriptor<Boolean> newBooleanPropertyDescriptor(final WidgetPropertyCategory category,
-            final String name, final String description)
+                                                                                       final String name, final String description)
     {
         return new WidgetPropertyDescriptor<Boolean>(category, name, description)
         {
@@ -171,7 +176,7 @@ public class CommonWidgetProperties
      *  @param description Human-readable description
      */
     public static final WidgetPropertyDescriptor<WidgetColor> newColorPropertyDescriptor(final WidgetPropertyCategory category,
-            final String name, final String description)
+                                                                                         final String name, final String description)
     {
         return new WidgetPropertyDescriptor<WidgetColor>(category, name, description)
         {
@@ -279,6 +284,10 @@ public class CommonWidgetProperties
     public static final WidgetPropertyDescriptor<Integer> propHeight =
             newIntegerPropertyDescriptor(WidgetPropertyCategory.POSITION, "height", Messages.WidgetProperties_Height,
                     1, Integer.MAX_VALUE);
+
+    /** 'auto_size' property */
+    public static final WidgetPropertyDescriptor<Boolean> propAutoSize =
+            newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "auto_size", Messages.WidgetProperties_AutoSize);
 
     /** 'visible' property */
     public static final WidgetPropertyDescriptor<Boolean> propVisible =
