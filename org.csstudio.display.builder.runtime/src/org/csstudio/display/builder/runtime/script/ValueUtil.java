@@ -134,6 +134,43 @@ public class ValueUtil
         return new double[] { getDouble(value) };
     }
 
+    /** Try to get a 'long' type array from a value.
+     *  @param value Value of a PV
+     *  @return Current value as long[].
+     *          Will return single-element array for scalar value.
+     */
+    public static long[] getLongArray(final VType value)
+    {
+        if (value instanceof VNumberArray)
+        {
+            final ListNumber list = ((VNumberArray) value).getData();
+            final Object wrapped = CollectionNumbers.wrappedArray(list);
+            if (wrapped instanceof long[])
+                return (long[]) wrapped;
+
+            final long[] result = new long[list.size()];
+            for (int i = 0; i < result.length; i++)
+                result[i] = list.getLong(i);
+            return result;
+        }
+        return new long[] { getLong(value) };
+    }
+
+    /** Get string array from pv.
+     *  @param pv The PV.
+     *  @return String array.
+     *          For string array, it's the actual strings.
+     *          For numeric arrays, the numbers are formatted as strings.
+     *          For enum array, the labels are returned.
+     *          For scalar PVs, an array with a single string is returned.
+     */
+    public final static String[] getStringArray(final VType value)
+    {
+        // TODO
+        return new String[0];
+    }
+
+
     /** Get time stamp of a value.
      *
      *  @param value Value of a PV
