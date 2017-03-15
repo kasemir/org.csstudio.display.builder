@@ -44,7 +44,7 @@ public interface FontCalibration
      *
      *  <p>For JavaFX, this should always be very close to 1.0.
      *
-     *  <p>For SWT on Mac OS X, this shouls also be 1.0.
+     *  <p>For SWT on Mac OS X, this should also be 1.0.
      *  For Windows and Linux, result depends on screen DPI.
      *
      *  @return Calibration factor
