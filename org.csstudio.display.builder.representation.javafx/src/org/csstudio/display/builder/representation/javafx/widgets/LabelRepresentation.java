@@ -12,7 +12,9 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.properties.RotationStep;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
+import org.csstudio.javafx.TextUtils;
 
+import javafx.geometry.Dimension2D;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -62,7 +64,11 @@ public class LabelRepresentation extends RegionBaseRepresentation<Label, LabelWi
         model_widget.propVerticalAlignment().addUntypedPropertyListener(this::styleChanged);
         model_widget.propRotationStep().addUntypedPropertyListener(this::styleChanged);
         model_widget.propWrapWords().addUntypedPropertyListener(this::styleChanged);
+
+        // Changing the text might require a resize,
+        // so handle those properties together.
         model_widget.propText().addUntypedPropertyListener(this::contentChanged);
+        model_widget.propAutoSize().addUntypedPropertyListener(this::contentChanged);
     }
 
     private void styleChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -129,6 +135,15 @@ public class LabelRepresentation extends RegionBaseRepresentation<Label, LabelWi
             jfx_node.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
         }
         if (dirty_content.checkAndClear())
-            jfx_node.setText(model_widget.propText().getValue());
+        {
+            final String text = model_widget.propText().getValue();
+            jfx_node.setText(text);
+            if (model_widget.propAutoSize().getValue())
+            {
+                final Dimension2D size = TextUtils.computeTextSize(JFXUtil.convert(model_widget.propFont().getValue()), text);
+                model_widget.propWidth().setValue(  (int) Math.ceil(size.getWidth()) );
+                model_widget.propHeight().setValue( (int) Math.ceil(size.getHeight()) );
+            }
+        }
     }
 }

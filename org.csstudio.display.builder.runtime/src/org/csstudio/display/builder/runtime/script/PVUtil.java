@@ -111,6 +111,29 @@ public class PVUtil
         return ValueUtil.getDoubleArray(getVType(pv));
     }
 
+    /** Try to get a 'long' type array from a PV.
+     *  @param pv the PV.
+     *  @return Current value as long[].
+     *          Will return single-element array for scalar value.
+     */
+    public static long[] getLongArray(final RuntimePV pv) throws NullPointerException
+    {
+        return ValueUtil.getLongArray(getVType(pv));
+    }
+
+    /** Get string array from pv.
+     *  @param pv The PV.
+     *  @return String array.
+     *          For string array, it's the actual strings.
+     *          For numeric arrays, the numbers are formatted as strings.
+     *          For enum array, the labels are returned.
+     *          For scalar PVs, an array with a single string is returned.
+     */
+    public final static String[] getStringArray(final RuntimePV pv) throws NullPointerException
+    {
+        return ValueUtil.getStringArray(getVType(pv));
+    }
+
     /** Get the timestamp string of the PV.
      *
      *  <p>Time stamp of the PV is formatted using
