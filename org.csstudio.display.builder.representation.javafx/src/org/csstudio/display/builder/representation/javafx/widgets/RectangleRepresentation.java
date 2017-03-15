@@ -23,7 +23,8 @@ public class RectangleRepresentation extends JFXBaseRepresentation<Rectangle, Re
 {
     private final DirtyFlag dirty_size = new DirtyFlag();
     private final DirtyFlag dirty_look = new DirtyFlag();
-    private Color background, line_color;
+    private volatile Color background, line_color;
+    private volatile boolean ignore_mouse = false;
 
     @Override
     public Rectangle createJFXNode() throws Exception
@@ -63,10 +64,20 @@ public class RectangleRepresentation extends JFXBaseRepresentation<Rectangle, Re
 
     private void updateColors()
     {
-        background = model_widget.propTransparent().getValue()
+        final boolean transparent = model_widget.propTransparent().getValue();
+        background = transparent
                    ? Color.TRANSPARENT
                    : JFXUtil.convert(model_widget.propBackgroundColor().getValue());
         line_color = JFXUtil.convert(model_widget.propLineColor().getValue());
+
+        // Displays converted from EDM can have transparent rectangles
+        // on top of other content, including buttons.
+        // Such rectangles should pass mouse clicks through to the underlying widgets,
+        // at runtime, unless there are actions on the rectangle
+        // https://github.com/ControlSystemStudio/cs-studio/issues/2149
+        ignore_mouse = transparent  &&
+                       ! toolkit.isEditMode()  &&
+                       model_widget.propActions().getValue().isEmpty();
     }
 
     @Override
@@ -82,6 +93,7 @@ public class RectangleRepresentation extends JFXBaseRepresentation<Rectangle, Re
         }
         if (dirty_look.checkAndClear())
         {
+            jfx_node.setMouseTransparent(ignore_mouse);
             jfx_node.setFill(background);
             jfx_node.setStroke(line_color);
             jfx_node.setStrokeWidth(model_widget.propLineWidth().getValue());

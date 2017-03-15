@@ -244,12 +244,15 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
         {
             jfx_colors = new ArrayList<>(widget_colors.size());
             for (List<WidgetColor> widget_row : widget_colors)
-            {
-                final List<Color> jfx_row = new ArrayList<>(widget_row.size());
-                for (WidgetColor color : widget_row)
-                    jfx_row.add(color == null ? null : JFXUtil.convert(color));
-                jfx_colors.add(jfx_row);
-            }
+                if (widget_row == null)
+                    jfx_colors.add(null);
+                else
+                {
+                    final List<Color> jfx_row = new ArrayList<>(widget_row.size());
+                    for (WidgetColor color : widget_row)
+                        jfx_row.add(color == null ? null : JFXUtil.convert(color));
+                    jfx_colors.add(jfx_row);
+                }
         }
         if (Objects.equals(cell_colors, jfx_colors))
             return;

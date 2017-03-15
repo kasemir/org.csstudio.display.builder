@@ -12,9 +12,11 @@ import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.TraceWidgetProperty;
 import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget;
 import org.csstudio.display.builder.runtime.RuntimeAction;
@@ -26,6 +28,10 @@ import org.diirt.vtype.VType;
 
 /** Runtime for the XYPlotWidget
  *
+ *  <p>Supports changing the PV names for a trace's X, Y, Error PV.
+ *
+ *  <p>Does not support adding or removing traces.
+ *
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
@@ -33,17 +39,69 @@ public class XYPlotWidgetRuntime  extends WidgetRuntime<XYPlotWidget>
 {
     private final List<RuntimeAction> runtime_actions = new ArrayList<>(1);
 
-    private static class Subscription
+    /** Binds a trace's PV name property to the corresponding value property */
+    private class PVBinding implements WidgetPropertyListener<String>
     {
-        final RuntimePV pv;
-        final RuntimePVListener listener;
-        Subscription(final RuntimePV pv, final RuntimePVListener listener)
+        private final WidgetProperty<String> name;
+        private final RuntimePVListener listener;
+        private final AtomicReference<RuntimePV> pv_ref = new AtomicReference<>();
+
+        public PVBinding(final WidgetProperty<String> name, final WidgetProperty<VType> value)
         {
-            this.pv = pv;
-            this.listener = listener;
+            this.name = name;
+            listener = new PropertyUpdater(value);
+            connect();
+            name.addPropertyListener(this);
+        }
+
+        @Override
+        public void propertyChanged(final WidgetProperty<String> property,
+                                    final String old_value, final String new_value)
+        {
+            // PV name changed: Disconnect existing PV
+            disconnect();
+            // and connect to new PV
+            connect();
+        }
+
+        private void connect()
+        {
+            final String pv_name = name.getValue();
+            if (pv_name.isEmpty())
+                return;
+            logger.log(Level.FINE,  "Connecting {0} {1}", new Object[] { widget, name });
+            final RuntimePV pv;
+            try
+            {
+                pv = PVFactory.getPV(pv_name);
+            }
+            catch (Exception ex)
+            {
+                logger.log(Level.WARNING, "Cannot connect to PV " + pv_name, ex);
+                return;
+            }
+            pv.addListener(listener);
+            addPV(pv);
+            pv_ref.set(pv);
+        }
+
+        private void disconnect()
+        {
+            final RuntimePV pv = pv_ref.getAndSet(null);
+            if (pv == null)
+                return;
+            pv.removeListener(listener);
+            PVFactory.releasePV(pv);
+            removePV(pv);
+        }
+
+        public void dispose()
+        {
+            disconnect();
+            name.removePropertyListener(this);
         }
     }
-    private final List<Subscription> subscriptions = new ArrayList<>();
+    private final List<PVBinding> bindings = new ArrayList<>();
 
     @Override
     public void initialize(final XYPlotWidget widget)
@@ -65,34 +123,17 @@ public class XYPlotWidgetRuntime  extends WidgetRuntime<XYPlotWidget>
 
         for (TraceWidgetProperty trace : widget.propTraces().getValue())
         {
-            bind(trace.traceXPV(), trace.traceXValue());
-            bind(trace.traceYPV(), trace.traceYValue());
-            bind(trace.traceErrorPV(), trace.traceErrorValue());
+            bindings.add(new PVBinding(trace.traceXPV(), trace.traceXValue()));
+            bindings.add(new PVBinding(trace.traceYPV(), trace.traceYValue()));
+            bindings.add(new PVBinding(trace.traceErrorPV(), trace.traceErrorValue()));
         }
-    }
-
-    private void bind(final WidgetProperty<String> name, final WidgetProperty<VType> value) throws Exception
-    {
-        final String pv_name = name.getValue();
-        if (pv_name.isEmpty())
-            return;
-        logger.log(Level.FINER,  "Connecting {0} to {1}", new Object[] { widget, pv_name });
-        final RuntimePV pv = PVFactory.getPV(pv_name);
-        final RuntimePVListener listener = new PropertyUpdater(value);
-        pv.addListener(listener);
-        subscriptions.add(new Subscription(pv, listener));
-        addPV(pv);
     }
 
     @Override
     public void stop()
     {
-        for (Subscription sub : subscriptions)
-        {
-            sub.pv.removeListener(sub.listener);
-            PVFactory.releasePV(sub.pv);
-            removePV(sub.pv);
-        }
+        for (PVBinding binding : bindings)
+            binding.dispose();
         super.stop();
     }
 }

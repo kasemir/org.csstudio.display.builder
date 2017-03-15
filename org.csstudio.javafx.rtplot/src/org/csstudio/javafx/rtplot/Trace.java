@@ -16,11 +16,23 @@ import org.eclipse.osgi.util.NLS;
 import javafx.scene.paint.Color;
 
 /** Trace, i.e. data to be displayed on an axis.
+ *
+ *  <p>Changing the trace options does generally not
+ *  trigger an immediate plot refresh,
+ *  so a plot.requestLayout() or requestRefresh()
+ *  may need to follow.
+ *
  *  @param <XTYPE> Data type used for the {@link PlotDataItem}
  *  @author Kay Kasemir
  */
 public interface Trace<XTYPE extends Comparable<XTYPE>>
 {
+    /** @return <code>true</code> if trace is visible */
+    public boolean isVisible();
+
+    /** @param visible Should trace be visible? */
+    public void setVisible(final boolean visible);
+
     /** @return Name, i.e. label of this trace */
     public String getName();
 

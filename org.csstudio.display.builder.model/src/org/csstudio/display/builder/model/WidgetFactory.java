@@ -33,9 +33,12 @@ import org.csstudio.display.builder.model.widgets.ComboWidget;
 import org.csstudio.display.builder.model.widgets.DigitalClockWidget;
 import org.csstudio.display.builder.model.widgets.EllipseWidget;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
+import org.csstudio.display.builder.model.widgets.GaugeWidget;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
 import org.csstudio.display.builder.model.widgets.LEDWidget;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
+import org.csstudio.display.builder.model.widgets.LinearMeterWidget;
+import org.csstudio.display.builder.model.widgets.MeterWidget;
 import org.csstudio.display.builder.model.widgets.MultiStateLEDWidget;
 import org.csstudio.display.builder.model.widgets.PictureWidget;
 import org.csstudio.display.builder.model.widgets.PolygonWidget;
@@ -113,8 +116,7 @@ public class WidgetFactory
     }
 
     /** Add known widgets as fallback in absence of registry information */
-    private void registerKnownWidgets()
-    {
+    private void registerKnownWidgets ( ) {
         addWidgetType(ActionButtonWidget.WIDGET_DESCRIPTOR);
         addWidgetType(ArcWidget.WIDGET_DESCRIPTOR);
         addWidgetType(ArrayWidget.WIDGET_DESCRIPTOR);
@@ -126,10 +128,13 @@ public class WidgetFactory
         addWidgetType(DigitalClockWidget.WIDGET_DESCRIPTOR);
         addWidgetType(EllipseWidget.WIDGET_DESCRIPTOR);
         addWidgetType(EmbeddedDisplayWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(GaugeWidget.WIDGET_DESCRIPTOR);
         addWidgetType(GroupWidget.WIDGET_DESCRIPTOR);
         addWidgetType(ImageWidget.WIDGET_DESCRIPTOR);
         addWidgetType(LabelWidget.WIDGET_DESCRIPTOR);
         addWidgetType(LEDWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(LinearMeterWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(MeterWidget.WIDGET_DESCRIPTOR);
         addWidgetType(MultiStateLEDWidget.WIDGET_DESCRIPTOR);
         addWidgetType(PictureWidget.WIDGET_DESCRIPTOR);
         addWidgetType(PolygonWidget.WIDGET_DESCRIPTOR);

@@ -13,6 +13,12 @@ public class PythonGatewaySupportTest
     @Test
     public void testScriptSupport() throws Exception
     {
+        if (! PythonGatewaySupport.isConnect2jInstalled())
+        {
+            System.err.println("Skipping PythonGatewaySupportTest because there is no python with connect2j");
+            return;
+        }
+
         final String testPath = "../org.csstudio.display.builder.runtime/scripts/";
         Map<String, Object> map = new HashMap<String, Object>();
         for (int runs = 0; runs < 10; runs++)
@@ -21,7 +27,9 @@ public class PythonGatewaySupportTest
             map.put("1", -1);
             map.put("obj", new TestObject());
 
+            System.out.print("Running test-script.py..");
             PythonGatewaySupport.run(map, testPath + "test-script.py");
+            System.out.println("  ->  Python set map entries to " + map);
 
             Assert.assertEquals(0, map.get("0")); //map does not change unchanged elements
             Assert.assertEquals(1, map.get("1")); //map updates with different elements
@@ -49,6 +57,12 @@ public class PythonGatewaySupportTest
         public TestObject()
         {
             value = null;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "TestObject(" + value + ")";
         }
     }
 }

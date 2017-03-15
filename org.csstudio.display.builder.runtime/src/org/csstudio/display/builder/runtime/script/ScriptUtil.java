@@ -1,6 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2016 Oak Ridge National Laboratory.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *******************************************************************************/
 package org.csstudio.display.builder.runtime.script;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +18,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
@@ -22,6 +34,8 @@ import org.csstudio.display.builder.runtime.ActionUtil;
 import org.csstudio.display.builder.runtime.WidgetRuntime;
 import org.csstudio.display.builder.runtime.pv.RuntimePV;
 import org.diirt.vtype.VType;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /** Script Utilities
  *
@@ -30,10 +44,11 @@ import org.diirt.vtype.VType;
  *  <li>Logging
  *  <li>Dialogs
  *  <li>Obtaining PVs from widgets
+ *  <li>Get workspace file locations and content
  *  </ul>
  *
- * @author Amanda Carpenter
- *
+ *  @author Amanda Carpenter
+ *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
 public class ScriptUtil
@@ -405,5 +420,34 @@ public class ScriptUtil
     public static String workspacePathToSysPath(final String workspace_path)
     {
         return ModelResourceUtil.getLocalPath(workspace_path);
+    }
+
+    /** Read a file
+     *
+     * @param widget Widget used to resolve resource that's relative to a display file
+     * @param resource_name Name of resource
+     * @return BufferedReader. Keep calling <code>readLine()</code> until it returns <code>null</code>.
+     * @throws Exception on error
+     */
+    public static BufferedReader getResourceReader(final Widget widget, final String resource_name) throws Exception
+    {
+        final String resolved = ModelResourceUtil.resolveResource(widget.getDisplayModel(), resource_name);
+        return new BufferedReader(new InputStreamReader(ModelResourceUtil.openResourceStream(resolved)));
+    }
+
+    /** Read XML file
+     *
+     * @param widget Widget used to resolve resource that's relative to a display file
+     * @param resource_name Name of resource
+     * @return Root element of the XML document
+     * @throws Exception on error
+     */
+    public static Element readXMLFile(final Widget widget, final String resource_name) throws Exception
+    {
+        final String resolved = ModelResourceUtil.resolveResource(widget.getDisplayModel(), resource_name);
+        final DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        final Document doc = docBuilder.parse(ModelResourceUtil.openResourceStream(resolved));
+        doc.getDocumentElement().normalize();
+        return doc.getDocumentElement();
     }
 }

@@ -131,7 +131,8 @@ public class PlotWidgetProperties
                                 CommonWidgetProperties.propMaximum.createProperty(widget, 100.0),
                                 propGrid.createProperty(widget, false),
                                 propTitleFont.createProperty(widget, NamedWidgetFonts.DEFAULT_BOLD),
-                                propScaleFont.createProperty(widget, NamedWidgetFonts.DEFAULT)));
+                                propScaleFont.createProperty(widget, NamedWidgetFonts.DEFAULT),
+                                CommonWidgetProperties.propVisible.createProperty(widget, true)));
         }
 
         protected YAxisWidgetProperty(final StructuredWidgetProperty.Descriptor axis_descriptor,
@@ -151,6 +152,7 @@ public class PlotWidgetProperties
         public WidgetProperty<WidgetFont> titleFont()   { return getElement(6); }
         @Override
         public WidgetProperty<WidgetFont> scaleFont()   { return getElement(7); }
+        public WidgetProperty<Boolean> visible()        { return getElement(8); }
     };
 
     /** 'y_axes' array */
@@ -196,7 +198,8 @@ public class PlotWidgetProperties
             }
         };
     private static final WidgetPropertyDescriptor<Integer> tracePointSize =
-        CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "point_size", Messages.PlotWidget_PointSize);
+        CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "point_size", Messages.PlotWidget_PointSize,
+                                                            0, Integer.MAX_VALUE);
     private static final WidgetPropertyDescriptor<VType> traceXValue =
         CommonWidgetProperties.newRuntimeValue("x_value", Messages.PlotWidget_X);
     private static final WidgetPropertyDescriptor<VType> traceYValue =

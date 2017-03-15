@@ -117,7 +117,7 @@ public class LabelWidget extends VisibleWidget
     }
 
     /** @return Display 'transparent' */
-    public WidgetProperty<Boolean> displayTransparent()
+    public WidgetProperty<Boolean> propTransparent()
     {
         return transparent;
     }

@@ -41,6 +41,21 @@ import org.w3c.dom.Element;
 @SuppressWarnings("nls")
 public class EmbeddedDisplayWidget extends VisibleWidget
 {
+    /** Widget descriptor */
+    public static final WidgetDescriptor WIDGET_DESCRIPTOR =
+        new WidgetDescriptor("embedded", WidgetCategory.STRUCTURE,
+            "Embedded Display",
+            "platform:/plugin/org.csstudio.display.builder.model/icons/embedded.png",
+            "Widget that embeds another display",
+            Arrays.asList("org.csstudio.opibuilder.widgets.linkingContainer"))
+    {
+        @Override
+        public Widget createWidget()
+        {
+            return new EmbeddedDisplayWidget();
+        }
+    };
+
     /** Reserved widget user data key for representation container.
      *
      *  <p>The representation of the {@link EmbeddedDisplayWidget} sets this
@@ -113,21 +128,6 @@ public class EmbeddedDisplayWidget extends VisibleWidget
                 };
             }
         };
-
-    /** Widget descriptor */
-    public static final WidgetDescriptor WIDGET_DESCRIPTOR =
-        new WidgetDescriptor("embedded", WidgetCategory.STRUCTURE,
-            "Embedded Display",
-            "platform:/plugin/org.csstudio.display.builder.model/icons/embedded.png",
-            "Widget that embeds another display",
-            Arrays.asList("org.csstudio.opibuilder.widgets.linkingContainer"))
-    {
-        @Override
-        public Widget createWidget()
-        {
-            return new EmbeddedDisplayWidget();
-        }
-    };
 
     /** Custom configurator to read legacy *.opi files */
     private static class EmbeddedDisplayWidgetConfigurator extends WidgetConfigurator

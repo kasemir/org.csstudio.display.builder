@@ -26,7 +26,6 @@
    <plugins>
       <plugin id="com.google.guava"/>
       <plugin id="com.ibm.icu"/>
-      <plugin id="eu.hansolo.medusa"/>
       <plugin id="javax.activation"/>
       <plugin id="javax.annotation"/>
       <plugin id="javax.inject"/>
@@ -60,6 +59,7 @@
       <plugin id="org.csstudio.logbook"/>
       <plugin id="org.csstudio.logbook.ui"/>
       <plugin id="org.csstudio.openfile"/>
+      <plugin id="org.csstudio.platform.libs.gauges"/>
       <plugin id="org.csstudio.ui.util"/>
       <plugin id="org.csstudio.utility.singlesource"/>
       <plugin id="org.csstudio.vtype.pv"/>

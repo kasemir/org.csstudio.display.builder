@@ -190,7 +190,7 @@ public class GroupWidget extends VisibleWidget
     }
 
     /** @return Runtime 'children' property */
-    public ChildrenProperty runtimePropChildren()
+    public ChildrenProperty runtimeChildren()
     {
         return children;
     }

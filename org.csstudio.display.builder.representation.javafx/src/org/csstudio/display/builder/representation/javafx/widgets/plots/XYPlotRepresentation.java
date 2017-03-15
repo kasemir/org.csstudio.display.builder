@@ -113,6 +113,7 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
             case STEP:          return TraceType.AREA;
             case ERRORBAR:      return TraceType.ERROR_BARS;
             case LINE_ERRORBAR: return TraceType.LINES_ERROR_BARS;
+            case BARS:          return TraceType.BARS;
             case LINE:
             default:            return TraceType.AREA_DIRECT;
             }
@@ -250,7 +251,11 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         axis.titleFont().addUntypedPropertyListener(config_listener);
         axis.scaleFont().addUntypedPropertyListener(config_listener);
         if (axis instanceof YAxisWidgetProperty)
-            ((YAxisWidgetProperty)axis).logscale().addUntypedPropertyListener(config_listener);
+        {
+            final YAxisWidgetProperty yaxis = (YAxisWidgetProperty) axis;
+            yaxis.logscale().addUntypedPropertyListener(config_listener);
+            yaxis.visible().addUntypedPropertyListener(config_listener);
+        }
     }
 
     /** Ignore changed axis properties
@@ -358,13 +363,21 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
             return;
         }
         for (int i=0;  i<model_y.size();  ++i)
-            updateYAxisConfig(plot.getYAxes().get(i), model_y.get(i));
+            updateYAxisConfig(i, model_y.get(i));
     }
 
-    private void updateYAxisConfig(final YAxis<Double> plot_axis, final YAxisWidgetProperty model_axis)
+    private void updateYAxisConfig(final int index, final YAxisWidgetProperty model_axis)
     {
+        final YAxis<Double> plot_axis = plot.getYAxes().get(index);
         updateAxisConfig(plot_axis, model_axis);
         plot_axis.setLogarithmic(model_axis.logscale().getValue());
+
+        // Make axis and all its traces visible resp. not
+        final Boolean visible = model_axis.visible().getValue();
+        for (Trace<?> trace : plot.getTraces())
+            if (trace.getYAxis() == index)
+                trace.setVisible(visible);
+        plot_axis.setVisible(visible);
     }
 
     private void updateAxisConfig(final Axis<Double> plot_axis, final AxisWidgetProperty model_axis)
