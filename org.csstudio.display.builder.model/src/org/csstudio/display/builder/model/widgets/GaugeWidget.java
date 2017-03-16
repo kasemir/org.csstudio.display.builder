@@ -52,7 +52,6 @@ public class GaugeWidget extends BaseGaugeWidget {
      * @version 1.0.0 25 Jan 2017
      */
     public enum Skin {
-        BAR,
         DASHBOARD,
         DIGITAL,
         FLAT,
