@@ -252,6 +252,24 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
                 jfx_node.setShadowsEnabled((boolean) value);
             }
 
+            value = model_widget.propThreshold().getValue();
+
+            if ( !Objects.equals(value, jfx_node.getThreshold()) ) {
+                jfx_node.setThreshold((double) value);
+            }
+
+            value = JFXUtil.convert(model_widget.propThresholdColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getThresholdColor()) ) {
+                jfx_node.setThresholdColor((Color) value);
+            }
+
+            value = model_widget.propThresholdVisible().getValue();
+
+            if ( !Objects.equals(value, jfx_node.isThresholdVisible()) ) {
+                jfx_node.setThresholdVisible((boolean) value);
+            }
+
         }
 
         if ( dirtyLimits.checkAndClear() ) {
@@ -294,6 +312,9 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
         jfx_node.setOnlyFirstAndLastTickLabelVisible(model_widget.propOnlyExtremaVisible().getValue());
         jfx_node.setScaleDirection(ScaleDirection.valueOf(model_widget.propScaleDirection().getValue().name()));
         jfx_node.setShadowsEnabled(model_widget.propShadowsEnabled().getValue());
+        jfx_node.setThreshold(model_widget.propThreshold().getValue());
+        jfx_node.setThresholdColor(JFXUtil.convert(model_widget.propThresholdColor().getValue()));
+        jfx_node.setThresholdVisible(model_widget.propThresholdVisible().getValue());
 
         switch ( skin ) {
             case HORIZONTAL:
@@ -379,6 +400,9 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
         gauge.setOnlyFirstAndLastTickLabelVisible(model_widget.propOnlyExtremaVisible().getValue());
         gauge.setScaleDirection(ScaleDirection.valueOf(model_widget.propScaleDirection().getValue().name()));
         gauge.setShadowsEnabled(model_widget.propShadowsEnabled().getValue());
+        gauge.setThreshold(model_widget.propThreshold().getValue());
+        gauge.setThresholdColor(JFXUtil.convert(model_widget.propThresholdColor().getValue()));
+        gauge.setThresholdVisible(model_widget.propThresholdVisible().getValue());
 
         switch ( model_widget.propSkin().getValue() ) {
             case GAUGE:
@@ -445,6 +469,9 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
         model_widget.propScaleDirection().addUntypedPropertyListener(this::lookChanged);
         model_widget.propShadowsEnabled().addUntypedPropertyListener(this::lookChanged);
         model_widget.propSkin().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propThreshold().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propThresholdColor().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propThresholdVisible().addUntypedPropertyListener(this::lookChanged);
 
         model_widget.propHighlightZones().addUntypedPropertyListener(this::limitsChanged);
 

@@ -11,6 +11,7 @@ package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newColorPropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newDoublePropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newIntegerPropertyDescriptor;
 
 import java.util.List;
@@ -184,6 +185,9 @@ public class MeterWidget extends BaseMeterWidget {
         }
     };
     public static final WidgetPropertyDescriptor<Boolean>        propShadowsEnabled     = newBooleanPropertyDescriptor                (WidgetPropertyCategory.MISC,     "shadows_enabled",      Messages.WidgetProperties_ShadowsEnabled);
+    public static final WidgetPropertyDescriptor<Double>         propThreshold          = newDoublePropertyDescriptor                 (WidgetPropertyCategory.MISC,     "threshold",            Messages.WidgetProperties_Threshold);
+    public static final WidgetPropertyDescriptor<WidgetColor>    propThresholdColor     = newColorPropertyDescriptor                  (WidgetPropertyCategory.MISC,     "threshold_color",      Messages.WidgetProperties_ThresholdColor);
+    public static final WidgetPropertyDescriptor<Boolean>        propThresholdVisible   = newBooleanPropertyDescriptor                (WidgetPropertyCategory.MISC,     "threshold_visible",    Messages.WidgetProperties_ThresholdVisible);
 
     private volatile WidgetProperty<Boolean>        average;
     private volatile WidgetProperty<WidgetColor>    average_color;
@@ -208,6 +212,9 @@ public class MeterWidget extends BaseMeterWidget {
     private volatile WidgetProperty<ScaleDirection> scale_direction;
     private volatile WidgetProperty<Boolean>        shadowsEnabled;
     private volatile WidgetProperty<Skin>           skin;
+    private volatile WidgetProperty<Double>         threshold;
+    private volatile WidgetProperty<WidgetColor>    threshold_color;
+    private volatile WidgetProperty<Boolean>        threshold_visible;
 
     public MeterWidget ( ) {
         super(WIDGET_DESCRIPTOR.getType(), 240, 120);
@@ -305,13 +312,25 @@ public class MeterWidget extends BaseMeterWidget {
         return skin;
     }
 
+    public WidgetProperty<Double> propThreshold ( ) {
+        return threshold;
+    }
+
+    public WidgetProperty<WidgetColor> propThresholdColor ( ) {
+        return threshold_color;
+    }
+
+    public WidgetProperty<Boolean> propThresholdVisible ( ) {
+        return threshold_visible;
+    }
+
     @Override
     protected void defineProperties ( final List<WidgetProperty<?>> properties ) {
 
         super.defineProperties(properties);
 
-        properties.add(skin                = propSkin.createProperty(this, Skin.HORIZONTAL));
-        properties.add(knob_position       = propKnobPosition.createProperty(this, KnobPosition.BOTTOM_CENTER));
+        properties.add(skin                 = propSkin.createProperty(this, Skin.HORIZONTAL));
+        properties.add(knob_position        = propKnobPosition.createProperty(this, KnobPosition.BOTTOM_CENTER));
 
         properties.add(average              = propAverage.createProperty(this, false));
         properties.add(average_color        = propAverageColor.createProperty(this, new WidgetColor(13, 23, 251)));
@@ -334,6 +353,9 @@ public class MeterWidget extends BaseMeterWidget {
         properties.add(only_extrema_visible = propOnlyExtremaVisible.createProperty(this, false));
         properties.add(scale_direction      = propScaleDirection.createProperty(this, ScaleDirection.CLOCKWISE));
         properties.add(shadowsEnabled       = propShadowsEnabled.createProperty(this, true));
+        properties.add(threshold            = propThreshold.createProperty(this, 50.0));
+        properties.add(threshold_color      = propThresholdColor.createProperty(this, new WidgetColor(197, 97, 7)));
+        properties.add(threshold_visible    = propThresholdVisible.createProperty(this, false));
 
     }
 
