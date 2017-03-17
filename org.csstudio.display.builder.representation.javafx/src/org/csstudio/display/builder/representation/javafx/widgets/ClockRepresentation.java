@@ -163,7 +163,7 @@ public class ClockRepresentation extends BaseClockRepresentation<ClockWidget> {
                 jfx_node.setTickLabelColor((Color) value);
             }
 
-            value = model_widget.propTickLabelVisible().getValue();
+            value = model_widget.propTickLabelsVisible().getValue();
 
             if ( !Objects.equals(value, jfx_node.isTickLabelsVisible()) ) {
                 jfx_node.setTickLabelsVisible((boolean) value);
@@ -203,7 +203,7 @@ public class ClockRepresentation extends BaseClockRepresentation<ClockWidget> {
         clock.setTextColor(JFXUtil.convert(model_widget.propTextColor().getValue()));
         clock.setTextVisible(model_widget.propTextVisible().getValue());
         clock.setTickLabelColor(JFXUtil.convert(model_widget.propTickLabelColor().getValue()));
-        clock.setTickLabelsVisible(model_widget.propTickLabelVisible().getValue());
+        clock.setTickLabelsVisible(model_widget.propTickLabelsVisible().getValue());
         clock.setTitleColor(JFXUtil.convert(model_widget.propTitleColor().getValue()));
 
         clock.backgroundPaintProperty().addListener( ( s, o, n ) -> {
@@ -297,8 +297,8 @@ public class ClockRepresentation extends BaseClockRepresentation<ClockWidget> {
             }
         });
         clock.tickLabelsVisibleProperty().addListener( ( s, o, n ) -> {
-            if ( !Objects.equals(n, model_widget.propTickLabelVisible().getValue()) ) {
-                model_widget.propTickLabelVisible().setValue(n);
+            if ( !Objects.equals(n, model_widget.propTickLabelsVisible().getValue()) ) {
+                model_widget.propTickLabelsVisible().setValue(n);
             }
         });
         clock.titleColorProperty().addListener( ( s, o, n ) -> {
@@ -332,7 +332,7 @@ public class ClockRepresentation extends BaseClockRepresentation<ClockWidget> {
         model_widget.propTextColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTextVisible().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTickLabelColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propTickLabelVisible().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propTickLabelsVisible().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTitleColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTransparent().addUntypedPropertyListener(this::lookChanged);
 

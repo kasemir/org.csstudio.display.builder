@@ -188,6 +188,9 @@ public class MeterWidget extends BaseMeterWidget {
     public static final WidgetPropertyDescriptor<Double>         propThreshold          = newDoublePropertyDescriptor                 (WidgetPropertyCategory.MISC,     "threshold",            Messages.WidgetProperties_Threshold);
     public static final WidgetPropertyDescriptor<WidgetColor>    propThresholdColor     = newColorPropertyDescriptor                  (WidgetPropertyCategory.MISC,     "threshold_color",      Messages.WidgetProperties_ThresholdColor);
     public static final WidgetPropertyDescriptor<Boolean>        propThresholdVisible   = newBooleanPropertyDescriptor                (WidgetPropertyCategory.MISC,     "threshold_visible",    Messages.WidgetProperties_ThresholdVisible);
+    public static final WidgetPropertyDescriptor<WidgetColor>    propTickLabelColor     = newColorPropertyDescriptor                  (WidgetPropertyCategory.MISC,     "tick_label_color",     Messages.WidgetProperties_TickLabelColor);
+    public static final WidgetPropertyDescriptor<Integer>        propTickLabelDecimals  = newIntegerPropertyDescriptor                (WidgetPropertyCategory.MISC,     "tick_label_decimals",  Messages.WidgetProperties_TickLabelDecimals, 0, 3);
+    public static final WidgetPropertyDescriptor<Boolean>        propTickLabelsVisible  = newBooleanPropertyDescriptor                (WidgetPropertyCategory.MISC,     "tick_labels_visible",  Messages.WidgetProperties_TickLabelsVisible);
 
     private volatile WidgetProperty<Boolean>        average;
     private volatile WidgetProperty<WidgetColor>    average_color;
@@ -215,6 +218,9 @@ public class MeterWidget extends BaseMeterWidget {
     private volatile WidgetProperty<Double>         threshold;
     private volatile WidgetProperty<WidgetColor>    threshold_color;
     private volatile WidgetProperty<Boolean>        threshold_visible;
+    private volatile WidgetProperty<WidgetColor>    tick_label_color;
+    private volatile WidgetProperty<Integer>        tick_label_decimals;
+    private volatile WidgetProperty<Boolean>        tick_labels_visible;
 
     public MeterWidget ( ) {
         super(WIDGET_DESCRIPTOR.getType(), 240, 120);
@@ -324,6 +330,18 @@ public class MeterWidget extends BaseMeterWidget {
         return threshold_visible;
     }
 
+    public WidgetProperty<WidgetColor> propTickLabelColor ( ) {
+        return tick_label_color;
+    }
+
+    public WidgetProperty<Integer> propTickLabelDecimals ( ) {
+        return tick_label_decimals;
+    }
+
+    public WidgetProperty<Boolean> propTickLabelsVisible ( ) {
+        return tick_labels_visible;
+    }
+
     @Override
     protected void defineProperties ( final List<WidgetProperty<?>> properties ) {
 
@@ -356,6 +374,9 @@ public class MeterWidget extends BaseMeterWidget {
         properties.add(threshold            = propThreshold.createProperty(this, 50.0));
         properties.add(threshold_color      = propThresholdColor.createProperty(this, new WidgetColor(197, 97, 7)));
         properties.add(threshold_visible    = propThresholdVisible.createProperty(this, false));
+        properties.add(tick_label_color     = propTickLabelColor.createProperty(this, new WidgetColor(13, 11, 7)));
+        properties.add(tick_label_decimals  = propTickLabelDecimals.createProperty(this, 0));
+        properties.add(tick_labels_visible  = propTickLabelsVisible.createProperty(this, true));
 
     }
 

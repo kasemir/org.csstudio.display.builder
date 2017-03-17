@@ -87,7 +87,7 @@ public class ClockWidget extends BaseClockWidget {
     public static final WidgetPropertyDescriptor<WidgetColor> propTextColor             = newColorPropertyDescriptor        (WidgetPropertyCategory.MISC,     "text_color",               Messages.WidgetProperties_TextColor);
     public static final WidgetPropertyDescriptor<Boolean>     propTextVisible           = newBooleanPropertyDescriptor      (WidgetPropertyCategory.MISC,     "text_visible",             Messages.WidgetProperties_TextVisible);
     public static final WidgetPropertyDescriptor<WidgetColor> propTickLabelColor        = newColorPropertyDescriptor        (WidgetPropertyCategory.MISC,     "tick_label_color",         Messages.WidgetProperties_TickLabelColor);
-    public static final WidgetPropertyDescriptor<Boolean>     propTickLabelVisible      = newBooleanPropertyDescriptor      (WidgetPropertyCategory.MISC,     "tick_label_visible",       Messages.WidgetProperties_TickLabelVisible);
+    public static final WidgetPropertyDescriptor<Boolean>     propTickLabelsVisible     = newBooleanPropertyDescriptor      (WidgetPropertyCategory.MISC,     "tick_labels_visible",      Messages.WidgetProperties_TickLabelsVisible);
     public static final WidgetPropertyDescriptor<WidgetColor> propTitleColor            = newColorPropertyDescriptor        (WidgetPropertyCategory.MISC,     "title_color",              Messages.WidgetProperties_TitleColor);
 
     private volatile WidgetProperty<WidgetColor> background_color;
@@ -109,7 +109,7 @@ public class ClockWidget extends BaseClockWidget {
     private volatile WidgetProperty<WidgetColor> textColor;
     private volatile WidgetProperty<Boolean>     textVisible;
     private volatile WidgetProperty<WidgetColor> tickLabelColor;
-    private volatile WidgetProperty<Boolean>     tickLabelVisible;
+    private volatile WidgetProperty<Boolean>     tickLabelsVisible;
     private volatile WidgetProperty<WidgetColor> titleColor;
     private volatile WidgetProperty<Boolean>     transparent;
 
@@ -193,8 +193,8 @@ public class ClockWidget extends BaseClockWidget {
         return tickLabelColor;
     }
 
-    public WidgetProperty<Boolean> propTickLabelVisible ( ) {
-        return tickLabelVisible;
+    public WidgetProperty<Boolean> propTickLabelsVisible ( ) {
+        return tickLabelsVisible;
     }
 
     public WidgetProperty<WidgetColor> propTitleColor ( ) {
@@ -233,7 +233,7 @@ public class ClockWidget extends BaseClockWidget {
         properties.add(textColor             = propTextColor.createProperty(this, new WidgetColor(136, 196, 136)));
         properties.add(textVisible           = propTextVisible.createProperty(this, false));
         properties.add(tickLabelColor        = propTickLabelColor.createProperty(this, new WidgetColor(196, 136, 136)));
-        properties.add(tickLabelVisible      = propTickLabelVisible.createProperty(this, true));
+        properties.add(tickLabelsVisible     = propTickLabelsVisible.createProperty(this, true));
         properties.add(titleColor            = propTitleColor.createProperty(this, new WidgetColor(136, 196, 136)));
 
     }
