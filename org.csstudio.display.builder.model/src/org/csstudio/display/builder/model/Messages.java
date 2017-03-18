@@ -266,12 +266,17 @@ public class Messages extends NLS
     public static String WidgetProperties_ShowUnits;
     public static String WidgetProperties_Skin;
     public static String WidgetProperties_Square;
+    public static String WidgetProperties_StartFromZero;
     public static String WidgetProperties_StretchToFit;
     public static String WidgetProperties_Text;
     public static String WidgetProperties_TextColor;
     public static String WidgetProperties_TextVisible;
+    public static String WidgetProperties_Threshold;
+    public static String WidgetProperties_ThresholdColor;
+    public static String WidgetProperties_ThresholdVisible;
     public static String WidgetProperties_TickLabelColor;
-    public static String WidgetProperties_TickLabelVisible;
+    public static String WidgetProperties_TickLabelDecimals;
+    public static String WidgetProperties_TickLabelsVisible;
     public static String WidgetProperties_Title;
     public static String WidgetProperties_TitleColor;
     public static String WidgetProperties_TitleVisible;
