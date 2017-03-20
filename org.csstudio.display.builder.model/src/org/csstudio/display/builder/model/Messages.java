@@ -287,6 +287,7 @@ public class Messages extends NLS
     public static String WidgetProperties_Type;
     public static String WidgetProperties_Unit;
     public static String WidgetProperties_UnitColor;
+    public static String WidgetProperties_UnitFromPV;
     public static String WidgetProperties_UnsignedData;
     public static String WidgetProperties_Value;
     public static String WidgetProperties_ValueColor;
