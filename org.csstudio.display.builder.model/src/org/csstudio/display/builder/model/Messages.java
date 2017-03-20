@@ -301,6 +301,7 @@ public class Messages extends NLS
     public static String WidgetProperties_XPVName;
     public static String WidgetProperties_Y;
     public static String WidgetProperties_YPVName;
+    public static String WidgetProperties_ZeroColor;
     public static String WidgetPropertyCategory_Behavior;
     public static String WidgetPropertyCategory_Display;
     public static String WidgetPropertyCategory_Misc;

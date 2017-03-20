@@ -193,6 +193,7 @@ public class MeterWidget extends BaseMeterWidget {
     public static final WidgetPropertyDescriptor<Boolean>        propTickLabelsVisible   = newBooleanPropertyDescriptor                (WidgetPropertyCategory.MISC,     "tick_labels_visible",    Messages.WidgetProperties_TickLabelsVisible);
     public static final WidgetPropertyDescriptor<WidgetColor>    propTickMarkRingColor   = newColorPropertyDescriptor                  (WidgetPropertyCategory.MISC,     "tick_mark_ring_color",   Messages.WidgetProperties_TickMarkRingColor);
     public static final WidgetPropertyDescriptor<Boolean>        propTickMarkRingVisible = newBooleanPropertyDescriptor                (WidgetPropertyCategory.MISC,     "tick_mark_ring_visible", Messages.WidgetProperties_TickMarkRingVisible);
+    public static final WidgetPropertyDescriptor<WidgetColor>    propZeroColor           = newColorPropertyDescriptor                  (WidgetPropertyCategory.MISC,     "zero_color",             Messages.WidgetProperties_ZeroColor);
 
     private volatile WidgetProperty<Boolean>        average;
     private volatile WidgetProperty<WidgetColor>    average_color;
@@ -225,6 +226,7 @@ public class MeterWidget extends BaseMeterWidget {
     private volatile WidgetProperty<Boolean>        tick_labels_visible;
     private volatile WidgetProperty<WidgetColor>    tick_mark_ring_color;
     private volatile WidgetProperty<Boolean>        tick_mark_ring_visible;
+    private volatile WidgetProperty<WidgetColor>    zero_color;
 
     public MeterWidget ( ) {
         super(WIDGET_DESCRIPTOR.getType(), 240, 120);
@@ -354,6 +356,10 @@ public class MeterWidget extends BaseMeterWidget {
         return tick_mark_ring_visible;
     }
 
+    public WidgetProperty<WidgetColor> propZeroColor ( ) {
+        return zero_color;
+    }
+
     @Override
     protected void defineProperties ( final List<WidgetProperty<?>> properties ) {
 
@@ -391,6 +397,7 @@ public class MeterWidget extends BaseMeterWidget {
         properties.add(tick_labels_visible    = propTickLabelsVisible.createProperty(this, true));
         properties.add(tick_mark_ring_color   = propTickMarkRingColor.createProperty(this, new WidgetColor(19, 17, 13)));
         properties.add(tick_mark_ring_visible = propTickMarkRingVisible.createProperty(this, false));
+        properties.add(zero_color             = propZeroColor.createProperty(this, new WidgetColor(127, 17, 13)));
 
     }
 

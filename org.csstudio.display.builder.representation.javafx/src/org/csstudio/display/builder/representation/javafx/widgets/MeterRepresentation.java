@@ -300,6 +300,12 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
                 jfx_node.setTickMarkRingVisible((boolean) value);
             }
 
+            value = JFXUtil.convert(model_widget.propZeroColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getZeroColor()) ) {
+                jfx_node.setZeroColor((Color) value);
+            }
+
         }
 
         if ( dirtyLimits.checkAndClear() ) {
@@ -350,6 +356,7 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
         jfx_node.setTickLabelsVisible(model_widget.propTickLabelsVisible().getValue());
         jfx_node.setTickMarkColor(JFXUtil.convert(model_widget.propTickMarkRingColor().getValue()));
         jfx_node.setTickMarkRingVisible(model_widget.propTickMarkRingVisible().getValue());
+        jfx_node.setZeroColor(JFXUtil.convert(model_widget.propZeroColor().getValue()));
 
         switch ( skin ) {
             case HORIZONTAL:
@@ -443,6 +450,7 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
         gauge.setTickLabelsVisible(model_widget.propTickLabelsVisible().getValue());
         gauge.setTickMarkColor(JFXUtil.convert(model_widget.propTickMarkRingColor().getValue()));
         gauge.setTickMarkRingVisible(model_widget.propTickMarkRingVisible().getValue());
+        gauge.setZeroColor(JFXUtil.convert(model_widget.propZeroColor().getValue()));
 
         switch ( model_widget.propSkin().getValue() ) {
             case GAUGE:
@@ -517,6 +525,7 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
         model_widget.propTickLabelsVisible().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTickMarkRingColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTickMarkRingVisible().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propZeroColor().addUntypedPropertyListener(this::lookChanged);
 
         model_widget.propHighlightZones().addUntypedPropertyListener(this::limitsChanged);
 
