@@ -285,8 +285,12 @@ public class Messages extends NLS
     public static String WidgetProperties_Tooltip;
     public static String WidgetProperties_Transparent;
     public static String WidgetProperties_Type;
+    public static String WidgetProperties_Unit;
+    public static String WidgetProperties_UnitColor;
     public static String WidgetProperties_UnsignedData;
     public static String WidgetProperties_Value;
+    public static String WidgetProperties_ValueColor;
+    public static String WidgetProperties_ValueVisible;
     public static String WidgetProperties_VerticalAlignment;
     public static String WidgetProperties_Visible;
     public static String WidgetProperties_Width;

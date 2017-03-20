@@ -102,6 +102,30 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
                 jfx_node.setTitleColor((Color) value);
             }
 
+            value = model_widget.propUnit().getValue();
+
+            if ( !Objects.equals(value, jfx_node.getUnit()) ) {
+                jfx_node.setUnit((String) value);
+            }
+
+            value = JFXUtil.convert(model_widget.propUnitColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getUnitColor()) ) {
+                jfx_node.setUnitColor((Color) value);
+            }
+
+            value = JFXUtil.convert(model_widget.propValueColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getValueColor()) ) {
+                jfx_node.setValueColor((Color) value);
+            }
+
+            value = model_widget.propValueVisible().getValue();
+
+            if ( !Objects.equals(value, jfx_node.isValueVisible()) ) {
+                jfx_node.setValueVisible((boolean) value);
+            }
+
         }
 
         if ( dirtyContent.checkAndClear() ) {
@@ -198,6 +222,10 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         jfx_node.setSectionTextVisible(false);
         jfx_node.setTitle(model_widget.propTitle().getValue());
         jfx_node.setTitleColor(JFXUtil.convert(model_widget.propTitleColor().getValue()));
+        jfx_node.setUnit(model_widget.propUnit().getValue());
+        jfx_node.setUnitColor(JFXUtil.convert(model_widget.propUnitColor().getValue()));
+        jfx_node.setValueColor(JFXUtil.convert(model_widget.propValueColor().getValue()));
+        jfx_node.setValueVisible(model_widget.propValueVisible().getValue());
 
     }
 
@@ -232,7 +260,11 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
                 .sectionsVisible(areZonesVisible())
                 .title(model_widget.propTitle().getValue())
                 .titleColor(JFXUtil.convert(model_widget.propTitleColor().getValue()))
+                .unit(model_widget.propUnit().getValue())
+                .unitColor(JFXUtil.convert(model_widget.propUnitColor().getValue()))
                 .value(( max + min ) / 2.0)
+                .valueColor(JFXUtil.convert(model_widget.propValueColor().getValue()))
+                .valueVisible(model_widget.propValueVisible().getValue())
                 .build();
 
         enabled = model_widget.propEnabled().getValue();
@@ -305,6 +337,10 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         model_widget.propTitle().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTitleColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTransparent().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propUnit().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propUnitColor().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propValueColor().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propValueVisible().addUntypedPropertyListener(this::lookChanged);
 
         model_widget.propLevelHiHi().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propLevelHight().addUntypedPropertyListener(this::limitsChanged);
