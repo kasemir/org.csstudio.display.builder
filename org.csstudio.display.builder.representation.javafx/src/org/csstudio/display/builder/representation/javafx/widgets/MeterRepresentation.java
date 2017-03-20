@@ -288,6 +288,18 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
                 jfx_node.setTickLabelsVisible((boolean) value);
             }
 
+            value = JFXUtil.convert(model_widget.propTickMarkRingColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getTickMarkColor()) ) {
+                jfx_node.setTickMarkColor((Color) value);
+            }
+
+            value = model_widget.propTickMarkRingVisible().getValue();
+
+            if ( !Objects.equals(value, jfx_node.isTickMarkRingVisible()) ) {
+                jfx_node.setTickMarkRingVisible((boolean) value);
+            }
+
         }
 
         if ( dirtyLimits.checkAndClear() ) {
@@ -336,6 +348,8 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
         jfx_node.setTickLabelColor(JFXUtil.convert(model_widget.propTickLabelColor().getValue()));
         jfx_node.setTickLabelDecimals(model_widget.propTickLabelDecimals().getValue());
         jfx_node.setTickLabelsVisible(model_widget.propTickLabelsVisible().getValue());
+        jfx_node.setTickMarkColor(JFXUtil.convert(model_widget.propTickMarkRingColor().getValue()));
+        jfx_node.setTickMarkRingVisible(model_widget.propTickMarkRingVisible().getValue());
 
         switch ( skin ) {
             case HORIZONTAL:
@@ -427,6 +441,8 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
         gauge.setTickLabelColor(JFXUtil.convert(model_widget.propTickLabelColor().getValue()));
         gauge.setTickLabelDecimals(model_widget.propTickLabelDecimals().getValue());
         gauge.setTickLabelsVisible(model_widget.propTickLabelsVisible().getValue());
+        gauge.setTickMarkColor(JFXUtil.convert(model_widget.propTickMarkRingColor().getValue()));
+        gauge.setTickMarkRingVisible(model_widget.propTickMarkRingVisible().getValue());
 
         switch ( model_widget.propSkin().getValue() ) {
             case GAUGE:
@@ -499,6 +515,8 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
         model_widget.propTickLabelColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTickLabelDecimals().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTickLabelsVisible().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propTickMarkRingColor().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propTickMarkRingVisible().addUntypedPropertyListener(this::lookChanged);
 
         model_widget.propHighlightZones().addUntypedPropertyListener(this::limitsChanged);
 
