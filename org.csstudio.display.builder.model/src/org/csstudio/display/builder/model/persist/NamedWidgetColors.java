@@ -118,7 +118,10 @@ public class NamedWidgetColors extends ConfigFileParser
             final int red = Integer.parseInt(tokenizer.nextToken().trim());
             final int green = Integer.parseInt(tokenizer.nextToken().trim());
             final int blue = Integer.parseInt(tokenizer.nextToken().trim());
-            define(new NamedWidgetColor(name, red, green, blue));
+            final int alpha = tokenizer.hasMoreTokens()
+                            ?  Integer.parseInt(tokenizer.nextToken().trim())
+                            : 255;
+            define(new NamedWidgetColor(name, red, green, blue, alpha));
         }
         catch (Throwable ex)
         {
