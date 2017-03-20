@@ -53,7 +53,7 @@ public class JFXUtil extends org.csstudio.javafx.JFXUtil
      */
     public static Color convert(final WidgetColor color)
     {
-        return Color.rgb(color.getRed(), color.getGreen(), color.getBlue());
+        return Color.rgb(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()/255.0);
     }
 
     /** Convert model color into web-type RGB text
@@ -110,8 +110,9 @@ public class JFXUtil extends org.csstudio.javafx.JFXUtil
     public static WidgetColor convert(final Color color)
     {
         return new WidgetColor((int) (color.getRed() * 255),
-                (int) (color.getGreen() * 255),
-                (int) (color.getBlue() * 255));
+                               (int) (color.getGreen() * 255),
+                               (int) (color.getBlue() * 255),
+                               (int) (color.getOpacity() * 255));
     }
 
     /** Convert model font into JFX font

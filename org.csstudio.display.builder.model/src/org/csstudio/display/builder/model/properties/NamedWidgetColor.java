@@ -26,11 +26,23 @@ public class NamedWidgetColor extends WidgetColor
      *  @param red Red component, range {@code 0-255}
      *  @param green Green component, range {@code 0-255}
      *  @param blue Blue component, range {@code 0-255}
+     *  @param alpha Alpha component, range {@code 0} (transparent) to {@code 255} (opaque)
+     */
+    public NamedWidgetColor(final String name, final int red, final int green, final int blue, final int alpha)
+    {
+        super(red, green, blue, alpha);
+        this.name = name;
+    }
+
+    /** Construct named color
+     *  @param name Name of the color
+     *  @param red Red component, range {@code 0-255}
+     *  @param green Green component, range {@code 0-255}
+     *  @param blue Blue component, range {@code 0-255}
      */
     public NamedWidgetColor(final String name, final int red, final int green, final int blue)
     {
-        super(red, green, blue);
-        this.name = name;
+        this(name, red, green, blue, 255);
     }
 
     /** @return Name */

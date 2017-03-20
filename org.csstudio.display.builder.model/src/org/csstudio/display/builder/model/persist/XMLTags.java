@@ -15,6 +15,7 @@ package org.csstudio.display.builder.model.persist;
 public interface XMLTags
 {
     public static final String ACTION = "action";
+    public static final String ALPHA = "alpha";
     public static final String BLUE = "blue";
     public static final String CHECK_CONNECTIONS = "check_connections";
     public static final String COLOR = "color";

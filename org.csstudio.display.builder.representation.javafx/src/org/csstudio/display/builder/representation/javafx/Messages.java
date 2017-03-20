@@ -32,6 +32,7 @@ public class Messages extends NLS
     public static String ActionsDialog_URL;
     public static String ActionsDialog_Value;
     public static String Add;
+    public static String Alpha;
     public static String Blue;
     public static String ColorDialog_Custom;
     public static String ColorDialog_Info;
