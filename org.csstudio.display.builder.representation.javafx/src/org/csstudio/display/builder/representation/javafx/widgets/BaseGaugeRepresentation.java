@@ -12,7 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.commons.lang3.StringUtils;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
@@ -41,20 +43,22 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
     private static final Color MINOR_COLOR = JFXUtil.convert(WidgetColorService.getColor(NamedWidgetColors.ALARM_MINOR));
     private static final Color MAJOR_COLOR = JFXUtil.convert(WidgetColorService.getColor(NamedWidgetColors.ALARM_MAJOR));
 
-    private final DirtyFlag     dirtyContent  = new DirtyFlag();
-    private final DirtyFlag     dirtyGeometry = new DirtyFlag();
-    private final DirtyFlag     dirtyLimits   = new DirtyFlag();
-    private final DirtyFlag     dirtyLook     = new DirtyFlag();
-    private final DirtyFlag     dirtyStyle    = new DirtyFlag();
-    private final DirtyFlag     dirtyValue    = new DirtyFlag();
-    private volatile boolean    enabled       = true;
-    private volatile double     high          = Double.NaN;
-    private volatile double     hihi          = Double.NaN;
-    private volatile double     lolo          = Double.NaN;
-    private volatile double     low           = Double.NaN;
-    private volatile double     max           = 100.0;
-    private volatile double     min           = 0.0;
-    private final AtomicBoolean updatingValue = new AtomicBoolean(false);
+    private final DirtyFlag               dirtyContent  = new DirtyFlag();
+    private final DirtyFlag               dirtyGeometry = new DirtyFlag();
+    private final DirtyFlag               dirtyLimits   = new DirtyFlag();
+    private final DirtyFlag               dirtyLook     = new DirtyFlag();
+    private final DirtyFlag               dirtyStyle    = new DirtyFlag();
+    private final DirtyFlag               dirtyUnit     = new DirtyFlag();
+    private final DirtyFlag               dirtyValue    = new DirtyFlag();
+    private volatile boolean              enabled       = true;
+    private volatile double               high          = Double.NaN;
+    private volatile double               hihi          = Double.NaN;
+    private volatile double               lolo          = Double.NaN;
+    private volatile double               low           = Double.NaN;
+    private volatile double               max           = 100.0;
+    private volatile double               min           = 0.0;
+    private final AtomicReference<String> unit          = new AtomicReference<>("");
+    private final AtomicBoolean           updatingValue = new AtomicBoolean(false);
 
     @Override
     public void updateChanges ( ) {
@@ -102,6 +106,30 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
                 jfx_node.setTitleColor((Color) value);
             }
 
+            value = model_widget.propUnit().getValue();
+
+            if ( !Objects.equals(value, jfx_node.getUnit()) ) {
+                jfx_node.setUnit((String) value);
+            }
+
+            value = JFXUtil.convert(model_widget.propUnitColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getUnitColor()) ) {
+                jfx_node.setUnitColor((Color) value);
+            }
+
+            value = JFXUtil.convert(model_widget.propValueColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getValueColor()) ) {
+                jfx_node.setValueColor((Color) value);
+            }
+
+            value = model_widget.propValueVisible().getValue();
+
+            if ( !Objects.equals(value, jfx_node.isValueVisible()) ) {
+                jfx_node.setValueVisible((boolean) value);
+            }
+
         }
 
         if ( dirtyContent.checkAndClear() ) {
@@ -119,6 +147,10 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
             jfx_node.setMinValue(min);
             jfx_node.setSectionsVisible(areZonesVisible());
             jfx_node.setSections(createZones());
+        }
+
+        if ( dirtyUnit.checkAndClear() ) {
+            jfx_node.setUnit(unit.get());
         }
 
         if ( dirtyStyle.checkAndClear() ) {
@@ -198,6 +230,10 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         jfx_node.setSectionTextVisible(false);
         jfx_node.setTitle(model_widget.propTitle().getValue());
         jfx_node.setTitleColor(JFXUtil.convert(model_widget.propTitleColor().getValue()));
+        jfx_node.setUnit(model_widget.propUnit().getValue());
+        jfx_node.setUnitColor(JFXUtil.convert(model_widget.propUnitColor().getValue()));
+        jfx_node.setValueColor(JFXUtil.convert(model_widget.propValueColor().getValue()));
+        jfx_node.setValueVisible(model_widget.propValueVisible().getValue());
 
     }
 
@@ -232,7 +268,11 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
                 .sectionsVisible(areZonesVisible())
                 .title(model_widget.propTitle().getValue())
                 .titleColor(JFXUtil.convert(model_widget.propTitleColor().getValue()))
+                .unit(model_widget.propUnit().getValue())
+                .unitColor(JFXUtil.convert(model_widget.propUnitColor().getValue()))
                 .value(( max + min ) / 2.0)
+                .valueColor(JFXUtil.convert(model_widget.propValueColor().getValue()))
+                .valueVisible(model_widget.propValueVisible().getValue())
                 .build();
 
         enabled = model_widget.propEnabled().getValue();
@@ -305,6 +345,10 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         model_widget.propTitle().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTitleColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTransparent().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propUnit().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propUnitColor().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propValueColor().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propValueVisible().addUntypedPropertyListener(this::lookChanged);
 
         model_widget.propLevelHiHi().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propLevelHight().addUntypedPropertyListener(this::limitsChanged);
@@ -317,6 +361,8 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         model_widget.propShowLow().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propMaximum().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propMinimum().addUntypedPropertyListener(this::limitsChanged);
+
+        model_widget.propUnitFromPV().addUntypedPropertyListener(this::unitChanged);
 
         model_widget.propEnabled().addUntypedPropertyListener(this::styleChanged);
 
@@ -409,6 +455,39 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
 
     }
 
+    /**
+     * Updates, if required, the unit.
+     *
+     * @return {@code true} is something changed and and UI update is required.
+     */
+    protected boolean updateUnit ( ) {
+
+        boolean somethingChanged = false;
+
+        //  Model's values.
+        String newUnit = model_widget.propUnit().getValue();
+
+        if ( model_widget.propUnitFromPV().getValue() ) {
+
+            //  Try to get engineering unit from PV.
+            final Display display_info = ValueUtil.displayOf(model_widget.runtimePropValue().getValue());
+
+            if ( display_info != null ) {
+                newUnit = display_info.getUnits();
+            }
+
+        }
+
+
+        if ( StringUtils.compare(unit.get(), newUnit) != 0 ) {
+            unit.set(newUnit);
+            somethingChanged = true;
+        }
+
+        return somethingChanged;
+
+    }
+
     private void contentChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
         dirtyContent.mark();
         toolkit.scheduleUpdate(this);
@@ -434,6 +513,13 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
     private void styleChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
         dirtyStyle.mark();
         toolkit.scheduleUpdate(this);
+    }
+
+    private void unitChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
+        if ( updateUnit() ) {
+            dirtyUnit.mark();
+            toolkit.scheduleUpdate(this);
+        }
     }
 
     private void valueChanged ( final WidgetProperty<? extends VType> property, final VType old_value, final VType new_value ) {
