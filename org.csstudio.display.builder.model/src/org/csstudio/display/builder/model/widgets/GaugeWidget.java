@@ -9,6 +9,7 @@
 package org.csstudio.display.builder.model.widgets;
 
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newColorPropertyDescriptor;
 
 import java.util.List;
@@ -52,7 +53,6 @@ public class GaugeWidget extends BaseGaugeWidget {
      * @version 1.0.0 25 Jan 2017
      */
     public enum Skin {
-        BAR,
         DASHBOARD,
         DIGITAL,
         FLAT,
@@ -71,10 +71,12 @@ public class GaugeWidget extends BaseGaugeWidget {
 
     public static final WidgetPropertyDescriptor<WidgetColor> propBarBackgroundColor = newColorPropertyDescriptor        (WidgetPropertyCategory.MISC,   "bar_background_color", Messages.WidgetProperties_BarBackgroundColor);
     public static final WidgetPropertyDescriptor<WidgetColor> propBarColor           = newColorPropertyDescriptor        (WidgetPropertyCategory.MISC,   "bar_color",            Messages.WidgetProperties_BarColor);
+    public static final WidgetPropertyDescriptor<Boolean>     propStartFromZero      = newBooleanPropertyDescriptor      (WidgetPropertyCategory.MISC,   "start_from_zero",      Messages.WidgetProperties_StartFromZero);
 
     private volatile WidgetProperty<WidgetColor> bar_background_color;
     private volatile WidgetProperty<WidgetColor> bar_color;
-    private volatile WidgetProperty<Skin> skin;
+    private volatile WidgetProperty<Skin>        skin;
+    private volatile WidgetProperty<Boolean>     start_from_zero;
 
     public GaugeWidget ( ) {
         super(WIDGET_DESCRIPTOR.getType(), 160, 160);
@@ -92,6 +94,10 @@ public class GaugeWidget extends BaseGaugeWidget {
         return skin;
     }
 
+    public WidgetProperty<Boolean> propStartFromZero ( ) {
+        return start_from_zero;
+    }
+
     @Override
     protected void defineProperties ( final List<WidgetProperty<?>> properties ) {
 
@@ -101,6 +107,7 @@ public class GaugeWidget extends BaseGaugeWidget {
 
         properties.add(bar_background_color = propBarBackgroundColor.createProperty(this, new WidgetColor(0, 90, 0)));
         properties.add(bar_color            = propBarColor.createProperty(this, new WidgetColor(0, 183, 0)));
+        properties.add(start_from_zero      = propStartFromZero.createProperty(this, true));
 
     }
 

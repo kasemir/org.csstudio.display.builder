@@ -47,10 +47,12 @@ public class WidgetColorDialog extends Dialog<WidgetColor>
     private final Slider red_slider = new Slider(0, 255, 50);
     private final Slider green_slider = new Slider(0, 255, 50);
     private final Slider blue_slider = new Slider(0, 255, 50);
+    private final Slider alpha_slider = new Slider(0, 255, 50);
 
     private final TextField red_text = new TextField();
     private final TextField green_text = new TextField();
     private final TextField blue_text = new TextField();
+    private final TextField alpha_text = new TextField();
 
     /** Prevent circular updates */
     private boolean updating = false;
@@ -92,6 +94,7 @@ public class WidgetColorDialog extends Dialog<WidgetColor>
          * [               ]   Red   ---*----  [100]
          * [     List      ]   Green ------*-  [250]
          * [               ]   Blue  *-------  [  0]
+         * [               ]   Alpha -------*  [255]
          * [               ]   /..    dummy      ../
          */
 
@@ -103,7 +106,7 @@ public class WidgetColorDialog extends Dialog<WidgetColor>
 
         content.add(new Label(Messages.ColorDialog_Predefined), 0, 0);
 
-        // Represent NamedWidgetColor with custon ListCell
+        // Represent NamedWidgetColor with custom ListCell
         color_names.setCellFactory((view) -> new NamedWidgetColorCell());
         // Get colors on background thread
         ModelThreadPool.getExecutor().execute(() ->
@@ -121,31 +124,34 @@ public class WidgetColorDialog extends Dialog<WidgetColor>
                 }
             });
         });
-        content.add(color_names, 0, 1, 1, 5);
+        content.add(color_names, 0, 1, 1, 6);
 
         content.add(new Label(Messages.ColorDialog_Custom), 1, 0, 3, 1);
         content.add(picker, 1, 1, 3, 1);
 
         content.add(new Label(Messages.Red), 1, 2);
         content.add(new Label(Messages.Green), 1, 3);
-        final Label label = new Label(Messages.Blue);
-        content.add(label, 1, 4);
+        content.add(new Label(Messages.Blue), 1, 4);
+        content.add(new Label(Messages.Alpha), 1, 5);
 
         content.add(red_slider, 2, 2);
         content.add(green_slider, 2, 3);
         content.add(blue_slider, 2, 4);
+        content.add(alpha_slider, 2, 5);
         red_slider.setBlockIncrement(1);
 
         red_text.setPrefColumnCount(3);
         green_text.setPrefColumnCount(3);
         blue_text.setPrefColumnCount(3);
+        alpha_text.setPrefColumnCount(3);
         content.add(red_text, 3, 2);
         content.add(green_text, 3, 3);
         content.add(blue_text, 3, 4);
+        content.add(alpha_text, 3, 5);
 
         // Placeholder that fills the lower right corner
         final Label dummy = new Label();
-        content.add(dummy, 1, 5, 3, 1);
+        content.add(dummy, 1, 6, 3, 1);
 
         getDialogPane().setContent(content);
 
@@ -172,6 +178,7 @@ public class WidgetColorDialog extends Dialog<WidgetColor>
         bind(red_slider,   red_text);
         bind(green_slider, green_text);
         bind(blue_slider,  blue_text);
+        bind(alpha_slider, alpha_text);
 
         // User configures color in picker -> Update sliders, texts
         picker.setOnAction(event ->
@@ -184,14 +191,17 @@ public class WidgetColorDialog extends Dialog<WidgetColor>
             final int r = (int) (value.getRed() * 255);
             final int g = (int) (value.getGreen() * 255);
             final int b = (int) (value.getBlue() * 255);
+            final int a = (int) (value.getOpacity() * 255);
             red_slider.setValue(r);
             green_slider.setValue(g);
             blue_slider.setValue(b);
+            alpha_slider.setValue(a);
             red_text.setText(Integer.toString(r));
             green_text.setText(Integer.toString(g));
             blue_text.setText(Integer.toString(b));
+            alpha_text.setText(Integer.toString(a));
 
-            color = new WidgetColor(r, g, b);
+            color = new WidgetColor(r, g, b, a);
             updating = false;
         });
 
@@ -267,7 +277,8 @@ public class WidgetColorDialog extends Dialog<WidgetColor>
     {
         return Color.rgb((int) red_slider.getValue(),
                          (int) green_slider.getValue(),
-                         (int) blue_slider.getValue());
+                         (int) blue_slider.getValue(),
+                         alpha_slider.getValue() / 255.0);
     }
 
     /** Set all display elements to color
@@ -279,9 +290,11 @@ public class WidgetColorDialog extends Dialog<WidgetColor>
         red_slider.setValue(color.getRed());
         green_slider.setValue(color.getGreen());
         blue_slider.setValue(color.getBlue());
+        alpha_slider.setValue(color.getAlpha());
         red_text.setText(Integer.toString(color.getRed()));
         green_text.setText(Integer.toString(color.getGreen()));
         blue_text.setText(Integer.toString(color.getBlue()));
+        alpha_text.setText(Integer.toString(color.getAlpha()));
         this.color = color;
     }
 }

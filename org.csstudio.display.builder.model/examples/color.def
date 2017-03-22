@@ -1,5 +1,10 @@
 # Named colors
-# Whenever possible, use named colors
+#
+# Format:
+# NameOfColor = red, green, blue [, alpha ]
+# with values in 0..255 range.
+#
+# Whenever possible, use named colors in displays
 # instead of arbitrary red/green/blue values.
 
 # ------- Predefined colors ----------------
@@ -10,7 +15,7 @@ OK = 0, 255, 0
 MINOR = 255, 128, 0
 MAJOR = 255, 0, 0
 INVALID = 255, 0, 255
-DISCONNECTED = 255, 0, 255
+DISCONNECTED = 255, 0, 255, 128
 
 # Default color for text
 Text=0,0,0

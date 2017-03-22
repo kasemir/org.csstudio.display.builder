@@ -64,12 +64,15 @@ public class ColorWidgetProperty extends WidgetProperty<WidgetColor>
         else if (value instanceof List)
         {
             final List<?> components = (List<?>) value;
-            if (components.size() != 3  ||  ! (components.get(0) instanceof Number))
-                throw new IllegalArgumentException("Expect list of [ red, green, blue ] values 0..255");
+            if (components.size() < 3  ||
+                components.size() > 4  ||
+                ! (components.get(0) instanceof Number))
+                throw new IllegalArgumentException("Expect list of [ red, green, blue (, alpha) ] values 0..255");
             final int red = ((Number) components.get(0)).intValue();
             final int green = ((Number) components.get(1)).intValue();
             final int blue = ((Number) components.get(2)).intValue();
-            setValue(new WidgetColor(red, green, blue));
+            final int alpha = components.size() == 4 ? ((Number) components.get(3)).intValue() : 255;
+            setValue(new WidgetColor(red, green, blue, alpha));
         }
         else
             throw new IllegalArgumentException(String.valueOf(value));
@@ -84,6 +87,8 @@ public class ColorWidgetProperty extends WidgetProperty<WidgetColor>
         writer.writeAttribute(XMLTags.RED, Integer.toString(value.getRed()));
         writer.writeAttribute(XMLTags.GREEN, Integer.toString(value.getGreen()));
         writer.writeAttribute(XMLTags.BLUE, Integer.toString(value.getBlue()));
+        if (value.getAlpha() != 255)
+            writer.writeAttribute(XMLTags.ALPHA, Integer.toString(value.getAlpha()));
         writer.writeEndElement();
     }
 
@@ -95,12 +100,14 @@ public class ColorWidgetProperty extends WidgetProperty<WidgetColor>
             return;
 
         final String name = col_el.getAttribute(XMLTags.NAME);
-        final int red, green, blue;
+        final int red, green, blue, alpha;
         try
         {
             red = getAttrib(col_el, XMLTags.RED);
             green = getAttrib(col_el, XMLTags.GREEN);
             blue = getAttrib(col_el, XMLTags.BLUE);
+            final String al_txt = col_el.getAttribute(XMLTags.ALPHA);
+            alpha = al_txt.isEmpty() ? 255 : Integer.parseInt(al_txt);
         }
         catch (Exception ex)
         {   // Older legacy files had no red/green/blue info for named colors
@@ -114,9 +121,9 @@ public class ColorWidgetProperty extends WidgetProperty<WidgetColor>
         final WidgetColor color;
         if (name.isEmpty())
             // Plain color
-            color = new WidgetColor(red, green, blue);
+            color = new WidgetColor(red, green, blue, alpha);
         else
-            color = WidgetColorService.getColors().resolve(new NamedWidgetColor(name, red, green, blue));
+            color = WidgetColorService.getColors().resolve(new NamedWidgetColor(name, red, green, blue, alpha));
         setValue(color);
     }
 

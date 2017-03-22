@@ -14,7 +14,21 @@ package org.csstudio.display.builder.model.properties;
 @SuppressWarnings("nls")
 public class WidgetColor
 {
-    protected final int red, green, blue;
+    protected final int red, green, blue, alpha;
+
+    /** Construct RGB color
+     *  @param red Red component, range {@code 0-255}
+     *  @param green Green component, range {@code 0-255}
+     *  @param blue Blue component, range {@code 0-255}
+     *  @param alpha Alpha component, range {@code 0} (transparent) to {@code 255} (opaque)
+     */
+    public WidgetColor(final int red, final int green, final int blue, final int alpha)
+    {
+        this.red = red;
+        this.green = green;
+        this.blue = blue;
+        this.alpha = alpha;
+    }
 
     /** Construct RGB color
      *  @param red Red component, range {@code 0-255}
@@ -23,9 +37,7 @@ public class WidgetColor
      */
     public WidgetColor(final int red, final int green, final int blue)
     {
-        this.red = red;
-        this.green = green;
-        this.blue = blue;
+        this(red, green, blue, 255);
     }
 
     /** @return Red component, range {@code 0-255} */
@@ -46,13 +58,20 @@ public class WidgetColor
         return blue;
     }
 
-        @Override
+    /** @return Alpha, range {@code 0} (transparent) to {@code 255} (opaque) */
+    public int getAlpha()
+    {
+        return alpha;
+    }
+
+    @Override
     public int hashCode()
     {
         final int prime = 31;
         int result = blue;
         result = prime * result + green;
         result = prime * result + red;
+        result = prime * result + alpha;
         return result;
     }
 
@@ -64,12 +83,15 @@ public class WidgetColor
         final WidgetColor other = (WidgetColor) obj;
         return blue == other.blue   &&
                green == other.green &&
-               red == other.red;
+               red == other.red     &&
+               alpha == other.alpha;
     }
 
     @Override
     public String toString()
     {
+        if (alpha != 255)
+            return "RGB(" + red + "," + green + "," + blue + "," + alpha + ")";
         return "RGB(" + red + "," + green + "," + blue + ")";
     }
 }

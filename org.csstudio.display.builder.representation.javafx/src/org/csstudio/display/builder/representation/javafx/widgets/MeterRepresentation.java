@@ -252,6 +252,60 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
                 jfx_node.setShadowsEnabled((boolean) value);
             }
 
+            value = model_widget.propThreshold().getValue();
+
+            if ( !Objects.equals(value, jfx_node.getThreshold()) ) {
+                jfx_node.setThreshold((double) value);
+            }
+
+            value = JFXUtil.convert(model_widget.propThresholdColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getThresholdColor()) ) {
+                jfx_node.setThresholdColor((Color) value);
+            }
+
+            value = model_widget.propThresholdVisible().getValue();
+
+            if ( !Objects.equals(value, jfx_node.isThresholdVisible()) ) {
+                jfx_node.setThresholdVisible((boolean) value);
+            }
+
+            value = JFXUtil.convert(model_widget.propTickLabelColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getTickLabelColor()) ) {
+                jfx_node.setTickLabelColor((Color) value);
+            }
+
+            value = model_widget.propTickLabelDecimals().getValue();
+
+            if ( !Objects.equals(value, jfx_node.getTickLabelDecimals()) ) {
+                jfx_node.setTickLabelDecimals((int) value);
+            }
+
+            value = model_widget.propTickLabelsVisible().getValue();
+
+            if ( !Objects.equals(value, jfx_node.getTickLabelsVisible()) ) {
+                jfx_node.setTickLabelsVisible((boolean) value);
+            }
+
+            value = JFXUtil.convert(model_widget.propTickMarkRingColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getTickMarkColor()) ) {
+                jfx_node.setTickMarkColor((Color) value);
+            }
+
+            value = model_widget.propTickMarkRingVisible().getValue();
+
+            if ( !Objects.equals(value, jfx_node.isTickMarkRingVisible()) ) {
+                jfx_node.setTickMarkRingVisible((boolean) value);
+            }
+
+            value = JFXUtil.convert(model_widget.propZeroColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getZeroColor()) ) {
+                jfx_node.setZeroColor((Color) value);
+            }
+
         }
 
         if ( dirtyLimits.checkAndClear() ) {
@@ -294,6 +348,15 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
         jfx_node.setOnlyFirstAndLastTickLabelVisible(model_widget.propOnlyExtremaVisible().getValue());
         jfx_node.setScaleDirection(ScaleDirection.valueOf(model_widget.propScaleDirection().getValue().name()));
         jfx_node.setShadowsEnabled(model_widget.propShadowsEnabled().getValue());
+        jfx_node.setThreshold(model_widget.propThreshold().getValue());
+        jfx_node.setThresholdColor(JFXUtil.convert(model_widget.propThresholdColor().getValue()));
+        jfx_node.setThresholdVisible(model_widget.propThresholdVisible().getValue());
+        jfx_node.setTickLabelColor(JFXUtil.convert(model_widget.propTickLabelColor().getValue()));
+        jfx_node.setTickLabelDecimals(model_widget.propTickLabelDecimals().getValue());
+        jfx_node.setTickLabelsVisible(model_widget.propTickLabelsVisible().getValue());
+        jfx_node.setTickMarkColor(JFXUtil.convert(model_widget.propTickMarkRingColor().getValue()));
+        jfx_node.setTickMarkRingVisible(model_widget.propTickMarkRingVisible().getValue());
+        jfx_node.setZeroColor(JFXUtil.convert(model_widget.propZeroColor().getValue()));
 
         switch ( skin ) {
             case HORIZONTAL:
@@ -379,6 +442,15 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
         gauge.setOnlyFirstAndLastTickLabelVisible(model_widget.propOnlyExtremaVisible().getValue());
         gauge.setScaleDirection(ScaleDirection.valueOf(model_widget.propScaleDirection().getValue().name()));
         gauge.setShadowsEnabled(model_widget.propShadowsEnabled().getValue());
+        gauge.setThreshold(model_widget.propThreshold().getValue());
+        gauge.setThresholdColor(JFXUtil.convert(model_widget.propThresholdColor().getValue()));
+        gauge.setThresholdVisible(model_widget.propThresholdVisible().getValue());
+        gauge.setTickLabelColor(JFXUtil.convert(model_widget.propTickLabelColor().getValue()));
+        gauge.setTickLabelDecimals(model_widget.propTickLabelDecimals().getValue());
+        gauge.setTickLabelsVisible(model_widget.propTickLabelsVisible().getValue());
+        gauge.setTickMarkColor(JFXUtil.convert(model_widget.propTickMarkRingColor().getValue()));
+        gauge.setTickMarkRingVisible(model_widget.propTickMarkRingVisible().getValue());
+        gauge.setZeroColor(JFXUtil.convert(model_widget.propZeroColor().getValue()));
 
         switch ( model_widget.propSkin().getValue() ) {
             case GAUGE:
@@ -445,6 +517,15 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
         model_widget.propScaleDirection().addUntypedPropertyListener(this::lookChanged);
         model_widget.propShadowsEnabled().addUntypedPropertyListener(this::lookChanged);
         model_widget.propSkin().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propThreshold().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propThresholdColor().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propThresholdVisible().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propTickLabelColor().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propTickLabelDecimals().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propTickLabelsVisible().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propTickMarkRingColor().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propTickMarkRingVisible().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propZeroColor().addUntypedPropertyListener(this::lookChanged);
 
         model_widget.propHighlightZones().addUntypedPropertyListener(this::limitsChanged);
 

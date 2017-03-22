@@ -20,6 +20,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLimitsFromPV;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMaximum;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMinimum;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propTransparent;
 
 import java.util.Arrays;
 import java.util.List;
@@ -149,6 +150,7 @@ public class ScaledSliderWidget extends WritablePVWidget
                 XMLUtil.getChildDouble(xml, "level_hi").ifPresent(value -> slider.level_high.setValue(value));
                 XMLUtil.getChildBoolean(xml, "show_lo").ifPresent(show -> slider.show_low.setValue(show));
                 XMLUtil.getChildBoolean(xml, "show_hi").ifPresent(show -> slider.show_high.setValue(show));
+                XMLUtil.getChildBoolean(xml, "transparent_background").ifPresent(trans -> slider.transparent.setValue(trans));
 
                 // There used to be another 'show_markers' to override the individual show_low/hi/.. settings
                 final Optional<Boolean> show_markers = XMLUtil.getChildBoolean(xml, "show_markers");
@@ -178,6 +180,7 @@ public class ScaledSliderWidget extends WritablePVWidget
     private volatile WidgetProperty<Double> increment;
     private volatile WidgetProperty<WidgetColor> foreground;
     private volatile WidgetProperty<WidgetColor> background;
+    private volatile WidgetProperty<Boolean> transparent;
     private volatile WidgetProperty<WidgetFont> font;
     private volatile WidgetProperty<Double> minimum;
     private volatile WidgetProperty<Double> maximum;
@@ -209,6 +212,7 @@ public class ScaledSliderWidget extends WritablePVWidget
         properties.add(increment = propIncrement.createProperty(this, 1.0));
         properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
         properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
+        properties.add(transparent = propTransparent.createProperty(this, true));
         properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(minimum = propMinimum.createProperty(this, 0.0));
         properties.add(maximum = propMaximum.createProperty(this, 100.0));
@@ -256,6 +260,12 @@ public class ScaledSliderWidget extends WritablePVWidget
     public WidgetProperty<WidgetColor> propBackgroundColor()
     {
         return background;
+    }
+
+    /** @return 'transparent' property */
+    public WidgetProperty<Boolean> propTransparent()
+    {
+        return transparent;
     }
 
     /** @return 'font' property */
