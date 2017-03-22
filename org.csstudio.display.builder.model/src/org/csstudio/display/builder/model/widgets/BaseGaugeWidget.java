@@ -194,6 +194,7 @@ public abstract class BaseGaugeWidget extends PVWidget {
         properties.add(minimum          = propMinimum.createProperty(this, 0.0));
         properties.add(maximum          = propMaximum.createProperty(this, 100.0));
         properties.add(limits_from_pv   = propLimitsFromPV.createProperty(this, true));
+        properties.add(unit_from_pv     = propUnitFromPV.createProperty(this, true));
         properties.add(enabled          = propEnabled.createProperty(this, true));
 
         properties.add(title_color      = propTitleColor.createProperty(this, new WidgetColor(7, 5, 3)));
