@@ -456,16 +456,16 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
             case GAUGE:
                 switch ( model_widget.propScaleDirection().getValue() ) {
                     case CLOCKWISE:
-                        jfx_node.setStartAngle(320);
+                        gauge.setStartAngle(320);
                         break;
                     case COUNTER_CLOCKWISE:
-                        jfx_node.setStartAngle(40);
+                        gauge.setStartAngle(40);
                         break;
                 }
                 break;
             case THREE_QUARTERS:
-                jfx_node.setAngleRange(270);
-                jfx_node.setStartAngle(0);
+                gauge.setAngleRange(270);
+                gauge.setStartAngle(0);
                 break;
             default:
                 break;

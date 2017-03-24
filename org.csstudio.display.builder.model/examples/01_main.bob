@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <display version="2.0.0">
   <name>Main</name>
-  <width>810</width>
+  <width>1010</width>
+  <height>400</height>
   <grid_color>
     <color red="127" green="127" blue="127">
     </color>
@@ -12,8 +13,8 @@
     <text>Display Builder Examples</text>
     <x use_class="true">0</x>
     <y use_class="true">0</y>
-    <width>281</width>
-    <height>31</height>
+    <width>280</width>
+    <height>30</height>
     <font use_class="true">
       <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
       </font>
@@ -33,7 +34,7 @@
         <description>Introduction</description>
       </action>
     </actions>
-    <y>81</y>
+    <y>80</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -47,8 +48,8 @@
         <description>Label</description>
       </action>
     </actions>
-    <x>191</x>
-    <y>121</y>
+    <x>190</x>
+    <y>120</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -62,8 +63,8 @@
         <description>Text Update</description>
       </action>
     </actions>
-    <x>332</x>
-    <y>121</y>
+    <x>330</x>
+    <y>120</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -77,8 +78,8 @@
         <description>LED</description>
       </action>
     </actions>
-    <x>332</x>
-    <y>161</y>
+    <x>330</x>
+    <y>160</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -86,8 +87,8 @@
   <widget type="label" version="2.0.0">
     <name>Label_1</name>
     <text>Information</text>
-    <y>51</y>
-    <width>141</width>
+    <y>50</y>
+    <width>120</width>
     <height>30</height>
     <font>
       <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
@@ -97,9 +98,9 @@
   <widget type="label" version="2.0.0">
     <name>Label_2</name>
     <text>Widgets</text>
-    <x>191</x>
-    <y>51</y>
-    <width>141</width>
+    <x>190</x>
+    <y>50</y>
+    <width>120</width>
     <height>30</height>
     <font>
       <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
@@ -109,9 +110,9 @@
   <widget type="label" version="2.0.0">
     <name>Label_3</name>
     <text>Graphics</text>
-    <x>191</x>
-    <y>91</y>
-    <width>141</width>
+    <x>190</x>
+    <y>90</y>
+    <width>120</width>
     <height>30</height>
     <font>
       <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
@@ -121,9 +122,9 @@
   <widget type="label" version="2.0.0">
     <name>Label_4</name>
     <text>Monitors</text>
-    <x>332</x>
-    <y>91</y>
-    <width>110</width>
+    <x>330</x>
+    <y>90</y>
+    <width>120</width>
     <height>30</height>
     <font>
       <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
@@ -133,8 +134,8 @@
   <widget type="label" version="2.0.0">
     <name>Label_5</name>
     <text>Controls</text>
-    <x>191</x>
-    <y>291</y>
+    <x>470</x>
+    <y>90</y>
     <width>120</width>
     <height>30</height>
     <font>
@@ -145,8 +146,8 @@
   <widget type="label" version="2.0.0">
     <name>Label_6</name>
     <text>Plots</text>
-    <x>332</x>
-    <y>291</y>
+    <x>610</x>
+    <y>90</y>
     <width>120</width>
     <height>30</height>
     <font>
@@ -163,8 +164,8 @@
         <description>X/Y Plot</description>
       </action>
     </actions>
-    <x>332</x>
-    <y>321</y>
+    <x>610</x>
+    <y>120</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -178,8 +179,8 @@
         <description>Image</description>
       </action>
     </actions>
-    <x>332</x>
-    <y>361</y>
+    <x>610</x>
+    <y>160</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -193,7 +194,7 @@
         <description>Scripts</description>
       </action>
     </actions>
-    <y>281</y>
+    <y>280</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -207,7 +208,7 @@
         <description>Properties</description>
       </action>
     </actions>
-    <y>121</y>
+    <y>120</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -221,7 +222,7 @@
         <description>Macros</description>
       </action>
     </actions>
-    <y>201</y>
+    <y>200</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -235,7 +236,7 @@
         <description>Actions</description>
       </action>
     </actions>
-    <y>241</y>
+    <y>240</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -249,8 +250,8 @@
         <description>Picture</description>
       </action>
     </actions>
-    <x>191</x>
-    <y>161</y>
+    <x>190</x>
+    <y>160</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -258,9 +259,9 @@
   <widget type="label" version="2.0.0">
     <name>Label_7</name>
     <text>Structure</text>
-    <x>471</x>
-    <y>91</y>
-    <width>110</width>
+    <x>750</x>
+    <y>90</y>
+    <width>120</width>
     <height>30</height>
     <font>
       <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
@@ -276,8 +277,8 @@
         <description>Embedded</description>
       </action>
     </actions>
-    <x>471</x>
-    <y>161</y>
+    <x>750</x>
+    <y>160</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -291,8 +292,8 @@
         <description>Tabs</description>
       </action>
     </actions>
-    <x>471</x>
-    <y>201</y>
+    <x>750</x>
+    <y>200</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -306,8 +307,8 @@
         <description>Group</description>
       </action>
     </actions>
-    <x>471</x>
-    <y>121</y>
+    <x>750</x>
+    <y>120</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -321,8 +322,8 @@
         <description>Text Entry</description>
       </action>
     </actions>
-    <x>191</x>
-    <y>321</y>
+    <x>470</x>
+    <y>120</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -336,8 +337,8 @@
         <description>Toggle Buttons</description>
       </action>
     </actions>
-    <x>191</x>
-    <y>361</y>
+    <x>470</x>
+    <y>160</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -351,8 +352,8 @@
         <description>Action Buttons</description>
       </action>
     </actions>
-    <x>191</x>
-    <y>401</y>
+    <x>470</x>
+    <y>200</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -366,8 +367,8 @@
         <description>Polygon/line</description>
       </action>
     </actions>
-    <x>191</x>
-    <y>201</y>
+    <x>190</x>
+    <y>200</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -381,8 +382,8 @@
         <description>Incr. Controls</description>
       </action>
     </actions>
-    <x>191</x>
-    <y>441</y>
+    <x>470</x>
+    <y>240</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -396,8 +397,8 @@
         <description>Combo Box</description>
       </action>
     </actions>
-    <x>191</x>
-    <y>481</y>
+    <x>470</x>
+    <y>280</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -405,8 +406,8 @@
   <widget type="label" version="2.0.0">
     <name>Label_8</name>
     <text>Miscellaneous</text>
-    <x>471</x>
-    <y>291</y>
+    <x>890</x>
+    <y>90</y>
     <width>120</width>
     <height>30</height>
     <font>
@@ -423,8 +424,8 @@
         <description>Web Browser</description>
       </action>
     </actions>
-    <x>471</x>
-    <y>321</y>
+    <x>890</x>
+    <y>120</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -438,8 +439,8 @@
         <description>Byte Monitor</description>
       </action>
     </actions>
-    <x>332</x>
-    <y>201</y>
+    <x>330</x>
+    <y>200</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -453,8 +454,8 @@
         <description>Array</description>
       </action>
     </actions>
-    <x>471</x>
-    <y>241</y>
+    <x>750</x>
+    <y>240</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -468,8 +469,8 @@
         <description>File Selector</description>
       </action>
     </actions>
-    <x>191</x>
-    <y>561</y>
+    <x>470</x>
+    <y>360</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -483,8 +484,8 @@
         <description>Radio Button</description>
       </action>
     </actions>
-    <x>191</x>
-    <y>521</y>
+    <x>470</x>
+    <y>320</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -498,7 +499,7 @@
         <description>Classes</description>
       </action>
     </actions>
-    <y>161</y>
+    <y>160</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -512,8 +513,8 @@
         <description>Clocks</description>
       </action>
     </actions>
-    <x>471</x>
-    <y>361</y>
+    <x>890</x>
+    <y>160</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -527,7 +528,37 @@
         <description>Enablement</description>
       </action>
     </actions>
-    <y>321</y>
+    <y>320</y>
+    <width>120</width>
+    <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_27</name>
+    <actions>
+      <action type="open_display">
+        <file>monitors_gauge.bob</file>
+        <target>replace</target>
+        <description>Gauges</description>
+      </action>
+    </actions>
+    <x>330</x>
+    <y>240</y>
+    <width>120</width>
+    <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_28</name>
+    <actions>
+      <action type="open_display">
+        <file>monitors_meter.bob</file>
+        <target>replace</target>
+        <description>Meters</description>
+      </action>
+    </actions>
+    <x>330</x>
+    <y>280</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
