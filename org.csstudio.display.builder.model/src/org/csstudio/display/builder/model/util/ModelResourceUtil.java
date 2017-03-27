@@ -9,9 +9,13 @@ package org.csstudio.display.builder.model.util;
 
 import static org.csstudio.display.builder.model.ModelPlugin.logger;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DisplayModel;
@@ -429,6 +433,21 @@ public class ModelResourceUtil extends ResourceUtil
         return new FileInputStream(resource_name);
     }
 
+    private static final Cache<String> url_cache = new Cache<>(Duration.ofSeconds(60));
+
+    private static final String readUrl(final String url) throws Exception
+    {
+        System.out.println("Actually reading " + url);
+        final InputStream in = openURL(url, timeout_ms);
+        final ByteArrayOutputStream buf = new ByteArrayOutputStream();
+        final byte[] section = new byte[4096];
+        int len;
+        while ( (len = in.read(section)) >= 0)
+            buf.write(section, 0, len);
+
+        return new String(buf.toByteArray());
+    }
+
     /** Open URL for "http", "https", "ftp", ..
      *  @param resource_name URL specification
      *  @return {@link InputStream}
@@ -436,6 +455,8 @@ public class ModelResourceUtil extends ResourceUtil
      */
     protected static InputStream openURL(final String resource_name) throws Exception
     {
-        return openURL(resource_name, timeout_ms);
+        System.out.println("****  " + LocalDateTime.now() + " Read " + resource_name + "?");
+        final String content = url_cache.getCachedOrNew(resource_name, ModelResourceUtil::readUrl);
+        return new ByteArrayInputStream(content.getBytes());
     }
 }
