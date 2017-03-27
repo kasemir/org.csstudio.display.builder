@@ -80,6 +80,7 @@ public class GaugeRepresentation extends BaseGaugeRepresentation<GaugeWidget> {
         jfx_node.setBarColor(JFXUtil.convert(model_widget.propBarColor().getValue()));
         jfx_node.setHighlightSections(false);
         jfx_node.setStartFromZero(model_widget.propStartFromZero().getValue());
+        jfx_node.setTickLabelColor(Color.WHITE);
 
     }
 
@@ -93,6 +94,7 @@ public class GaugeRepresentation extends BaseGaugeRepresentation<GaugeWidget> {
         gauge.setBarColor(JFXUtil.convert(model_widget.propBarColor().getValue()));
         gauge.setHighlightSections(false);
         gauge.setStartFromZero(model_widget.propStartFromZero().getValue());
+        gauge.setTickLabelColor(Color.WHITE);
 
         return gauge;
 

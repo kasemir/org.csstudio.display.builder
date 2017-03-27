@@ -15,10 +15,14 @@ import java.util.List;
 
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.WidgetConfigurator;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
+import org.osgi.framework.Version;
+import org.w3c.dom.Element;
 
 
 /**
@@ -106,6 +110,11 @@ public abstract class BaseMeterWidget extends BaseGaugeWidget {
         super(type, default_width, default_height);
     }
 
+    @Override
+    public WidgetConfigurator getConfigurator ( final Version persistedVersion ) throws Exception {
+        return new BaseMeterConfigurator(persistedVersion);
+    }
+
     public WidgetProperty<Boolean> propHighlightZones ( ) {
         return highligh_zones;
     }
@@ -132,6 +141,37 @@ public abstract class BaseMeterWidget extends BaseGaugeWidget {
         properties.add(lcdDesign      = propLcdDesign.createProperty(this, LCDDesign.SECTIONS));
         properties.add(lcdFont        = propLcdFont.createProperty(this, LCDFont.DIGITAL_BOLD));
         properties.add(lcdVisible     = propLcdVisible.createProperty(this, true));
+
+    }
+
+    /**
+     * Custom configurator to read legacy *.opi files.
+     */
+    protected static class BaseMeterConfigurator extends BaseGaugeConfigurator{
+
+        public BaseMeterConfigurator ( Version xmlVersion ) {
+            super(xmlVersion);
+        }
+
+        @Override
+        public boolean configureFromXML ( final ModelReader reader, final Widget widget, final Element xml ) throws Exception {
+
+            if ( !super.configureFromXML(reader, widget, xml) ) {
+                return false;
+            }
+
+            if ( xml_version.getMajor() < 2 ) {
+
+                BaseMeterWidget meter = (BaseMeterWidget) widget;
+
+                //  BOY meters have no LCD.
+                meter.propLcdVisible().setValue(false);
+
+            }
+
+            return true;
+
+        }
 
     }
 
