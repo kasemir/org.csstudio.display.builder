@@ -153,6 +153,10 @@ public class Messages extends NLS
     public static String WidgetProperties_BorderWidth;
     public static String WidgetProperties_CellColors;
     public static String WidgetProperties_Class;
+    public static String WidgetProperties_ColorHiHi;
+    public static String WidgetProperties_ColorHigh;
+    public static String WidgetProperties_ColorLoLo;
+    public static String WidgetProperties_ColorLow;
     public static String WidgetProperties_ColorMap;
     public static String WidgetProperties_Connected;
     public static String WidgetProperties_CornerHeight;
