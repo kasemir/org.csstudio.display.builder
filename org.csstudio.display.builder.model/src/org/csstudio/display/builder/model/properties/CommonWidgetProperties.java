@@ -68,6 +68,24 @@ public class CommonWidgetProperties
         };
     }
 
+    /** Constructor for PV name property
+     *  @param category Widget property category
+     *  @param name Internal name of the property
+     *  @param description Human-readable description
+     */
+    public static final WidgetPropertyDescriptor<String> newPVNamePropertyDescriptor(final WidgetPropertyCategory category,
+                                                                                     final String name, final String description)
+    {
+        return new WidgetPropertyDescriptor<String>(category, name, description)
+        {
+            @Override
+            public WidgetProperty<String> createProperty(final Widget widget, final String value)
+            {
+                return new PVNameWidgetProperty(this, widget, value);
+            }
+        };
+    }
+
     /** Constructor for Integer property
      *  @param category Widget property category
      *  @param name Internal name of the property
@@ -550,7 +568,7 @@ public class CommonWidgetProperties
 
     /** 'pv_name' property: Primary PV Name */
     public static final WidgetPropertyDescriptor<String> propPVName =
-            newStringPropertyDescriptor(WidgetPropertyCategory.WIDGET, "pv_name", Messages.WidgetProperties_PVName);
+            newPVNamePropertyDescriptor(WidgetPropertyCategory.WIDGET, "pv_name", Messages.WidgetProperties_PVName);
 
     /** 'bit' property: Bit to check in value */
     public static final WidgetPropertyDescriptor<Integer> propBit =
