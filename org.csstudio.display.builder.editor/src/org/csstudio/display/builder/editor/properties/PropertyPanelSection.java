@@ -35,6 +35,7 @@ import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
 import org.csstudio.display.builder.model.properties.FilenameWidgetProperty;
 import org.csstudio.display.builder.model.properties.FontWidgetProperty;
 import org.csstudio.display.builder.model.properties.MacrosWidgetProperty;
+import org.csstudio.display.builder.model.properties.PVNameWidgetProperty;
 import org.csstudio.display.builder.model.properties.PointsWidgetProperty;
 import org.csstudio.display.builder.model.properties.RulesWidgetProperty;
 import org.csstudio.display.builder.model.properties.ScriptsWidgetProperty;
@@ -237,6 +238,22 @@ public class PropertyPanelSection extends GridPane
             binding.bind();
             field = map_button;
         }
+        else if (property instanceof WidgetClassProperty)
+        {
+            final WidgetClassProperty widget_class_prop = (WidgetClassProperty) property;
+            final ComboBox<String> combo = new ComboBox<>();
+            combo.setPromptText(property.getDefaultValue().toString());
+            combo.setEditable(true);
+            // List classes of this widget
+            final String type = widget.getType();
+            final Collection<String> classes = WidgetClassesService.getWidgetClasses().getWidgetClasses(type);
+            combo.getItems().addAll(classes);
+            combo.setMaxWidth(Double.MAX_VALUE);
+            final WidgetClassBinding binding = new WidgetClassBinding(undo, combo, widget_class_prop, other);
+            bindings.add(binding);
+            binding.bind();
+            field = combo;
+        }
         else if (property instanceof FilenameWidgetProperty)
         {
             final FilenameWidgetProperty file_prop = (FilenameWidgetProperty)property;
@@ -263,47 +280,37 @@ public class PropertyPanelSection extends GridPane
             field = new HBox(text, select_file);
             HBox.setHgrow(text, Priority.ALWAYS);
         }
-        else if (property instanceof WidgetClassProperty)
+        else if (property instanceof PVNameWidgetProperty)
         {
-            final WidgetClassProperty widget_class_prop = (WidgetClassProperty) property;
-            final ComboBox<String> combo = new ComboBox<>();
-            combo.setPromptText(property.getDefaultValue().toString());
-            combo.setEditable(true);
-            // List classes of this widget
-            final String type = widget.getType();
-            final Collection<String> classes = WidgetClassesService.getWidgetClasses().getWidgetClasses(type);
-            combo.getItems().addAll(classes);
-            combo.setMaxWidth(Double.MAX_VALUE);
-            final WidgetClassBinding binding = new WidgetClassBinding(undo, combo, widget_class_prop, other);
+            final PVNameWidgetProperty pv_prop = (PVNameWidgetProperty)property;
+            final TextField text = new TextField();
+            text.setPromptText(pv_prop.getDefaultValue().toString());
+            final MacroizedWidgetPropertyBinding binding = new MacroizedWidgetPropertyBinding(undo, text, pv_prop, other)
+            {
+                @Override
+                public void bind()
+                {
+                    super.bind();
+                    autocomplete_menu.attachField(text);
+                }
+
+                @Override
+                public void unbind()
+                {
+                    super.unbind();
+                    autocomplete_menu.removeField(text);
+                }
+            };
             bindings.add(binding);
             binding.bind();
-            field = combo;
+            field = text;
         }
         else if (property instanceof MacroizedWidgetProperty)
-        {
+        {   // MacroizedWidgetProperty needs to be checked _after_ subclasses like PVNameWidgetProperty, FilenameWidgetProperty
             final MacroizedWidgetProperty<?> macro_prop = (MacroizedWidgetProperty<?>)property;
             final TextField text = new TextField();
             text.setPromptText(macro_prop.getDefaultValue().toString());
-            // For now properties that hold a PV name contain "pv" in their name:
-            // "pv_name", "selection_value_pv", "x_pv", "y_pv", ...
-            final MacroizedWidgetPropertyBinding binding = (property.getName().contains("pv"))
-                ? new MacroizedWidgetPropertyBinding(undo, text, macro_prop, other)
-                {
-                    @Override
-                    public void bind()
-                    {
-                        super.bind();
-                        autocomplete_menu.attachField(text);
-                    }
-
-                    @Override
-                    public void unbind()
-                    {
-                        super.unbind();
-                        autocomplete_menu.removeField(text);
-                    }
-                }
-                : new MacroizedWidgetPropertyBinding(undo, text, macro_prop, other);
+            final MacroizedWidgetPropertyBinding binding = new MacroizedWidgetPropertyBinding(undo, text, macro_prop, other);
             bindings.add(binding);
             binding.bind();
             if (CommonWidgetProperties.propText.getName().equals(property.getName())  ||

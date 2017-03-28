@@ -7,10 +7,15 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.persist;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
+
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Optional;
+import java.util.logging.Level;
 
+import org.csstudio.display.builder.model.properties.NamedWidgetColor;
+import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -296,6 +301,63 @@ public class XMLUtil
             return Optional.empty();
     }
 
+    /**
+     * Given a parent element, locate color value of a child node.
+     *
+     * @param parent Parent element.
+     * @param name Name of child element.
+     * @return Value of child element, or empty result.
+     */
+    public static Optional<WidgetColor> getChildColor ( final Element parent, final String name ) {
+
+        final Element child = getChildElement(parent, name);
+
+        if ( child != null ) {
+
+            Element colorElement = XMLUtil.getChildElement(child, XMLTags.COLOR);
+
+            if ( colorElement == null ) {
+                return Optional.empty();
+            }
+
+            WidgetColor color = null;
+            String colorName = colorElement.getAttribute(XMLTags.NAME);
+
+            try {
+
+                int red = getAttribute(colorElement, XMLTags.RED);
+                int green = getAttribute(colorElement, XMLTags.GREEN);
+                int blue = getAttribute(colorElement, XMLTags.BLUE);
+                String alphaString = colorElement.getAttribute(XMLTags.ALPHA);
+                int alpha = alphaString.isEmpty() ? 255 : Integer.parseInt(alphaString);
+
+                if ( colorName.isEmpty() ) {
+                    // Plain color
+                    color = new WidgetColor(red, green, blue, alpha);
+                } else {
+                    color = WidgetColorService.getColors().resolve(new NamedWidgetColor(colorName, red, green, blue, alpha));
+                }
+
+            } catch ( Exception ex ) {   // Older legacy files had no red/green/blue info for named colors
+
+                logger.log(Level.WARNING, "Line " + XMLUtil.getLineInfo(child), ex);
+
+                if ( colorName.isEmpty() ) {
+                    color = WidgetColorService.getColor(NamedWidgetColors.TEXT);
+                } else {
+                    color = WidgetColorService.getColor(colorName);
+                }
+
+            }
+
+            return ( color == null ) ? Optional.empty() : Optional.of(color);
+
+        } else {
+            return Optional.empty();
+        }
+
+    }
+
     /** @param text Text that should contain true or false
      *  @param default_value Value to use when text is empty
      *  @return Boolean value of text
@@ -385,6 +447,18 @@ public class XMLUtil
             }
         }
         return ret;
+    }
+
+    private static int getAttribute ( final Element element, final String attribute ) throws Exception {
+
+        final String text = element.getAttribute(attribute);
+
+        if ( text.isEmpty() ) {
+            throw new Exception("<color> without " + attribute);
+        }
+
+        return Integer.parseInt(text);
+
     }
 
 }
