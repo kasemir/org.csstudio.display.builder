@@ -27,8 +27,8 @@ import org.csstudio.display.builder.util.ResourceUtil;
 @SuppressWarnings("nls")
 public class ModelResourceUtil extends ResourceUtil
 {
-    // TODO Preference for cache duration
-    private static final Cache<String> url_cache = new Cache<>(Duration.ofSeconds(60));
+    /** Cache for content read from a URL */
+    private static final Cache<byte[]> url_cache = new Cache<>(Duration.ofSeconds(Preferences.getCacheTimeout()));
 
     private static int timeout_ms = Preferences.getReadTimeout();
 
@@ -435,7 +435,18 @@ public class ModelResourceUtil extends ResourceUtil
         return new FileInputStream(resource_name);
     }
 
-    private static final String readUrl(final String url) throws Exception
+    /** Open URL for "http", "https", "ftp", ..
+     *  @param resource_name URL specification
+     *  @return {@link InputStream}
+     *  @throws Exception on error
+     */
+    private static InputStream openURL(final String resource_name) throws Exception
+    {
+        final byte[] content = url_cache.getCachedOrNew(resource_name, ModelResourceUtil::readUrl);
+        return new ByteArrayInputStream(content);
+    }
+
+    private static final byte[] readUrl(final String url) throws Exception
     {
         // System.out.println("Actually reading " + url + ", not cached");
         final InputStream in = openURL(url, timeout_ms);
@@ -445,17 +456,6 @@ public class ModelResourceUtil extends ResourceUtil
         while ( (len = in.read(section)) >= 0)
             buf.write(section, 0, len);
 
-        return new String(buf.toByteArray());
-    }
-
-    /** Open URL for "http", "https", "ftp", ..
-     *  @param resource_name URL specification
-     *  @return {@link InputStream}
-     *  @throws Exception on error
-     */
-    protected static InputStream openURL(final String resource_name) throws Exception
-    {
-        final String content = url_cache.getCachedOrNew(resource_name, ModelResourceUtil::readUrl);
-        return new ByteArrayInputStream(content.getBytes());
+        return buf.toByteArray();
     }
 }

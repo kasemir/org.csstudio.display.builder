@@ -96,7 +96,7 @@ public class Cache<T>
                     return new Entry(creator.create(key));
                 }
                 finally
-                {   // No matter if entry was created sucessfully,
+                {   // No matter if entry was created successfully,
                     // or threw an exception.
                     // Either the value or the exception will be returned
                     // but the future,
