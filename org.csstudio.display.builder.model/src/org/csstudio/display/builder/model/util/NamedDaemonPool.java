@@ -8,6 +8,8 @@
 package org.csstudio.display.builder.model.util;
 
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -32,9 +34,10 @@ public class NamedDaemonPool implements ThreadFactory
     // Having just one such ExecutorService, however, may not be optimal:
     // If the display 'runtime' uses all cores,
     // there should still be headroom for the 'editor' to also use cores
-    // --> Create one thread pool for 'model', one for 'editor', one for 'runtime', ..
+    // --> Create one thread pool for 'model', one for 'editor', one for 'runtime',
+    //     so they can later be adjusted to balance the load
 
-    /** Create executor service for runtime related tasks
+    /** Create executor service for model related tasks
      *
      *  @param name Name of the thread pool
      *  @return ExecutorService
@@ -70,6 +73,16 @@ public class NamedDaemonPool implements ThreadFactory
                 10L, TimeUnit.SECONDS,
                 new SynchronousQueue<Runnable>(),
                 new NamedDaemonPool(name));
+    }
+
+    /** Create scheduled executor service for model related tasks
+     *
+     *  @param name Name of the thread pool
+     *  @return ScheduledExecutorService
+     */
+    public static ScheduledExecutorService createTimer(final String name)
+    {
+        return Executors.newSingleThreadScheduledExecutor(new NamedDaemonPool(name));
     }
 
     public NamedDaemonPool(final String name)

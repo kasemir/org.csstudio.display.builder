@@ -11,9 +11,13 @@ import static org.csstudio.display.builder.model.ModelPlugin.logger;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 
 /** Generic cache
@@ -21,6 +25,10 @@ import java.util.logging.Level;
  *  <p>When fetching an entry, it will return
  *  a previously submitted entry that's still valid.
  *  If there is none, or it has expired, a new entry is created.
+ *
+ *  <p>Entries are checked for expiration right when they're requested.
+ *  In addition, a slower timer checks for expired entries
+ *  which have not been requested for a while.
  *
  *  @author Kay Kasemir
  *
@@ -53,12 +61,14 @@ public class Cache<T>
             return value;
         }
 
-        public boolean isExpired()
+        public boolean isExpired(final Instant now)
         {
-            return Instant.now().isAfter(expire);
+            return expire.isBefore(now);
         }
     };
     private final ConcurrentHashMap<String, Future<Entry>> cache = new ConcurrentHashMap<>();
+
+    private final AtomicReference<ScheduledFuture<?>> cleanup_timer = new AtomicReference<>();
 
     /** @param timeout How long entries remain valid */
     public Cache(final Duration timeout)
@@ -79,14 +89,28 @@ public class Cache<T>
         // second one will just 'get' the future submitted by first one.
         final Future<Entry> future_entry = cache.computeIfAbsent(key, k ->
         {
-            final Callable<Entry> create_entry = () -> new Entry(creator.create(key));
+            final Callable<Entry> create_entry = () ->
+            {
+                try
+                {
+                    return new Entry(creator.create(key));
+                }
+                finally
+                {   // No matter if entry was created sucessfully,
+                    // or threw an exception.
+                    // Either the value or the exception will be returned
+                    // but the future,
+                    // it will be in the cache, so arrange for expiration
+                    schedule_cleanup();
+                }
+            };
             return ModelThreadPool.getExecutor().submit(create_entry);
         });
         // Both concurrent threads will await future
         final Entry entry = future_entry.get();
 
         // Check expiration
-        if (! entry.isExpired())
+        if (! entry.isExpired(Instant.now()))
             return entry.getValue();
         // Re-create
         // Two threads might concurrently find an expired entry.
@@ -96,33 +120,55 @@ public class Cache<T>
         return getCachedOrNew(key, creator);
     }
 
-    // TODO Call something like this to perform regular cleanup
-    public void schedule_cleanup()
+    private void cleanup()
     {
-        ModelThreadPool.getExecutor().submit(() ->
+        final Instant now = Instant.now();
+        cache.forEach((key, future) ->
         {
-            try
+            if (future.isDone())
             {
-                Thread.sleep(timeout.toMillis());
-            }
-            catch (InterruptedException ex)
-            {
-                // Ignore
-                return;
-            }
-
-            cache.forEach((key, future) ->
-            {
+                final Cache<T>.Entry entry;
                 try
                 {
-                    if (future.isDone()  &&  future.get().isExpired())
-                        cache.remove(key, future);
+                    entry = future.get();
                 }
                 catch (Exception ex)
                 {
-                    logger.log(Level.WARNING, "Cannot clean URL cache", ex);
+                    // There was an error creating the entry,
+                    // for example a file could not be opened.
+                    // This was reported to the caller of getCachedOrNew.
+                    // Remove from cache, so next time we'll try again.
+                    logger.log(Level.FINE, "Cache expires failed entry {0}", key);
+                    cache.remove(key, future);
+                    return;
                 }
-            });
+                if (entry.isExpired(now))
+                {
+                    logger.log(Level.FINE, "Cache expires {0}", key);
+                    cache.remove(key, future);
+                }
+            }
         });
+    }
+
+    /** (Re-)schedule the cleanup of expired entries */
+    private void schedule_cleanup()
+    {
+        // Use 1.5 times the timeout for cleanup
+        final ScheduledFuture<?> next = ModelThreadPool.getTimer().schedule(this::cleanup, 3*timeout.getSeconds()/2, TimeUnit.SECONDS);
+        final ScheduledFuture<?> prev = cleanup_timer.getAndSet(next);
+        if (prev == null)
+            logger.fine("Scheduling cache cleanup");
+        else
+        {
+            logger.fine("Re-scheduling cache cleanup");
+            prev.cancel(false);
+        }
+    }
+
+    /** @return Keys for current cache entries (for unit test) */
+    public Collection<String> getKeys()
+    {
+        return cache.keySet();
     }
 }

@@ -15,7 +15,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DisplayModel;
@@ -28,6 +27,9 @@ import org.csstudio.display.builder.util.ResourceUtil;
 @SuppressWarnings("nls")
 public class ModelResourceUtil extends ResourceUtil
 {
+    // TODO Preference for cache duration
+    private static final Cache<String> url_cache = new Cache<>(Duration.ofSeconds(60));
+
     private static int timeout_ms = Preferences.getReadTimeout();
 
     private static WorkspaceResourceHelper workspace_helper = initializeWRHelper();
@@ -433,11 +435,9 @@ public class ModelResourceUtil extends ResourceUtil
         return new FileInputStream(resource_name);
     }
 
-    private static final Cache<String> url_cache = new Cache<>(Duration.ofSeconds(60));
-
     private static final String readUrl(final String url) throws Exception
     {
-        System.out.println("Actually reading " + url);
+        // System.out.println("Actually reading " + url + ", not cached");
         final InputStream in = openURL(url, timeout_ms);
         final ByteArrayOutputStream buf = new ByteArrayOutputStream();
         final byte[] section = new byte[4096];
@@ -455,7 +455,6 @@ public class ModelResourceUtil extends ResourceUtil
      */
     protected static InputStream openURL(final String resource_name) throws Exception
     {
-        System.out.println("****  " + LocalDateTime.now() + " Read " + resource_name + "?");
         final String content = url_cache.getCachedOrNew(resource_name, ModelResourceUtil::readUrl);
         return new ByteArrayInputStream(content.getBytes());
     }
