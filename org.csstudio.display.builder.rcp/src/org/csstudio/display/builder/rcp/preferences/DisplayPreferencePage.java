@@ -57,21 +57,6 @@ public class DisplayPreferencePage extends FieldEditorPreferencePage
     @Override
     public void createFieldEditors()
     {
-        addField(new StringFieldEditor(org.csstudio.display.builder.model.Preferences.READ_TIMEOUT,
-                                      "File Read Timeout [ms]:", getFieldEditorParent())
-        {   // Field uses pref. store that differs from the page's default store
-            @Override
-            public IPreferenceStore getPreferenceStore()
-            {
-                return model_prefs;
-            }
-            // Need to force doStore() for pref store that differs from page default
-            @Override
-            public void store()
-            {
-                doStore();
-            }
-        });
 
         addField(new StringFieldEditor(org.csstudio.display.builder.model.Preferences.CLASS_FILES,
                                        "Widget Class Files:", getFieldEditorParent())
@@ -133,6 +118,39 @@ public class DisplayPreferencePage extends FieldEditorPreferencePage
                 doStore();
             }
         });
+
+        addField(new StringFieldEditor(org.csstudio.display.builder.model.Preferences.READ_TIMEOUT,
+                "File Read Timeout [ms]:", getFieldEditorParent())
+        {   // Field uses pref. store that differs from the page's default store
+            @Override
+            public IPreferenceStore getPreferenceStore()
+            {
+                return model_prefs;
+            }
+            // Need to force doStore() for pref store that differs from page default
+            @Override
+            public void store()
+            {
+                doStore();
+            }
+        });
+
+        addField(new StringFieldEditor(org.csstudio.display.builder.model.Preferences.CACHE_TIMEOUT,
+                "URL cache Timeout [sec]:", getFieldEditorParent())
+        {   // Field uses pref. store that differs from the page's default store
+            @Override
+            public IPreferenceStore getPreferenceStore()
+            {
+                return model_prefs;
+            }
+            // Need to force doStore() for pref store that differs from page default
+            @Override
+            public void store()
+            {
+                doStore();
+            }
+        });
+
 
         final String[] implementations = PVFactory.getImplementations();
         // Combo needs list where each entry is [ label, value ].

@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.preferences.IPreferencesService;
 @SuppressWarnings("nls")
 public class Preferences
 {
+    public static final String CACHE_TIMEOUT = "cache_timeout";
     public static final String CLASS_FILES = "class_files";
     public static final String COLOR_FILES = "color_files";
     public static final String FONT_FILES = "font_files";
@@ -55,6 +56,16 @@ public class Preferences
         final IPreferencesService prefs = Platform.getPreferencesService();
         if (prefs != null)
             timeout = prefs.getInt(ModelPlugin.ID, READ_TIMEOUT, timeout, null);
+        return timeout;
+    }
+
+    /** @return Cache timeout [sec] */
+    public static int getCacheTimeout()
+    {
+        int timeout = 60;
+        final IPreferencesService prefs = Platform.getPreferencesService();
+        if (prefs != null)
+            timeout = prefs.getInt(ModelPlugin.ID, CACHE_TIMEOUT, timeout, null);
         return timeout;
     }
 
