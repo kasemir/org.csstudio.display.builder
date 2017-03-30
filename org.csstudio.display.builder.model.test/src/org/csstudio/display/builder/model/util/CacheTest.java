@@ -15,6 +15,7 @@ import static org.junit.Assert.fail;
 
 import java.time.Duration;
 import java.util.Collection;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -60,6 +61,7 @@ public class CacheTest
     {
         final Cache<String> cache = new Cache<>(Duration.ofSeconds(2));
 
+        final CountDownLatch set_A = new CountDownLatch(1);
         final AtomicReference<String> A = new AtomicReference<>();
         final ExecutorService pool = Executors.newCachedThreadPool();
         pool.submit(() ->
@@ -67,6 +69,7 @@ public class CacheTest
             final String key = "A";
             logger.fine("> Requesting " + key + " for 1st time ...");
             A.set(cache.getCachedOrNew(key, this::createEntry));
+            set_A.countDown();
             logger.fine("< Got initial" + key);
             return null;
         });
@@ -89,6 +92,9 @@ public class CacheTest
 
         String A2 = cache.getCachedOrNew("A", this::createEntry);
         assertThat(A2, equalTo("Entry for A"));
+        // First submitted thread may have triggered creating the "A" entry,
+        // but not set A, yet, so wait for that to avoid A.get() == null.
+        set_A.await();
         assertThat(A2, sameInstance(A.get()));
 
         logger.fine("Allowing to expire");
