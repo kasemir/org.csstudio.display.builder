@@ -18,6 +18,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.macros.MacroValueProvider;
 import org.csstudio.display.builder.model.properties.ActionInfo;
+import org.csstudio.display.builder.model.properties.ActionInfos;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
 import org.csstudio.display.builder.model.properties.StringWidgetProperty;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
@@ -120,16 +121,12 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
      */
     private ButtonBase makeBaseButton()
     {
-        final List<ActionInfo> actions = model_widget.propActions().getValue();
+        final ActionInfos actions = model_widget.propActions().getValue();
         final ButtonBase result;
-        if (actions.size() < 2)
+        if (actions.isExecutedAsOne()  ||  actions.getActions().size() < 2)
         {
             final Button button = new Button();
-            if (actions.size() > 0)
-            {
-                final ActionInfo the_action = actions.get(0);
-                button.setOnAction(event -> handleAction(the_action));
-            }
+            button.setOnAction(event -> handleActions(actions.getActions()));
             result = button;
         }
         else
@@ -153,7 +150,7 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
                     }
                 }
             });
-            for (final ActionInfo action : actions)
+            for (final ActionInfo action : actions.getActions())
             {
                 final MenuItem item = new MenuItem(makeActionText(action));
                 item.setOnAction(event -> handleAction(action));
@@ -188,7 +185,7 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
         final StringWidgetProperty text_prop = (StringWidgetProperty)model_widget.propText();
         if ("$(actions)".equals(text_prop.getSpecification()))
         {
-            final List<ActionInfo> actions = model_widget.propActions().getValue();
+            final List<ActionInfo> actions = model_widget.propActions().getValue().getActions();
             if (actions.size() < 1)
                 return Messages.ActionButton_NoActions;
             if (actions.size() > 1)
@@ -216,6 +213,13 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
             expanded = action_str;
         }
         return expanded;
+    }
+
+    /** @param actions Actions that the user invoked */
+    private void handleActions(final List<ActionInfo> actions)
+    {
+        for (ActionInfo action : actions)
+            handleAction(action);
     }
 
     /** @param action Action that the user invoked */

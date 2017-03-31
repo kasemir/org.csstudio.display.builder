@@ -278,7 +278,7 @@ public class WidgetRuntime<MW extends Widget>
         }
 
         // Prepare action-related PVs
-        final List<ActionInfo> actions = widget.propActions().getValue();
+        final List<ActionInfo> actions = widget.propActions().getValue().getActions();
         if (actions.size() > 0)
         {
             final List<RuntimePV> action_pvs = new ArrayList<>();
@@ -367,7 +367,7 @@ public class WidgetRuntime<MW extends Widget>
 
 
         // Compile scripts invoked by actions
-        final List<ActionInfo> actions = widget.propActions().getValue();
+        final List<ActionInfo> actions = widget.propActions().getValue().getActions();
         if (actions.size() > 0)
         {
             final Map<ExecuteScriptActionInfo, Script> scripts = new HashMap<>();

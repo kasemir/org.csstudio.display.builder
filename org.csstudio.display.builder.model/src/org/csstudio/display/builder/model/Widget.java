@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 import org.csstudio.display.builder.model.macros.MacroOrPropertyProvider;
 import org.csstudio.display.builder.model.macros.MacroValueProvider;
 import org.csstudio.display.builder.model.macros.Macros;
-import org.csstudio.display.builder.model.properties.ActionInfo;
+import org.csstudio.display.builder.model.properties.ActionInfos;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.rules.RuleInfo;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
@@ -150,7 +150,7 @@ public class Widget
     private WidgetProperty<Integer> y;
     private WidgetProperty<Integer> width;
     private WidgetProperty<Integer> height;
-    private WidgetProperty<List<ActionInfo>> actions;
+    private WidgetProperty<ActionInfos> actions;
     private WidgetProperty<List<RuleInfo>> rules;
     private WidgetProperty<List<ScriptInfo>> scripts;
 
@@ -183,7 +183,7 @@ public class Widget
         prelim_properties.add(y = propY.createProperty(this, 0));
         prelim_properties.add(width = propWidth.createProperty(this, default_width));
         prelim_properties.add(height = propHeight.createProperty(this, default_height));
-        prelim_properties.add(actions = propActions.createProperty(this, Collections.emptyList()));
+        prelim_properties.add(actions = propActions.createProperty(this, ActionInfos.EMPTY));
         prelim_properties.add(rules = propRules.createProperty(this, Collections.emptyList()));
         prelim_properties.add(scripts = propScripts.createProperty(this, Collections.emptyList()));
 
@@ -384,7 +384,7 @@ public class Widget
     }
 
     /** @return 'actions' property */
-    public final WidgetProperty<List<ActionInfo>> propActions()
+    public final WidgetProperty<ActionInfos> propActions()
     {
         return actions;
     }

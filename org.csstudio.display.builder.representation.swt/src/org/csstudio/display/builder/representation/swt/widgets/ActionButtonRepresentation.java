@@ -32,7 +32,7 @@ public class ActionButtonRepresentation extends SWTBaseRepresentation<Button, Ac
     @Override
     protected Button createSWTControl(final Composite parent) throws Exception
     {
-        final List<ActionInfo> actions = model_widget.propActions().getValue();
+        final List<ActionInfo> actions = model_widget.propActions().getValue().getActions();
         final Button button = new Button(parent, SWT.PUSH);
 
         // Use basic button for single action

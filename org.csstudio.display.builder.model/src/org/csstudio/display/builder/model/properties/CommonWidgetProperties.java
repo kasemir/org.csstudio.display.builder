@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -575,13 +575,12 @@ public class CommonWidgetProperties
             newIntegerPropertyDescriptor(WidgetPropertyCategory.WIDGET, "bit", Messages.WidgetProperties_Bit);
 
     /** 'actions' property: Actions that user can invoke */
-    public static final WidgetPropertyDescriptor<List<ActionInfo>> propActions =
-            new WidgetPropertyDescriptor<List<ActionInfo>>(
+    public static final WidgetPropertyDescriptor<ActionInfos> propActions =
+            new WidgetPropertyDescriptor<ActionInfos>(
                     WidgetPropertyCategory.BEHAVIOR, "actions", Messages.WidgetProperties_Actions)
     {
         @Override
-        public WidgetProperty<List<ActionInfo>> createProperty(final Widget widget,
-                final List<ActionInfo> actions)
+        public WidgetProperty<ActionInfos> createProperty(final Widget widget, final ActionInfos actions)
         {
             return new ActionsWidgetProperty(this, widget, actions)
             {

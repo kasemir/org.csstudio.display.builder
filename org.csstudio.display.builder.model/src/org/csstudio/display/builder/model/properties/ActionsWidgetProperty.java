@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -39,7 +39,7 @@ import org.w3c.dom.Element;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
+public class ActionsWidgetProperty extends WidgetProperty<ActionInfos>
 {
     private static final String OPEN_DISPLAY = "open_display";
     private static final String WRITE_PV = "write_pv";
@@ -54,24 +54,26 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
      *  @param default_value Default and initial value
      */
     public ActionsWidgetProperty(
-            final WidgetPropertyDescriptor<List<ActionInfo>> descriptor,
+            final WidgetPropertyDescriptor<ActionInfos> descriptor,
             final Widget widget,
-            final List<ActionInfo> default_value)
+            final ActionInfos default_value)
     {
         super(descriptor, widget, default_value);
     }
 
-    /** @param value Must be ActionInfo array(!), not List */
+    /** @param value Must be ActionInfos or ActionInfo array(!), not List */
     @Override
     public void setValueFromObject(final Object value) throws Exception
     {
+        if (value instanceof ActionInfos)
+            setValue((ActionInfos) value);
         if (value instanceof ActionInfo[])
-            setValue(Arrays.asList((ActionInfo[]) value));
+            setValue(new ActionInfos(Arrays.asList((ActionInfo[]) value)));
         else if ((value instanceof Collection) &&
                 ((Collection<?>)value).isEmpty())
-           setValue(Collections.emptyList());
+           setValue(new ActionInfos(Collections.emptyList()));
         else
-            throw new Exception("Need ActionInfo[], got " + value);
+            throw new Exception("Need ActionInfos or ActionInfo[], got " + value);
     }
 
     /** @param mode One of the modes from org.csstudio.opibuilder.runmode.RunModeService.DisplayMode
@@ -100,7 +102,9 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
     @Override
     public void writeToXML(final ModelWriter model_writer, final XMLStreamWriter writer) throws Exception
     {
-        for (final ActionInfo info : value)
+        if (value.isExecutedAsOne())
+            writer.writeAttribute(XMLTags.EXECUTE_AS_ONE, Boolean.TRUE.toString());
+        for (final ActionInfo info : value.getActions())
         {
             // <action type="..">
             writer.writeStartElement(XMLTags.ACTION);
@@ -188,6 +192,10 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
     @Override
     public void readFromXML(final ModelReader model_reader, final Element property_xml) throws Exception
     {
+        final boolean execute_as_one =
+            Boolean.parseBoolean(property_xml.getAttribute(XMLTags.EXECUTE_AS_ONE))  ||
+            Boolean.parseBoolean(property_xml.getAttribute("hook_all")); // Legacy files
+
         final List<ActionInfo> actions = new ArrayList<>();
         for (final Element action_xml : XMLUtil.getChildElements(property_xml, XMLTags.ACTION))
         {
@@ -346,13 +354,13 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
             else
                 logger.log(Level.WARNING, "Ignoring action of unknown type '" + type + "'");
         }
-        setValue(actions);
+        setValue(new ActionInfos(actions, execute_as_one));
     }
 
     @Override
     public String toString()
     {
-        final List<ActionInfo> actions = value;
+        final List<ActionInfo> actions = value.getActions();
         if (actions.isEmpty())
             return Messages.Actions_Zero;
         if (actions.size() == 1)
