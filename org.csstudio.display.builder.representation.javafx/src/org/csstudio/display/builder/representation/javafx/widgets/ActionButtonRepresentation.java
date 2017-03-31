@@ -135,6 +135,8 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
         else
         {
             final MenuButton button = new MenuButton();
+            // Experimenting with ways to force update of popup location,
+            // #226
             button.showingProperty().addListener((prop, old, showing) ->
             {
                 if (showing)
