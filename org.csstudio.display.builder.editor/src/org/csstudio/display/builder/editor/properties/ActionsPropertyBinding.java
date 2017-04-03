@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,7 +13,7 @@ import java.util.Optional;
 import org.csstudio.display.builder.editor.undo.SetWidgetPropertyAction;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
-import org.csstudio.display.builder.model.properties.ActionInfo;
+import org.csstudio.display.builder.model.properties.ActionInfos;
 import org.csstudio.display.builder.model.properties.ActionsWidgetProperty;
 import org.csstudio.display.builder.representation.javafx.ActionsDialog;
 import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
@@ -33,7 +33,7 @@ public class ActionsPropertyBinding
     private AutocompleteMenu menu = null;
 
     /** Update property panel field as model changes */
-    private final WidgetPropertyListener<List<ActionInfo>> model_listener = (p, o, n) ->
+    private final WidgetPropertyListener<ActionInfos> model_listener = (p, o, n) ->
     {
         jfx_node.setText(widget_property.getValue().toString());
     };
@@ -44,14 +44,14 @@ public class ActionsPropertyBinding
         final ActionsDialog dialog = new ActionsDialog(widget_property.getWidget(), widget_property.getValue(), menu);
         DialogHelper.positionDialog(dialog, DialogHelper.getContainer(jfx_node), -200, -200);
 
-        final Optional<List<ActionInfo>> result = dialog.showAndWait();
+        final Optional<ActionInfos> result = dialog.showAndWait();
         if (result.isPresent())
         {
-            undo.execute(new SetWidgetPropertyAction<List<ActionInfo>>(widget_property, result.get()));
+            undo.execute(new SetWidgetPropertyAction<ActionInfos>(widget_property, result.get()));
             for (Widget w : other)
             {
                 final ActionsWidgetProperty other_prop = (ActionsWidgetProperty) w.getProperty(widget_property.getName());
-                undo.execute(new SetWidgetPropertyAction<List<ActionInfo>>(other_prop, result.get()));
+                undo.execute(new SetWidgetPropertyAction<ActionInfos>(other_prop, result.get()));
             }
         }
     };

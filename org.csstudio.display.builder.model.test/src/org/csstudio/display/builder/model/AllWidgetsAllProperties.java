@@ -13,6 +13,7 @@ import java.util.Arrays;
 
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.ModelWriter;
+import org.csstudio.display.builder.model.properties.ActionInfos;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo.Target;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
@@ -40,8 +41,8 @@ public class AllWidgetsAllProperties
                 final Macros macros = new Macros();
                 macros.add("S", "Test");
                 macros.add("N", "2");
-                button.propActions().setValue(Arrays.asList(
-                    new OpenDisplayActionInfo("Display", "other.opi", macros, Target.REPLACE)));
+                button.propActions().setValue(new ActionInfos(Arrays.asList(
+                    new OpenDisplayActionInfo("Display", "other.opi", macros, Target.REPLACE))));
             }
 
             model.runtimeChildren().addChild(widget);

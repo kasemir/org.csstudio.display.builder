@@ -77,7 +77,7 @@ public class RectangleRepresentation extends JFXBaseRepresentation<Rectangle, Re
         // https://github.com/ControlSystemStudio/cs-studio/issues/2149
         ignore_mouse = transparent  &&
                        ! toolkit.isEditMode()  &&
-                       model_widget.propActions().getValue().isEmpty();
+                       model_widget.propActions().getValue().getActions().isEmpty();
     }
 
     @Override

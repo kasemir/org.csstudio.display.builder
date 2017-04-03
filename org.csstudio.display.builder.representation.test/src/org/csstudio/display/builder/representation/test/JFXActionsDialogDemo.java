@@ -9,12 +9,12 @@ package org.csstudio.display.builder.representation.test;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.ActionInfo;
+import org.csstudio.display.builder.model.properties.ActionInfos;
 import org.csstudio.display.builder.model.properties.ExecuteScriptActionInfo;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo.Target;
@@ -44,15 +44,18 @@ public class JFXActionsDialogDemo  extends Application
         final Macros macros = new Macros();
         macros.add("S", "Test");
         macros.add("N", "17");
-        final List<ActionInfo> actions = Arrays.asList(
+        final ActionInfos actions = new ActionInfos(Arrays.asList(
                 new OpenDisplayActionInfo("Related Display", "../opi/some_file.opi", macros, Target.TAB),
                 new WritePVActionInfo("Reset", "Test:CS:Reset", "1"),
-                new ExecuteScriptActionInfo("Script", new ScriptInfo(ScriptInfo.EMBEDDED_PYTHON, "print 'hi'", false, Collections.emptyList())));
+                new ExecuteScriptActionInfo("Script", new ScriptInfo(ScriptInfo.EMBEDDED_PYTHON, "print 'hi'", false, Collections.emptyList())))
+                );
         final ActionsDialog dialog = new ActionsDialog(widget, actions);
-        final Optional<List<ActionInfo>> result = dialog.showAndWait();
+        final Optional<ActionInfos> result = dialog.showAndWait();
         if (result.isPresent())
         {
-            for (ActionInfo info : result.get())
+            if (result.get().isExecutedAsOne())
+                System.out.println("Execute all commands as one:");
+            for (ActionInfo info : result.get().getActions())
             {
                 if (info instanceof ExecuteScriptActionInfo)
                 {
