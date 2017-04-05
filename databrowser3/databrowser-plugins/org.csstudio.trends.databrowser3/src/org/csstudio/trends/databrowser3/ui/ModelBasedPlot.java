@@ -357,4 +357,10 @@ public class ModelBasedPlot
     {
         plot.requestUpdate();
     }
+
+    /** Must be called to release resources (update threads, ...) */
+    public void dispose()
+    {
+        plot.dispose();
+    }
 }
