@@ -829,7 +829,6 @@ public class Model
         label_font = font;
         for (ModelListener listener : listeners)
             listener.changedColorsOrFonts();
-
     }
 
     /** @return Scale font */
