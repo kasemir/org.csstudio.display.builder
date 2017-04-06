@@ -85,7 +85,10 @@ public class MorphWidgetMenuSupport
                 final Widget widget = widgets.get(i);
                 // Already of correct type?
                 if (widget.getType().equals(descriptor.getType()))
+                {
+                    ++i;
                     continue;
+                }
                 final ChildrenProperty target = ChildrenProperty.getParentsChildren(widget);
                 // All array elements of an ArrayWidget must have the same type
                 // to avoid errors with matching element properties.

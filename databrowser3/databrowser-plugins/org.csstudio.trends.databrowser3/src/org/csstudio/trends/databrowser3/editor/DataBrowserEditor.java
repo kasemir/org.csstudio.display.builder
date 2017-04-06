@@ -543,6 +543,8 @@ public class DataBrowserEditor extends EditorPart
     @Override
     public void dispose()
     {
+        if (plot != null)
+            plot.dispose();
         // If editor is disposed because of error during init(),
         // model_listener will be null
         if (model_listener != null)

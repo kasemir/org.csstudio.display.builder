@@ -35,7 +35,7 @@ public class ActionsPropertyBinding
     /** Update property panel field as model changes */
     private final WidgetPropertyListener<ActionInfos> model_listener = (p, o, n) ->
     {
-        jfx_node.setText(widget_property.getValue().toString());
+        jfx_node.setText(widget_property.toString());
     };
 
     /** Update model from user input */
@@ -76,7 +76,7 @@ public class ActionsPropertyBinding
     {
         widget_property.addPropertyListener(model_listener);
         jfx_node.setOnAction(action_handler);
-        jfx_node.setText(widget_property.getValue().toString());
+        jfx_node.setText(widget_property.toString());
     }
 
     @Override
