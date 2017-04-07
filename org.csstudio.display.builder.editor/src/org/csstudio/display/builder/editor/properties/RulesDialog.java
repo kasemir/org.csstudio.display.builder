@@ -12,7 +12,6 @@ import static org.csstudio.display.builder.editor.Plugin.logger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.model.Widget;
@@ -206,16 +205,11 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                 final UndoableActionManager undo) throws Exception
         {
             if (info.getPropVal() instanceof String)
-            {
                 return new ExprItemString(info.getBoolExp(), (String)info.getPropVal(), undo);
-            }
             if (info.getPropVal() instanceof WidgetProperty<?>)
-            {
                 return new ExprItemValue<>(info.getBoolExp(), (WidgetProperty<?>)info.getPropVal(), undo);
-            }
 
-            Logger.getLogger("ExprItemFactory:InfoToItem").
-            log(Level.WARNING,"Tried to make new Expression from info with property not of type String or WidgetProperty: "
+            logger.log(Level.WARNING, "Tried to make new Expression from info with property not of type String or WidgetProperty: "
                     + info.getPropVal().getClass().getName());
 
             throw new Exception("Invalid info property type");
@@ -226,15 +220,11 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                 final UndoableActionManager undo) throws Exception
         {
             if (property instanceof String)
-            {
                 return new ExprItemString("new expr", (String)property, undo);
-            }
             if (property instanceof WidgetProperty<?>)
-            {
                 return new ExprItemValue<>("new exp", (WidgetProperty<?>)property, undo);
-            }
-            Logger.getLogger("ExprItemFactory:makeNew").
-            log(Level.WARNING,"Tried to make new Expression from property not of type String or WidgetProperty: "
+
+            logger.log(Level.WARNING, "Tried to make new Expression from property not of type String or WidgetProperty: "
                     + property.getClass().getName());
 
             throw new Exception("Invalid property type");
@@ -246,15 +236,11 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                 final UndoableActionManager undo) throws Exception
         {
             if (property instanceof String)
-            {
                 return new ExprItemString(old_exp.boolExpProperty().get(), (String)property, undo);
-            }
             if (property instanceof WidgetProperty<?>)
-            {
                 return new ExprItemValue<>(old_exp.boolExpProperty().get(), (WidgetProperty<?>)property, undo);
-            }
-            Logger.getLogger("ExprItemFactory:makeNewFromOld").
-            log(Level.WARNING,"Tried to make new Expression from property not of type String or WidgetProperty: "
+
+            logger.log(Level.WARNING,"Tried to make new Expression from property not of type String or WidgetProperty: "
                     + property.getClass().getName());
 
             throw new Exception("Invalid property type");
@@ -285,7 +271,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         public RuleItem(final Widget attached_widget, final String prop_id)
         {
             this(attached_widget, new ArrayList<>(), new ArrayList<>(),
-                    Messages.RulesDialog_DefaultRuleName, prop_id, false);
+                 Messages.RulesDialog_DefaultRuleName, prop_id, false);
         }
 
         public RuleItem(final Widget attached_widget,
@@ -308,7 +294,8 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             final List<PVItem> pvs = new ArrayList<>();
             info.getPVs().forEach(pv -> pvs.add(PVItem.forPV(pv)));
             final List<ExprItem<?>> exprs = new ArrayList<>();
-            info.getExpressions().forEach(expr -> {
+            info.getExpressions().forEach(expr ->
+            {
                 try
                 {
                     exprs.add(ExprItemFactory.InfoToItem(expr, undo));
@@ -351,25 +338,17 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         {
             final Object new_prop;
             if (prop_as_expr)
-            {
                 new_prop = prop_id + " value";
-            }
             else
-            {
                 new_prop = RulesWidgetProperty.propIDToNewProp(attached_widget, prop_id, "");
-            }
 
             ExprItem<?> new_exp = null;
             try
             {
                 if (old_exp != null)
-                {
                     new_exp = ExprItemFactory.makeNewFromOld(new_prop, old_exp, undo);
-                }
                 else
-                {
                     new_exp = ExprItemFactory.makeNew(new_prop, undo);
-                }
                 expls.add(new_exp);
             }
             catch (Exception ex)
@@ -448,7 +427,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
     /** Buttons for removing or reordering rules **/
     private Button btn_dup_rule, btn_remove_rule, btn_move_rule_up, btn_move_rule_down, btn_show_script;
     /** Buttons for adding/removing PVs and expressions from the selected rule **/
-    private Button btn_add_pv, btn_rm_pv, btn_add_exp, btn_rm_exp;
+    private Button btn_add_pv, btn_rm_pv, btn_move_pv_up, btn_move_pv_down, btn_add_exp, btn_rm_exp, btn_move_exp_up, btn_move_exp_down;
 
     /** Currently selected rule **/
     private RuleItem selected_rule_item = null;
@@ -529,8 +508,12 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                 btn_show_script.setDisable(true);
                 btn_add_pv.setDisable(true);
                 btn_rm_pv.setDisable(true);
+                btn_move_pv_up.setDisable(true);
+                btn_move_pv_down.setDisable(true);
                 btn_add_exp.setDisable(true);
                 btn_rm_exp.setDisable(true);
+                btn_move_exp_up.setDisable(true);
+                btn_move_exp_down.setDisable(true);
                 propComboBox.setDisable(true);
                 propComboBox.getSelectionModel().select(null);
                 valExpBox.setDisable(true);
@@ -546,8 +529,12 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                 btn_show_script.setDisable(false);
                 btn_add_pv.setDisable(false);
                 btn_rm_pv.setDisable(false);
+                btn_move_pv_up.setDisable(false);
+                btn_move_pv_down.setDisable(false);
                 btn_add_exp.setDisable(false);
                 btn_rm_exp.setDisable(false);
+                btn_move_exp_up.setDisable(false);
+                btn_move_exp_down.setDisable(false);
                 propComboBox.setDisable(false);
                 propComboBox.getSelectionModel().select(getPropLongString(selected));
                 valExpBox.setDisable(false);
@@ -692,30 +679,12 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         btn_move_rule_up = new Button(Messages.MoveUp, JFXUtil.getIcon("up.png"));
         btn_move_rule_up.setMaxWidth(Double.MAX_VALUE);
         btn_move_rule_up.setDisable(true);
-        btn_move_rule_up.setOnAction(event ->
-        {
-            final int sel = rules_table.getSelectionModel().getSelectedIndex();
-            if (sel >= 1)
-            {
-                RuleItem prev = rule_items.set(sel-1, rule_items.get(sel));
-                rule_items.set(sel, prev);
-            }
-        });
+        btn_move_rule_up.setOnAction(event -> move_item_up(rules_table, rule_items));
 
         btn_move_rule_down = new Button(Messages.MoveDown, JFXUtil.getIcon("down.png"));
         btn_move_rule_down.setMaxWidth(Double.MAX_VALUE);
         btn_move_rule_down.setDisable(true);
-        btn_move_rule_down.setOnAction(event ->
-        {
-            final int sel = rules_table.getSelectionModel().getSelectedIndex();
-            if (sel >= 0)
-            {
-                if ((sel+1) < rule_items.size()) {
-                    RuleItem next = rule_items.set(sel+1, rule_items.get(sel));
-                    rule_items.set(sel, next);
-                }
-            }
-        });
+        btn_move_rule_down.setOnAction(event -> move_item_down(rules_table, rule_items));
 
         btn_show_script = new Button(Messages.RulesDialog_ShowScript, JFXUtil.getIcon("embedded_script.png"));
         btn_show_script.setMaxWidth(Double.MAX_VALUE);
@@ -730,7 +699,6 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                 final MultiLineInputDialog dialog = new MultiLineInputDialog(content);
                 DialogHelper.positionDialog(dialog, btn_show_script, -200, -300);
                 dialog.setTextHeight(600);
-                System.out.println("Heigher?");
                 dialog.show();
             }
         });
@@ -774,27 +742,15 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         {
             final int row = event.getTablePosition().getRow();
             expression_items.get(row).boolExpProperty().set(event.getNewValue());
-            fixupExpressions(row);
         });
 
         // Create table with editable rule 'value expression' column
-        /*
-        final TableColumn<ExprItem<?>, String> val_exp_col = new TableColumn<>(Messages.RulesDialog_ColValExp);
-        val_exp_col.setCellValueFactory(new PropertyValueFactory<ExprItem<?>, String>("valExpStr"));
-        val_exp_col.setCellFactory(TextFieldTableCell.forTableColumn());
-        val_exp_col.setOnEditCommit(event ->
-        {
-            final int row = event.getTablePosition().getRow();
-            expression_items.get(row).valExpStrProperty().set(event.getNewValue());
-            fixupExpressions(row);
-        });
-         */
-
-
         final TableColumn<ExprItem<?>, Node> val_exp_col = new TableColumn<>(Messages.RulesDialog_ColValExp);
         val_exp_col.setCellValueFactory(new PropertyValueFactory<ExprItem<?>, Node>("field"));
-        val_exp_col.setCellFactory(new Callback<TableColumn<ExprItem<?>, Node>, TableCell<ExprItem<?>, Node>>() {
-            @Override public TableCell<ExprItem<?>, Node> call(TableColumn<ExprItem<?>, Node> t) {
+        val_exp_col.setCellFactory(new Callback<TableColumn<ExprItem<?>, Node>, TableCell<ExprItem<?>, Node>>()
+        {
+            @Override public TableCell<ExprItem<?>, Node> call(TableColumn<ExprItem<?>, Node> t)
+            {
                 return new ValueFormatCell();
             }
         });
@@ -802,7 +758,6 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         {
             final int row = event.getTablePosition().getRow();
             expression_items.get(row).fieldProperty().set(event.getNewValue());
-            fixupExpressions(row);
         });
 
 
@@ -824,7 +779,6 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             expression_items.setAll(selected_rule_item.expressions);
         });
 
-
         btn_rm_exp = new Button(Messages.Remove, JFXUtil.getIcon("delete.png"));
         btn_rm_exp.setMaxWidth(Double.MAX_VALUE);
         btn_rm_exp.setDisable(true);
@@ -832,30 +786,23 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         {
             final int sel = expressions_table.getSelectionModel().getSelectedIndex();
             if (sel >= 0)
-            {
                 expression_items.remove(sel);
-                fixupExpressions(sel);
-            }
         });
 
-        final VBox buttons = new VBox(10, btn_add_exp, btn_rm_exp);
+        btn_move_exp_up = new Button(Messages.MoveUp, JFXUtil.getIcon("up.png"));
+        btn_move_exp_up.setMaxWidth(Double.MAX_VALUE);
+        btn_move_exp_up.setDisable(true);
+        btn_move_exp_up.setOnAction(event -> move_item_up(expressions_table, expression_items));
+
+        btn_move_exp_down = new Button(Messages.MoveDown, JFXUtil.getIcon("down.png"));
+        btn_move_exp_down.setMaxWidth(Double.MAX_VALUE);
+        btn_move_exp_down.setDisable(true);
+        btn_move_exp_down.setOnAction(event -> move_item_down(expressions_table, expression_items));
+
+        final VBox buttons = new VBox(10, btn_add_exp, btn_rm_exp, btn_move_exp_up, btn_move_exp_down);
         final HBox content = new HBox(10, expressions_table, buttons);
         HBox.setHgrow(expressions_table, Priority.ALWAYS);
         return content;
-    }
-
-    /** Fix expressions data: Delete empty rows in middle
-     *  @param changed_row Row to check, and remove if it's empty
-     */
-    private void fixupExpressions(final int changed_row)
-    {
-        // Check if edited row is now empty and should be deleted
-        if (changed_row < expression_items.size())
-        {
-            //final ExpressionItem item = expression_items.get(changed_row);
-            //if (item.boolExpProperty().get().trim().isEmpty())
-            //  expression_items.remove(changed_row);
-        }
     }
 
     /**
@@ -966,7 +913,6 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         //name_col.prefWidthProperty().bind(pvs_table.widthProperty().multiply(0.8));
         //trigger_col.prefWidthProperty().bind(pvs_table.widthProperty().multiply(0.2));
 
-
         // Buttons
         btn_add_pv = new Button(Messages.Add, JFXUtil.getIcon("add.png"));
         btn_add_pv.setMaxWidth(Double.MAX_VALUE);
@@ -989,10 +935,40 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             }
         });
 
-        final VBox buttons = new VBox(10, btn_add_pv, btn_rm_pv);
+        btn_move_pv_up = new Button(Messages.MoveUp, JFXUtil.getIcon("up.png"));
+        btn_move_pv_up.setMaxWidth(Double.MAX_VALUE);
+        btn_move_pv_up.setDisable(true);
+        btn_move_pv_up.setOnAction(event -> move_item_up(pvs_table, pv_items));
+
+        btn_move_pv_down = new Button(Messages.MoveDown, JFXUtil.getIcon("down.png"));
+        btn_move_pv_down.setMaxWidth(Double.MAX_VALUE);
+        btn_move_pv_down.setDisable(true);
+        btn_move_pv_down.setOnAction(event -> move_item_down(pvs_table, pv_items));
+
+        final VBox buttons = new VBox(10, btn_add_pv, btn_rm_pv, btn_move_pv_up, btn_move_pv_down);
         final HBox content = new HBox(10, pvs_table, buttons);
         HBox.setHgrow(pvs_table, Priority.ALWAYS);
         return content;
+    }
+
+    private <ITEM> void move_item_up(final TableView<ITEM> table, ObservableList<ITEM> items)
+    {
+        final int sel = table.getSelectionModel().getSelectedIndex();
+        if (sel >= 1)
+        {
+            ITEM prev = items.set(sel-1, items.get(sel));
+            items.set(sel, prev);
+        }
+    }
+
+    private <ITEM> void move_item_down(final TableView<ITEM> table, ObservableList<ITEM> items)
+    {
+        final int sel = table.getSelectionModel().getSelectedIndex();
+        if (sel >= 0  &&  (sel+1) < items.size())
+        {
+            ITEM next = items.set(sel+1, items.get(sel));
+            items.set(sel, next);
+        }
     }
 
     /** Fix PVs data: Delete empty rows in middle
