@@ -20,6 +20,7 @@ import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.ScriptPV;
 import org.csstudio.javafx.DialogHelper;
 import org.csstudio.javafx.MultiLineInputDialog;
+import org.csstudio.javafx.TableHelper;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -485,27 +486,11 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
         final Button up = new Button(Messages.MoveUp, JFXUtil.getIcon("up.png"));
         up.setMaxWidth(Double.MAX_VALUE);
-        up.setOnAction(event ->
-        {
-            final int sel = pvs_table.getSelectionModel().getSelectedIndex();
-            if (sel < 0  ||  sel >= pv_items.size())
-                return;
-            final PVItem pv = pv_items.remove(sel);
-            pv_items.add(sel-1, pv);
-            pvs_table.getSelectionModel().select(pv);
-        });
+        up.setOnAction(event -> TableHelper.move_item_up(pvs_table, pv_items));
 
         final Button down = new Button(Messages.MoveDown, JFXUtil.getIcon("down.png"));
         down.setMaxWidth(Double.MAX_VALUE);
-        down.setOnAction(event ->
-        {
-            final int sel = pvs_table.getSelectionModel().getSelectedIndex();
-            if (sel < 0  ||  sel >= pv_items.size())
-                return;
-            final PVItem pv = pv_items.remove(sel);
-            pv_items.add(sel+1, pv);
-            pvs_table.getSelectionModel().select(pv);
-        });
+        down.setOnAction(event -> TableHelper.move_item_down(pvs_table, pv_items));
 
         btn_check_connections = new CheckBox(Messages.ScriptsDialog_CheckConnections);
         btn_check_connections.setSelected(true);

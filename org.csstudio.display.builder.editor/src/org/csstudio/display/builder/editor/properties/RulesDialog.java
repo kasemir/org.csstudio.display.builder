@@ -31,6 +31,7 @@ import org.csstudio.display.builder.representation.javafx.ScriptsDialog;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.DialogHelper;
 import org.csstudio.javafx.MultiLineInputDialog;
+import org.csstudio.javafx.TableHelper;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -679,12 +680,12 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         btn_move_rule_up = new Button(Messages.MoveUp, JFXUtil.getIcon("up.png"));
         btn_move_rule_up.setMaxWidth(Double.MAX_VALUE);
         btn_move_rule_up.setDisable(true);
-        btn_move_rule_up.setOnAction(event -> move_item_up(rules_table, rule_items));
+        btn_move_rule_up.setOnAction(event -> TableHelper.move_item_up(rules_table, rule_items));
 
         btn_move_rule_down = new Button(Messages.MoveDown, JFXUtil.getIcon("down.png"));
         btn_move_rule_down.setMaxWidth(Double.MAX_VALUE);
         btn_move_rule_down.setDisable(true);
-        btn_move_rule_down.setOnAction(event -> move_item_down(rules_table, rule_items));
+        btn_move_rule_down.setOnAction(event -> TableHelper.move_item_down(rules_table, rule_items));
 
         btn_show_script = new Button(Messages.RulesDialog_ShowScript, JFXUtil.getIcon("embedded_script.png"));
         btn_show_script.setMaxWidth(Double.MAX_VALUE);
@@ -792,12 +793,12 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         btn_move_exp_up = new Button(Messages.MoveUp, JFXUtil.getIcon("up.png"));
         btn_move_exp_up.setMaxWidth(Double.MAX_VALUE);
         btn_move_exp_up.setDisable(true);
-        btn_move_exp_up.setOnAction(event -> move_item_up(expressions_table, expression_items));
+        btn_move_exp_up.setOnAction(event -> TableHelper.move_item_up(expressions_table, expression_items));
 
         btn_move_exp_down = new Button(Messages.MoveDown, JFXUtil.getIcon("down.png"));
         btn_move_exp_down.setMaxWidth(Double.MAX_VALUE);
         btn_move_exp_down.setDisable(true);
-        btn_move_exp_down.setOnAction(event -> move_item_down(expressions_table, expression_items));
+        btn_move_exp_down.setOnAction(event -> TableHelper.move_item_down(expressions_table, expression_items));
 
         final VBox buttons = new VBox(10, btn_add_exp, btn_rm_exp, btn_move_exp_up, btn_move_exp_down);
         final HBox content = new HBox(10, expressions_table, buttons);
@@ -938,37 +939,17 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         btn_move_pv_up = new Button(Messages.MoveUp, JFXUtil.getIcon("up.png"));
         btn_move_pv_up.setMaxWidth(Double.MAX_VALUE);
         btn_move_pv_up.setDisable(true);
-        btn_move_pv_up.setOnAction(event -> move_item_up(pvs_table, pv_items));
+        btn_move_pv_up.setOnAction(event -> TableHelper.move_item_up(pvs_table, pv_items));
 
         btn_move_pv_down = new Button(Messages.MoveDown, JFXUtil.getIcon("down.png"));
         btn_move_pv_down.setMaxWidth(Double.MAX_VALUE);
         btn_move_pv_down.setDisable(true);
-        btn_move_pv_down.setOnAction(event -> move_item_down(pvs_table, pv_items));
+        btn_move_pv_down.setOnAction(event -> TableHelper.move_item_down(pvs_table, pv_items));
 
         final VBox buttons = new VBox(10, btn_add_pv, btn_rm_pv, btn_move_pv_up, btn_move_pv_down);
         final HBox content = new HBox(10, pvs_table, buttons);
         HBox.setHgrow(pvs_table, Priority.ALWAYS);
         return content;
-    }
-
-    private <ITEM> void move_item_up(final TableView<ITEM> table, ObservableList<ITEM> items)
-    {
-        final int sel = table.getSelectionModel().getSelectedIndex();
-        if (sel >= 1)
-        {
-            ITEM prev = items.set(sel-1, items.get(sel));
-            items.set(sel, prev);
-        }
-    }
-
-    private <ITEM> void move_item_down(final TableView<ITEM> table, ObservableList<ITEM> items)
-    {
-        final int sel = table.getSelectionModel().getSelectedIndex();
-        if (sel >= 0  &&  (sel+1) < items.size())
-        {
-            ITEM next = items.set(sel+1, items.get(sel));
-            items.set(sel, next);
-        }
     }
 
     /** Fix PVs data: Delete empty rows in middle
