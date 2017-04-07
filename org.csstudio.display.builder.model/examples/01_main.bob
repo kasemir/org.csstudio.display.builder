@@ -563,4 +563,19 @@
     <height>26</height>
     <tooltip>$(actions)</tooltip>
   </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_29</name>
+    <actions>
+      <action type="open_display">
+        <file>fishtank/heater.bob</file>
+        <target>replace</target>
+        <description>Fishtank</description>
+      </action>
+    </actions>
+    <x>890</x>
+    <y>200</y>
+    <width>120</width>
+    <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
 </display>
