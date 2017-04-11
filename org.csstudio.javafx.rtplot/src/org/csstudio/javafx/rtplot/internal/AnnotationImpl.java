@@ -7,11 +7,14 @@
  ******************************************************************************/
 package org.csstudio.javafx.rtplot.internal;
 
+import static org.csstudio.javafx.rtplot.Activator.logger;
+
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.Optional;
+import java.util.logging.Level;
 
 import org.csstudio.javafx.rtplot.Annotation;
 import org.csstudio.javafx.rtplot.Trace;
@@ -133,13 +136,22 @@ public class AnnotationImpl<XTYPE extends Comparable<XTYPE>> extends Annotation<
         final String units = trace.getUnits();
         if (! units.isEmpty())
             value_text += " " + units;
-        final String label = NLS.bind(text,
+        String label;
+        try
+        {
+            label = NLS.bind(text,
                 new Object[]
                 {
                     trace.getName(),
                     xaxis.getTicks().format(position),
                     value_text
                 });
+        }
+        catch (IllegalArgumentException ex)
+        {
+            logger.log(Level.WARNING, "Error in annotation format", ex);
+            label = "Annotation error in\n'" + text + "'";
+        }
 
         // Layout like this when in_range
         //
