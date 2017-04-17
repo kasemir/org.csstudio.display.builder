@@ -360,6 +360,9 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
                         final String units = trace.getUnits();
                         if (! units.isEmpty())
                             label += " " + units;
+                        final String info = sample.getInfo();
+                        if (info != null  &&  info.length() > 0)
+                            label += " (" + info + ")";
                         markers.add(new CursorMarker(cursor_x, axis.getScreenCoord(value), GraphicsUtils.convert(trace.getColor()), label));
                     }
                 }
@@ -417,20 +420,23 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
             final PlotDataProvider<XTYPE> data = annotation.getTrace().getData();
             XTYPE position;
             double value;
+            String info;
             data.getLock().lock();
             try
             {
                 final int index = search.findSampleLessOrEqual(data, location);
                 if (index < 0)
                     return;
-                position = data.get(index).getPosition();
-                value = data.get(index).getValue();
+                final PlotDataItem<XTYPE> sample = data.get(index);
+                position = sample.getPosition();
+                value = sample.getValue();
+                info = sample.getInfo();
             }
             finally
             {
                 data.getLock().unlock();
             }
-            plot.updateAnnotation(annotation, position, value, annotation.getOffset());
+            plot.updateAnnotation(annotation, position, value, info, annotation.getOffset());
         });
     }
 

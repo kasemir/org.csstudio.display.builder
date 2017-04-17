@@ -43,12 +43,12 @@ public class UpdateAnnotationAction<XTYPE extends Comparable<XTYPE>> extends Und
     @Override
     public void run()
     {
-        plot.updateAnnotation(annotation, end_pos, end_val, end_offset);
+        plot.updateAnnotation(annotation, end_pos, end_val, null, end_offset);
     }
 
     @Override
     public void undo()
     {
-        plot.updateAnnotation(annotation, start_pos, start_val, start_offset);
+        plot.updateAnnotation(annotation, start_pos, start_val, null, start_offset);
     }
 }

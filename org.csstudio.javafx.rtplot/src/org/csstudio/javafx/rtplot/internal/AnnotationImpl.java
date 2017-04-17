@@ -58,14 +58,16 @@ public class AnnotationImpl<XTYPE extends Comparable<XTYPE>> extends Annotation<
         super(internal, trace, position, value, offset, text);
     }
 
-    /** Set to new location
+    /** Set to new location and info
      *  @param position
      *  @param value
+     *  @param info
      */
-    public void setLocation(final XTYPE position, final double value)
+    public void setLocation(final XTYPE position, final double value, final String info)
     {
         this.position = position;
         this.value = value;
+        this.info = info;
     }
 
     /** @param offset New offset from reference point to body of annotation */
@@ -136,6 +138,9 @@ public class AnnotationImpl<XTYPE extends Comparable<XTYPE>> extends Annotation<
         final String units = trace.getUnits();
         if (! units.isEmpty())
             value_text += " " + units;
+        String info_text = info;
+        if (info_text == null)
+            info_text = "";
         String label;
         try
         {
@@ -144,7 +149,8 @@ public class AnnotationImpl<XTYPE extends Comparable<XTYPE>> extends Annotation<
                 {
                     trace.getName(),
                     xaxis.getTicks().format(position),
-                    value_text
+                    value_text,
+                    info_text
                 });
         }
         catch (IllegalArgumentException ex)

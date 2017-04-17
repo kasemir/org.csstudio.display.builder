@@ -324,10 +324,10 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
      *  @param position New position
      *  @param value New value
      */
-    public void updateAnnotation(final AnnotationImpl<XTYPE> annotation, final XTYPE position, final double value,
+    public void updateAnnotation(final AnnotationImpl<XTYPE> annotation, final XTYPE position, final double value, final String info,
             final Point2D offset)
     {
-        annotation.setLocation(position, value);
+        annotation.setLocation(position, value, info);
         annotation.setOffset(offset);
         requestUpdate();
         fireAnnotationsChanged();
