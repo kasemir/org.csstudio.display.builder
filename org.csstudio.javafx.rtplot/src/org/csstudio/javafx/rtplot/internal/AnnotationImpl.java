@@ -9,10 +9,12 @@ package org.csstudio.javafx.rtplot.internal;
 
 import static org.csstudio.javafx.rtplot.Activator.logger;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Stroke;
 import java.util.Optional;
 import java.util.logging.Level;
 
@@ -33,6 +35,8 @@ public class AnnotationImpl<XTYPE extends Comparable<XTYPE>> extends Annotation<
 {
     /** 'X' marks the spot, and this is it's radius. */
     final private static int X_RADIUS = 4;
+
+    private static final Stroke DASH = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[] { 3f, 3f }, 1.0f);
 
     /** What part of this annotation has been selected by the mouse? */
     public static enum Selection
@@ -88,16 +92,18 @@ public class AnnotationImpl<XTYPE extends Comparable<XTYPE>> extends Annotation<
      */
     boolean isSelected(final Point2D point)
     {
+        // In case the handle is above the rect,
+        // select that first
+        if (areWithinDistance(screen_pos, point))
+        {
+            selected = Selection.Reference;
+            return true;
+        }
+
         final Optional<Rectangle> rect = screen_box;
         if (rect.isPresent()  &&  rect.get().contains(point.getX(), point.getY()))
         {
             selected = Selection.Body;
-            return true;
-        }
-
-        if (areWithinDistance(screen_pos, point))
-        {
-            selected = Selection.Reference;
             return true;
         }
 
@@ -130,7 +136,7 @@ public class AnnotationImpl<XTYPE extends Comparable<XTYPE>> extends Annotation<
     void paint(final Graphics2D gc, final AxisPart<XTYPE> xaxis, final YAxisImpl<XTYPE> yaxis)
     {
         // Position on screen (or maybe actually outside of plot?)
-        final int x = xaxis.getScreenCoord(position);
+        int x = xaxis.getScreenCoord(position);
         final int y = Double.isFinite(value) ? yaxis.getScreenCoord(value) : yaxis.getScreenRange().getLow();
         final boolean in_range = xaxis.getScreenRange().contains(x);
 
@@ -176,10 +182,17 @@ public class AnnotationImpl<XTYPE extends Comparable<XTYPE>> extends Annotation<
         }
         else
         {   // Position at left or right side of plot
+            offset = new Point2D(20, 20);
             if (x <= xaxis.getScreenRange().getLow())
-                tx = xaxis.getScreenRange().getLow() + X_RADIUS;
+            {
+                x = xaxis.getScreenRange().getLow();
+                tx = (int) (x + X_RADIUS + offset.getX());
+            }
             else
-                tx = (int) (xaxis.getScreenRange().getHigh() - X_RADIUS - metrics.getWidth());
+            {
+                x = xaxis.getScreenRange().getHigh();
+                tx = (int) (x - X_RADIUS - metrics.getWidth() - offset.getX());
+            }
         }
         final int ty = (int) (y + offset.getY());
 
@@ -196,35 +209,35 @@ public class AnnotationImpl<XTYPE extends Comparable<XTYPE>> extends Annotation<
         final int line_x = (x <= tx + metrics.width/2) ? tx : tx+metrics.width;
         final int line_y = (y > ty - metrics.height/2) ? ty : ty-metrics.height;
         gc.setColor(Color.BLACK);
+        Stroke old_stroke = null;
+        if (! in_range)
+        {   // Dash the lines of off-screen annotation
+            old_stroke = gc.getStroke();
+            gc.setStroke(DASH);
+        }
         if (selected != Selection.None)
             gc.drawRect(rect.x, rect.y, rect.width, rect.height);
         else // '___________'
             gc.drawLine(tx, line_y, tx+metrics.width, line_y);
 
-        if (in_range)
-        {   // Marker 'O' around the actual x/y point, line to annotation.
-            // Line first from actual point, will then paint the 'O' over it
+        // Marker 'O' around the actual x/y point, line to annotation.
+        // Line first from actual point, will then paint the 'O' over it
+        gc.drawLine(x, y, line_x, line_y);
+        if (! in_range)
+            gc.setStroke(old_stroke);
 
-            // Fill white, then draw around to get higher-contrast 'O'
-            gc.drawLine(x, y, line_x, line_y);
-            gc.setColor(Color.WHITE);
-            gc.fillOval(x-X_RADIUS, y-X_RADIUS, 2*X_RADIUS, 2*X_RADIUS);
-            gc.setColor(Color.BLACK);
-            gc.drawOval(x-X_RADIUS, y-X_RADIUS, 2*X_RADIUS, 2*X_RADIUS);
-            // Update the screen position so that we can later 'select' this annotation.
-            screen_pos = Optional.of(new Point(x, y));
+        // Fill white, then draw around to get higher-contrast 'O'
+        gc.setColor(Color.WHITE);
+        gc.fillOval(x-X_RADIUS, y-X_RADIUS, 2*X_RADIUS, 2*X_RADIUS);
+        gc.setColor(Color.BLACK);
+        gc.drawOval(x-X_RADIUS, y-X_RADIUS, 2*X_RADIUS, 2*X_RADIUS);
+
+        // Update the screen position so that we can later 'select' this annotation.
+        screen_pos = Optional.of(new Point(x, y));
+        if (in_range)
             screen_box = Optional.of(rect);
-        }
-        else
-        {
-            gc.setColor(Color.WHITE);
-            gc.fillOval(line_x-X_RADIUS, line_y-X_RADIUS, 2*X_RADIUS, 2*X_RADIUS);
-            gc.setColor(Color.BLACK);
-            gc.drawOval(line_x-X_RADIUS, line_y-X_RADIUS, 2*X_RADIUS, 2*X_RADIUS);
-            // Can't be selected
-            screen_pos = Optional.empty();
+        else // Can drag annotation's position back into plot but can't move the rect
             screen_box = Optional.empty();
-        }
 
         gc.setColor(o_col);
     }
