@@ -152,13 +152,13 @@ public class AnnotationInfo
         final double value = DOMHelper.getSubelementDouble(node, XMLPersistence.TAG_VALUE, 0.0);
         final String text = DOMHelper.getSubelementString(node, XMLPersistence.TAG_TEXT);
 
-        int x = 20;
-        int y = 20;
+        double x = 20;
+        double y = 20;
         Element offset = DOMHelper.findFirstElementNode(node.getFirstChild(), XMLPersistence.TAG_OFFSET);
         if (offset != null)
         {
-            x = DOMHelper.getSubelementInt(offset, XMLPersistence.TAG_X, x);
-            y = DOMHelper.getSubelementInt(offset, XMLPersistence.TAG_Y, y);
+            x = DOMHelper.getSubelementDouble(offset, XMLPersistence.TAG_X, x);
+            y = DOMHelper.getSubelementDouble(offset, XMLPersistence.TAG_Y, y);
         }
         return new AnnotationInfo(false, item_index, time, value, new Point2D(x, y), text);
     }
