@@ -323,7 +323,19 @@ public class DataBrowserEditor extends EditorPart
         final Control plot_canvas = wrapper.getFXCanvas();
         final Scene scene = wrapper.getScene();
         JFXCursorFix.apply(scene, parent.getDisplay());
-        fixCanvasDragAndDrop(plot_canvas);
+
+        try
+        {
+            // FXCanvas already initialized D&D.
+            // The fix works around the issue on Mac and Linux,
+            // but still fails on Windows
+            // TODO Use JavaFX drag & drop
+            fixCanvasDragAndDrop(plot_canvas);
+        }
+        catch (Throwable ex)
+        {
+           logger.log(Level.WARNING, "Cannot initialize Drag&Drop", ex);
+        }
 
         // Create and start controller
         controller = new ControllerSWT(parent.getShell(), model, plot);
