@@ -20,6 +20,10 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 
 /** JavaFX inside SWT Demo
+ *
+ *  <p>To start in IDE, see notes in JFX_SWT_Wrapper
+ *  on adding JRE/lib/jfxswt.jar to the classpath.
+ *
  *  @author Kay Kasemir
  */
 public class RepresentationDemoJavaFXinSWT
