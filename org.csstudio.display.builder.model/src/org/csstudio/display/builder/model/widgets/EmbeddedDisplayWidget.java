@@ -29,11 +29,14 @@ import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.ModelReader;
+import org.csstudio.display.builder.model.persist.XMLTags;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
 import org.osgi.framework.Version;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 /** Widget that shows another display inside itself
  *  @author Kay Kasemir
@@ -144,34 +147,96 @@ public class EmbeddedDisplayWidget extends VisibleWidget
             if (! super.configureFromXML(model_reader, widget, xml))
                 return false;
 
-            // Fall back to legacy "opi_file" for display file
-            if (XMLUtil.getChildElement(xml, propFile.getName()) == null)
+            if (xml_version.getMajor() < 2)
             {
-                final Optional<String> opi_file = XMLUtil.getChildString(xml, "opi_file");
-                if (opi_file.isPresent())
-                    widget.setPropertyValue(propFile, opi_file.get());
-            }
-
-            // Transition legacy "resize_behaviour"
-            final Element element = XMLUtil.getChildElement(xml, "resize_behaviour");
-            if (element != null)
-            {
-                try
-                {   // 0=SIZE_OPI_TO_CONTAINER, 1=SIZE_CONTAINER_TO_OPI, 2=CROP_OPI, 3=SCROLL_OPI
-                    final int old_resize = Integer.parseInt(XMLUtil.getString(element));
-                    if (old_resize == 0)
-                        widget.setPropertyValue(propResize, Resize.ResizeContent);
-                    else if (old_resize == 1)
-                        widget.setPropertyValue(propResize, Resize.SizeToContent);
-                    else
-                        widget.setPropertyValue(propResize, Resize.None);
-                }
-                catch (NumberFormatException ex)
+                // Fall back to legacy "opi_file" for display file
+                if (XMLUtil.getChildElement(xml, propFile.getName()) == null)
                 {
-                    logger.log(Level.WARNING, "Cannot decode legacy resize_behavior");
+                    final Optional<String> opi_file = XMLUtil.getChildString(xml, "opi_file");
+                    if (opi_file.isPresent())
+                        widget.setPropertyValue(propFile, opi_file.get());
+                }
+
+                // Transition legacy "resize_behaviour"
+                Element element = XMLUtil.getChildElement(xml, "resize_behaviour");
+                if (element != null)
+                {
+                    try
+                    {   // 0=SIZE_OPI_TO_CONTAINER, 1=SIZE_CONTAINER_TO_OPI, 2=CROP_OPI, 3=SCROLL_OPI
+                        final int old_resize = Integer.parseInt(XMLUtil.getString(element));
+                        if (old_resize == 0)
+                            widget.setPropertyValue(propResize, Resize.ResizeContent);
+                        else if (old_resize == 1)
+                            widget.setPropertyValue(propResize, Resize.SizeToContent);
+                        else
+                            widget.setPropertyValue(propResize, Resize.None);
+                    }
+                    catch (NumberFormatException ex)
+                    {
+                        logger.log(Level.WARNING, "Cannot decode legacy resize_behavior");
+                    }
+                }
+
+                // Transition legacy border
+                final int border = XMLUtil.getChildInteger(xml, "border_style").orElse(-1);
+                if (border > 0)
+                {
+                    createGroupWrapper(widget, xml);
+                    // Trigger re-parsing the XML from the parent down
+                    throw new ParseAgainException();
                 }
             }
             return true;
+        }
+
+        /** Create a GroupWidget for the border, with this EmbeddedDisplay inside the Group */
+        private void createGroupWrapper(final Widget widget, final Element embedded_xml)
+        {
+            // Create a 'group' widget
+            final Document doc = embedded_xml.getOwnerDocument();
+            final Element group = doc.createElement(XMLTags.WIDGET);
+            group.setAttribute(XMLTags.TYPE, GroupWidget.WIDGET_DESCRIPTOR.getType());
+
+            // Set name, location, .. from linking container
+            group.appendChild(doc.importNode(XMLUtil.getChildElement(embedded_xml, XMLTags.NAME), true));
+            group.appendChild(doc.importNode(XMLUtil.getChildElement(embedded_xml, XMLTags.X), true));
+            group.appendChild(doc.importNode(XMLUtil.getChildElement(embedded_xml, XMLTags.Y), true));
+            group.appendChild(doc.importNode(XMLUtil.getChildElement(embedded_xml, XMLTags.WIDTH), true));
+            group.appendChild(doc.importNode(XMLUtil.getChildElement(embedded_xml, XMLTags.HEIGHT), true));
+
+            // Use the border info
+            Element el = XMLUtil.getChildElement(embedded_xml, "border_style");
+            group.appendChild(doc.importNode(el, true));
+
+            // IMPORTANT: Remove the border from this widget so when parsed again
+            // there is no infinite loop creating more 'group' wrappers.
+            embedded_xml.removeChild(el);
+
+            // Adjust X/Y to (0, 0)
+            el = XMLUtil.getChildElement(embedded_xml, XMLTags.X);
+            if (el != null)
+                embedded_xml.removeChild(el);
+            el = XMLUtil.getChildElement(embedded_xml, XMLTags.Y);
+            if (el != null)
+                embedded_xml.removeChild(el);
+
+            // Adjust size to allow for the group's insets
+            // .. which are not known until the group is represented.
+            // Using a value that looked about right in tests.
+            final int inset = 30;
+            XMLUtil.updateTag(embedded_xml, XMLTags.WIDTH, Integer.toString(widget.propWidth().getValue() - inset));
+            XMLUtil.updateTag(embedded_xml, XMLTags.HEIGHT, Integer.toString(widget.propHeight().getValue() - inset));
+
+            // Move this widget into the new group
+            final Node parent = embedded_xml.getParentNode();
+            parent.removeChild(embedded_xml);
+            group.appendChild(embedded_xml);
+
+            // .. and add that group to the parent
+            parent.appendChild(group);
+
+            // Debug the result
+            // XMLUtil.dump(parent);
         }
     }
 

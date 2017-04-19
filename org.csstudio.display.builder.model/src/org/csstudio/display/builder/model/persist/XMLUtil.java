@@ -10,9 +10,17 @@ package org.csstudio.display.builder.model.persist;
 import static org.csstudio.display.builder.model.ModelPlugin.logger;
 
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.logging.Level;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.csstudio.display.builder.model.properties.NamedWidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetColor;
@@ -30,6 +38,48 @@ public class XMLUtil
 {
     /** Text encoding used for the XML */
     public static final String ENCODING = "UTF-8";
+
+    /** Dump XML for debugging
+     *  @param doc XML Document
+     */
+    public static void dump(final Document doc)
+    {
+        try
+        {
+            final Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+            transformer.transform(new DOMSource(doc),
+                                  new StreamResult(new OutputStreamWriter(System.out, ENCODING)));
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Cannot dump XML",  ex);
+        }
+    }
+
+    /** Dump XML for debugging
+     *  @param doc XML Node
+     */
+    public static void dump(final Node xml)
+    {
+        try
+        {
+            final Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+            // Create copy of the XML that's detached from the original document
+            final Node copy = doc.importNode(xml, true);
+            doc.appendChild(copy);
+            dump(doc);
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Cannot dump XML",  ex);
+        }
+    }
+
 
     /** Open XML document, locate root element
      *  @param stream XML stream
@@ -368,6 +418,35 @@ public class XMLUtil
             return default_value;
         return Boolean.parseBoolean(text);
     }
+
+    /** Update the value of a tag
+     *
+     *  <p>Creates or updates a child element with given tag and value.
+     *  The child element will have only that value as a text node,
+     *  other existing values will be removed.
+     *
+     *  @param parent Parent element
+     *  @param name Tag name to update
+     *  @param value Value of that tag
+     */
+    public static void updateTag(final Element parent, final String name, final String value)
+    {
+        final Document doc = parent.getOwnerDocument();
+        Element child = getChildElement(parent, name);
+        if (child == null)
+        {
+            child = doc.createElement(name);
+            parent.appendChild(child);
+        }
+        Node n = child.getFirstChild();
+        while (n != null)
+        {
+            child.removeChild(n);
+            n = n.getNextSibling();
+        }
+        child.appendChild(doc.createTextNode(value));
+    }
+
 
     /** Transform xml element and children into a string
      *
