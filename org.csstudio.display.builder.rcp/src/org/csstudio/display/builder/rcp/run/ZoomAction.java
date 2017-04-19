@@ -53,9 +53,9 @@ public class ZoomAction extends ContributionItem
         combo.add("150 %");
         combo.add("125 %");
         combo.add("100 %");
-        combo.add("75 %");
-        combo.add("50 %");
-        combo.add("25 %");
+        combo.add(" 75 %");
+        combo.add(" 50 %");
+        combo.add(" 25 %");
         combo.add(Messages.Zoom_Width);
         combo.add(Messages.Zoom_Height);
         combo.add(Messages.Zoom_All);
@@ -98,7 +98,7 @@ public class ZoomAction extends ContributionItem
             return part.setZoom(JFXRepresentation.ZOOM_WIDTH);
         else if (level_spec.equalsIgnoreCase(Messages.Zoom_Height))
             return part.setZoom(JFXRepresentation.ZOOM_HEIGHT);
-        // else: Parse "123 %"
+        // else: Parse " 123 % "
         String number = level_spec.trim();
         if (number.endsWith("%"))
             number = number.substring(0, number.length()-1).trim();

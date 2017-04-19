@@ -8,11 +8,11 @@
 package org.csstudio.trends.databrowser3.model;
 
 import java.time.Instant;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.csstudio.archive.vtype.VTypeHelper;
 import org.csstudio.javafx.rtplot.data.PlotDataItem;
+import org.diirt.vtype.Alarm;
 import org.diirt.vtype.AlarmSeverity;
 import org.diirt.vtype.Time;
 import org.diirt.vtype.VStatistics;
@@ -38,7 +38,7 @@ public class PlotSample implements PlotDataItem<Instant>
     /** Info string.
      *  @see #getInfo()
      */
-    private Optional<String> info;
+    private String info;
 
     /** Waveform index */
     private AtomicInteger waveform_index;
@@ -46,15 +46,30 @@ public class PlotSample implements PlotDataItem<Instant>
     /** Initialize with valid control system value
      *  @param waveform_index Waveform index
      *  @param source Info about the source of this sample
-     *  @param value
-     *  @param info Info text
+     *  @param value Value from which position, value and alarm info are read
+     *  @param info Info text. If non-<code>null</code>, replaces alarm info
      */
     PlotSample(final AtomicInteger waveform_index, final  String source, final VType value, final String info)
     {
         this.waveform_index = waveform_index;
         this.value = value;
         this.source = source;
-        this.info = Optional.ofNullable(info);
+        if (info == null)
+            this.info = decodeAlarm(value);
+        else
+            this.info = info;
+    }
+
+    private static String decodeAlarm(VType value)
+    {
+        if (value instanceof Alarm)
+        {
+            final Alarm alarm = (Alarm) value;
+            if (alarm.getAlarmSeverity() == AlarmSeverity.NONE)
+                return "";
+            return alarm.getAlarmSeverity() + " / " + alarm.getAlarmName();
+        }
+        return "";
     }
 
     /** Initialize with valid control system value
@@ -181,7 +196,7 @@ public class PlotSample implements PlotDataItem<Instant>
     @Override
     public String getInfo()
     {
-        return info.orElseGet(this::toString);
+        return info;
     }
 
     @Override

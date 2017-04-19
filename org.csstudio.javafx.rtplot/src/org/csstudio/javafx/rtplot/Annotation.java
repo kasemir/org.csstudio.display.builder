@@ -26,6 +26,8 @@ public class Annotation<XTYPE extends Comparable<XTYPE>>
     /** The position and value, i.e. x/y in value space */
     protected volatile XTYPE position;
     protected volatile double value;
+    /** Optional info for that location, may be null */
+    protected volatile String info;
 
     /** Offset of annotation from the referenced position */
     protected volatile Point2D offset;

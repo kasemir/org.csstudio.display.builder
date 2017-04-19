@@ -324,10 +324,10 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
      *  @param position New position
      *  @param value New value
      */
-    public void updateAnnotation(final AnnotationImpl<XTYPE> annotation, final XTYPE position, final double value,
+    public void updateAnnotation(final AnnotationImpl<XTYPE> annotation, final XTYPE position, final double value, final String info,
             final Point2D offset)
     {
-        annotation.setLocation(position, value);
+        annotation.setLocation(position, value, info);
         annotation.setOffset(offset);
         requestUpdate();
         fireAnnotationsChanged();
@@ -538,9 +538,11 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         final Point2D start = mouse_start.orElse(null);
         final Rectangle plot_bounds = plot_area.getBounds();
 
-        if (mouse_mode == MouseMode.PAN_X  ||  mouse_mode == MouseMode.PAN_Y || mouse_mode == MouseMode.PAN_PLOT)
+        if (mouse_mode == MouseMode.PAN_X  ||  mouse_mode == MouseMode.PAN_Y || mouse_mode == MouseMode.PAN_PLOT ||
+            (mouse_annotation.isPresent()  &&  start != null))
         {
             // NOP, minimize additional UI thread drawing to allow better 'pan' updates
+            //      and also hide the crosshair when moving an annotation
         }
         else if (show_crosshair  &&  plot_bounds.contains(current.getX(), current.getY()))
         {   // Cross-hair Cursor
@@ -676,7 +678,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
             {
                 anno.setOffset(
                         new Point2D((int)(mouse_annotation_start_offset.getX() + current.getX() - start.getX()),
-                                (int)(mouse_annotation_start_offset.getY() + current.getY() - start.getY())));
+                                    (int)(mouse_annotation_start_offset.getY() + current.getY() - start.getY())));
                 requestUpdate();
                 fireAnnotationsChanged();
             }

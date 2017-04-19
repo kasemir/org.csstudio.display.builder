@@ -114,7 +114,7 @@ public class DisplayEditor
     private SplitPane root;
     private ScrollPane model_root;
     private Palette palette;
-    private Group model_parent;
+    private Pane model_parent;
 
     /** @param toolkit JFX Toolkit
      *  @param stack_size Number of undo/redo entries
@@ -139,9 +139,9 @@ public class DisplayEditor
         model_root = toolkit.createModelRoot();
         autoScrollHandler = new AutoScrollHandler(model_root);
 
-        final Pane scroll_body = (Pane) model_root.getContent();
+        final Group scroll_body = (Group) model_root.getContent();
 
-        model_parent = (Group) scroll_body.getChildren().get(0);
+        model_parent = (Pane) scroll_body.getChildren().get(0);
 
         scroll_body.getChildren().add(edit_tools);
 
