@@ -75,9 +75,13 @@ public interface RuntimePV
     @Deprecated
     default public void setValue(final Object new_value) throws Exception
     {
-        logger.log(Level.SEVERE,
-                "Script calls 'setValue(" + new_value +") for PV '" + getName() +
-                "'. Update to 'write'");
+        if (! PVFactory.issued_write_warning)
+        {
+            PVFactory.issued_write_warning = true;
+            logger.log(Level.SEVERE,
+                    "Script calls 'setValue(" + new_value +") for PV '" + getName() +
+                    "'. Update to 'write'");
+        }
         write(new_value);
     }
 
