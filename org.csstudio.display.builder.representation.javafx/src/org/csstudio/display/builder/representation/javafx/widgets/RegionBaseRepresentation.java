@@ -58,9 +58,9 @@ abstract public class RegionBaseRepresentation<JFX extends Region, MW extends Vi
     private static final BorderStrokeStyle solid =
         new BorderStrokeStyle(StrokeType.OUTSIDE, StrokeLineJoin.MITER, StrokeLineCap.BUTT, 10, 0, null);
 
-    private static final BorderStrokeStyle dashed =
+    private static final BorderStrokeStyle dotted =
         new BorderStrokeStyle(StrokeType.OUTSIDE, StrokeLineJoin.MITER, StrokeLineCap.BUTT, 10, 0,
-                              Collections.unmodifiableList(Arrays.asList(10.0, 8.0)));
+                              Collections.unmodifiableList(Arrays.asList(2.0, 2.0)));
 
     private static final BorderStrokeStyle dash_dotted =
             new BorderStrokeStyle(StrokeType.OUTSIDE, StrokeLineJoin.MITER, StrokeLineCap.BUTT, 10, 0,
@@ -68,6 +68,7 @@ abstract public class RegionBaseRepresentation<JFX extends Region, MW extends Vi
 
     private static final BorderWidths thin = new BorderWidths(1);
     private static final BorderWidths normal = new BorderWidths(2);
+    private static final BorderWidths wide = new BorderWidths(4);
 
     /** Colors used for the various alarm severities */
     private static final Color[] alarm_colors = new Color[AlarmSeverity.values().length];
@@ -124,8 +125,8 @@ abstract public class RegionBaseRepresentation<JFX extends Region, MW extends Vi
             return new Border(new BorderStroke(alarm_colors[severity.ordinal()], dash_dotted, corners, normal));
         case UNDEFINED:
         default:
-            // Disconnected -> Gaps in dashed style are even wider than dash_dotted
-            return new Border(new BorderStroke(alarm_colors[severity.ordinal()], dashed, corners, normal));
+            // Disconnected -> Dotted
+            return new Border(new BorderStroke(alarm_colors[severity.ordinal()], dotted, corners, wide));
         }
     }
 
