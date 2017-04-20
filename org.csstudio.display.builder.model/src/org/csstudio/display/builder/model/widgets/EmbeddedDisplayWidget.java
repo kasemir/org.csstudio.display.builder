@@ -178,14 +178,14 @@ public class EmbeddedDisplayWidget extends VisibleWidget
                     }
                 }
 
-                // Transition legacy border
+                // Transition legacy border if it was an explicit line
+                // or a style that includes a label
                 final int border_style = XMLUtil.getChildInteger(xml, "border_style").orElse(0);
-                final int border_width = XMLUtil.getChildInteger(xml, "border_width").orElse(0);
-                final Style style = GroupWidget.convertLegacyStyle(border_style);
-
-                // TODO Only if line with width > ..
-                if (style != Style.NONE)
+                if (border_style == 1  || // LINE
+                    border_style == 12 || // TITLE_BAR
+                    border_style == 13)   // GROUP_BOX
                 {
+                    final Style style = GroupWidget.convertLegacyStyle(border_style);
                     createGroupWrapper(widget, xml, style);
                     // Trigger re-parsing the XML from the parent down
                     throw new ParseAgainException();
