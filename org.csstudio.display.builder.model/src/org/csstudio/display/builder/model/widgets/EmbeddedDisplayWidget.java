@@ -33,6 +33,7 @@ import org.csstudio.display.builder.model.persist.XMLTags;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
+import org.csstudio.display.builder.model.widgets.GroupWidget.Style;
 import org.osgi.framework.Version;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -178,10 +179,14 @@ public class EmbeddedDisplayWidget extends VisibleWidget
                 }
 
                 // Transition legacy border
-                final int border = XMLUtil.getChildInteger(xml, "border_style").orElse(-1);
-                if (border > 0)
+                final int border_style = XMLUtil.getChildInteger(xml, "border_style").orElse(0);
+                final int border_width = XMLUtil.getChildInteger(xml, "border_width").orElse(0);
+                final Style style = GroupWidget.convertLegacyStyle(border_style);
+
+                // TODO Only if line with width > ..
+                if (style != Style.NONE)
                 {
-                    createGroupWrapper(widget, xml);
+                    createGroupWrapper(widget, xml, style);
                     // Trigger re-parsing the XML from the parent down
                     throw new ParseAgainException();
                 }
@@ -189,28 +194,31 @@ public class EmbeddedDisplayWidget extends VisibleWidget
             return true;
         }
 
-        /** Create a GroupWidget for the border, with this EmbeddedDisplay inside the Group */
-        private void createGroupWrapper(final Widget widget, final Element embedded_xml)
+        /** Create a GroupWidget for the border, with this EmbeddedDisplay inside the Group
+         *  @param style
+         */
+        private void createGroupWrapper(final Widget widget, final Element embedded_xml, final Style style)
         {
             // Create a 'group' widget
             final Document doc = embedded_xml.getOwnerDocument();
             final Element group = doc.createElement(XMLTags.WIDGET);
             group.setAttribute(XMLTags.TYPE, GroupWidget.WIDGET_DESCRIPTOR.getType());
 
-            // Set name, location, .. from linking container
-            group.appendChild(doc.importNode(XMLUtil.getChildElement(embedded_xml, XMLTags.NAME), true));
+            // Set name, style, and copy location, .. from linking container
+            XMLUtil.updateTag(group, XMLTags.NAME, widget.getName());
+            XMLUtil.updateTag(group, GroupWidget.propStyle.getName(), Integer.toString(style.ordinal()));
             group.appendChild(doc.importNode(XMLUtil.getChildElement(embedded_xml, XMLTags.X), true));
             group.appendChild(doc.importNode(XMLUtil.getChildElement(embedded_xml, XMLTags.Y), true));
             group.appendChild(doc.importNode(XMLUtil.getChildElement(embedded_xml, XMLTags.WIDTH), true));
             group.appendChild(doc.importNode(XMLUtil.getChildElement(embedded_xml, XMLTags.HEIGHT), true));
 
-            // Use the border info
-            Element el = XMLUtil.getChildElement(embedded_xml, "border_style");
-            group.appendChild(doc.importNode(el, true));
-
-            // IMPORTANT: Remove the border from this widget so when parsed again
+            // IMPORTANT: Remove legacy border_style from this widget so when parsed again
             // there is no infinite loop creating more 'group' wrappers.
+            Element el = XMLUtil.getChildElement(embedded_xml, "border_style");
             embedded_xml.removeChild(el);
+
+            // Update name
+            XMLUtil.updateTag(embedded_xml, XMLTags.NAME, widget.getName() + "_Content");
 
             // Adjust X/Y to (0, 0)
             el = XMLUtil.getChildElement(embedded_xml, XMLTags.X);
@@ -223,9 +231,17 @@ public class EmbeddedDisplayWidget extends VisibleWidget
             // Adjust size to allow for the group's insets
             // .. which are not known until the group is represented.
             // Using a value that looked about right in tests.
-            final int inset = 30;
-            XMLUtil.updateTag(embedded_xml, XMLTags.WIDTH, Integer.toString(widget.propWidth().getValue() - inset));
-            XMLUtil.updateTag(embedded_xml, XMLTags.HEIGHT, Integer.toString(widget.propHeight().getValue() - inset));
+            final int x_inset, y_inset;
+            switch (style)
+            {
+            case NONE:   x_inset =  0;  y_inset =  0;  break;
+            case LINE:   x_inset =  2;  y_inset =  2;  break;
+            case TITLE:  x_inset =  2;  y_inset = 20;  break;
+            case GROUP:
+            default:     x_inset = 30;  y_inset = 30;  break;
+            }
+            XMLUtil.updateTag(embedded_xml, XMLTags.WIDTH, Integer.toString(widget.propWidth().getValue() - x_inset));
+            XMLUtil.updateTag(embedded_xml, XMLTags.HEIGHT, Integer.toString(widget.propHeight().getValue() - y_inset));
 
             // Move this widget into the new group
             final Node parent = embedded_xml.getParentNode();
