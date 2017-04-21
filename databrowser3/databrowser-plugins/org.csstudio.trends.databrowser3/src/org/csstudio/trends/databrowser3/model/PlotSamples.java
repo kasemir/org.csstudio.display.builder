@@ -7,12 +7,17 @@
  ******************************************************************************/
 package org.csstudio.trends.databrowser3.model;
 
+import static org.csstudio.javafx.rtplot.Activator.logger;
+
 import java.time.Instant;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.logging.Level;
 
+import org.csstudio.javafx.rtplot.data.InstrumentedReadWriteLock;
 import org.csstudio.javafx.rtplot.data.PlotDataProvider;
 
 /** Base for classes that hold plot samples
@@ -20,9 +25,10 @@ import org.csstudio.javafx.rtplot.data.PlotDataProvider;
  *
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 abstract public class PlotSamples implements PlotDataProvider<Instant>
 {
-    final private ReadWriteLock lock = new ReentrantReadWriteLock();
+    protected final ReadWriteLock lock = new InstrumentedReadWriteLock();
 
     /** To be set when samples change
      *  @see #testAndClearNewSamplesFlag()
@@ -30,9 +36,18 @@ abstract public class PlotSamples implements PlotDataProvider<Instant>
     final protected AtomicBoolean have_new_samples = new AtomicBoolean();
 
     /** Lock for writing */
-    public void lockForWriting()
+    public boolean lockForWriting()
     {
-        lock.writeLock().lock();
+        try
+        {
+            if (! lock.writeLock().tryLock(10, TimeUnit.SECONDS))
+                throw new TimeoutException();
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Cannot lock " + this, ex);
+        }
+        return false;
     }
 
     /** Un-lock after writing */
@@ -79,19 +94,23 @@ abstract public class PlotSamples implements PlotDataProvider<Instant>
     @Override
     public String toString()
     {
-        getLock().lock();
-        try
+        final StringBuilder buf = new StringBuilder();
+        buf.append("Plot Samples, lock state: ").append(lock);
+        if (getLock().tryLock())
         {
-            final int n = size();
-            final StringBuilder buf = new StringBuilder(n + " Plot Samples");
-            if (n < 100)
-                for (int i=0; i<n; ++i)
-                    buf.append(String.format("\n%3d: ", i)).append(get(i));
-            return buf.toString();
+            try
+            {
+                final int n = size();
+                buf.append(", ").append(n).append(" samples");
+                if (n < 100)
+                    for (int i=0; i<n; ++i)
+                        buf.append(String.format("\n%3d: ", i)).append(get(i));
+            }
+            finally
+            {
+                getLock().unlock();
+            }
         }
-        finally
-        {
-            getLock().unlock();
-        }
+        return buf.toString();
     }
 }
