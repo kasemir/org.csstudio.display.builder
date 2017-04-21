@@ -13,6 +13,7 @@ import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.Messages;
 import org.csstudio.display.builder.editor.undo.SetWidgetPropertyAction;
 import org.csstudio.display.builder.editor.undo.UpdateWidgetOrderAction;
+import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 
@@ -59,6 +60,28 @@ public abstract class ActionDescription
         }
     };
 
+    /** Move widget one step to the back */
+    public static final ActionDescription MOVE_UP =
+        new ActionDescription("icons/up.png", Messages.MoveUp)
+    {
+        @Override
+        public void run(final DisplayEditor editor, final boolean selected)
+        {
+            final List<Widget> widgets = editor.getWidgetSelectionHandler().getSelection();
+
+            final UndoableActionManager undo = editor.getUndoableActionManager();
+            for (Widget widget : widgets)
+            {
+                final List<Widget> children = ChildrenProperty.getParentsChildren(widget).getValue();
+                int orig = children.indexOf(widget);
+                if (orig > 0)
+                    undo.execute(new UpdateWidgetOrderAction(widget, orig, orig-1));
+                else
+                    undo.execute(new UpdateWidgetOrderAction(widget, orig, -1));
+            }
+        }
+    };
+
     /** Move widget to back */
     public static final ActionDescription TO_BACK =
         new ActionDescription("icons/toback.png", Messages.MoveToBack)
@@ -70,6 +93,28 @@ public abstract class ActionDescription
             final UndoableActionManager undo = editor.getUndoableActionManager();
             for (Widget widget : widgets)
                 undo.execute(new UpdateWidgetOrderAction(widget, 0));
+        }
+    };
+
+    /** Move widget one step to the front */
+    public static final ActionDescription MOVE_DOWN =
+        new ActionDescription("icons/down.png", Messages.MoveDown)
+    {
+        @Override
+        public void run(final DisplayEditor editor, final boolean selected)
+        {
+            final List<Widget> widgets = editor.getWidgetSelectionHandler().getSelection();
+
+            final UndoableActionManager undo = editor.getUndoableActionManager();
+            for (Widget widget : widgets)
+            {
+                final List<Widget> children = ChildrenProperty.getParentsChildren(widget).getValue();
+                int orig = children.indexOf(widget);
+                if (orig < children.size()-1)
+                    undo.execute(new UpdateWidgetOrderAction(widget, orig, orig+1));
+                else
+                    undo.execute(new UpdateWidgetOrderAction(widget, orig, 0));
+            }
         }
     };
 
