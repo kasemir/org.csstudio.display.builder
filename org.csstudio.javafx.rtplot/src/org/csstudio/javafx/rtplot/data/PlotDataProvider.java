@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014-2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2014 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,10 +29,14 @@ import java.util.concurrent.locks.ReadWriteLock;
  *  the lock for the complete operation. Locking on each <code>get()</code>
  *  will not assert consistency but only increase CPU use for
  *  needless lock/unlocks.
- * *
+ *
  *  <p>To improve performance, the data provider implementation
  *  might internally use a {@link ReadWriteLock} for its write access to the data,
  *  and only pass the 'read' component to the plotting library.
+ *
+ *  <p>It is suggested to actually use the {@link InstrumentedReadWriteLock}
+ *  and include its <code>toString()</code> info in the <code>PlotDataProvider#toString()</code>
+ *  to show the owning thread etc. when debugging deadlocks.
  *
  *  @param <XTYPE> Data type used for the horizontal {@link Axis}
  *
@@ -53,4 +57,9 @@ public interface PlotDataProvider<XTYPE extends Comparable<XTYPE>>
      *  @return The Sample of given index.
      */
     public PlotDataItem<XTYPE> get(int index);
+
+    //    public String toString()
+    //    {
+    //        // Derived class should include InstrumentedReadWriteLock#toString()
+    //    }
 }
