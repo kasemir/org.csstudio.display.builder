@@ -7,10 +7,12 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets.plots;
 
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.csstudio.javafx.rtplot.data.InstrumentedReadWriteLock;
 import org.csstudio.javafx.rtplot.data.PlotDataItem;
 import org.csstudio.javafx.rtplot.data.PlotDataProvider;
 import org.csstudio.javafx.rtplot.data.SimpleDataItem;
@@ -24,11 +26,12 @@ import org.diirt.util.array.ListNumber;
  *
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class XYVTypeDataProvider implements PlotDataProvider<Double>
 {
     public final static ListNumber EMPTY = new ArrayDouble(new double[0], true);
 
-    final private ReadWriteLock lock = new ReentrantReadWriteLock();
+    final private ReadWriteLock lock = new InstrumentedReadWriteLock();
 
     private volatile ListNumber x_data, y_data, error_data;
     private volatile int size = 0;
@@ -41,7 +44,8 @@ public class XYVTypeDataProvider implements PlotDataProvider<Double>
      */
     public void setData(final ListNumber x_data, final ListNumber y_data, final ListNumber error_data) throws Exception
     {
-        lock.writeLock().lock();
+        if (! lock.writeLock().tryLock(10, TimeUnit.SECONDS))
+            throw new TimeoutException("Cannot lock " + lock);
         try
         {
             // In principle, error_data should have 1 element or same size as X and Y..
@@ -85,5 +89,11 @@ public class XYVTypeDataProvider implements PlotDataProvider<Double>
             max = y + error;
         }
         return new SimpleDataItem<Double>(x, y, Double.NaN, min, max, null);
+    }
+
+    @Override
+    public String toString()
+    {
+        return "XYVTypeDataProvider, lock: " + lock.toString();
     }
 }

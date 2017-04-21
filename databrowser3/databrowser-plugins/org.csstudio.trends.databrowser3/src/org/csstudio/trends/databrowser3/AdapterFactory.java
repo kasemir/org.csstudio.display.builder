@@ -7,12 +7,18 @@
  ******************************************************************************/
 package org.csstudio.trends.databrowser3;
 
+import static org.csstudio.javafx.rtplot.Activator.logger;
+
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
+
 import org.csstudio.csdata.ProcessVariable;
 import org.csstudio.trends.databrowser3.model.ChannelInfo;
 import org.csstudio.trends.databrowser3.model.ModelItem;
 import org.csstudio.trends.databrowser3.model.PlotSamples;
-import org.eclipse.core.runtime.IAdapterFactory;
 import org.diirt.vtype.VType;
+import org.eclipse.core.runtime.IAdapterFactory;
 
 /** Adapt Data Browser model items to CSS PV
  *
@@ -20,6 +26,7 @@ import org.diirt.vtype.VType;
  *
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class AdapterFactory implements IAdapterFactory
 {
     @Override
@@ -60,19 +67,29 @@ public class AdapterFactory implements IAdapterFactory
     private ProcessVariableWithSamples convertToPvWithSamples(final ModelItem item)
     {
         final PlotSamples plot_samples = item.getSamples();
-        final VType[] samples;
-        plot_samples.getLock().lock();
+
         try
         {
-            final int size = plot_samples.size();
-            samples = new VType[size];
-            for (int i=0; i<size; ++i)
-                samples[i] = plot_samples.get(i).getVType();
+            if (! plot_samples.getLock().tryLock(10, TimeUnit.SECONDS))
+                throw new TimeoutException("Cannot lock data for " + item + ": " + plot_samples);
+            try
+            {
+                final int size = plot_samples.size();
+                final VType[] samples = new VType[size];
+                for (int i=0; i<size; ++i)
+                    samples[i] = plot_samples.get(i).getVType();
+                return new ProcessVariableWithSamples(new ProcessVariable(item.getName()), samples);
+            }
+            finally
+            {
+                plot_samples.getLock().unlock();
+            }
         }
-        finally
+        catch (Exception ex)
         {
-            plot_samples.getLock().unlock();
+            logger.log(Level.WARNING, "AdapterFactory cannot lock data for " + item +
+                                      ": " + plot_samples);
+            return null;
         }
-        return new ProcessVariableWithSamples(new ProcessVariable(item.getName()), samples);
     }
 }

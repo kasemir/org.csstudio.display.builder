@@ -7,12 +7,16 @@
  ******************************************************************************/
 package org.csstudio.trends.databrowser3.model;
 
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 import org.diirt.vtype.VType;
 
 /** One input to the formula: Model item that provides data, Variable name
  *  for use in the formula
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class FormulaInput
 {
     /** The model item used as input. */
@@ -49,11 +53,13 @@ public class FormulaInput
     /** Reset the sample iterator to the first sample
      *  @see #next()
      *  @return First sample or <code>null</code>
+     *  @throws Exception on error
      */
-    public VType first()
+    public VType first() throws Exception
     {
         final PlotSamples samples = item.getSamples();
-        samples.getLock().lock();
+        if (! samples.getLock().tryLock(10, TimeUnit.SECONDS))
+            throw new TimeoutException("Cannot lock " + samples);
         try
         {
             if (samples.size() > 0)
@@ -70,14 +76,16 @@ public class FormulaInput
 
     /** Iterate over the samples of the input's ModelItem
      *  @return Next value or <code>null</code>
+     *  @throws Exception
      */
-    public VType next()
+    public VType next() throws Exception
     {
         if (index < 0)
             return null;
         final VType result;
         final PlotSamples samples = item.getSamples();
-        samples.getLock().lock();
+        if (! samples.getLock().tryLock(10, TimeUnit.SECONDS))
+            throw new TimeoutException("Cannot lock " + samples);
         try
         {
             if (index < samples.size())
