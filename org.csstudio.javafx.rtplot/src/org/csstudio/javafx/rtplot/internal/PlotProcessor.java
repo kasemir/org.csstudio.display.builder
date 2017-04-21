@@ -17,6 +17,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
@@ -72,7 +74,8 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
                         if (! trace.isVisible())
                             continue;
                         final PlotDataProvider<XTYPE> data = trace.getData();
-                        data.getLock().lock();
+                        if (! data.getLock().tryLock(10, TimeUnit.SECONDS))
+                            throw new TimeoutException("Cannot lock data for " + trace + ": " + data);
                         try
                         {
                             final int N = data.size();
@@ -142,7 +145,9 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
                 double low = Double.MAX_VALUE;
                 double high = -Double.MAX_VALUE;
                 final PlotDataSearch<XTYPE> search = new PlotDataSearch<XTYPE>();
-                data.getLock().lock();
+
+                if (! data.getLock().tryLock(10, TimeUnit.SECONDS))
+                    throw new TimeoutException("Cannot lock " + data);
                 try
                 {
                     if (data.size() > 0)
@@ -346,7 +351,7 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
     public void updateCursorMarkers(final int cursor_x, final XTYPE location, final Consumer<List<CursorMarker>> callback)
     {
         // Run in thread
-        thread_pool.execute(() ->
+        thread_pool.submit(() ->
         {
             final List<CursorMarker> markers = new ArrayList<>();
             final PlotDataSearch<XTYPE> search = new PlotDataSearch<>();
@@ -357,7 +362,8 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
                         continue;
                     final PlotDataProvider<XTYPE> data = trace.getData();
                     final PlotDataItem<XTYPE> sample;
-                    data.getLock().lock();
+                    if (! data.getLock().tryLock(10, TimeUnit.SECONDS))
+                        throw new TimeoutException("Cannot update cursor markers, no lock on " + data);
                     try
                     {
                         final int index = search.findSampleLessOrEqual(data, location);
@@ -385,6 +391,7 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
                 }
             Collections.sort(markers);
             callback.accept(markers);
+            return null;
         });
     }
 
@@ -396,14 +403,15 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
     {
         final AxisPart<XTYPE> x_axis = plot.getXAxis();
         // Run in thread
-        thread_pool.execute(() ->
+        thread_pool.submit(() ->
         {
             final AxisRange<Integer> range = x_axis.getScreenRange();
             XTYPE location = x_axis.getValue((range.getLow() + range.getHigh())/2);
             final PlotDataSearch<XTYPE> search = new PlotDataSearch<>();
             final PlotDataProvider<XTYPE> data = trace.getData();
             double value= Double.NaN;
-            data.getLock().lock();
+            if (! data.getLock().tryLock(10, TimeUnit.SECONDS))
+                throw new TimeoutException("Cannot create annotation, no lock on " + data);
             try
             {
                 final int index = search.findSampleGreaterOrEqual(data, location);
@@ -425,25 +433,27 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
                                                    new AnnotationImpl<XTYPE>(false, trace, location, value,
                                                                              new Point2D(20, -20),
                                                                              text)));
+            return null;
         });
     }
 
     public void updateAnnotation(final AnnotationImpl<XTYPE> annotation, final XTYPE location)
     {
         // Run in thread
-        thread_pool.execute(() ->
+        thread_pool.submit(() ->
         {
             final PlotDataSearch<XTYPE> search = new PlotDataSearch<>();
             final PlotDataProvider<XTYPE> data = annotation.getTrace().getData();
             XTYPE position;
             double value;
             String info;
-            data.getLock().lock();
+            if (! data.getLock().tryLock(10, TimeUnit.SECONDS))
+                throw new TimeoutException("Cannot update annotation, no lock on " + data);
             try
             {
                 final int index = search.findSampleLessOrEqual(data, location);
                 if (index < 0)
-                    return;
+                    return null;
                 final PlotDataItem<XTYPE> sample = data.get(index);
                 position = sample.getPosition();
                 value = sample.getValue();
@@ -454,6 +464,7 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
                 data.getLock().unlock();
             }
             plot.updateAnnotation(annotation, position, value, info, annotation.getOffset());
+            return null;
         });
     }
 
