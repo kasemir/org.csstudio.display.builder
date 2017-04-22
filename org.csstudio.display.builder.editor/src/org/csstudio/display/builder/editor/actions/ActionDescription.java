@@ -157,10 +157,11 @@ public abstract class ActionDescription
         @Override
         public void run(final DisplayEditor editor, final boolean selected)
         {
-            final List<Widget> widgets = editor.getWidgetSelectionHandler().getSelection();
-            final UndoableActionManager undo = editor.getUndoableActionManager();
+            List<Widget> widgets = editor.getWidgetSelectionHandler().getSelection();
+            final CompoundUndoableAction compound = new CompoundUndoableAction(Messages.MoveToFront);
             for (Widget widget : widgets)
-                undo.execute(new UpdateWidgetOrderAction(widget, -1));
+                compound.add(new UpdateWidgetOrderAction(widget, -1));
+            editor.getUndoableActionManager().execute(compound);
         }
     };
 
