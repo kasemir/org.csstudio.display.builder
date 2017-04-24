@@ -10,8 +10,8 @@ package org.csstudio.javafx.rtplot;
 import java.time.Instant;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.csstudio.javafx.rtplot.data.InstrumentedReadWriteLock;
 import org.csstudio.javafx.rtplot.data.PlotDataItem;
 import org.csstudio.javafx.rtplot.data.PlotDataProvider;
 import org.csstudio.javafx.rtplot.data.SimpleDataItem;
@@ -22,7 +22,7 @@ import org.csstudio.javafx.rtplot.data.SimpleDataItem;
 @SuppressWarnings("nls")
 public class DynamicDemoData implements PlotDataProvider<Instant>
 {
-    final private ReadWriteLock lock = new ReentrantReadWriteLock();
+    final private ReadWriteLock lock = new InstrumentedReadWriteLock();
     final private PlotDataItem<Instant>[] data;
     final private long start_secs;
     final private double period;

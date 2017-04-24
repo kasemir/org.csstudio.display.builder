@@ -9,9 +9,9 @@ package org.csstudio.trends.databrowser3.waveformview;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.csstudio.archive.vtype.VTypeHelper;
+import org.csstudio.javafx.rtplot.data.InstrumentedReadWriteLock;
 import org.csstudio.javafx.rtplot.data.PlotDataItem;
 import org.csstudio.javafx.rtplot.data.PlotDataProvider;
 import org.csstudio.javafx.rtplot.data.SimpleDataItem;
@@ -23,9 +23,10 @@ import org.diirt.vtype.VType;
 /** Data provider for the plot that shows waveform elements of a VNumberArray
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class WaveformValueDataProvider implements PlotDataProvider<Double>
 {
-    final private ReadWriteLock lock = new ReentrantReadWriteLock();
+    final private ReadWriteLock lock = new InstrumentedReadWriteLock();
 
     private ListNumber numbers = null;
 
@@ -71,5 +72,11 @@ public class WaveformValueDataProvider implements PlotDataProvider<Double>
     public PlotDataItem<Double> get(final int index)
     {
         return new SimpleDataItem<Double>((double)index, numbers.getDouble(index));
+    }
+
+    @Override
+    public String toString()
+    {
+        return "WaveformValueDataProvider, lock: " + lock.toString();
     }
 }

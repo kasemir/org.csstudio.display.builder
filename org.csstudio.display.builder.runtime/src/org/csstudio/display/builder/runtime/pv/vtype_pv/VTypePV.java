@@ -7,8 +7,11 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime.pv.vtype_pv;
 
+import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
+
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
 
 import org.csstudio.display.builder.runtime.pv.RuntimePV;
 import org.csstudio.display.builder.runtime.pv.RuntimePVListener;
@@ -19,6 +22,7 @@ import org.diirt.vtype.VType;
 /** Implements {@link RuntimePV} for {@link PV}
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class VTypePV implements RuntimePV, PVListener
 {
     private final PV pv;
@@ -67,7 +71,14 @@ public class VTypePV implements RuntimePV, PVListener
     @Override
     public void write(final Object new_value) throws Exception
     {
-        pv.write(new_value);
+        try
+        {
+            pv.write(new_value);
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Cannot write " + new_value + " to PV " + getName(), ex);
+        }
     }
 
     @Override

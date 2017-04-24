@@ -9,6 +9,7 @@ package org.csstudio.display.builder.editor.rcp;
 
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.EditorUtil;
+import org.csstudio.display.builder.editor.actions.ActionDescription;
 import org.csstudio.display.builder.editor.tree.WidgetTree;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.javafx.swt.JFX_SWT_Wrapper;
@@ -22,6 +23,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.Page;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
 import javafx.scene.Scene;
@@ -63,6 +65,26 @@ public class OutlinePage extends Page implements IContentOutlinePage
             editor.cutToClipboard();
         }
     }
+
+    private class ActionForActionDescription extends Action
+    {
+        private final ActionDescription action;
+
+        ActionForActionDescription(final ActionDescription action)
+        {
+            super(action.getToolTip(),
+                  AbstractUIPlugin.imageDescriptorFromPlugin(org.csstudio.display.builder.editor.Plugin.ID,
+                                                             action.getIcon()));
+            this.action = action;
+        }
+
+        @Override
+        public void run()
+        {
+            action.run(editor);
+        }
+    }
+
     private final DisplayEditor editor;
     private final WidgetTree tree;
 
@@ -99,6 +121,10 @@ public class OutlinePage extends Page implements IContentOutlinePage
         final MenuManager manager = new MenuManager();
         manager.add(new CopyAction());
         manager.add(new DeleteAction());
+        manager.add(new ActionForActionDescription(ActionDescription.TO_BACK));
+        manager.add(new ActionForActionDescription(ActionDescription.MOVE_UP));
+        manager.add(new ActionForActionDescription(ActionDescription.MOVE_DOWN));
+        manager.add(new ActionForActionDescription(ActionDescription.TO_FRONT));
         final Menu menu = manager.createContextMenu(canvas);
         canvas.setMenu(menu);
     }

@@ -35,6 +35,29 @@ import org.w3c.dom.Element;
 @SuppressWarnings("nls")
 public class WidgetConfigurator
 {
+    /** Custom {@link WidgetConfigurator} can throw this exception
+     *  to trigger re-parsing of the XML config.
+     *
+     *  <p>{@link ModelReader} will read the XML from the widget's
+     *  parent on down again.
+     *  This allows a {@link WidgetConfigurator} to update the XML
+     *  by for example by replacing the XML for the currently handled
+     *  widget or by adding new widgets.
+     *
+     *  <p>Reconfiguration of the XML is limited to the widget and its siblings,
+     *  one cannot change the XML from the parent of the widget on up,
+     *  only from the widget and its siblings on and down to child widgets.
+     *
+     *  <p><b>NOTE:</b>
+     *  A re-parsing should only be requested <u>after</u> the XML
+     *  has been updated. The re-parse should not trigger another re-parse
+     *  for the same reason, resulting in an infinite loop.
+     */
+    public static class ParseAgainException extends Exception
+    {
+        private static final long serialVersionUID = 1L;
+    };
+
     /** Version of the XML.
      *
      *  <p>Derived class can use this to decide how to read older XML.
@@ -53,11 +76,13 @@ public class WidgetConfigurator
      *  @param xml XML for this widget
      *  @return <code>true</code> if widget can be configured,
      *          <code>false</code> if XML indicates that an alternate widget should be used
+     *  @throws ParseAgainException to trigger re-parsing the XML for this widget and its siblings,
+     *                              i.e. for all widgets under this widget's parent.
      *  @throws Exception on error
      *
      */
     public boolean configureFromXML(final ModelReader model_reader, final Widget widget,
-            final Element xml) throws Exception
+            final Element xml) throws ParseAgainException, Exception
     {
         // System.out.println("Reading " + widget + " from saved V" + xml_version);
         configureAllPropertiesFromMatchingXML(model_reader, widget, xml);

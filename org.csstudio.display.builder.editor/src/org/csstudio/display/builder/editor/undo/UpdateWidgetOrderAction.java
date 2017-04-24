@@ -26,12 +26,29 @@ public class UpdateWidgetOrderAction extends UndoableAction
     public UpdateWidgetOrderAction(final Widget widget,
                                    final int desired_index)
     {
+        this(widget, getWidgetLocation(widget), desired_index);
+    }
+
+    /** @param widget Widget
+     *  @param index Desired index, -1 for "end of list"
+     */
+    public UpdateWidgetOrderAction(final Widget widget,
+                                   final int original_index,
+                                   final int desired_index)
+    {
         super(Messages.UpdateWidgetOrder);
         this.widget = widget;
-
-        final ChildrenProperty children = ChildrenProperty.getParentsChildren(widget);
-        this.orig_index = children.getValue().indexOf(widget);
+        this.orig_index = original_index;
         this.desired_index = desired_index;
+    }
+
+    /** @param widget Widget
+     *  @return Index of widget in it's parent list of children
+     */
+    public static int getWidgetLocation(final Widget widget)
+    {
+        final ChildrenProperty children = ChildrenProperty.getParentsChildren(widget);
+        return children.getValue().indexOf(widget);
     }
 
     @Override

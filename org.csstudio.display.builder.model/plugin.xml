@@ -367,6 +367,9 @@
          <alternates
                type="org.csstudio.opibuilder.widgets.TextInput">
          </alternates>
+         <alternates
+               type="org.csstudio.opibuilder.widgets.NativeText">
+         </alternates>
       </widget>
       <widget
             category="MONITOR"

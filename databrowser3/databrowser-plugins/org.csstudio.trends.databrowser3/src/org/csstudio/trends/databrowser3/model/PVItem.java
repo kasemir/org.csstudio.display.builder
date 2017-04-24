@@ -398,7 +398,8 @@ public class PVItem extends ModelItem
     /** Add one(!) 'disconnected' sample */
     private void logDisconnected()
     {
-        samples.lockForWriting();
+        if (! samples.lockForWriting())
+            return;
         try
         {
             final int size = samples.size();
@@ -426,7 +427,8 @@ public class PVItem extends ModelItem
             final List<VType> new_samples)
     {
         final boolean need_refresh;
-        samples.lockForWriting();
+        if (! samples.lockForWriting())
+            return;
         try
         {
             samples.mergeArchivedData(server_name, new_samples);

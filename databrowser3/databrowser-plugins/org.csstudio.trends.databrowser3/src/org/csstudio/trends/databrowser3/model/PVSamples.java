@@ -7,10 +7,15 @@
  ******************************************************************************/
 package org.csstudio.trends.databrowser3.model;
 
+import static org.csstudio.trends.databrowser3.Activator.logger;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
 
 import org.csstudio.archive.vtype.VTypeHelper;
 import org.csstudio.trends.databrowser3.Messages;
@@ -31,6 +36,7 @@ import org.diirt.vtype.ValueUtil;
  *  @author Kay Kasemir
  *  @author Takashi Nakamoto changed PVSamples to handle waveform index.
  */
+@SuppressWarnings("nls")
 public class PVSamples extends PlotSamples
 {
     /* history and live are each PlotSamples, i.e. they
@@ -157,7 +163,8 @@ public class PVSamples extends PlotSamples
     public void mergeArchivedData(final String source,
             final List<VType> result)
     {
-        lockForWriting();
+        if (! lockForWriting())
+            return;
         try
         {
             if (emptyHistoryOnAdd)
@@ -188,7 +195,8 @@ public class PVSamples extends PlotSamples
      */
     public void addLiveSample(final PlotSample sample)
     {
-        lockForWriting();
+        if (! lockForWriting())
+            return;
         try
         {
             // Skip the initial UNDEFINED/Disconnected sample sent by PVManager
@@ -211,7 +219,8 @@ public class PVSamples extends PlotSamples
     /** Delete all samples */
     public void clear()
     {
-        lockForWriting();
+        if (! lockForWriting())
+            return;
         try
         {
             history.clear();
@@ -237,14 +246,24 @@ public class PVSamples extends PlotSamples
      */
     boolean isHistoryRefreshNeeded(final Instant startTime, final Instant endTime)
     {
-        getLock().lock();
+        try
+        {
+            if (! getLock().tryLock(10, TimeUnit.SECONDS))
+                throw new TimeoutException();
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Cannot lock " + this, ex);
+            return false;
+        }
+
         try
         {
             //if already waiting for history to be loaded, wait on
-               if (emptyHistoryOnAdd) return false;
-               //if the live samples have more than 15% of capacity left before old data is erased,
-               //refresh is not yet needed
-               if (samplesAddedSinceLastRefresh < live.getCapacity()*0.85) return false;
+            if (emptyHistoryOnAdd) return false;
+            //if the live samples have more than 15% of capacity left before old data is erased,
+            //refresh is not yet needed
+            if (samplesAddedSinceLastRefresh < live.getCapacity()*0.85) return false;
             //if live data hasn't reached capacity, do not refresh anything
             if (live.size() < live.getCapacity() || live.size() == 0) return false;
             //if there is no history data, there is nothing to refresh anyway
@@ -280,30 +299,34 @@ public class PVSamples extends PlotSamples
     }
 
     /** @return (Long) string representation for debugging */
-    @SuppressWarnings("nls")
     @Override
     public String toString()
     {
         final StringBuilder buf = new StringBuilder();
-        buf.append("PV Samples\nHistory: ");
+        buf.append("PV Samples, lock state: ").append(lock);
+
+        buf.append("\nHistory: ");
         buf.append(history.toString());
+
         buf.append("\nLive Buffer: ");
         buf.append(live.toString());
 
-        getLock().lock();
-        try
+        if (getLock().tryLock())
         {
-            final int count = size();
-            if (count != getRawSize())
+            try
             {
-                buf.append("\nContinuation to 'now':\n");
-                buf.append("     " + get(count-1));
+                final int count = size();
+                if (count != getRawSize())
+                {
+                    buf.append("\nContinuation to 'now':\n");
+                    buf.append("     " + get(count-1));
+                }
             }
-            return buf.toString();
+            finally
+            {
+                getLock().unlock();
+            }
         }
-        finally
-        {
-            getLock().unlock();
-        }
+        return buf.toString();
     }
 }

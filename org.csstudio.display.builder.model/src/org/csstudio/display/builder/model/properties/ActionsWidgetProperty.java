@@ -258,12 +258,17 @@ public class ActionsWidgetProperty extends WidgetProperty<ActionInfos>
                 //     <confirm_message/>
                 //     <description>-</description>
                 // </action>
+
+                // PV Name should be set.
                 final String pv_name = XMLUtil.getChildString(action_xml, XMLTags.PV_NAME).orElse("");
+                if (pv_name.isEmpty())
+                    logger.log(Level.WARNING, "Ignoring <action type='" + WRITE_PV + "'> with empty <pv_name> on " + getWidget());
+
+                // PV may be empty to write "".
+                // In contrast to legacy opibuilder the value is _not_ trimmed,
+                // so it's possible to write "   " (which opibuilder wrote as "")
                 final String value = XMLUtil.getChildString(action_xml, XMLTags.VALUE).orElse("");
-                if (pv_name.isEmpty()  ||  value.isEmpty())
-                    logger.log(Level.WARNING, "Ignoring <action type='" + WRITE_PV + "'> with empty <pv_name> and/or <value>");
-                else
-                    actions.add(new WritePVActionInfo(description, pv_name, value));
+                actions.add(new WritePVActionInfo(description, pv_name, value));
             }
             else if (EXECUTE_SCRIPT.equals(type))
             {

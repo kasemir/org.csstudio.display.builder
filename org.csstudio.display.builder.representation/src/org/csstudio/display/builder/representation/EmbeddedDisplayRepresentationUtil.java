@@ -121,11 +121,10 @@ public class EmbeddedDisplayRepresentationUtil
         }
 
         // Expect exactly one
-        final int groups = model.runtimeChildren().getValue().size();
         if (children.size() != 1)
         {
             model_widget.propResize().setValue(Resize.None);
-            logger.log(Level.WARNING, "Expected one group named '" + group_name + "' in '" + display_file + "', found " + groups);
+            logger.log(Level.WARNING, "Expected one group named '" + group_name + "' in '" + display_file + "', found " + children.size());
             return;
         }
 
@@ -141,8 +140,8 @@ public class EmbeddedDisplayRepresentationUtil
             model.runtimeChildren().addChild(child);
             xmin = Math.min(xmin, child.propX().getValue());
             ymin = Math.min(ymin, child.propY().getValue());
-            xmax = Math.min(xmax, child.propX().getValue() + child.propWidth().getValue());
-            ymax = Math.min(ymax, child.propY().getValue() + child.propHeight().getValue());
+            xmax = Math.max(xmax, child.propX().getValue() + child.propWidth().getValue());
+            ymax = Math.max(ymax, child.propY().getValue() + child.propHeight().getValue());
         }
         // Move all widgets to top-left corner
         for (Widget child : children)

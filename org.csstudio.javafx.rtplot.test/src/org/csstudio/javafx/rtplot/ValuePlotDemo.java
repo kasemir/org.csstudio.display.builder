@@ -13,11 +13,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.csstudio.javafx.rtplot.data.InstrumentedReadWriteLock;
 import org.csstudio.javafx.rtplot.data.PlotDataItem;
 import org.csstudio.javafx.rtplot.data.PlotDataProvider;
 import org.csstudio.javafx.rtplot.data.SimpleDataItem;
@@ -39,7 +39,7 @@ public class ValuePlotDemo extends Application
 
     static class DemoData implements PlotDataProvider<Double>
     {
-        final private ReadWriteLock lock = new ReentrantReadWriteLock();
+        final private ReadWriteLock lock = new InstrumentedReadWriteLock();
         final private List<PlotDataItem<Double>> data = new ArrayList<>();
         private int calls = 0;
 

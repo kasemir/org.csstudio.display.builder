@@ -67,7 +67,10 @@ public class BufferUtil
         }
         catch (TimeoutException ex)
         {
-            logger.log(Level.WARNING, "Skipping image update", ex);
+            if (logger.isLoggable(Level.FINE))
+                logger.log(Level.FINE, "Skipping image update", ex);
+            else
+                logger.log(Level.WARNING, "Skipping image update");
             return null;
         }
         catch (Exception ex)

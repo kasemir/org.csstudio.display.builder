@@ -16,6 +16,7 @@ import java.util.logging.Level;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.plots.PlotWidgetPointType;
 import org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.AxisWidgetProperty;
@@ -140,41 +141,50 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
             plot.requestLayout();
         };
 
+        // PV changed value -> runtime updated X/Y value property -> valueChanged()
         private void valueChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
         {
-            try
+            final VType y_value = model_trace.traceYValue().getValue();
+            final VNumberArray y_array = (y_value instanceof VNumberArray) ? (VNumberArray)y_value : null;
+            final VNumberArray x_array;
+            final ListNumber error;
+
+            if (y_array == null)
             {
-                final VType y_value = model_trace.traceYValue().getValue();
-                final ListNumber y_data = (y_value instanceof VNumberArray) ? ((VNumberArray)y_value).getData() : null;
+                x_array = null;
+                error = XYVTypeDataProvider.EMPTY;
+            }
+            else
+            {
+                trace.setUnits(y_array.getUnits());
 
                 final VType x_value = model_trace.traceXValue().getValue();
-                final ListNumber x_data = (x_value instanceof VNumberArray) ? ((VNumberArray)x_value).getData() : null;
-
-                if (y_data == null)
-                {   // Clear data
-                    data.setData(XYVTypeDataProvider.EMPTY, XYVTypeDataProvider.EMPTY, XYVTypeDataProvider.EMPTY);
-                    plot.requestUpdate();
-                    return;
-                }
-
-                trace.setUnits(((VNumberArray)y_value).getUnits());
+                x_array = (x_value instanceof VNumberArray) ? (VNumberArray)x_value : null;
 
                 final VType error_value = model_trace.traceErrorValue().getValue();
-                final ListNumber error;
                 if (error_value == null)
                     error = XYVTypeDataProvider.EMPTY;
                 else if (error_value instanceof VNumberArray)
                     error = ((VNumberArray)error_value).getData();
                 else
                     error = new ArrayDouble(VTypeUtil.getValueNumber(error_value).doubleValue());
+            }
 
-                data.setData(x_data, y_data, error);
-                plot.requestUpdate();
-            }
-            catch (Exception ex)
-            {
-                logger.log(Level.WARNING, "XYGraph data error", ex);
-            }
+            // Decouple from CAJ's PV thread to avoid deadlock when setData() takes its lock
+            ModelThreadPool.getExecutor().submit(() -> updateData(x_array, y_array, error));
+        }
+
+        // Update XYPlot data on different thread, not from CAJ callback.
+        // Void to be usable as Callable(..) with Exception on error
+        private Void updateData(final VNumberArray x_array, final VNumberArray y_array, final ListNumber error) throws Exception
+        {
+            // Clear data?
+            if (y_array == null)
+                data.setData(XYVTypeDataProvider.EMPTY, XYVTypeDataProvider.EMPTY, XYVTypeDataProvider.EMPTY);
+            else
+                data.setData(x_array.getData(), y_array.getData(), error);
+            plot.requestUpdate();
+            return null;
         }
 
         void dispose()

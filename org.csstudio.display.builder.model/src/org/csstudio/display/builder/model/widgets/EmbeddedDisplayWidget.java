@@ -29,11 +29,15 @@ import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.ModelReader;
+import org.csstudio.display.builder.model.persist.XMLTags;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
+import org.csstudio.display.builder.model.widgets.GroupWidget.Style;
 import org.osgi.framework.Version;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 /** Widget that shows another display inside itself
  *  @author Kay Kasemir
@@ -144,34 +148,111 @@ public class EmbeddedDisplayWidget extends VisibleWidget
             if (! super.configureFromXML(model_reader, widget, xml))
                 return false;
 
-            // Fall back to legacy "opi_file" for display file
-            if (XMLUtil.getChildElement(xml, propFile.getName()) == null)
+            if (xml_version.getMajor() < 2)
             {
-                final Optional<String> opi_file = XMLUtil.getChildString(xml, "opi_file");
-                if (opi_file.isPresent())
-                    widget.setPropertyValue(propFile, opi_file.get());
-            }
-
-            // Transition legacy "resize_behaviour"
-            final Element element = XMLUtil.getChildElement(xml, "resize_behaviour");
-            if (element != null)
-            {
-                try
-                {   // 0=SIZE_OPI_TO_CONTAINER, 1=SIZE_CONTAINER_TO_OPI, 2=CROP_OPI, 3=SCROLL_OPI
-                    final int old_resize = Integer.parseInt(XMLUtil.getString(element));
-                    if (old_resize == 0)
-                        widget.setPropertyValue(propResize, Resize.ResizeContent);
-                    else if (old_resize == 1)
-                        widget.setPropertyValue(propResize, Resize.SizeToContent);
-                    else
-                        widget.setPropertyValue(propResize, Resize.None);
-                }
-                catch (NumberFormatException ex)
+                // Fall back to legacy "opi_file" for display file
+                if (XMLUtil.getChildElement(xml, propFile.getName()) == null)
                 {
-                    logger.log(Level.WARNING, "Cannot decode legacy resize_behavior");
+                    final Optional<String> opi_file = XMLUtil.getChildString(xml, "opi_file");
+                    if (opi_file.isPresent())
+                        widget.setPropertyValue(propFile, opi_file.get());
+                }
+
+                // Transition legacy "resize_behaviour"
+                Element element = XMLUtil.getChildElement(xml, "resize_behaviour");
+                if (element != null)
+                {
+                    try
+                    {   // 0=SIZE_OPI_TO_CONTAINER, 1=SIZE_CONTAINER_TO_OPI, 2=CROP_OPI, 3=SCROLL_OPI
+                        final int old_resize = Integer.parseInt(XMLUtil.getString(element));
+                        if (old_resize == 0)
+                            widget.setPropertyValue(propResize, Resize.ResizeContent);
+                        else if (old_resize == 1)
+                            widget.setPropertyValue(propResize, Resize.SizeToContent);
+                        else
+                            widget.setPropertyValue(propResize, Resize.None);
+                    }
+                    catch (NumberFormatException ex)
+                    {
+                        logger.log(Level.WARNING, "Cannot decode legacy resize_behavior");
+                    }
+                }
+
+                // Transition legacy border if it was an explicit line
+                // or a style that includes a label
+                final int border_style = XMLUtil.getChildInteger(xml, "border_style").orElse(0);
+                if (border_style == 1  || // LINE
+                    border_style == 12 || // TITLE_BAR
+                    border_style == 13)   // GROUP_BOX
+                {
+                    final Style style = GroupWidget.convertLegacyStyle(border_style);
+                    createGroupWrapper(widget, xml, style);
+                    // Trigger re-parsing the XML from the parent down
+                    throw new ParseAgainException();
                 }
             }
             return true;
+        }
+
+        /** Create a GroupWidget for the border, with this EmbeddedDisplay inside the Group
+         *  @param style
+         */
+        private void createGroupWrapper(final Widget widget, final Element embedded_xml, final Style style)
+        {
+            // Create a 'group' widget
+            final Document doc = embedded_xml.getOwnerDocument();
+            final Element group = doc.createElement(XMLTags.WIDGET);
+            group.setAttribute(XMLTags.TYPE, GroupWidget.WIDGET_DESCRIPTOR.getType());
+
+            // Set name, style, and copy location, .. from linking container
+            XMLUtil.updateTag(group, XMLTags.NAME, widget.getName());
+            XMLUtil.updateTag(group, GroupWidget.propStyle.getName(), Integer.toString(style.ordinal()));
+            group.appendChild(doc.importNode(XMLUtil.getChildElement(embedded_xml, XMLTags.X), true));
+            group.appendChild(doc.importNode(XMLUtil.getChildElement(embedded_xml, XMLTags.Y), true));
+            group.appendChild(doc.importNode(XMLUtil.getChildElement(embedded_xml, XMLTags.WIDTH), true));
+            group.appendChild(doc.importNode(XMLUtil.getChildElement(embedded_xml, XMLTags.HEIGHT), true));
+
+            // IMPORTANT: Remove legacy border_style from this widget so when parsed again
+            // there is no infinite loop creating more 'group' wrappers.
+            Element el = XMLUtil.getChildElement(embedded_xml, "border_style");
+            embedded_xml.removeChild(el);
+
+            // Update name
+            XMLUtil.updateTag(embedded_xml, XMLTags.NAME, widget.getName() + "_Content");
+
+            // Adjust X/Y to (0, 0)
+            el = XMLUtil.getChildElement(embedded_xml, XMLTags.X);
+            if (el != null)
+                embedded_xml.removeChild(el);
+            el = XMLUtil.getChildElement(embedded_xml, XMLTags.Y);
+            if (el != null)
+                embedded_xml.removeChild(el);
+
+            // Adjust size to allow for the group's insets
+            // .. which are not known until the group is represented.
+            // Using a value that looked about right in tests.
+            final int x_inset, y_inset;
+            switch (style)
+            {
+            case NONE:   x_inset =  0;  y_inset =  0;  break;
+            case LINE:   x_inset =  2;  y_inset =  2;  break;
+            case TITLE:  x_inset =  2;  y_inset = 20;  break;
+            case GROUP:
+            default:     x_inset = 30;  y_inset = 30;  break;
+            }
+            XMLUtil.updateTag(embedded_xml, XMLTags.WIDTH, Integer.toString(widget.propWidth().getValue() - x_inset));
+            XMLUtil.updateTag(embedded_xml, XMLTags.HEIGHT, Integer.toString(widget.propHeight().getValue() - y_inset));
+
+            // Move this widget into the new group
+            final Node parent = embedded_xml.getParentNode();
+            parent.removeChild(embedded_xml);
+            group.appendChild(embedded_xml);
+
+            // .. and add that group to the parent
+            parent.appendChild(group);
+
+            // Debug the result
+            // XMLUtil.dump(parent);
         }
     }
 
