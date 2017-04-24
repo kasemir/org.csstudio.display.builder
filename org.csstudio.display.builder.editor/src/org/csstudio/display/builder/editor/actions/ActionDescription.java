@@ -158,6 +158,11 @@ public abstract class ActionDescription
         public void run(final DisplayEditor editor, final boolean selected)
         {
             List<Widget> widgets = editor.getWidgetSelectionHandler().getSelection();
+            // Same reasoning as in MOVE_DOWN
+            // Without reversing, widgets would actually end up in front,
+            // but un-doing the operation would them misplace them.
+            widgets = orderWidgetsByIndex(widgets);
+            Collections.reverse(widgets);
             final CompoundUndoableAction compound = new CompoundUndoableAction(Messages.MoveToFront);
             for (Widget widget : widgets)
                 compound.add(new UpdateWidgetOrderAction(widget, -1));
