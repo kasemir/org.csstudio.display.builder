@@ -71,7 +71,7 @@ abstract public class RegionBaseRepresentation<JFX extends Region, MW extends Vi
     private static final BorderWidths wide = new BorderWidths(4);
 
     /** Colors used for the various alarm severities */
-    private static final Color[] alarm_colors = new Color[AlarmSeverity.values().length];
+    protected static final Color[] alarm_colors = new Color[AlarmSeverity.values().length];
 
     /** Common border for each {@link AlarmSeverity} when not using custom radii */
     private static final Border[] alarm_borders = new Border[AlarmSeverity.values().length];
