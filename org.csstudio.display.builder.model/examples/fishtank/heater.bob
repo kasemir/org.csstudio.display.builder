@@ -527,12 +527,12 @@ on</text>
   </widget>
   <widget type="radio" version="2.0.0">
     <name>Menu Button_1</name>
-    <pv_name>ky9:heat_V.OMSL</pv_name>
+    <pv_name>$(USER):heat_V.OMSL</pv_name>
     <x>518</x>
     <y>130</y>
     <width>154</width>
     <height>50</height>
-    <tooltip>ky9:heat_V.OMSL
+    <tooltip>$(USER):heat_V.OMSL
 VString[No PV, 1969/12/31 19:00:00.000]</tooltip>
     <border_alarm_sensitive>false</border_alarm_sensitive>
     <items>
@@ -541,27 +541,27 @@ VString[No PV, 1969/12/31 19:00:00.000]</tooltip>
   </widget>
   <widget type="progressbar" version="2.0.0">
     <name>Gauge</name>
-    <pv_name>ky9:PID</pv_name>
+    <pv_name>$(USER):PID</pv_name>
     <x>302</x>
     <y>336</y>
     <width>118</width>
     <height>30</height>
     <actions>
     </actions>
-    <tooltip>ky9:PID
+    <tooltip>$(USER):PID
 VString[No PV, 1969/12/31 19:00:00.000]</tooltip>
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Gauge_1</name>
-    <pv_name>ky9:PID</pv_name>
+    <pv_name>$(USER):PID</pv_name>
     <x>302</x>
     <y>380</y>
     <width>118</width>
     <height>30</height>
     <actions>
     </actions>
-    <tooltip>ky9:PID
+    <tooltip>$(USER):PID
 VString[No PV, 1969/12/31 19:00:00.000]</tooltip>
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
