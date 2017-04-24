@@ -93,7 +93,7 @@ public class OutlinePage extends Page implements IContentOutlinePage
     public OutlinePage(final DisplayEditor editor)
     {
         this.editor = editor;
-        tree = new WidgetTree(editor.getWidgetSelectionHandler());
+        tree = new WidgetTree(editor);
     }
 
     public void setModel(final DisplayModel model)

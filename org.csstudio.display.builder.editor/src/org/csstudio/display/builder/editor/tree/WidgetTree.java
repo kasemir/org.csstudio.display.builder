@@ -17,8 +17,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
+import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.EditorUtil;
-import org.csstudio.display.builder.editor.WidgetSelectionHandler;
+import org.csstudio.display.builder.editor.actions.ActionDescription;
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
@@ -39,6 +40,7 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
@@ -53,8 +55,8 @@ public class WidgetTree
     /** Is this class updating the selection of tree or model? */
     private final AtomicBoolean active = new AtomicBoolean();
 
-    /** Handler for setting and tracking the currently selected widgets */
-    private final WidgetSelectionHandler selection;
+    /** Associated Editor */
+    private final DisplayEditor editor;
 
     private final TreeView<WidgetOrTab> tree_view = new TreeView<>();
 
@@ -105,9 +107,9 @@ public class WidgetTree
     /** Construct widget tree
      *  @param selection Handler of selected widgets
      */
-    public WidgetTree(final WidgetSelectionHandler selection)
+    public WidgetTree(final DisplayEditor editor)
     {
-        this.selection = selection;
+        this.editor = editor;
 
         children_listener = (p, removed, added) ->
         {
@@ -153,7 +155,7 @@ public class WidgetTree
                     }
                     // Restore tree's selection to match model
                     // after removing/adding items may have changed it.
-                    setSelectedWidgets(selection.getSelection());
+                    setSelectedWidgets(editor.getWidgetSelectionHandler().getSelection());
                 });
             }
         };
@@ -174,8 +176,49 @@ public class WidgetTree
         box.getChildren().addAll(tree_view);
 
         bindSelections();
+        tree_view.setOnKeyPressed(this::handleKeyPress);
 
         return box;
+    }
+
+    private void handleKeyPress(final KeyEvent event)
+    {
+        WidgetTree.handleWidgetOrderKeys(event, editor);
+    }
+
+    /** Handle Alt-[Up, Down, PgUp, PgDown] to move widgets in hierarchy
+     *
+     *  @param event {@link KeyEvent}
+     *  @param editor {@link DisplayEditor}
+     *  @return <code>true</code> if key was handled
+     */
+    public static boolean handleWidgetOrderKeys(final KeyEvent event, final DisplayEditor editor)
+    {
+        if (event.isAltDown())
+        {
+            switch (event.getCode())
+            {
+            case PAGE_UP:
+                event.consume();
+                ActionDescription.TO_BACK.run(editor);
+                return true;
+            case UP:
+                event.consume();
+                ActionDescription.MOVE_UP.run(editor);
+                return true;
+            case DOWN:
+                event.consume();
+                ActionDescription.MOVE_DOWN.run(editor);
+                return true;
+            case PAGE_DOWN:
+                event.consume();
+                ActionDescription.TO_FRONT.run(editor);
+                return true;
+            default:
+                break;
+            }
+        }
+        return false;
     }
 
     /** Link selections in tree view and model */
@@ -201,7 +244,7 @@ public class WidgetTree
                         widgets.add(widget);
                 };
                 logger.log(Level.FINE, "Selected in tree: {0}", widgets);
-                selection.setSelection(widgets);
+                editor.getWidgetSelectionHandler().setSelection(widgets);
             }
             finally
             {
@@ -211,7 +254,7 @@ public class WidgetTree
         tree_selection.addListener(listener);
 
         // Update selection in tree_view from selected widgets in model
-        selection.addListener(this::setSelectedWidgets);
+        editor.getWidgetSelectionHandler().addListener(this::setSelectedWidgets);
     }
 
     /** @param model Model to display as widget tree */
@@ -248,7 +291,7 @@ public class WidgetTree
             Platform.runLater(() ->
             {
                 tree_view.setRoot(root);
-                setSelectedWidgets(selection.getSelection());
+                setSelectedWidgets(editor.getWidgetSelectionHandler().getSelection());
             });
         });
     }
