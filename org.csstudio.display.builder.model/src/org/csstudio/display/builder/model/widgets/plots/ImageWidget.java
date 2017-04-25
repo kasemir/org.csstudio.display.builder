@@ -8,7 +8,9 @@
 package org.csstudio.display.builder.model.widgets.plots;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFile;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propInteractive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMaximum;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMinimum;
 import static org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.propToolbar;
@@ -34,7 +36,6 @@ import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.persist.XMLUtil;
-import org.csstudio.display.builder.model.properties.BooleanWidgetProperty;
 import org.csstudio.display.builder.model.properties.ColorMap;
 import org.csstudio.display.builder.model.properties.ColorMapWidgetProperty;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
@@ -225,19 +226,6 @@ public class ImageWidget extends PVWidget
         };
 
     /** Structure for ROI */
-    private static final WidgetPropertyDescriptor<WidgetColor> propColor =
-        CommonWidgetProperties.newColorPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "color", Messages.PlotWidget_Color);
-
-    private static final WidgetPropertyDescriptor<Boolean> propInteractive =
-        new WidgetPropertyDescriptor<Boolean>(WidgetPropertyCategory.DISPLAY, "interactive", Messages.WidgetProperties_Interactive)
-        {
-            @Override
-            public WidgetProperty<Boolean> createProperty(final Widget widget, final Boolean value)
-            {
-                return new BooleanWidgetProperty(this, widget, value);
-            }
-        };
-
     private static final WidgetPropertyDescriptor<String> propXPVName =
         CommonWidgetProperties.newPVNamePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "x_pv", Messages.WidgetProperties_XPVName);
 

@@ -16,6 +16,7 @@ import java.util.logging.Level;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.plots.PlotWidgetPointType;
@@ -24,10 +25,13 @@ import org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.Tra
 import org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.YAxisWidgetProperty;
 import org.csstudio.display.builder.model.widgets.plots.PlotWidgetTraceType;
 import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget;
+import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget.MarkerProperty;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.widgets.RegionBaseRepresentation;
 import org.csstudio.javafx.rtplot.Axis;
+import org.csstudio.javafx.rtplot.PlotMarker;
 import org.csstudio.javafx.rtplot.PointType;
+import org.csstudio.javafx.rtplot.RTPlotListener;
 import org.csstudio.javafx.rtplot.RTValuePlot;
 import org.csstudio.javafx.rtplot.Trace;
 import org.csstudio.javafx.rtplot.TraceType;
@@ -63,6 +67,22 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
 
     /** Plot */
     private RTValuePlot plot;
+
+    private volatile boolean changing_marker = false;
+
+    private final RTPlotListener<Double> plot_listener = new RTPlotListener<Double>()
+    {
+        @Override
+        public void changedPlotMarker(final int index)
+        {
+            if (changing_marker)
+                return;
+            final double position = plot.getMarkers().get(index).getPosition();
+            changing_marker = true;
+            model_widget.propMarkers().getValue().get(index).value().setValue(position);
+            changing_marker = false;
+        }
+    };
 
     /** Handler for one trace of the plot
      *
@@ -215,7 +235,34 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         plot = new RTValuePlot(! toolkit.isEditMode());
         plot.showToolbar(false);
         plot.showCrosshair(false);
+
+        // Create PlotMarkers once. Not allowing adding/removing them at runtime
+        if (! toolkit.isEditMode())
+            for (MarkerProperty marker : model_widget.propMarkers().getValue())
+                createMarker(marker);
+
         return plot;
+    }
+
+    private void createMarker(final MarkerProperty model_marker)
+    {
+        final PlotMarker<Double> plot_marker = plot.addMarker(JFXUtil.convert(model_marker.color().getValue()),
+                                                      model_marker.interactive().getValue(),
+                                                      model_marker.value().getValue());
+
+        // For now _not_ listening to runtime changes of model_marker.interactive()
+
+        // Listen to model_marker.value(), .. and update plot_marker
+        final WidgetPropertyListener<Double> model_marker_listener = (o, old, value) ->
+        {
+            if (changing_marker)
+                return;
+            changing_marker = true;
+            plot_marker.setPosition(model_marker.value().getValue());
+            changing_marker = false;
+            plot.requestUpdate();
+        };
+        model_marker.value().addPropertyListener(model_marker_listener);
     }
 
     @Override
@@ -246,6 +293,8 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
 
         tracesChanged(model_widget.propTraces(), null, model_widget.propTraces().getValue());
         model_widget.propTraces().addPropertyListener(this::tracesChanged);
+
+        plot.addListener(plot_listener);
     }
 
     /** Listen to changed axis properties

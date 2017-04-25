@@ -338,6 +338,10 @@ public class CommonWidgetProperties
     public static final WidgetPropertyDescriptor<WidgetColor> propLineColor =
             newColorPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "line_color", Messages.WidgetProperties_LineColor);
 
+    /** 'color' property */
+    public static final WidgetPropertyDescriptor<WidgetColor> propColor =
+            CommonWidgetProperties.newColorPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "color", Messages.PlotWidget_Color);
+
     /** 'line_width' property */
     public static final WidgetPropertyDescriptor<Integer> propLineWidth =
             newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "line_width", Messages.WidgetProperties_LineWidth,
@@ -632,6 +636,9 @@ public class CommonWidgetProperties
     /** 'enabled' property: Is widget enabled, or should it not allow user actions? */
     public static final WidgetPropertyDescriptor<Boolean> propEnabled =
             newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "enabled", Messages.WidgetProperties_Enabled);
+
+    public static final WidgetPropertyDescriptor<Boolean> propInteractive =
+            newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "interactive", Messages.WidgetProperties_Interactive);
 
     /** 'limits_from_pv' property: Use limits from PV's meta data? */
     public static final WidgetPropertyDescriptor<Boolean> propLimitsFromPV =
