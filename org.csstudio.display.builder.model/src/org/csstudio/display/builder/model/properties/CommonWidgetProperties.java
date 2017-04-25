@@ -566,6 +566,10 @@ public class CommonWidgetProperties
     public static final WidgetPropertyDescriptor<Boolean> propLabelsFromPV =
             newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "labels_from_pv", Messages.WidgetProperties_LabelsFromPV);
 
+    /** 'items_from_pv' property: If PV is enum PV, get items from PV? */
+    public static final WidgetPropertyDescriptor<Boolean> propItemsFromPV =
+        CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "items_from_pv", Messages.WidgetProperties_ItemsFromPV);
+
     /** 'pv_name' property: Primary PV Name */
     public static final WidgetPropertyDescriptor<String> propPVName =
             newPVNamePropertyDescriptor(WidgetPropertyCategory.WIDGET, "pv_name", Messages.WidgetProperties_PVName);
