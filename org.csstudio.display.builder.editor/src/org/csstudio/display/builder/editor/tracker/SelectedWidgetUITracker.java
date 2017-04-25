@@ -82,7 +82,7 @@ public class SelectedWidgetUITracker extends Tracker
     private boolean updating = false;
 
     /** Update tracker to match changed widget position */
-    private final WidgetPropertyListener<Integer> position_listener = (p, o, n) -> updateTrackerFromWidgets();
+    private final WidgetPropertyListener<Integer> position_listener;
 
     private Group widget_highlights = new Group();
 
@@ -104,6 +104,10 @@ public class SelectedWidgetUITracker extends Tracker
         this.undo = undo;
         this.snap_constraint = new TrackerSnapConstraint(this);
         this.grid_constraint = new TrackerGridConstraint();
+
+        // Updates to the position can originate from any thread,
+        // but tracker update must be on UI thread
+        position_listener = (p, o, n) ->  toolkit.execute(this::updateTrackerFromWidgets);
 
         setVisible(false);
 
