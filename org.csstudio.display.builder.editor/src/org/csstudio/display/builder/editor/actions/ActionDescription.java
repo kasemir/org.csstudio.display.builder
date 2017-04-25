@@ -90,6 +90,8 @@ public abstract class ActionDescription
             // -- move 'c' up -> [ b, c, a ]
             // Doing this in reverse original order would leave the list unchanged.
             final List<Widget> widgets = orderWidgetsByIndex(editor.getWidgetSelectionHandler().getSelection());
+            if (widgets.isEmpty())
+                return;
             final CompoundUndoableAction compound = new CompoundUndoableAction(Messages.MoveUp);
             for (Widget widget : widgets)
             {
@@ -112,6 +114,8 @@ public abstract class ActionDescription
         public void run(final DisplayEditor editor, final boolean selected)
         {
             final List<Widget> widgets = editor.getWidgetSelectionHandler().getSelection();
+            if (widgets.isEmpty())
+                return;
             final CompoundUndoableAction compound = new CompoundUndoableAction(Messages.MoveToBack);
             for (Widget widget : widgets)
                 compound.add(new UpdateWidgetOrderAction(widget, 0));
@@ -133,6 +137,8 @@ public abstract class ActionDescription
             // -- move 'a' down -> [ c, a, b ]
             // Doing this in the original order would leave the list unchanged.
             List<Widget> widgets = editor.getWidgetSelectionHandler().getSelection();
+            if (widgets.isEmpty())
+                return;
             widgets = orderWidgetsByIndex(widgets);
             Collections.reverse(widgets);
 
@@ -158,6 +164,13 @@ public abstract class ActionDescription
         public void run(final DisplayEditor editor, final boolean selected)
         {
             List<Widget> widgets = editor.getWidgetSelectionHandler().getSelection();
+            if (widgets.isEmpty())
+                return;
+            // Same reasoning as in MOVE_DOWN
+            // Without reversing, widgets would actually end up in front,
+            // but un-doing the operation would them misplace them.
+            widgets = orderWidgetsByIndex(widgets);
+            Collections.reverse(widgets);
             final CompoundUndoableAction compound = new CompoundUndoableAction(Messages.MoveToFront);
             for (Widget widget : widgets)
                 compound.add(new UpdateWidgetOrderAction(widget, -1));

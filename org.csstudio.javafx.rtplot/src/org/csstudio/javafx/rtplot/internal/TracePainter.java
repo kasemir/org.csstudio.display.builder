@@ -113,9 +113,9 @@ public class TracePainter<XTYPE extends Comparable<XTYPE>>
         try
         {
             if (! data.getLock().tryLock(10, TimeUnit.SECONDS))
-                new TimeoutException();
+                throw new TimeoutException();
         }
-        catch (InterruptedException ex)
+        catch (Exception ex)
         {
             logger.log(Level.WARNING, "Skip painting " + trace + ", cannot lock " + data, ex);
             return;

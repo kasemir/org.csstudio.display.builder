@@ -153,6 +153,16 @@ public class CommandExecutorTest
             if (--wait < 0)
                 throw new TimeoutException();
         }
+        // After the long command printed "Finished OK",
+        // the process might still need a little time to quit.
+        // Without this wait, the next assert would sometimes fail in unit tests.
+        wait = 5;
+        while (executor.isActive())
+        {
+            TimeUnit.SECONDS.sleep(1);
+            if (--wait < 0)
+                throw new TimeoutException();
+        }
         System.out.println(executor);
         assertThat(executor.toString(), containsString("(0)"));
 

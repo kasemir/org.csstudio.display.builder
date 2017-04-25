@@ -108,7 +108,7 @@ public class EditorDemoGUI
                 editor.getWidgetSelectionHandler(),
                 editor.getUndoableActionManager());
 
-        tree = new WidgetTree(editor.getWidgetSelectionHandler());
+        tree = new WidgetTree(editor);
 
         property_panel = new PropertyPanel(editor);
 

@@ -40,8 +40,9 @@ abstract public class PlotSamples implements PlotDataProvider<Instant>
     {
         try
         {
-            if (! lock.writeLock().tryLock(10, TimeUnit.SECONDS))
-                throw new TimeoutException();
+            if (lock.writeLock().tryLock(10, TimeUnit.SECONDS))
+                return true;
+            throw new TimeoutException();
         }
         catch (Exception ex)
         {
@@ -90,7 +91,6 @@ abstract public class PlotSamples implements PlotDataProvider<Instant>
     }
 
     /** @return Info text about PlotSamples for debugging */
-    @SuppressWarnings("nls")
     @Override
     public String toString()
     {

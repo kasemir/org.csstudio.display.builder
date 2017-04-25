@@ -117,6 +117,13 @@ public class CommandExecutor implements Callable<Integer>
         return null;
     }
 
+    /** @return Is the process still active? */
+    public boolean isActive()
+    {
+        final Process p = process;
+        return p != null  &&  p.isAlive();
+    }
+
     @Override
     public String toString()
     {
