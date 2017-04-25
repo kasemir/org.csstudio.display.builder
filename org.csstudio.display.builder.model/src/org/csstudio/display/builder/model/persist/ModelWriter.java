@@ -16,6 +16,7 @@ import java.util.List;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
@@ -145,6 +146,12 @@ public class ModelWriter implements Closeable
      */
     public void writeProperty(final WidgetProperty<?> property) throws Exception
     {
+        if (property instanceof ArrayWidgetProperty<?>)
+        {   // Skip empty arrays, which would just be a start/end tag
+            final ArrayWidgetProperty<?> array = (ArrayWidgetProperty<?>) property;
+            if (array.getValue().isEmpty())
+                return;
+        }
         writer.writeStartElement(property.getName());
         if (property.isUsingWidgetClass())
             writer.writeAttribute(XMLTags.USE_CLASS, Boolean.TRUE.toString());
