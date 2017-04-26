@@ -110,8 +110,9 @@ public class ScriptSupport
                 line.contains("org.csstudio.opibuilder.scriptUtil"))
             {
                 if (! warned)
-                {
-                    logger.log(Level.SEVERE,
+                {   // This message can be quite frequent, and in most cases the display will work just fine,
+                    // to don't use WARNING let alone SEVERE
+                    logger.log(Level.INFO,
                                "Script '" + path + "' accessed deprecated org.csstudio.opibuilder.scriptUtil, " +
                                "update to org.csstudio.display.builder.runtime.script.PVUtil");
                     warned = true;
