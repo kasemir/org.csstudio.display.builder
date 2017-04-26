@@ -855,14 +855,31 @@ public class StringTable extends BorderPane
     {
         cell_colors = null;
         int row = table.getSelectionModel().getSelectedIndex();
+
+        // Some table columns have special cell factories to
+        // represent boolean column data as a checkbox etc.
+        // In principle, need to update both the data and the table columns
+        // concurrently because otherwise a checkbox cell would briefly try to
+        // represent non-boolean data, resulting in a long stack trace.
+        // Cannot update data and table concurrently, so detach data from table:
+        table.setItems(null);
+
+        // Move table column
         final TableColumn<List<String>, ?> col = table.getColumns().remove(column);
         table.getColumns().add(target, col);
+
+        // Move column in data
         for (List<String> data_row : data)
             if (data_row != MAGIC_LAST_ROW)
             {
                 final String cell = data_row.remove(column);
                 data_row.add(target, cell);
             }
+
+        // Re-attach data to table
+        table.setItems(data);
+
+        // Select the moved cell
         table.getSelectionModel().clearAndSelect(row, table.getColumns().get(target));
         fireTableChanged();
     }
