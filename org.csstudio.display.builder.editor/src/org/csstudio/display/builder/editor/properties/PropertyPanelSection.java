@@ -114,11 +114,11 @@ public class PropertyPanelSection extends GridPane
                 final Label header = new Label(category.getDescription());
                 header.getStyleClass().add("property_category");
                 header.setMaxWidth(Double.MAX_VALUE);
-                add(header, 0, getNextGridRow(), 2, 1);
+                add(header, 0, getNextGridRow(), 3, 1);
 
                 final Separator separator = new Separator();
                 separator.getStyleClass().add("property_separator");
-                add(separator, 0, getNextGridRow(), 2, 1);
+                add(separator, 0, getNextGridRow(), 3, 1);
             }
 
             createPropertyUI(undo, property, other, 0);
@@ -428,11 +428,11 @@ public class PropertyPanelSection extends GridPane
             header.getStyleClass().add("structure_property_name");
             header.setMaxWidth(Double.MAX_VALUE);
 
-            add(header, 0, getNextGridRow(), 2, 1);
+            add(header, 0, getNextGridRow(), 3, 1);
 
             final Separator separator = new Separator();
             separator.getStyleClass().add("property_separator");
-            add(separator, 0, getNextGridRow(), 2, 1);
+            add(separator, 0, getNextGridRow(), 3, 1);
 
             for (WidgetProperty<?> elem : struct.getValue())
                 this.createPropertyUI(undo, elem, other, -1);
@@ -459,12 +459,12 @@ public class PropertyPanelSection extends GridPane
             spinner.getStyleClass().add("array_property_value");
             // Place array size spinner in 'label' section
             HBox.setHgrow(label, Priority.ALWAYS);
-            add(new HBox(label, spinner), 0, row, 2, 1);
+            add(new HBox(label, spinner), 0, row, 3, 1);
 
             Separator separator = new Separator();
 
             separator.getStyleClass().add("property_separator");
-            add(separator, 0, getNextGridRow(), 2, 1);
+            add(separator, 0, getNextGridRow(), 3, 1);
 
             // array elements
             final List<WidgetProperty<?>> wpeList = array.getValue();
@@ -479,12 +479,12 @@ public class PropertyPanelSection extends GridPane
             endlabel.setMaxWidth(Double.MAX_VALUE);
             GridPane.setHgrow(endlabel, Priority.ALWAYS);
             endlabel.getStyleClass().add("array_property_end");
-            add(endlabel, 0, getNextGridRow(), 2, 1);
+            add(endlabel, 0, getNextGridRow(), 3, 1);
 
             separator = new Separator();
 
             separator.getStyleClass().add("property_separator");
-            add(separator, 0, getNextGridRow(), 2, 1);
+            add(separator, 0, getNextGridRow(), 3, 1);
 
             return;
         }
@@ -539,7 +539,7 @@ public class PropertyPanelSection extends GridPane
 
         final Separator separator = new Separator();
         separator.getStyleClass().add("property_separator");
-        add(separator, 0, getNextGridRow(), 2, 1);
+        add(separator, 0, getNextGridRow(), 3, 1);
     }
 
     public AutocompleteMenu getAutocompleteMenu()
