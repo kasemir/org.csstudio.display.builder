@@ -9,10 +9,6 @@ package org.csstudio.javafx;
 
 import java.util.logging.Logger;
 
-import org.csstudio.display.builder.util.ResourceUtil;
-
-import javafx.scene.image.Image;
-
 /** Plugin information
  *  @author Kay Kasemir
  */
@@ -26,13 +22,10 @@ public class Activator // Could become plugin activator
     public static final Logger logger = Logger.getLogger(ID);
 
     /** @param base_name Icon base name (no path, no extension)
-     *  @return Image
-     *  @throws Exception on error
+     *  @return Icon path
      */
-    public static Image getIcon(final String base_name) throws Exception
+    public static String getIcon(final String base_name)
     {
-        String path = "platform:/plugin/org.csstudio.javafx/icons/" + base_name + ".png";
-        return new Image(ResourceUtil.openPlatformResource(path));
+        return "platform:/plugin/org.csstudio.javafx/icons/" + base_name + ".png";
     }
-
 }
