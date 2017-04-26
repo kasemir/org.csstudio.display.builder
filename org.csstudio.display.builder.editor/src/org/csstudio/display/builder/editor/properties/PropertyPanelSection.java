@@ -498,16 +498,17 @@ public class PropertyPanelSection extends GridPane
             field = text;
         }
 
+        // Display Label, Class indicator/checkbox, field
+        final int row = getNextGridRow();
+
         label.getStyleClass().add("property_name");
         field.getStyleClass().add("property_value");
 
-        final int row = getNextGridRow();
         // Allow label to shrink (can use tooltip to see),
         // but show the value
         // GridPane.setHgrow(label, Priority.ALWAYS);
         GridPane.setHgrow(field, Priority.ALWAYS);
         add(label, 0, row);
-        add(field, 1, row);
 
         final Widget widget = property.getWidget();
         if (! (property == widget.getProperty("type")  ||
@@ -534,6 +535,7 @@ public class PropertyPanelSection extends GridPane
                 add(indicator, 1, row);
             }
         }
+        add(field, 2, row);
 
         final Separator separator = new Separator();
         separator.getStyleClass().add("property_separator");
