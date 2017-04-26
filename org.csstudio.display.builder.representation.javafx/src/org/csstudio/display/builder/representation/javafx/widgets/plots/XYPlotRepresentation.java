@@ -77,9 +77,15 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         {
             if (changing_marker)
                 return;
-            final double position = plot.getMarkers().get(index).getPosition();
+            final PlotMarker<Double> plot_marker = plot.getMarkers().get(index);
+            final WidgetProperty<Double> model_marker = model_widget.propMarkers().getValue().get(index).value();
+            final double position = plot_marker.getPosition();
             changing_marker = true;
-            model_widget.propMarkers().getValue().get(index).value().setValue(position);
+            model_marker.setValue(position);
+            // Was property change reverted (Runtime could not write PV, ..)?
+            final double effective = model_marker.getValue();
+            if (effective != position)
+                plot_marker.setPosition(effective);
             changing_marker = false;
         }
     };

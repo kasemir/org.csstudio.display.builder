@@ -161,16 +161,20 @@ public class XYPlotWidgetRuntime  extends WidgetRuntime<XYPlotWidget>
             // Write value changes to the PV
             final WidgetPropertyListener<Double> prop_listener = (prop, old, value) ->
             {
+                // Ignore if PV already has same value to break update loops
+                double pv_value = VTypeUtil.getValueNumber(pv.read()).doubleValue();
+                if (value == pv_value)
+                    return;
                 try
                 {
-                    if (value == VTypeUtil.getValueNumber(pv.read()).doubleValue())
-                        return;
                     // System.out.println("Writing " + value_prop + " to PV " + pv_name);
                     pv.write(value);
                 }
                 catch (Exception ex)
                 {
                     logger.log(Level.WARNING, "Error writing marker value to PV " + pv_name, ex);
+                    // Restore property to the unchanged value of the PV
+                    value_prop.setValue(pv_value);
                 }
             };
             value_prop.addPropertyListener(prop_listener);
