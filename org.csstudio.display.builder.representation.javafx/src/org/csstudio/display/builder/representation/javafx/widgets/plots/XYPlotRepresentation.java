@@ -170,45 +170,38 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         // PV changed value -> runtime updated X/Y value property -> valueChanged()
         private void valueChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
         {
+            final ListNumber x_data, y_data, error;
             final VType y_value = model_trace.traceYValue().getValue();
-            final VNumberArray y_array = (y_value instanceof VNumberArray) ? (VNumberArray)y_value : null;
-            final VNumberArray x_array;
-            final ListNumber error;
 
-            if (y_array == null)
+            if (y_value instanceof VNumberArray)
             {
-                x_array = null;
-                error = XYVTypeDataProvider.EMPTY;
-            }
-            else
-            {
-                trace.setUnits(y_array.getUnits());
-
                 final VType x_value = model_trace.traceXValue().getValue();
-                x_array = (x_value instanceof VNumberArray) ? (VNumberArray)x_value : null;
+                x_data = (x_value instanceof VNumberArray) ? ((VNumberArray)x_value).getData() : null;
+
+                final VNumberArray y_array = (VNumberArray)y_value;
+                trace.setUnits(y_array.getUnits());
+                y_data = y_array.getData();
 
                 final VType error_value = model_trace.traceErrorValue().getValue();
                 if (error_value == null)
-                    error = XYVTypeDataProvider.EMPTY;
+                    error = null;
                 else if (error_value instanceof VNumberArray)
                     error = ((VNumberArray)error_value).getData();
                 else
                     error = new ArrayDouble(VTypeUtil.getValueNumber(error_value).doubleValue());
             }
+            else // Clear all unless there's Y data
+                x_data = y_data = error = XYVTypeDataProvider.EMPTY;
 
             // Decouple from CAJ's PV thread to avoid deadlock when setData() takes its lock
-            ModelThreadPool.getExecutor().submit(() -> updateData(x_array, y_array, error));
+            ModelThreadPool.getExecutor().submit(() -> updateData(x_data, y_data, error));
         }
 
         // Update XYPlot data on different thread, not from CAJ callback.
         // Void to be usable as Callable(..) with Exception on error
-        private Void updateData(final VNumberArray x_array, final VNumberArray y_array, final ListNumber error) throws Exception
+        private Void updateData(final ListNumber x_array, final ListNumber y_array, final ListNumber error) throws Exception
         {
-            // Clear data?
-            if (y_array == null)
-                data.setData(XYVTypeDataProvider.EMPTY, XYVTypeDataProvider.EMPTY, XYVTypeDataProvider.EMPTY);
-            else
-                data.setData(x_array.getData(), y_array.getData(), error);
+            data.setData(x_array, y_array, error);
             plot.requestUpdate();
             return null;
         }

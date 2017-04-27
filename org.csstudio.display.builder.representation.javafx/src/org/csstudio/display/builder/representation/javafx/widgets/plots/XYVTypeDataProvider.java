@@ -21,8 +21,19 @@ import org.diirt.util.array.ListNumber;
 
 /** Data provider for RTPlot
  *
- *  <p>Adapts two waveforms received from PV
+ *  <p>Adapts waveforms received from PV
  *  into samples for a trace in the RTPlot.
+ *  <ul>
+ *  <li>X and Y waveform: Plots Y over X
+ *  <li>Y waveform with <code>null</code> for X: Plots Y over array index
+ *  </ul>
+ *
+ *  Error data may be
+ *  <ul>
+ *  <li><code>null</code> or zero elements: No error bars
+ *  <li>One element: Use that error for all samples
+ *  <li>One element per sample: Error bar for each sample
+ *  </ul>
  *
  *  @author Kay Kasemir
  */
@@ -52,7 +63,7 @@ public class XYVTypeDataProvider implements PlotDataProvider<Double>
             this.x_data = x_data;
             this.y_data = y_data;
             size = x_data == null ? y_data.size() : Math.min(x_data.size(), y_data.size());
-            this.error_data = error_data;
+            this.error_data = error_data == null ? EMPTY : error_data;
         }
         finally
         {
