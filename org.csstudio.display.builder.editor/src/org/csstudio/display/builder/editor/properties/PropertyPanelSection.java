@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,6 @@ import static org.csstudio.display.builder.editor.Plugin.logger;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -62,6 +61,30 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 
 /** Section of Property panel
+ *
+ *  <p>A grid with 3 columns:
+ *  <ol>
+ *  <li>Name of property
+ *  <li>Class Indicator. May be empty or show the "C" for class-defined property.
+ *      In class-editor mode it turns into a checkbox.
+ *  <li>Editor for Value of Property.
+ *      The editor for the value of the property may be a single text field,
+ *      or a button or even a HBox with more elements.
+ *  </ol>
+ *
+ *  <p>The {@link PropertyPanel} currently uses just one large {@link PropertyPanelSection}.
+ *
+ *  <p>The elements of a structure or elements of an array could be (and had in the past been)
+ *  placed in their own sub-{@link PropertyPanelSection}s.
+ *  That makes it easier to add/remove array elements by just updating the affected sub-section,
+ *  but is would then be much harder to get all property name and editor fields to align
+ *  through subsections.
+ *
+ *  <p>With one large grid, adding and removing array elements requires either shifting
+ *  the following properties into different rows (harder to do),
+ *  or to re-create the complete section (currently done).
+ *  See {@link ArraySizePropertyBinding} for details.
+ *
  *  @author Kay Kasemir
  *  @author Claudio Rosati
  */
@@ -76,22 +99,16 @@ public class PropertyPanelSection extends GridPane
 
     private final List<WidgetPropertyBinding<?,?>> bindings = new ArrayList<>();
     private int next_row = -1;
-    private Collection<WidgetProperty<?>> properties = Collections.emptyList();
-    private boolean show_categories;
 
     public void setClassMode(final boolean class_mode)
     {
         this.class_mode = class_mode;
     }
 
-    public void fill(final UndoableActionManager undo,
-                     final Collection<WidgetProperty<?>> properties,
-                     final List<Widget> other,
-                     final boolean show_categories)
+    void fill(final UndoableActionManager undo,
+              final Collection<WidgetProperty<?>> properties,
+              final List<Widget> other)
     {
-        clear();
-        this.properties = properties;
-        this.show_categories = show_categories;
         // Add UI items for each property
         WidgetPropertyCategory category = null;
         for (final WidgetProperty<?> property : properties)
@@ -106,8 +123,7 @@ public class PropertyPanelSection extends GridPane
                 continue;
 
             // Start of new category that needs to be shown?
-            if (show_categories &&
-                property.getCategory() != category)
+            if (property.getCategory() != category)
             {
                 category = property.getCategory();
 
@@ -123,12 +139,6 @@ public class PropertyPanelSection extends GridPane
 
             createPropertyUI(undo, property, other, 0);
         }
-    }
-
-    public void refill(final UndoableActionManager undo,
-                       final List<Widget> other)
-    {
-        fill(undo, this.properties, other, this.show_categories);
     }
 
     /** @return Next row in grid layout, i.e. row that is not populated */
@@ -542,7 +552,7 @@ public class PropertyPanelSection extends GridPane
         add(separator, 0, getNextGridRow(), 3, 1);
     }
 
-    public AutocompleteMenu getAutocompleteMenu()
+    AutocompleteMenu getAutocompleteMenu()
     {
         return autocomplete_menu;
     }
@@ -550,7 +560,7 @@ public class PropertyPanelSection extends GridPane
     /** Clear the property UI
      *  <P>Removes all property bindings and their UI
      */
-    public void clear()
+    void clear()
     {
         bindings.forEach(WidgetPropertyBinding::unbind);
         bindings.clear();
