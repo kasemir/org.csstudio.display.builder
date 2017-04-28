@@ -17,6 +17,7 @@ import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget.Resize;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
+import org.osgi.framework.Version;
 
 /** Helper for common (SWT, JFX) representation code of {@link EmbeddedDisplayWidget}
  *  @author Kay Kasemir
@@ -78,6 +79,13 @@ public class EmbeddedDisplayRepresentationUtil
                 final DisplayModel display = model_widget.getDisplayModel();
                 final String parent_display = display.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
                 embedded_model = ModelLoader.resolveAndLoadModel(parent_display, display_file);
+
+                // Didn't honor the display size of legacy files,
+                // always shrunk those to wrap their widgets
+                final Version input_version = embedded_model.getUserData(DisplayModel.USER_DATA_INPUT_VERSION);
+                if (input_version.getMajor() < 2)
+                    shrinkModelToWidgets(embedded_model);
+
                 // Tell embedded model that it is held by this widget,
                 // which provides access to macros of model_widget.
                 embedded_model.setUserData(DisplayModel.USER_DATA_EMBEDDING_WIDGET, model_widget);
@@ -131,20 +139,30 @@ public class EmbeddedDisplayRepresentationUtil
         // Replace display with just that one group
         final GroupWidget group = (GroupWidget) children.get(0);
         model.runtimeChildren().removeChild(group);
-        int xmin = Integer.MAX_VALUE, ymin = Integer.MAX_VALUE,
-            xmax = 0,                 ymax = 0;
         for (Widget child : group.runtimeChildren().getValue())
-        {
-            // Not removing child from 'group', since group
+        {   // Not removing child from 'group', since group
             // will be GC'ed anyway.
             model.runtimeChildren().addChild(child);
+        }
+        shrinkModelToWidgets(model);
+    }
+
+    /** Move widgets into top-left corner and set model's size to match
+     *  @param model {@link DisplayModel}
+     */
+    private static void shrinkModelToWidgets(final DisplayModel model)
+    {
+        int xmin = Integer.MAX_VALUE, ymin = Integer.MAX_VALUE,
+            xmax = 0,                 ymax = 0;
+        for (Widget child : model.runtimeChildren().getValue())
+        {
             xmin = Math.min(xmin, child.propX().getValue());
             ymin = Math.min(ymin, child.propY().getValue());
             xmax = Math.max(xmax, child.propX().getValue() + child.propWidth().getValue());
             ymax = Math.max(ymax, child.propY().getValue() + child.propHeight().getValue());
         }
         // Move all widgets to top-left corner
-        for (Widget child : children)
+        for (Widget child : model.runtimeChildren().getValue())
         {
             child.propX().setValue(child.propX().getValue() - xmin);
             child.propY().setValue(child.propY().getValue() - ymin);
