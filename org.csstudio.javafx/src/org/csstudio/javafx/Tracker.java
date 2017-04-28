@@ -294,6 +294,9 @@ public class Tracker extends Group
 
         start_x = -1;
         start_y = -1;
+
+        // Prepare for another move via keyboard
+        orig = new Rectangle2D(tracker.getX(), tracker.getY(), tracker.getWidth(), tracker.getHeight());
     }
 
     /** Allow move/resize with cursor keys, and abort Drag & Drop operations with ESC key.
