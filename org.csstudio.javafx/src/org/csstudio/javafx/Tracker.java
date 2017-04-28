@@ -305,7 +305,7 @@ public class Tracker extends Group
      *
      *  @param event {@link KeyEvent}
      */
-    private void handleKeyEvent(final KeyEvent event)
+    protected void handleKeyEvent(final KeyEvent event)
     {
         // Consume handled event to keep the key focus,
         // which is otherwise lost to the 'tab-order' traversal

@@ -48,6 +48,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.shape.Rectangle;
@@ -214,6 +215,14 @@ public class SelectedWidgetUITracker extends Tracker
             return snap_constraint.constrain(x, y);
         else
             return new Point2D(x, y);
+    }
+
+    @Override
+    protected void handleKeyEvent(final KeyEvent event)
+    {
+        super.handleKeyEvent(event);
+        if (event.isConsumed())
+            group_handler.hide();
     }
 
     /** @param event {@link MouseEvent} */
@@ -528,7 +537,7 @@ public class SelectedWidgetUITracker extends Tracker
 
         updateTrackerFromWidgets();
 
-        startDrag(null); // TODO Why?
+        startDrag(null); // Get 'orig' position for keyboard moves
 
         bindToWidgets();
 
@@ -541,6 +550,9 @@ public class SelectedWidgetUITracker extends Tracker
     {   // Hide snap lines when drag ends
         super.endMouseDrag(event);
         snap_constraint.setVisible(false);
+
+        // Clear group_handler
+        group_handler.hide();
     }
 
     private void bindToWidgets()
