@@ -1,3 +1,5 @@
+from org.csstudio.display.builder.runtime.script import PVUtil, ScriptUtil
+
 def findConflicts(row, col, value):
 	conflicts = []
 	if value == " " or value == "_":
