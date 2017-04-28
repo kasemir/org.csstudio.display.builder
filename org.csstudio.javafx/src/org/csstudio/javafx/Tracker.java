@@ -385,6 +385,10 @@ public class Tracker extends Group
     public void setPosition(double x, double y, double width, double height)
     {
         // Enforce valid position
+        if (x < 0)
+            x = 0;
+        if (y < 0)
+            y = 0;
         if (width < 0)
             width = 0;
         if (height < 0)
