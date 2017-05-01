@@ -248,15 +248,14 @@ public class RuntimeViewPart extends FXViewPart
     	if ( old_info == null  ||
     	    !old_info.getPath().equals(info.getPath()) ||
     	  ( !old_info.getMacros().equals(info.getMacros())  &&  !old_info.getMacros().isEmpty()))
-    	{
     	    display_info = Optional.of(info);
-    	    persist();
-    	}
 
         setPartName(info.getName());
         setTitleToolTip(info.getPath());
         navigation.setCurrentDisplay(info);
         active_model = model;
+
+        persist();
     }
 
     /** Retrieve memento persisted in MPlaceholder if present.
