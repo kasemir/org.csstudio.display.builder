@@ -285,15 +285,17 @@ public class StringTable extends BorderPane
 
     private void fillToolbar()
     {
-        toolbar.getItems().add(createToolbarButton("add_row", Messages.AddRow, event -> addRow()));
-        toolbar.getItems().add(createToolbarButton("remove_row", Messages.RemoveRow, event -> deleteRow()));
-        toolbar.getItems().add(createToolbarButton("row_up", Messages.MoveRowUp, event -> moveRowUp()));
-        toolbar.getItems().add(createToolbarButton("row_down", Messages.MoveRowDown, event -> moveRowDown()));
-        toolbar.getItems().add(createToolbarButton("rename_col", Messages.RenameColumn, event -> renameColumn()));
-        toolbar.getItems().add(createToolbarButton("add_col", Messages.AddColumn, event -> addColumn()));
-        toolbar.getItems().add(createToolbarButton("remove_col", Messages.RemoveColumn, event -> deleteColumn()));
-        toolbar.getItems().add(createToolbarButton("col_left", Messages.MoveColumnLeft, event -> moveColumnLeft()));
-        toolbar.getItems().add(createToolbarButton("col_right", Messages.MoveColumnRight, event -> moveColumnRight()));
+        toolbar.getItems().addAll(
+            createToolbarButton("add_row", Messages.AddRow, event -> addRow()),
+            createToolbarButton("remove_row", Messages.RemoveRow, event -> deleteRow()),
+            createToolbarButton("row_up", Messages.MoveRowUp, event -> moveRowUp()),
+            createToolbarButton("row_down", Messages.MoveRowDown, event -> moveRowDown()),
+            createToolbarButton("rename_col", Messages.RenameColumn, event -> renameColumn()),
+            createToolbarButton("add_col", Messages.AddColumn, event -> addColumn()),
+            createToolbarButton("remove_col", Messages.RemoveColumn, event -> deleteColumn()),
+            createToolbarButton("col_left", Messages.MoveColumnLeft, event -> moveColumnLeft()),
+            createToolbarButton("col_right", Messages.MoveColumnRight, event -> moveColumnRight()));
+        toolbar.layout();
     }
 
     private Button createToolbarButton(final String id, final String tool_tip, final EventHandler<ActionEvent> handler)
@@ -301,8 +303,20 @@ public class StringTable extends BorderPane
         final Button button = new Button();
         try
         {
+            // TODO Icons are not centered inside the button until the
+            // button is once pressed, or at least focused via "tab"
             button.setGraphic(new ImageView(Activator.getIcon(id)));
+
+            // Using the image as a background like this centers the image,
+            // but replaces the complete characteristic button outline with just the icon.
+            // button.setBackground(new Background(new BackgroundImage(new Image(Activator.getIcon(id)),
+            //                      BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
+            //                      BackgroundPosition.CENTER,
+            //                      new BackgroundSize(16, 16, false, false, false, false))));
             button.setTooltip(new Tooltip(tool_tip));
+            // Without defining the button size, the buttons may start out zero-sized
+            // until they're first pressed/tabbed
+            button.setMinSize(35, 25);
         }
         catch (Exception ex)
         {
@@ -310,6 +324,7 @@ public class StringTable extends BorderPane
             button.setText(tool_tip);
         }
         button.setOnAction(handler);
+
         return button;
     }
 
@@ -840,14 +855,31 @@ public class StringTable extends BorderPane
     {
         cell_colors = null;
         int row = table.getSelectionModel().getSelectedIndex();
+
+        // Some table columns have special cell factories to
+        // represent boolean column data as a checkbox etc.
+        // In principle, need to update both the data and the table columns
+        // concurrently because otherwise a checkbox cell would briefly try to
+        // represent non-boolean data, resulting in a long stack trace.
+        // Cannot update data and table concurrently, so detach data from table:
+        table.setItems(null);
+
+        // Move table column
         final TableColumn<List<String>, ?> col = table.getColumns().remove(column);
         table.getColumns().add(target, col);
+
+        // Move column in data
         for (List<String> data_row : data)
             if (data_row != MAGIC_LAST_ROW)
             {
                 final String cell = data_row.remove(column);
                 data_row.add(target, cell);
             }
+
+        // Re-attach data to table
+        table.setItems(data);
+
+        // Select the moved cell
         table.getSelectionModel().clearAndSelect(row, table.getColumns().get(target));
         fireTableChanged();
     }

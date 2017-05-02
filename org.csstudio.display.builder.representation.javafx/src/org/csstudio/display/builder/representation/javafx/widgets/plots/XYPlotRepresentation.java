@@ -16,6 +16,7 @@ import java.util.logging.Level;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.plots.PlotWidgetPointType;
@@ -24,10 +25,13 @@ import org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.Tra
 import org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.YAxisWidgetProperty;
 import org.csstudio.display.builder.model.widgets.plots.PlotWidgetTraceType;
 import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget;
+import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget.MarkerProperty;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.widgets.RegionBaseRepresentation;
 import org.csstudio.javafx.rtplot.Axis;
+import org.csstudio.javafx.rtplot.PlotMarker;
 import org.csstudio.javafx.rtplot.PointType;
+import org.csstudio.javafx.rtplot.RTPlotListener;
 import org.csstudio.javafx.rtplot.RTValuePlot;
 import org.csstudio.javafx.rtplot.Trace;
 import org.csstudio.javafx.rtplot.TraceType;
@@ -63,6 +67,28 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
 
     /** Plot */
     private RTValuePlot plot;
+
+    private volatile boolean changing_marker = false;
+
+    private final RTPlotListener<Double> plot_listener = new RTPlotListener<Double>()
+    {
+        @Override
+        public void changedPlotMarker(final int index)
+        {
+            if (changing_marker)
+                return;
+            final PlotMarker<Double> plot_marker = plot.getMarkers().get(index);
+            final WidgetProperty<Double> model_marker = model_widget.propMarkers().getValue().get(index).value();
+            final double position = plot_marker.getPosition();
+            changing_marker = true;
+            model_marker.setValue(position);
+            // Was property change reverted (Runtime could not write PV, ..)?
+            final double effective = model_marker.getValue();
+            if (effective != position)
+                plot_marker.setPosition(effective);
+            changing_marker = false;
+        }
+    };
 
     /** Handler for one trace of the plot
      *
@@ -144,45 +170,38 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         // PV changed value -> runtime updated X/Y value property -> valueChanged()
         private void valueChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
         {
+            final ListNumber x_data, y_data, error;
             final VType y_value = model_trace.traceYValue().getValue();
-            final VNumberArray y_array = (y_value instanceof VNumberArray) ? (VNumberArray)y_value : null;
-            final VNumberArray x_array;
-            final ListNumber error;
 
-            if (y_array == null)
+            if (y_value instanceof VNumberArray)
             {
-                x_array = null;
-                error = XYVTypeDataProvider.EMPTY;
-            }
-            else
-            {
-                trace.setUnits(y_array.getUnits());
-
                 final VType x_value = model_trace.traceXValue().getValue();
-                x_array = (x_value instanceof VNumberArray) ? (VNumberArray)x_value : null;
+                x_data = (x_value instanceof VNumberArray) ? ((VNumberArray)x_value).getData() : null;
+
+                final VNumberArray y_array = (VNumberArray)y_value;
+                trace.setUnits(y_array.getUnits());
+                y_data = y_array.getData();
 
                 final VType error_value = model_trace.traceErrorValue().getValue();
                 if (error_value == null)
-                    error = XYVTypeDataProvider.EMPTY;
+                    error = null;
                 else if (error_value instanceof VNumberArray)
                     error = ((VNumberArray)error_value).getData();
                 else
                     error = new ArrayDouble(VTypeUtil.getValueNumber(error_value).doubleValue());
             }
+            else // Clear all unless there's Y data
+                x_data = y_data = error = XYVTypeDataProvider.EMPTY;
 
             // Decouple from CAJ's PV thread to avoid deadlock when setData() takes its lock
-            ModelThreadPool.getExecutor().submit(() -> updateData(x_array, y_array, error));
+            ModelThreadPool.getExecutor().submit(() -> updateData(x_data, y_data, error));
         }
 
         // Update XYPlot data on different thread, not from CAJ callback.
         // Void to be usable as Callable(..) with Exception on error
-        private Void updateData(final VNumberArray x_array, final VNumberArray y_array, final ListNumber error) throws Exception
+        private Void updateData(final ListNumber x_array, final ListNumber y_array, final ListNumber error) throws Exception
         {
-            // Clear data?
-            if (y_array == null)
-                data.setData(XYVTypeDataProvider.EMPTY, XYVTypeDataProvider.EMPTY, XYVTypeDataProvider.EMPTY);
-            else
-                data.setData(x_array.getData(), y_array.getData(), error);
+            data.setData(x_array, y_array, error);
             plot.requestUpdate();
             return null;
         }
@@ -215,7 +234,34 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         plot = new RTValuePlot(! toolkit.isEditMode());
         plot.showToolbar(false);
         plot.showCrosshair(false);
+
+        // Create PlotMarkers once. Not allowing adding/removing them at runtime
+        if (! toolkit.isEditMode())
+            for (MarkerProperty marker : model_widget.propMarkers().getValue())
+                createMarker(marker);
+
         return plot;
+    }
+
+    private void createMarker(final MarkerProperty model_marker)
+    {
+        final PlotMarker<Double> plot_marker = plot.addMarker(JFXUtil.convert(model_marker.color().getValue()),
+                                                      model_marker.interactive().getValue(),
+                                                      model_marker.value().getValue());
+
+        // For now _not_ listening to runtime changes of model_marker.interactive()
+
+        // Listen to model_marker.value(), .. and update plot_marker
+        final WidgetPropertyListener<Double> model_marker_listener = (o, old, value) ->
+        {
+            if (changing_marker)
+                return;
+            changing_marker = true;
+            plot_marker.setPosition(model_marker.value().getValue());
+            changing_marker = false;
+            plot.requestUpdate();
+        };
+        model_marker.value().addPropertyListener(model_marker_listener);
     }
 
     @Override
@@ -246,6 +292,8 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
 
         tracesChanged(model_widget.propTraces(), null, model_widget.propTraces().getValue());
         model_widget.propTraces().addPropertyListener(this::tracesChanged);
+
+        plot.addListener(plot_listener);
     }
 
     /** Listen to changed axis properties

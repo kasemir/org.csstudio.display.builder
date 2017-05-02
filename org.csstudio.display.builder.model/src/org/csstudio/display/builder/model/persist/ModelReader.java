@@ -112,6 +112,8 @@ public class ModelReader
     {
         final DisplayModel model = new DisplayModel();
 
+        model.setUserData(DisplayModel.USER_DATA_INPUT_VERSION, version);
+
         // Read display's own properties
         model.getConfigurator(version).configureFromXML(this, model, root);
         // Read widgets of model

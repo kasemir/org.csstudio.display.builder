@@ -196,10 +196,10 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     private static final float GRID_LINE_WIDTH = 0.222F;
 
     /** Update model size indicators (in edit mode) */
-    private WidgetPropertyListener<Integer> model_size_listener = ( p, o, n ) -> execute( ( ) -> updateModelSizeIndicators());
+    private WidgetPropertyListener<Integer> model_size_listener = ( p, o, n ) -> execute(this::updateModelSizeIndicators);
 
     /** Update background color, grid */
-    private UntypedWidgetPropertyListener background_listener = ( p, o, n ) -> execute( ( ) -> updateBackground());
+    private UntypedWidgetPropertyListener background_listener = ( p, o, n ) -> execute(this::updateBackground);
 
     private Line horiz_bound, vert_bound;
     private Pane widget_parent;

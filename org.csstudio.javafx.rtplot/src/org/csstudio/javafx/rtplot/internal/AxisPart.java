@@ -47,7 +47,7 @@ public abstract class AxisPart<T extends Comparable<T>> extends PlotPart impleme
      */
     protected static final int TICK_WIDTH = 3;
 
-    protected static final BasicStroke TICK_STROKE = new BasicStroke(TICK_WIDTH, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER);
+    static final BasicStroke TICK_STROKE = new BasicStroke(TICK_WIDTH, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER);
 
     protected static final int MINOR_TICK_LENGTH = 5;
 

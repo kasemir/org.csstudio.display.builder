@@ -25,14 +25,8 @@ public class RegionOfInterest
     private volatile boolean visible, interactive;
     private volatile Rectangle2D region;
 
-    /** Constructor
-     *  @param name
-     *  @param color
-     *  @param visible
-     *  @param x
-     *  @param y
-     *  @param width
-     *  @param height
+    /** Not meant to be called by user.
+     *  Call {@link RTImagePlot#addROI()} to create ROI
      */
     public RegionOfInterest(final String name, final Color color,
                             final boolean visible,

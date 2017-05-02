@@ -24,6 +24,11 @@ public interface RTPlotListener<XTYPE extends Comparable<XTYPE>>
     /** Invoked when auto scale is enabled or disabled by user interaction */
     default public void changedAutoScale(YAxis<XTYPE> y_axis) {};
 
+    /** Invoked when a PlotMarker has been moved
+     *  @param index Index 0, .. of the {@link PlotMarker}
+     */
+    default public void changedPlotMarker(int index) {};
+
     /** Invoked when Annotations have been changed */
     default public void changedAnnotations() {};
 
@@ -34,5 +39,5 @@ public interface RTPlotListener<XTYPE extends Comparable<XTYPE>>
     default public void changedToolbar(boolean visible) {};
 
     /** Invoked when legend displayed/hidden */
-    default public void changedLegend(boolean visible) {};
+    default public void changedLegend(boolean visible) {}
 }

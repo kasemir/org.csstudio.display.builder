@@ -21,6 +21,7 @@ import org.csstudio.javafx.rtplot.Trace;
 import org.csstudio.javafx.rtplot.data.PlotDataItem;
 import org.csstudio.opibuilder.editparts.AbstractWidgetEditPart;
 import org.csstudio.opibuilder.editparts.ExecutionMode;
+import org.csstudio.trends.databrowser3.model.Model;
 import org.csstudio.trends.databrowser3.model.TimeHelper;
 import org.csstudio.trends.databrowser3.ui.ControllerSWT;
 import org.csstudio.trends.databrowser3.ui.ModelBasedPlot;
@@ -107,6 +108,12 @@ public class DataBrowserWidgedEditPart extends AbstractWidgetEditPart
         for (int i=0; i<array.length; ++i)
             array[i] = values.get(i);
         return new ArrayDouble(array);
+    }
+
+    /** @return Data browser model for access from scripts */
+    public Model getDataBrowserModel()
+    {
+        return controller.getModel();
     }
 
     /** @return Casted widget model */

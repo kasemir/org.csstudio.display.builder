@@ -58,6 +58,12 @@ public class DisplayModel extends Widget
     /** Reserved DisplayModel user data key for name of input file */
     public static final String USER_DATA_INPUT_FILE = "_input_file";
 
+    /** Reserved DisplayModel user data key for version of input file
+     *
+     *  <p>Holds Version.
+     */
+    public static final String USER_DATA_INPUT_VERSION = "_input_version";
+
     /** Reserved DisplayModel user data key for storing toolkit used as representation.
      *
      *  <p>Holds ToolkitRepresentation.

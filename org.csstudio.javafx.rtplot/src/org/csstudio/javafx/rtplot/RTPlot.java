@@ -358,6 +358,30 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
         plot.removeTrace(trace);
     }
 
+    /** Add plot marker
+     *  @param color
+     *  @param interactive
+     *  @return {@link PlotMarker}
+     */
+    public PlotMarker<XTYPE> addMarker(final javafx.scene.paint.Color color, final boolean interactive, final XTYPE position)
+    {
+        return plot.addMarker(color, interactive, position);
+    }
+
+    /** @return {@link PlotMarker}s */
+    public List<PlotMarker<XTYPE>> getMarkers()
+    {
+        return plot.getMarkers();
+    }
+
+    /** @param index Index of Marker to remove
+     *  @throws IndexOutOfBoundsException
+     */
+    public void removeMarker(final int index)
+    {
+        plot.removeMarker(index);
+    }
+
     /** Update the dormant time between updates
      *  @param dormant_time How long throttle remains dormant after a trigger
      *  @param unit Units for the dormant period

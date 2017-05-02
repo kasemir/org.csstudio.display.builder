@@ -294,6 +294,9 @@ public class Tracker extends Group
 
         start_x = -1;
         start_y = -1;
+
+        // Prepare for another move via keyboard
+        orig = new Rectangle2D(tracker.getX(), tracker.getY(), tracker.getWidth(), tracker.getHeight());
     }
 
     /** Allow move/resize with cursor keys, and abort Drag & Drop operations with ESC key.
@@ -302,7 +305,7 @@ public class Tracker extends Group
      *
      *  @param event {@link KeyEvent}
      */
-    private void handleKeyEvent(final KeyEvent event)
+    protected void handleKeyEvent(final KeyEvent event)
     {
         // Consume handled event to keep the key focus,
         // which is otherwise lost to the 'tab-order' traversal
@@ -382,6 +385,10 @@ public class Tracker extends Group
     public void setPosition(double x, double y, double width, double height)
     {
         // Enforce valid position
+        if (x < 0)
+            x = 0;
+        if (y < 0)
+            y = 0;
         if (width < 0)
             width = 0;
         if (height < 0)

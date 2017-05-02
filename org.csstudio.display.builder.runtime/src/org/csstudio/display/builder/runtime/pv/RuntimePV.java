@@ -78,7 +78,9 @@ public interface RuntimePV
         if (! PVFactory.issued_write_warning)
         {
             PVFactory.issued_write_warning = true;
-            logger.log(Level.SEVERE,
+            // Called quite often for legacy displays, and display still works,
+            // so don't log as WARNING
+            logger.log(Level.INFO,
                     "Script calls 'setValue(" + new_value +") for PV '" + getName() +
                     "'. Update to 'write'");
         }

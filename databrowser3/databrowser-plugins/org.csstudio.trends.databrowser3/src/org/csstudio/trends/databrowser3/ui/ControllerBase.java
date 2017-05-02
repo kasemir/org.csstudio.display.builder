@@ -396,6 +396,12 @@ public abstract class ControllerBase
         model.addListener(model_listener);
     }
 
+    /** @return Data Browser model */
+    public Model getModel()
+    {
+        return model;
+    }
+
     /** @param suppress_redraws <code>true</code> if controller should suppress
      *        redraws because window is hidden
      */

@@ -34,5 +34,4 @@ public class Activator // Could become plugin activator
         String path = "platform:/plugin/org.csstudio.javafx/icons/" + base_name + ".png";
         return new Image(ResourceUtil.openPlatformResource(path));
     }
-
 }

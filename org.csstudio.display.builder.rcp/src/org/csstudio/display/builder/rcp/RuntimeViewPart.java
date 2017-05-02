@@ -11,7 +11,10 @@ import static org.csstudio.display.builder.rcp.Plugin.logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.lang.ref.WeakReference;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -30,6 +33,11 @@ import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.runtime.ActionUtil;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.csstudio.javafx.swt.JFXCursorFix;
+import org.eclipse.e4.core.contexts.IEclipseContext;
+import org.eclipse.e4.ui.model.application.MApplication;
+import org.eclipse.e4.ui.model.application.ui.advanced.MPlaceholder;
+import org.eclipse.e4.ui.model.application.ui.basic.MPart;
+import org.eclipse.e4.ui.workbench.modeling.EModelService;
 import org.eclipse.fx.ui.workbench3.FXViewPart;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.swt.layout.FillLayout;
@@ -45,6 +53,8 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.WorkbenchException;
+import org.eclipse.ui.XMLMemento;
 
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -53,6 +63,7 @@ import javafx.scene.control.TextArea;
 /** Part that hosts display builder runtime and JFX scene in SWT
  *
  *  @author Kay Kasemir
+ *  @author Will Rogers - code related to reading memento from placeholders
  */
 @SuppressWarnings("nls")
 public class RuntimeViewPart extends FXViewPart
@@ -67,6 +78,9 @@ public class RuntimeViewPart extends FXViewPart
 
     /** Memento key for DisplayInfo */
     private static final String MEMENTO_DISPLAY_INFO = "DISPLAY_INFO";
+
+    /** Key for Memento in E4 model */
+    private static final String TAG_MEMENTO = "memento";
 
     /** Back/forward navigation */
     private final DisplayNavigation navigation = new DisplayNavigation();
@@ -176,6 +190,34 @@ public class RuntimeViewPart extends FXViewPart
         return null;
     }
 
+    @Override
+    public void init(final IViewSite site, IMemento memento) throws PartInitException
+    {
+    	super.init(site, memento);
+
+    	// Check if previous run persisted DisplayInfo
+    	String serialized_info = null;
+
+    	if (memento == null)
+    	    memento = findMementoFromPlaceholder();
+
+    	if (memento != null)
+    	    serialized_info = memento.getString(MEMENTO_DISPLAY_INFO);
+
+    	if (serialized_info != null)
+    	{
+    		try
+    		{
+    			display_info = Optional.of(DisplayInfoXMLUtil.fromXML(serialized_info));
+    		}
+    		catch (Exception ex)
+    		{
+    			logger.log(Level.WARNING,
+    					   "Cannot parse model info from " + serialized_info, ex);
+    		}
+    	}
+    }
+
     public Parent getRoot()
     {
         return root;
@@ -208,33 +250,65 @@ public class RuntimeViewPart extends FXViewPart
     	  ( !old_info.getMacros().equals(info.getMacros())  &&  !old_info.getMacros().isEmpty()))
     	    display_info = Optional.of(info);
 
-
         setPartName(info.getName());
         setTitleToolTip(info.getPath());
         navigation.setCurrentDisplay(info);
         active_model = model;
+
+        persist();
     }
 
-    @Override
-	public void init(final IViewSite site, final IMemento memento) throws PartInitException
+    /** Retrieve memento persisted in MPlaceholder if present.
+     *  @return {@link IMemento} persisted in the placeholder.
+     */
+    private IMemento findMementoFromPlaceholder()
     {
-		super.init(site, memento);
-		// Check if previous run persisted DisplayInfo
-		if (memento == null)
-			return;
-		final String serialized_info = memento.getString(MEMENTO_DISPLAY_INFO);
-		if (serialized_info == null)
-			return;
-		try
-		{
-			display_info = Optional.of(DisplayInfoXMLUtil.fromXML(serialized_info));
-		}
-		catch (Exception ex)
-		{
-			logger.log(Level.WARNING,
-					   "Cannot parse model info from " + serialized_info, ex);
-		}
-	}
+        IMemento memento = null;
+        MPlaceholder placeholder = findPlaceholder();
+        if (placeholder != null) {
+            if (placeholder.getPersistedState().containsKey(TAG_MEMENTO))
+            {
+                String mementoString = placeholder.getPersistedState().get(TAG_MEMENTO);
+                memento = loadMemento(mementoString);
+            }
+        }
+        return memento;
+    }
+
+    /** @param mementoString String with serialized mememto
+     *  @return {@link IMemento} parsed from string
+     */
+    private IMemento loadMemento(String mementoString)
+    {
+        StringReader reader = new StringReader(mementoString);
+        try
+        {
+            return XMLMemento.createReadRoot(reader);
+        }
+        catch (WorkbenchException e)
+        {
+            logger.log(Level.WARNING, "Failed to load memento", e);
+            return null;
+        }
+    }
+
+    /** Find the MPlaceholder corresponding to this MPart in the MPerspective.  This
+     *  may have persisted information relevant to loading this view.
+     *  @return corresponding placeholder or <code>null</code>
+     */
+    private MPlaceholder findPlaceholder()
+    {
+        final IEclipseContext localContext = getViewSite().getService(IEclipseContext.class);
+        final MPart part = localContext.get(MPart.class);
+        final EModelService service = PlatformUI.getWorkbench().getService(EModelService.class);
+        final IEclipseContext globalContext = PlatformUI.getWorkbench().getService(IEclipseContext.class);
+        final MApplication app = globalContext.get(MApplication.class);
+        final List<MPlaceholder> phs = service.findElements(app, null, MPlaceholder.class, null);
+        for (MPlaceholder ph : phs)
+            if (ph.getRef() == part)
+                return ph;
+        return null;
+    }
 
     @Override
     public void createPartControl(final Composite parent)
@@ -312,7 +386,7 @@ public class RuntimeViewPart extends FXViewPart
 	    return representation;
 	}
 
-	/** @param zoom Zoom level, 1.0 for 100%, -1 to 'fit'
+    /** @param zoom Zoom level, 1.0 for 100%, -1 to 'fit'
 	 *  @return Zoom level actually used
 	 */
 	public double setZoom(final double zoom)
@@ -320,9 +394,55 @@ public class RuntimeViewPart extends FXViewPart
         return representation.setZoom(zoom);
     }
 
+	/** Persist the view's input "on demand".
+     *
+     *  <p>Framework only persists to memento on exit,
+     *  and only for the currently visible views.
+     *
+     *  <p>Display info for views in other perspectives
+     *  which are hidden on application shutdown will be lost.
+     *  By forcing a persist for each view while the app is still running,
+     *  each view can be restored when a perspective is later re-activated.
+     *
+     *
+     *  <p>Memento is saved in the
+     *  .metadata/.plugins/org.eclipse.e4.workbench/workbench.xmi
+     *  inside a "persistedState" element of the E4 model element.
+     *
+     *  <p>This method places it in the model just as the framework
+     *  does by calling saveState() on shutdown,
+     *  but allows saving the state at any time.
+     */
+	private void persist()
+	{
+        try
+        {
+            // Obtain E4 model element for E3 view,
+            // based on http://www.vogella.com/tutorials/EclipsePlugIn/article.html#eclipsecontext
+            final IEclipseContext context = (IEclipseContext) getViewSite().getService(IEclipseContext.class);
+            final MPart part = context.get(MPart.class);
+
+            // Based on org.eclipse.ui.internal.ViewReference#persist():
+            //
+            // XML version of memento is written to E4 model.
+            // If compatibility layer changes its memento persistence,
+            // this will break...
+            final XMLMemento root = XMLMemento.createWriteRoot("view"); //$NON-NLS-1$
+            saveState(root);
+            final StringWriter writer = new StringWriter();
+            root.save(writer);
+            part.getPersistedState().put(TAG_MEMENTO, writer.toString());
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Cannot persist " + display_info, ex);
+        }
+	}
+
     @Override
 	public void saveState(final IMemento memento)
-    {	// Persist DisplayInfo so it's loaded on application restart
+    {
+        // Persist DisplayInfo so it's loaded on application restart
 		final DisplayInfo info = display_info.orElse(null);
 		if (info == null)
 		    return;
@@ -332,7 +452,7 @@ public class RuntimeViewPart extends FXViewPart
 		}
 		catch (Exception ex)
 		{
-		    logger.log(Level.WARNING, "Cannot persist display info", ex);
+		    logger.log(Level.WARNING, "Cannot persist " + display_info, ex);
 		}
 	}
 

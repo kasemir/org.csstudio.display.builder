@@ -40,6 +40,7 @@
         <include name="org.csstudio.display.builder.model/src/org/csstudio/display/builder/model/**/*Widget.java"/>
         <include name="org.csstudio.display.builder.runtime/src/org/csstudio/display/builder/runtime/script/*.java"/>
         <include name="org.csstudio.display.builder.runtime/src/org/csstudio/display/builder/runtime/pv/RuntimePV.java"/>
+        <include name="org.csstudio.display.builder.rcp/src/org/csstudio/display/builder/rcp/script/*.java"/>
         <exclude name="**/WhateverThing.java"/>
       </fileset>
       <group title="Script API" packages="org.csstudio.display.builder.*"/>

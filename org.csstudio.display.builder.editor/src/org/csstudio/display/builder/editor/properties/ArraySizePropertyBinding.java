@@ -16,6 +16,7 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
+import org.csstudio.javafx.FocusUtil;
 
 import javafx.beans.value.ChangeListener;
 import javafx.scene.control.Spinner;
@@ -24,7 +25,7 @@ import javafx.scene.control.Spinner;
  *
  *  <p>In comparison to most {@link WidgetPropertyBinding}s this binding
  *  will not only control a property (the number of array elements)
- *  but also update a sub-panel of the property panel to show the current
+ *  but also update (possibly a sub-panel of) the property panel to show the current
  *  list of array elements.
  *
  *  @author Kay Kasemir
@@ -37,6 +38,15 @@ public class ArraySizePropertyBinding extends WidgetPropertyBinding<Spinner<Inte
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private final ChangeListener<? super Integer> ui_listener = (prop, old, value) ->
     {
+        // The spinner has the focus right now,
+        // user just clicked it to add/remove array elements.
+        // This will trigger a complete refresh of the property panel.
+        // Since this removes the focused node,
+        // the new property view will scroll back to the topmost element,
+        // and user needs to scroll back down to find the array that was just resized.
+        // By removing the focus from the spinner, the property panel seems to "stay put".
+        FocusUtil.removeFocus(jfx_node);
+
         final int desired = jfx_node.getValue();
 
         // Grow/shrink array via undo-able actions
@@ -63,7 +73,13 @@ public class ArraySizePropertyBinding extends WidgetPropertyBinding<Spinner<Inte
     /** Update property sub-panel as array elements are added/removed */
     private WidgetPropertyListener<List<WidgetProperty<?>>> prop_listener = (prop, removed, added) ->
     {
-        panel_section.refill(undo, other);
+        // Re-populate the complete property panel.
+        // Combined with the un-focus call above when changing the array size, this "works":
+        // User can change the array, and property panel doesn't scroll much.
+        // But it might be a hack, eventually requiring careful update of just the array
+        // element section of the property panel
+        panel_section.clear();
+        panel_section.fill(undo, widget_property.getWidget().getProperties(), other);
     };
 
     /** @param panel_section Panel section for array elements
