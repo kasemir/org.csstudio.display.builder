@@ -48,6 +48,49 @@
     -fx-text-overrun: clip;
 }
 
+/* NavigationTabs */
+ 
+.navtab_tabregion
+{
+    -fx-background-color: transparent;
+}
+ 
+.navtab_button
+{
+    /* 'vertical': Attach to body on right, rounded corners on left */
+    -fx-background-color: -fx-outer-border, -fx-inner-border, -fx-body-color;
+    -fx-background-insets: 1 1 0 0, 2 1 1 1, 3 1 2 2;
+    -fx-background-radius: 3 0 0 3, 2 0 0 2, 1 0 0 1;
+}
+
+.navtab_button:selected
+{
+    /* Extend body color to right so that it reaches into the body */
+    -fx-background-insets: 1 0 0 0, 2 0 1 1, 3 -1 2 2;
+}
+
+.navtab_button:horizontal
+{
+    /* 'horizontal': Attach to body on bottom, rounded corners on top */
+    -fx-background-insets: 0 1 1 0, 1 2 1 1, 2 3 1 2;
+    -fx-background-radius: 3 3 0 0, 2 2 0 0, 1 1 0 0;
+}
+
+.navtab_button:horizontal:selected
+{
+    /* Extend body color to bottom so that it reaches into the body */
+    -fx-background-insets: 0 1 1 0, 1 2 1 1, 2 3 -1 2;
+}
+
+.navtab_body
+{   
+    -fx-background-color: -fx-outer-border, -fx-background;
+    -fx-background-color: -fx-outer-border, transparent;
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 2, 0;
+    -fx-padding: 2;
+}
+
 /** Default text-input padding in modena.css:
  * .text-input
  *  -fx-padding: 0.333333em 0.583em 0.333333em 0.583em; (top right bottom left)
