@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.NavigationTabsWidget;
+import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
 /** Creates JavaFX item for model widget
  *
@@ -30,7 +31,7 @@ public class NavigationTabsRepresentation extends RegionBaseRepresentation<Navig
 {
     private final DirtyFlag dirty_sizes = new DirtyFlag();
     private final DirtyFlag dirty_tabs = new DirtyFlag();
-    private final DirtyFlag dirty_tabsize = new DirtyFlag();
+    private final DirtyFlag dirty_tab_look = new DirtyFlag();
 
     @Override
     protected boolean isFilteringEditModeClicks()
@@ -61,9 +62,11 @@ public class NavigationTabsRepresentation extends RegionBaseRepresentation<Navig
         model_widget.propWidth().addUntypedPropertyListener(this::sizesChanged);
         model_widget.propHeight().addUntypedPropertyListener(this::sizesChanged);
 
-        model_widget.propTabWidth().addPropertyListener(this::tabSizeChanged);
-        model_widget.propTabHeight().addPropertyListener(this::tabSizeChanged);
-        model_widget.propTabSpacing().addPropertyListener(this::tabSizeChanged);
+        model_widget.propTabWidth().addPropertyListener(this::tabLookChanged);
+        model_widget.propTabHeight().addPropertyListener(this::tabLookChanged);
+        model_widget.propTabSpacing().addPropertyListener(this::tabLookChanged);
+        model_widget.propSelectedColor().addPropertyListener(this::tabLookChanged);
+        model_widget.propDeselectedColor().addPropertyListener(this::tabLookChanged);
 
         model_widget.propTabs().addPropertyListener(this::tabsChanged);
     }
@@ -74,9 +77,9 @@ public class NavigationTabsRepresentation extends RegionBaseRepresentation<Navig
         toolkit.scheduleUpdate(this);
     }
 
-    private void tabSizeChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    private void tabLookChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        dirty_tabsize.mark();
+        dirty_tab_look.mark();
         toolkit.scheduleUpdate(this);
     }
 
@@ -97,11 +100,13 @@ public class NavigationTabsRepresentation extends RegionBaseRepresentation<Navig
             final Integer height = model_widget.propHeight().getValue();
             jfx_node.setPrefSize(width, height);
         }
-        if (dirty_tabsize.checkAndClear())
+        if (dirty_tab_look.checkAndClear())
         {
             jfx_node.setTabSize(model_widget.propTabWidth().getValue(),
                                 model_widget.propTabHeight().getValue());
             jfx_node.setTabSpacing(model_widget.propTabSpacing().getValue());
+            jfx_node.setSelectedColor(JFXUtil.convert(model_widget.propSelectedColor().getValue()));
+            jfx_node.setDeselectedColor(JFXUtil.convert(model_widget.propDeselectedColor().getValue()));
         }
         if (dirty_tabs.checkAndClear())
         {

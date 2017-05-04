@@ -28,6 +28,7 @@ import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
+import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget.Resize;
 
 /** Widget with tabs to select amongst several embedded displays
@@ -90,10 +91,19 @@ public class NavigationTabsWidget extends VisibleWidget
     private static final WidgetPropertyDescriptor<Integer> propTabSpacing =
         CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "tab_spacing", "Tab Spacing");
 
+    private static final WidgetPropertyDescriptor<WidgetColor> propSelectedColor =
+            CommonWidgetProperties.newColorPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "selected_color", "Selected Color");
+
+    private static final WidgetPropertyDescriptor<WidgetColor> propDeselectedColor =
+            CommonWidgetProperties.newColorPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "deselected_color", "Deselected Color");
+
+
     private volatile ArrayWidgetProperty<TabProperty> tabs;
     private volatile WidgetProperty<Integer> tab_width;
     private volatile WidgetProperty<Integer> tab_height;
     private volatile WidgetProperty<Integer> tab_spacing;
+    private volatile WidgetProperty<WidgetColor> selected_color;
+    private volatile WidgetProperty<WidgetColor> deselected_color;
 
     public NavigationTabsWidget()
     {
@@ -111,6 +121,8 @@ public class NavigationTabsWidget extends VisibleWidget
         properties.add(tab_width = propTabWidth.createProperty(this, ActionButtonWidget.DEFAULT_WIDTH));
         properties.add(tab_height = propTabHeight.createProperty(this, ActionButtonWidget.DEFAULT_HEIGHT));
         properties.add(tab_spacing = propTabSpacing.createProperty(this, 2));
+        properties.add(selected_color = propSelectedColor.createProperty(this, new WidgetColor(236, 236, 236)));
+        properties.add(deselected_color = propDeselectedColor.createProperty(this, new WidgetColor(200, 200, 200)));
 
         // Initial size
         propWidth().setValue(300);
@@ -139,6 +151,18 @@ public class NavigationTabsWidget extends VisibleWidget
     public WidgetProperty<Integer> propTabSpacing()
     {
         return tab_spacing;
+    }
+
+    /** @return 'selected_color' property */
+    public WidgetProperty<WidgetColor> propSelectedColor()
+    {
+        return selected_color;
+    }
+
+    /** @return 'deselected_color' property */
+    public WidgetProperty<WidgetColor> propDeselectedColor()
+    {
+        return deselected_color;
     }
 
     /** Embedded widget adds/replaces parent macros
