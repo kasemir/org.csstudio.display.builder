@@ -253,4 +253,12 @@ public class DisplayModel extends Widget
     {
         return gridVisible;
     }
+
+    @Override
+    public String toString()
+    {
+        // Show name's specification, not value, because otherwise
+        // a plain debug printout can trigger macro resolution for the name
+        return "DisplayModel '" + ((MacroizedWidgetProperty<?>)propName()).getSpecification() + "'";
+    }
 }
