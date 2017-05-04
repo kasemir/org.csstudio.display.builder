@@ -20,6 +20,7 @@ import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
+import org.csstudio.display.builder.model.widgets.NavigationTabsWidget;
 import org.osgi.framework.Version;
 
 /** Display Model.
@@ -72,7 +73,7 @@ public class DisplayModel extends Widget
 
     /** Widget user data key for storing the embedding widget.
      *
-     *  <p>For a {@link DisplayModel} that is held by an {@link EmbeddedDisplayWidget},
+     *  <p>For a {@link DisplayModel} that is held by an {@link EmbeddedDisplayWidget} or {@link NavigationTabsWidget},
      *  this user data element of the model points to the embedding widget.
      */
     public static final String USER_DATA_EMBEDDING_WIDGET = "_embedding_widget";
@@ -155,7 +156,7 @@ public class DisplayModel extends Widget
      */
     public final boolean isTopDisplayModel()
     {
-        final EmbeddedDisplayWidget embedder = getUserData(DisplayModel.USER_DATA_EMBEDDING_WIDGET);
+        final Widget embedder = getUserData(DisplayModel.USER_DATA_EMBEDDING_WIDGET);
         return embedder == null;
     }
 

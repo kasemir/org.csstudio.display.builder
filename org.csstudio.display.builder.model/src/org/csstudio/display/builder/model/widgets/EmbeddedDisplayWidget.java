@@ -63,17 +63,6 @@ public class EmbeddedDisplayWidget extends VisibleWidget
         }
     };
 
-    /** Reserved widget user data key for representation container.
-     *
-     *  <p>The representation of the {@link EmbeddedDisplayWidget} sets this
-     *  to the toolkit-specific container item which becomes the 'parent'
-     *  of the representations for the embedded content.
-     *
-     *  <p>The embedded widget runtime later reads this whenever it needs
-     *  to create a toolkit representation for the embedded model.
-     */
-    public static final String USER_DATA_EMBEDDED_DISPLAY_CONTAINER = "_embedded_widget_container";
-
     /** Resize behavior */
     public enum Resize
     {

@@ -47,6 +47,9 @@ public class NavigationTabs extends BorderPane
 
     private final static PseudoClass HORIZONTAL = PseudoClass.getPseudoClass("horizontal");
 
+    /** HBox or VBox for tab buttons */
+    private Pane buttons = new VBox();
+
     /** 'content', body */
     private final Pane body = new Pane();
 
@@ -91,6 +94,24 @@ public class NavigationTabs extends BorderPane
         this.tabs.clear();
         this.tabs.addAll(tabs);
         updateTabs();
+    }
+
+    /** Select a tab
+     *
+     *  <p>Does not invoke listener.
+     *
+     *  @param index Index of tab to select */
+    public void selectTab(final int index)
+    {
+        int i = 0;
+        for (Node button : buttons.getChildren())
+        {
+            if (i == index)
+                button.setStyle("-fx-color: " + JFXUtil.webRGB(selected));
+            else
+                button.setStyle("-fx-color: " + JFXUtil.webRGB(deselected));
+            ++i;
+        }
     }
 
     /** @param content Content for the 'body' */
@@ -149,9 +170,6 @@ public class NavigationTabs extends BorderPane
 
     private void updateTabs()
     {
-        // HBox or VBox for tab buttons
-        final Pane buttons;
-
         if (direction == Direction.VERTICAL)
         {
             setTop(null);
@@ -192,7 +210,7 @@ public class NavigationTabs extends BorderPane
     private void handleTabSelection(final ToggleButton button)
     {
         // Highlight active tab by setting it to the 'selected' color
-        final ObservableList<Node> siblings = button.getParent().getChildrenUnmodifiable();
+        final ObservableList<Node> siblings = buttons.getChildren();
         int i = 0, selected_tab = -1;
         for (Node sibling : siblings)
         {

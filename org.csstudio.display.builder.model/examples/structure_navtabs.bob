@@ -23,7 +23,7 @@
   <widget type="label" version="2.0.0">
     <name>Label_1</name>
     <text>A container with tabs that selects amongst several embedded displays.</text>
-    <y>41</y>
+    <y>31</y>
     <width>550</width>
     <height>30</height>
   </widget>
@@ -67,7 +67,7 @@ inside each tab.
       </tab>
       <tab>
         <name>Motor 2</name>
-        <file>embedded/motor.bob</file>
+        <file>embedded/a.bob</file>
         <macros>
           <M>2</M>
         </macros>
@@ -81,5 +81,6 @@ inside each tab.
     <tab_width>150</tab_width>
     <tab_height>35</tab_height>
     <tab_spacing>10</tab_spacing>
+    <active_tab>1</active_tab>
   </widget>
 </display>

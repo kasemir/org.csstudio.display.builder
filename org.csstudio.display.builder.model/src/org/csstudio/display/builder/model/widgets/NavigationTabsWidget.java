@@ -13,6 +13,8 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget.propGroupName;
 import static org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget.propResize;
 import static org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget.runtimeModel;
+import static org.csstudio.display.builder.model.widgets.TabsWidget.propActiveTab;
+import static org.csstudio.display.builder.model.widgets.TabsWidget.propTabHeight;
 
 import java.util.Arrays;
 import java.util.List;
@@ -65,8 +67,7 @@ public class NavigationTabsWidget extends VisibleWidget
                                 propFile.createProperty(widget, ""),
                                 propMacros.createProperty(widget, new Macros()),
                                 propResize.createProperty(widget, Resize.None),
-                                propGroupName.createProperty(widget, ""),
-                                runtimeModel.createProperty(widget, null)
+                                propGroupName.createProperty(widget, "")
                                ));
         }
         public WidgetProperty<String>       name()    { return getElement(0); }
@@ -74,7 +75,6 @@ public class NavigationTabsWidget extends VisibleWidget
         public WidgetProperty<Macros>       macros()  { return getElement(2); }
         public WidgetProperty<Resize>       resize()  { return getElement(3); }
         public WidgetProperty<String>       group()   { return getElement(4); }
-        public WidgetProperty<DisplayModel> model()   { return getElement(5); }
     }
 
     // 'tabs' array
@@ -84,9 +84,6 @@ public class NavigationTabsWidget extends VisibleWidget
 
     private static final WidgetPropertyDescriptor<Integer> propTabWidth =
         CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "tab_width", "Tab Width");
-
-    private static final WidgetPropertyDescriptor<Integer> propTabHeight =
-        CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "tab_height", "Tab Height");
 
     private static final WidgetPropertyDescriptor<Integer> propTabSpacing =
         CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "tab_spacing", "Tab Spacing");
@@ -104,6 +101,8 @@ public class NavigationTabsWidget extends VisibleWidget
     private volatile WidgetProperty<Integer> tab_spacing;
     private volatile WidgetProperty<WidgetColor> selected_color;
     private volatile WidgetProperty<WidgetColor> deselected_color;
+    private volatile WidgetProperty<Integer> active;
+    private volatile WidgetProperty<DisplayModel> embedded_model;
 
     public NavigationTabsWidget()
     {
@@ -123,6 +122,8 @@ public class NavigationTabsWidget extends VisibleWidget
         properties.add(tab_spacing = propTabSpacing.createProperty(this, 2));
         properties.add(selected_color = propSelectedColor.createProperty(this, new WidgetColor(236, 236, 236)));
         properties.add(deselected_color = propDeselectedColor.createProperty(this, new WidgetColor(200, 200, 200)));
+        properties.add(active = propActiveTab.createProperty(this, 0));
+        properties.add(embedded_model = runtimeModel.createProperty(this, null));
 
         // Initial size
         propWidth().setValue(300);
@@ -163,6 +164,18 @@ public class NavigationTabsWidget extends VisibleWidget
     public WidgetProperty<WidgetColor> propDeselectedColor()
     {
         return deselected_color;
+    }
+
+    /** @return 'active_tab' property */
+    public WidgetProperty<Integer> propActiveTab()
+    {
+        return active;
+    }
+
+    /** @return 'embedded_model' property */
+    public WidgetProperty<DisplayModel> runtimePropEmbeddedModel()
+    {
+        return embedded_model;
     }
 
     /** Embedded widget adds/replaces parent macros
