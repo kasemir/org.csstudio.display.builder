@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.NavigationTabs;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -33,8 +34,8 @@ public class NavigationTabsDemo extends Application
 
         final List<String> tabs = IntStream.range(1, 10).mapToObj(i -> "Step" + i).collect(Collectors.toList());
         nav_tabs.setTabs(tabs);
-        nav_tabs.setButtonSize(80, 40);
-        nav_tabs.setButtonSpacing(5);
+        nav_tabs.setTabSize(80, 40);
+        nav_tabs.setTabSpacing(5);
 
         // nav_tabs.setDirection(Direction.HORIZONTAL);
 

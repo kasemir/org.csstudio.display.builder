@@ -49,6 +49,7 @@ import org.csstudio.display.builder.model.widgets.LabelWidget;
 import org.csstudio.display.builder.model.widgets.LinearMeterWidget;
 import org.csstudio.display.builder.model.widgets.MeterWidget;
 import org.csstudio.display.builder.model.widgets.MultiStateLEDWidget;
+import org.csstudio.display.builder.model.widgets.NavigationTabsWidget;
 import org.csstudio.display.builder.model.widgets.PictureWidget;
 import org.csstudio.display.builder.model.widgets.PolygonWidget;
 import org.csstudio.display.builder.model.widgets.PolylineWidget;
@@ -89,6 +90,7 @@ import org.csstudio.display.builder.representation.javafx.widgets.LabelRepresent
 import org.csstudio.display.builder.representation.javafx.widgets.LinearMeterRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.MeterRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.MultiStateLEDRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.NavigationTabsRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.PictureRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.PolygonRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.PolylineRepresentation;
@@ -260,6 +262,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         factories.put(LinearMeterWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new LinearMeterRepresentation());
         factories.put(MeterWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new MeterRepresentation());
         factories.put(MultiStateLEDWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new MultiStateLEDRepresentation());
+        factories.put(NavigationTabsWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new NavigationTabsRepresentation());
         factories.put(PictureWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new PictureRepresentation());
         factories.put(PolygonWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new PolygonRepresentation());
         factories.put(PolylineWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new PolylineRepresentation());

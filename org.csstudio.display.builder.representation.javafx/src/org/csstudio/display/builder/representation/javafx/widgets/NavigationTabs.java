@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.representation.javafx.sandbox;
+package org.csstudio.display.builder.representation.javafx.widgets;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -37,7 +37,7 @@ import javafx.scene.paint.Color;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-class NavigationTabs extends BorderPane
+public class NavigationTabs extends BorderPane
 {
     @FunctionalInterface
     public static interface Listener
@@ -111,7 +111,7 @@ class NavigationTabs extends BorderPane
     /** @param width Width and ..
      *  @param height height of tabs
      */
-    public void setButtonSize(final int width, final int height)
+    public void setTabSize(final int width, final int height)
     {
         if (tab_width == width  &&  tab_height == height)
             return;
@@ -121,7 +121,7 @@ class NavigationTabs extends BorderPane
     }
 
     /** @param spacing Spacing between tabs */
-    public void setButtonSpacing(final int spacing)
+    public void setTabSpacing(final int spacing)
     {
         if (tab_spacing == spacing)
             return;
