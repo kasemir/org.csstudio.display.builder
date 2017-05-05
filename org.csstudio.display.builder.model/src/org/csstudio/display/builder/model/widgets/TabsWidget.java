@@ -74,7 +74,7 @@ public class TabsWidget extends VisibleWidget
 
     // Property that describes one tab item
     private final static StructuredWidgetProperty.Descriptor propTabItem =
-            new StructuredWidgetProperty.Descriptor(WidgetPropertyCategory.DISPLAY, "tab", Messages.Tab_Item);
+        new StructuredWidgetProperty.Descriptor(WidgetPropertyCategory.DISPLAY, "tab", Messages.Tab_Item);
 
     /** Name, children of one tab */
     public static class TabItemProperty extends StructuredWidgetProperty
@@ -99,15 +99,15 @@ public class TabsWidget extends VisibleWidget
     };
 
     private static final ArrayWidgetProperty.Descriptor<TabItemProperty> propTabs =
-            new ArrayWidgetProperty.Descriptor<>(WidgetPropertyCategory.DISPLAY, "tabs", Messages.TabsWidget_Name,
-                    (widget, index) -> new TabItemProperty(widget, index));
+        new ArrayWidgetProperty.Descriptor<>(WidgetPropertyCategory.DISPLAY, "tabs", Messages.TabsWidget_Name,
+                (widget, index) -> new TabItemProperty(widget, index));
 
-    private static final WidgetPropertyDescriptor<Integer> propTabHeight =
-            CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "tab_height", Messages.Tab_Height);
+    static final WidgetPropertyDescriptor<Integer> propTabHeight =
+        CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "tab_height", Messages.Tab_Height);
 
-    private static final WidgetPropertyDescriptor<Integer> propActiveTab =
-            CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "active_tab", Messages.ActiveTab);
-
+    static final WidgetPropertyDescriptor<Integer> propActiveTab =
+        CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "active_tab", Messages.ActiveTab,
+                                                            0, Integer.MAX_VALUE);
 
     /** Custom WidgetConfigurator to load legacy file */
     private static class TabsWidgetConfigurator extends WidgetConfigurator

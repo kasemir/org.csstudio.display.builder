@@ -17,7 +17,6 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.MacroizedWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
@@ -48,7 +47,8 @@ import org.w3c.dom.Text;
 @SuppressWarnings("nls")
 public class ActionButtonWidget extends VisibleWidget
 {
-    final static Logger logger = Logger.getLogger(ActionButtonWidget.class.getName());
+    public static final int DEFAULT_WIDTH = 100,
+                            DEFAULT_HEIGHT = 30;
 
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
@@ -143,7 +143,7 @@ public class ActionButtonWidget extends VisibleWidget
 
     public ActionButtonWidget()
     {
-        super(WIDGET_DESCRIPTOR.getType(), 100, 30);
+        super(WIDGET_DESCRIPTOR.getType(), DEFAULT_WIDTH, DEFAULT_HEIGHT);
     }
 
     /** @return Widget version number */

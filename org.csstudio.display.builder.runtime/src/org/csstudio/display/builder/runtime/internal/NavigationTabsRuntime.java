@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Oak Ridge National Laboratory.
+ * Copyright (c) 2017 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,19 +9,19 @@ package org.csstudio.display.builder.runtime.internal;
 
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
+import org.csstudio.display.builder.model.widgets.NavigationTabsWidget;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.csstudio.display.builder.runtime.WidgetRuntime;
 
-/** Runtime for the {@link EmbeddedDisplayWidget}
+/** Runtime for the {@link NavigationTabsWidget}
  *
- *  <p>The EmbeddedDisplayRepresentation loads the
+ *  <p>The NavigationTabsRepresentation loads the
  *  embedded display model to allow showing it in the editor.
- *  The runtime tarts/stops the model of the embedded widget.
+ *  The runtime tarts/stops the embedded model.
  *
  *  @author Kay Kasemir
  */
-public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
+public class NavigationTabsRuntime extends WidgetRuntime<NavigationTabsWidget>
 {
     /** Start: Connect to PVs, ..., then monitor the embedded model to start/stop it
      *  @throws Exception on error

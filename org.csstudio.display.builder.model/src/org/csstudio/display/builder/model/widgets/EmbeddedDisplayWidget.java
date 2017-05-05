@@ -45,6 +45,9 @@ import org.w3c.dom.Node;
 @SuppressWarnings("nls")
 public class EmbeddedDisplayWidget extends VisibleWidget
 {
+    public static final int DEFAULT_WIDTH = 400,
+                            DEFAULT_HEIGHT = 300;
+
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         new WidgetDescriptor("embedded", WidgetCategory.STRUCTURE,
@@ -59,17 +62,6 @@ public class EmbeddedDisplayWidget extends VisibleWidget
             return new EmbeddedDisplayWidget();
         }
     };
-
-    /** Reserved widget user data key for representation container.
-     *
-     *  <p>The representation of the {@link EmbeddedDisplayWidget} sets this
-     *  to the toolkit-specific container item which becomes the 'parent'
-     *  of the representations for the embedded content.
-     *
-     *  <p>The embedded widget runtime later reads this whenever it needs
-     *  to create a toolkit representation for the embedded model.
-     */
-    public static final String USER_DATA_EMBEDDED_DISPLAY_CONTAINER = "_embedded_widget_container";
 
     /** Resize behavior */
     public enum Resize
@@ -97,7 +89,7 @@ public class EmbeddedDisplayWidget extends VisibleWidget
         }
     }
 
-    private static final WidgetPropertyDescriptor<Resize> propResize =
+    static final WidgetPropertyDescriptor<Resize> propResize =
         new WidgetPropertyDescriptor<Resize>(
             WidgetPropertyCategory.DISPLAY, "resize", Messages.WidgetProperties_ResizeBehavior)
     {
@@ -109,11 +101,11 @@ public class EmbeddedDisplayWidget extends VisibleWidget
         }
     };
 
-    private static final WidgetPropertyDescriptor<String> propGroupName =
+    static final WidgetPropertyDescriptor<String> propGroupName =
         CommonWidgetProperties.newStringPropertyDescriptor(
             WidgetPropertyCategory.DISPLAY, "group_name", Messages.EmbeddedDisplayWidget_GroupName);
 
-    private static final WidgetPropertyDescriptor<DisplayModel> runtimeModel =
+    static final WidgetPropertyDescriptor<DisplayModel> runtimeModel =
         new WidgetPropertyDescriptor<DisplayModel>(WidgetPropertyCategory.RUNTIME, "embedded_model", "Embedded Model")
         {
             @Override
@@ -264,7 +256,7 @@ public class EmbeddedDisplayWidget extends VisibleWidget
 
     public EmbeddedDisplayWidget()
     {
-        super(WIDGET_DESCRIPTOR.getType(), 400, 300);
+        super(WIDGET_DESCRIPTOR.getType(), DEFAULT_WIDTH, DEFAULT_HEIGHT);
     }
 
     @Override

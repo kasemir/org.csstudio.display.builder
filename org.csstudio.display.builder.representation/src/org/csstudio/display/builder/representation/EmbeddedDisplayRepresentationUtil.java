@@ -1,3 +1,10 @@
+/*******************************************************************************
+ * Copyright (c) 2016 Oak Ridge National Laboratory.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *******************************************************************************/
 package org.csstudio.display.builder.representation;
 
 import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
@@ -14,12 +21,13 @@ import org.csstudio.display.builder.model.persist.ModelLoader;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
-import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget.Resize;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
+import org.csstudio.display.builder.model.widgets.NavigationTabsWidget;
+import org.csstudio.display.builder.model.widgets.VisibleWidget;
 import org.osgi.framework.Version;
 
-/** Helper for common (SWT, JFX) representation code of {@link EmbeddedDisplayWidget}
+/** Helper for common (SWT, JFX) representation code of {@link EmbeddedDisplayWidget} and {@link NavigationTabsWidget}
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
@@ -33,10 +41,10 @@ public class EmbeddedDisplayRepresentationUtil
     {
         private final String display_file, group_name;
 
-        public DisplayAndGroup(final EmbeddedDisplayWidget widget)
+        public DisplayAndGroup(final String file, final String group)
         {
-            display_file = widget.propFile().getValue();
-            group_name = widget.propGroupName().getValue();
+            display_file = file;
+            group_name = group;
         }
 
         public String getDisplayFile()
@@ -63,10 +71,10 @@ public class EmbeddedDisplayRepresentationUtil
      *  @param group_name
      *  @return {@link DisplayModel}
      */
-    public static  DisplayModel loadDisplayModel(final EmbeddedDisplayWidget model_widget, final String display_file, final String group_name)
+    public static DisplayModel loadDisplayModel(final VisibleWidget model_widget, final DisplayAndGroup display_and_group)
     {
         DisplayModel embedded_model;
-        if (display_file.isEmpty())
+        if (display_and_group.getDisplayFile().isEmpty())
         {   // Empty model for empty file name
             embedded_model = new DisplayModel();
             embedded_model.setUserData(DisplayModel.USER_DATA_EMBEDDING_WIDGET, model_widget);
@@ -78,7 +86,7 @@ public class EmbeddedDisplayRepresentationUtil
             {   // Load model for displayFile, allowing lookup relative to this widget's model
                 final DisplayModel display = model_widget.getDisplayModel();
                 final String parent_display = display.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
-                embedded_model = ModelLoader.resolveAndLoadModel(parent_display, display_file);
+                embedded_model = ModelLoader.resolveAndLoadModel(parent_display, display_and_group.getDisplayFile());
 
                 // Didn't honor the display size of legacy files,
                 // always shrunk those to wrap their widgets
@@ -89,15 +97,15 @@ public class EmbeddedDisplayRepresentationUtil
                 // Tell embedded model that it is held by this widget,
                 // which provides access to macros of model_widget.
                 embedded_model.setUserData(DisplayModel.USER_DATA_EMBEDDING_WIDGET, model_widget);
-                if (!group_name.isEmpty())
-                    reduceDisplayModelToGroup(model_widget, display_file, embedded_model, group_name);
+                if (!display_and_group.getGroupName().isEmpty())
+                    reduceDisplayModelToGroup(model_widget, embedded_model, display_and_group);
                 // Adjust model name to reflect source file
-                embedded_model.propName().setValue("EmbeddedDisplay " + display_file);
+                embedded_model.propName().setValue("EmbeddedDisplay " + display_and_group.getDisplayFile());
                 model_widget.runtimePropConnected().setValue(true);
             }
             catch (final Throwable ex)
             {   // Log error and show message in pseudo model
-                final String message = "Failed to load embedded display '" + display_file + "'";
+                final String message = "Failed to load embedded display '" + display_and_group + "'";
                 logger.log(Level.WARNING, message, ex);
                 embedded_model = createErrorModel(model_widget, message);
                 model_widget.runtimePropConnected().setValue(false);
@@ -112,8 +120,9 @@ public class EmbeddedDisplayRepresentationUtil
      *  @param model Model loaded from that file
      *  @param group_name Name of group to use
      */
-    private static void reduceDisplayModelToGroup(final EmbeddedDisplayWidget model_widget, final String display_file, final DisplayModel model, final String group_name)
+    private static void reduceDisplayModelToGroup(final Widget model_widget, final DisplayModel model, final DisplayAndGroup display_and_group)
     {
+        final String group_name = display_and_group.getGroupName();
         final List<Widget> children = model.runtimeChildren().getValue();
 
         // Remove all but groups with matching name
@@ -131,8 +140,9 @@ public class EmbeddedDisplayRepresentationUtil
         // Expect exactly one
         if (children.size() != 1)
         {
-            model_widget.propResize().setValue(Resize.None);
-            logger.log(Level.WARNING, "Expected one group named '" + group_name + "' in '" + display_file + "', found " + children.size());
+            logger.log(Level.WARNING, "Expected one group named '" + group_name +
+                                      "' in '" + display_and_group.getDisplayFile() +
+                                      "', found " + children.size());
             return;
         }
 
@@ -175,7 +185,7 @@ public class EmbeddedDisplayRepresentationUtil
     /** @param message Error message
      *  @return DisplayModel that shows the message
      */
-    private static DisplayModel createErrorModel(final EmbeddedDisplayWidget model_widget, final String message)
+    private static DisplayModel createErrorModel(final Widget model_widget, final String message)
     {
         final LabelWidget info = new LabelWidget();
         info.propText().setValue(message);
@@ -209,7 +219,7 @@ public class EmbeddedDisplayRepresentationUtil
      *  @param message
      *  @throws Exception
      */
-    public static void checkCompletion(final EmbeddedDisplayWidget model_widget, final Future<Object> completion, final String message) throws Exception
+    public static void checkCompletion(final Widget model_widget, final Future<Object> completion, final String message) throws Exception
     {
         try
         {
