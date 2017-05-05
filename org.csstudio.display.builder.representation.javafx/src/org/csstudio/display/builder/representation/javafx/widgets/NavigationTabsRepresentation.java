@@ -48,7 +48,6 @@ import javafx.scene.paint.Color;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-// TODO Runtime
 public class NavigationTabsRepresentation extends RegionBaseRepresentation<NavigationTabs, NavigationTabsWidget>
 {
     private final DirtyFlag dirty_sizes = new DirtyFlag();

@@ -26,6 +26,10 @@
             type="image">
       </runtime>
       <runtime
+            class="org.csstudio.display.builder.runtime.internal.NavigationTabsRuntime"
+            type="navtabs">
+      </runtime>
+      <runtime
             class="org.csstudio.display.builder.runtime.internal.TableWidgetRuntime"
             type="table">
       </runtime>
