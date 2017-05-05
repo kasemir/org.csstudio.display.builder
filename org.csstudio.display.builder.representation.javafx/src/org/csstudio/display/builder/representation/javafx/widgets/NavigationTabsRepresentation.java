@@ -22,7 +22,6 @@ import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
-import org.csstudio.display.builder.model.properties.Direction;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.model.widgets.NavigationTabsWidget;
 import org.csstudio.display.builder.model.widgets.NavigationTabsWidget.TabProperty;
@@ -135,6 +134,7 @@ public class NavigationTabsRepresentation extends RegionBaseRepresentation<Navig
         model_widget.propWidth().addUntypedPropertyListener(this::sizesChanged);
         model_widget.propHeight().addUntypedPropertyListener(this::sizesChanged);
 
+        model_widget.propDirection().addPropertyListener(this::tabLookChanged);
         model_widget.propTabWidth().addPropertyListener(this::tabLookChanged);
         model_widget.propTabHeight().addPropertyListener(this::tabLookChanged);
         model_widget.propTabSpacing().addPropertyListener(this::tabLookChanged);
@@ -288,13 +288,12 @@ public class NavigationTabsRepresentation extends RegionBaseRepresentation<Navig
         }
         if (dirty_tab_look.checkAndClear())
         {
+            jfx_node.setDirection(model_widget.propDirection().getValue());
             jfx_node.setTabSize(model_widget.propTabWidth().getValue(),
                                 model_widget.propTabHeight().getValue());
             jfx_node.setTabSpacing(model_widget.propTabSpacing().getValue());
             jfx_node.setSelectedColor(JFXUtil.convert(model_widget.propSelectedColor().getValue()));
             jfx_node.setDeselectedColor(JFXUtil.convert(model_widget.propDeselectedColor().getValue()));
-            // TODO Direction property
-            jfx_node.setDirection(Direction.VERTICAL);
         }
         if (dirty_tabs.checkAndClear())
         {

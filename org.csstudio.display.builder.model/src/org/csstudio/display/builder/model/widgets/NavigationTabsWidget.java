@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propDirection;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFile;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMacros;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propName;
@@ -30,6 +31,7 @@ import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
+import org.csstudio.display.builder.model.properties.Direction;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget.Resize;
 
@@ -96,6 +98,7 @@ public class NavigationTabsWidget extends VisibleWidget
 
 
     private volatile ArrayWidgetProperty<TabProperty> tabs;
+    private volatile WidgetProperty<Direction> direction;
     private volatile WidgetProperty<Integer> tab_width;
     private volatile WidgetProperty<Integer> tab_height;
     private volatile WidgetProperty<Integer> tab_spacing;
@@ -117,6 +120,7 @@ public class NavigationTabsWidget extends VisibleWidget
     {
         super.defineProperties(properties);
         properties.add(tabs = propTabs.createProperty(this, Arrays.asList(new TabProperty(this, 0))));
+        properties.add(direction = propDirection.createProperty(this, Direction.VERTICAL));
         properties.add(tab_width = propTabWidth.createProperty(this, ActionButtonWidget.DEFAULT_WIDTH));
         properties.add(tab_height = propTabHeight.createProperty(this, ActionButtonWidget.DEFAULT_HEIGHT));
         properties.add(tab_spacing = propTabSpacing.createProperty(this, 2));
@@ -134,6 +138,12 @@ public class NavigationTabsWidget extends VisibleWidget
     public ArrayWidgetProperty<TabProperty> propTabs()
     {
         return tabs;
+    }
+
+    /** @return 'direction' property */
+    public WidgetProperty<Direction> propDirection()
+    {
+        return direction;
     }
 
     /** @return 'tab_width' property */
