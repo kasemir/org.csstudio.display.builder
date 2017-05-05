@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propDirection;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFile;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMacros;
@@ -19,6 +20,7 @@ import static org.csstudio.display.builder.model.widgets.TabsWidget.propTabHeigh
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.DisplayModel;
@@ -188,17 +190,27 @@ public class NavigationTabsWidget extends VisibleWidget
         return embedded_model;
     }
 
-    /** Embedded widget adds/replaces parent macros
+    /** Current tab adds/replaces parent macros
      *  @return {@link Macros}
      */
     @Override
     public Macros getEffectiveMacros()
     {
         final Macros base = super.getEffectiveMacros();
-
-        // TODO Join macros of active tab?
-//        final Macros my_macros = propMacros().getValue();
-//        return base == null ? my_macros : Macros.merge(base, my_macros);
+        try
+        {
+            // Join macros of active tab
+            int index = active.getValue();
+            if (index >= 0  &&  index < tabs.size())
+            {
+                final TabProperty tab = tabs.getElement(index);
+                return Macros.merge(base, tab.macros().getValue());
+            }
+        }
+        catch (Throwable ex)
+        {   // IndexOutOfBoundsException while tabs change size?
+            logger.log(Level.WARNING, "Cannot access active tab macros", ex);
+        }
         return base;
     }
 }
