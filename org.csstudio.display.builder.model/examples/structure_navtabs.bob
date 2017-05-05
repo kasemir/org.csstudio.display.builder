@@ -60,24 +60,37 @@ inside each tab.
         <name>Motor 1</name>
         <file>embedded/motor.bob</file>
         <macros>
-          <M>1</M>
+          <M>Mot1</M>
         </macros>
-        <resize>0</resize>
         <group_name></group_name>
       </tab>
       <tab>
         <name>Motor 2</name>
+        <file>embedded/motor.bob</file>
+        <macros>
+          <M>Mot2</M>
+        </macros>
+        <group_name></group_name>
+      </tab>
+      <tab>
+        <name>Other</name>
         <file>embedded/a.bob</file>
         <macros>
-          <M>2</M>
+          <M>Test</M>
         </macros>
-        <resize>0</resize>
+        <group_name></group_name>
+      </tab>
+      <tab>
+        <name>Colors</name>
+        <file>embedded/colors.bob</file>
+        <macros>
+        </macros>
         <group_name></group_name>
       </tab>
     </tabs>
     <y>60</y>
-    <width>491</width>
-    <height>309</height>
+    <width>520</width>
+    <height>320</height>
     <tab_width>150</tab_width>
     <tab_height>35</tab_height>
     <tab_spacing>10</tab_spacing>

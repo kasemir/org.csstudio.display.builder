@@ -34,7 +34,6 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 
 /** Creates JavaFX item for model widget
  *
@@ -63,7 +62,7 @@ public class NavigationTabsRepresentation extends RegionBaseRepresentation<Navig
      *  <p>Set to null when representation is disposed,
      *  which is used as indicator to pending display updates.
      */
-    private volatile Pane inner = new Pane();
+    private volatile Pane body;
 
     /** Track active model in a thread-safe way
      *  to assert that each one is represented and removed
@@ -106,9 +105,7 @@ public class NavigationTabsRepresentation extends RegionBaseRepresentation<Navig
     public NavigationTabs createJFXNode() throws Exception
     {
         final NavigationTabs tabs = new NavigationTabs();
-
-        tabs.setContent(inner);
-
+        body = tabs.getBodyPane();
         tabs.addListener(index -> model_widget.propActiveTab().setValue(index));
 
         return tabs;
@@ -117,7 +114,7 @@ public class NavigationTabsRepresentation extends RegionBaseRepresentation<Navig
     @Override
     protected Parent getChildParent(final Parent parent)
     {
-        return inner;
+        return body;
     }
 
     @Override
@@ -177,7 +174,7 @@ public class NavigationTabsRepresentation extends RegionBaseRepresentation<Navig
         final DisplayAndGroup handle = pending_display_and_group.getAndSet(null);
         if (handle == null)
             return;
-        if (inner == null)
+        if (body == null)
         {
             // System.out.println("Aborted: " + handle);
             return;
@@ -218,11 +215,9 @@ public class NavigationTabsRepresentation extends RegionBaseRepresentation<Navig
     {
         try
         {
-            toolkit.representModel(inner, content_model);
-
-            // TODO Color. Remove 'inner', use the pane inside the NavigationTabs?
-            inner.setBackground(new Background(new BackgroundFill(JFXUtil.convert(content_model.propBackgroundColor().getValue()), CornerRadii.EMPTY, Insets.EMPTY)));
-            inner.setBackground(new Background(new BackgroundFill(Color.GREEN, CornerRadii.EMPTY, Insets.EMPTY)));
+            toolkit.representModel(body, content_model);
+            // Set 'body' of navtabs to color of the embedded model
+            body.setBackground(new Background(new BackgroundFill(JFXUtil.convert(content_model.propBackgroundColor().getValue()), CornerRadii.EMPTY, Insets.EMPTY)));
         }
         catch (final Exception ex)
         {
@@ -307,7 +302,7 @@ public class NavigationTabsRepresentation extends RegionBaseRepresentation<Navig
     @Override
     public void dispose()
     {
-        inner = null;
+        body = null;
         super.dispose();
     }
 }

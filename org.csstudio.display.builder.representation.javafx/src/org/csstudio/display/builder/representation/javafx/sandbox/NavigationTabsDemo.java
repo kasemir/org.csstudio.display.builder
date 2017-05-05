@@ -38,14 +38,14 @@ public class NavigationTabsDemo extends Application
         nav_tabs.setTabs(tabs);
         nav_tabs.setTabSize(80, 40);
         nav_tabs.setTabSpacing(5);
-        nav_tabs.setContent(new Label("     Go on, select something!"));
+        nav_tabs.getBodyPane().getChildren().setAll(new Label("     Go on, select something!"));
         nav_tabs.addListener(index ->
         {
             System.out.println("User selected tab " + index);
             final Label label = new Label("You selected tab " + (index + 1));
             label.setLayoutX(index * 10);
             label.setLayoutY(index * 15);
-            nav_tabs.setContent(label);
+            nav_tabs.getBodyPane().getChildren().setAll(label);
         });
         nav_tabs.selectTab(2);
 

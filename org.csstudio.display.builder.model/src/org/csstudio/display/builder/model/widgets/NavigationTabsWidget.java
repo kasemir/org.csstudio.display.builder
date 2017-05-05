@@ -13,7 +13,6 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMacros;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propName;
 import static org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget.propGroupName;
-import static org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget.propResize;
 import static org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget.runtimeModel;
 import static org.csstudio.display.builder.model.widgets.TabsWidget.propActiveTab;
 import static org.csstudio.display.builder.model.widgets.TabsWidget.propTabHeight;
@@ -35,7 +34,6 @@ import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.Direction;
 import org.csstudio.display.builder.model.properties.WidgetColor;
-import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget.Resize;
 
 /** Widget with tabs to select amongst several embedded displays
  *  @author Kay Kasemir
@@ -70,15 +68,13 @@ public class NavigationTabsWidget extends VisibleWidget
                   Arrays.asList(propName.createProperty(widget, "Tab " + (index + 1)),
                                 propFile.createProperty(widget, ""),
                                 propMacros.createProperty(widget, new Macros()),
-                                propResize.createProperty(widget, Resize.None),
                                 propGroupName.createProperty(widget, "")
                                ));
         }
         public WidgetProperty<String>       name()    { return getElement(0); }
         public WidgetProperty<String>       file()    { return getElement(1); }
         public WidgetProperty<Macros>       macros()  { return getElement(2); }
-        public WidgetProperty<Resize>       resize()  { return getElement(3); }
-        public WidgetProperty<String>       group()   { return getElement(4); }
+        public WidgetProperty<String>       group()   { return getElement(3); }
     }
 
     // 'tabs' array

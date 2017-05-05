@@ -92,11 +92,10 @@
 
 .navtab_body
 {   
-    /* TODO Use transparent, background, or make this a widget option? */
-    -fx-background-color: -fx-outer-border, transparent;
-    -fx-background-color: -fx-outer-border, -fx-background;
-    -fx-background-insets: 0, 1;
-    -fx-background-radius: 2, 0;
+    -fx-border-color: -fx-outer-border;
+    -fx-border-radius: 2;
+    -fx-border-width: 1;
+    -fx-padding: 4;
 }
 
 /** Default text-input padding in modena.css:

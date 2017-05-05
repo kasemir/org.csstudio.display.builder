@@ -68,8 +68,10 @@ public class NavigationTabs extends BorderPane
 
     public NavigationTabs()
     {
-        setCenter(body);
-        body.getStyleClass().add("navtab_body");
+        // Border pane to auto-resize 'body' and add border + padding via style sheet
+        final BorderPane border_wrapper = new BorderPane(body);
+        border_wrapper.getStyleClass().add("navtab_body");
+        setCenter(border_wrapper);
     }
 
     /** @param listener Listener to notify when tab is selected */
@@ -123,10 +125,10 @@ public class NavigationTabs extends BorderPane
         handleTabSelection((ToggleButton)siblings.get(index), false);
     }
 
-    /** @param content Content for the 'body' */
-    public void setContent(final Node content)
+    /** @return Pane for the 'body' */
+    public Pane getBodyPane()
     {
-        body.getChildren().setAll(content);
+        return body;
     }
 
     /** @return Direction of tabs, horizontal (on top) or vertical (on left) */
