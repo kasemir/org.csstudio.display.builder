@@ -96,22 +96,31 @@ public class NavigationTabs extends BorderPane
         updateTabs();
     }
 
+    /** @return Index of the selected tab. -1 if there are no buttons or nothing selected */
+    public int getSelectedTab()
+    {
+        final ObservableList<Node> siblings = buttons.getChildren();
+        for (int i=0; i<siblings.size(); ++i)
+            if (((ToggleButton) siblings.get(i)).isSelected())
+                return i;
+        return -1;
+    }
+
     /** Select a tab
      *
      *  <p>Does not invoke listener.
      *
      *  @param index Index of tab to select */
-    public void selectTab(final int index)
+    public void selectTab(int index)
     {
-        int i = 0;
-        for (Node button : buttons.getChildren())
-        {
-            if (i == index)
-                button.setStyle("-fx-color: " + JFXUtil.webRGB(selected));
-            else
-                button.setStyle("-fx-color: " + JFXUtil.webRGB(deselected));
-            ++i;
-        }
+        final ObservableList<Node> siblings = buttons.getChildren();
+        if (index < 0)
+            index = 0;
+        if (index >= siblings.size())
+            index = siblings.size() - 1;
+        if (index < 0)
+            return; // No buttons, index is -1
+        handleTabSelection((ToggleButton)siblings.get(index), false);
     }
 
     /** @param content Content for the 'body' */
@@ -120,13 +129,22 @@ public class NavigationTabs extends BorderPane
         body.getChildren().setAll(content);
     }
 
+    /** @return Direction of tabs, horizontal (on top) or vertical (on left) */
+    public Direction getDirection()
+    {
+        return direction;
+    }
+
     /** @param direction Direction of tabs, horizontal (on top) or vertical (on left) */
     public void setDirection(final Direction direction)
     {
         if (this.direction == direction)
             return;
+        final int active = getSelectedTab();
         this.direction = direction;
         updateTabs();
+        if (active >= 0)
+            selectTab(active);
     }
 
     /** @param width Width and ..
@@ -200,32 +218,43 @@ public class NavigationTabs extends BorderPane
             button.setMinSize(ButtonBase.USE_PREF_SIZE, ButtonBase.USE_PREF_SIZE);
             button.setPrefSize(tab_width, tab_height);
             buttons.getChildren().add(button);
-            button.setOnAction(e -> handleTabSelection(button));
+            button.setOnAction(e -> handleTabSelection(button, true));
         }
     }
 
     /** Indicate the active tab, notify listeners
-     *  @param button Button that was pressed
+     *  @param pressed Button that was pressed
      */
-    private void handleTabSelection(final ToggleButton button)
+    private void handleTabSelection(final ToggleButton pressed, final boolean notify)
     {
-        // Highlight active tab by setting it to the 'selected' color
         final ObservableList<Node> siblings = buttons.getChildren();
         int i = 0, selected_tab = -1;
         for (Node sibling : siblings)
         {
-            if (sibling == button)
+            final ToggleButton button = (ToggleButton) sibling;
+            if (button == pressed)
             {
-                button.setStyle("-fx-color: " + JFXUtil.webRGB(selected));
+                // If user clicked a button that was already selected,
+                // it would now be de-selected, leaving nothing selected.
+                if (! pressed.isSelected())
+                {   // Re-select!
+                    pressed.setSelected(true);
+                }
+                // Highlight active tab by setting it to the 'selected' color
+                pressed.setStyle("-fx-color: " + JFXUtil.webRGB(selected));
                 selected_tab = i;
             }
-            else
-                sibling.setStyle("-fx-color: " + JFXUtil.webRGB(deselected));
+            else if (button.isSelected())
+            {
+                // Radio-button behavior: De-select other tabs
+                button.setSelected(false);
+                button.setStyle("-fx-color: " + JFXUtil.webRGB(deselected));
+            }
             ++i;
         }
-        // Notify listener
+
         final Listener safe_copy = listener;
-        if (safe_copy != null)
+        if (selected_tab >= 0  &&  notify  &&  safe_copy != null)
             safe_copy.tabSelected(selected_tab);
     }
 }

@@ -11,13 +11,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.csstudio.display.builder.model.properties.Direction;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.NavigationTabs;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 /** Navigation Tab demo
@@ -36,21 +38,25 @@ public class NavigationTabsDemo extends Application
         nav_tabs.setTabs(tabs);
         nav_tabs.setTabSize(80, 40);
         nav_tabs.setTabSpacing(5);
-
-        // nav_tabs.setDirection(Direction.HORIZONTAL);
-
-        nav_tabs.setContent(new Rectangle(20, 40, 200, 100));
-
+        nav_tabs.setContent(new Label("     Go on, select something!"));
         nav_tabs.addListener(index ->
         {
+            System.out.println("User selected tab " + index);
             final Label label = new Label("You selected tab " + (index + 1));
             label.setLayoutX(index * 10);
             label.setLayoutY(index * 15);
             nav_tabs.setContent(label);
         });
+        nav_tabs.selectTab(2);
 
+        final Button direction = new Button("Change direction");
+        direction.setOnAction(e ->   nav_tabs.setDirection(Direction.values()[1 - nav_tabs.getDirection().ordinal()]));
 
-        final Scene scene = new Scene(nav_tabs);
+        final BorderPane layout = new BorderPane();
+        layout.setCenter(nav_tabs);
+        layout.setBottom(direction);
+
+        final Scene scene = new Scene(layout);
         // Enable scene debugging?
         //   ScenicView.show(scene);
 
