@@ -11,17 +11,18 @@ import static org.csstudio.display.builder.representation.EmbeddedDisplayReprese
 import static org.csstudio.display.builder.representation.EmbeddedDisplayRepresentationUtil.loadDisplayModel;
 import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
+import org.csstudio.display.builder.model.properties.Direction;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.model.widgets.NavigationTabsWidget;
 import org.csstudio.display.builder.model.widgets.NavigationTabsWidget.TabProperty;
@@ -54,6 +55,7 @@ public class NavigationTabsRepresentation extends RegionBaseRepresentation<Navig
     private final DirtyFlag dirty_sizes = new DirtyFlag();
     private final DirtyFlag dirty_tabs = new DirtyFlag();
     private final DirtyFlag dirty_tab_look = new DirtyFlag();
+    private final DirtyFlag dirty_active_tab = new DirtyFlag();
 
     /** The display file (and optional group inside that display) to load */
     private final AtomicReference<DisplayAndGroup> pending_display_and_group = new AtomicReference<>();
@@ -150,7 +152,8 @@ public class NavigationTabsRepresentation extends RegionBaseRepresentation<Navig
 
     private void activeTabChanged(final WidgetProperty<Integer> property, final Integer old_index, final Integer tab_index)
     {
-        toolkit.execute(() -> jfx_node.selectTab(tab_index));
+        dirty_active_tab.mark();
+        toolkit.scheduleUpdate(this);
         tab_display_listener.propertyChanged(null, null, null);
     }
 
@@ -290,15 +293,17 @@ public class NavigationTabsRepresentation extends RegionBaseRepresentation<Navig
             jfx_node.setTabSpacing(model_widget.propTabSpacing().getValue());
             jfx_node.setSelectedColor(JFXUtil.convert(model_widget.propSelectedColor().getValue()));
             jfx_node.setDeselectedColor(JFXUtil.convert(model_widget.propDeselectedColor().getValue()));
+            // TODO Direction property
+            jfx_node.setDirection(Direction.VERTICAL);
         }
         if (dirty_tabs.checkAndClear())
         {
-            final List<String> tabs = model_widget.propTabs().getValue()
-                                                  .stream()
-                                                  .map(tab -> tab.name().getValue())
-                                                  .collect(Collectors.toList());
+            final List<String> tabs = new ArrayList<>();
+            model_widget.propTabs().getValue().forEach(tab -> tabs.add(tab.name().getValue()));
             jfx_node.setTabs(tabs);
         }
+        if (dirty_active_tab.checkAndClear())
+            jfx_node.selectTab(model_widget.propActiveTab().getValue());
     }
 
     @Override
