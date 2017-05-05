@@ -34,17 +34,31 @@ import javafx.scene.paint.Color;
  *  In comparison, a tab pane results in a scene graph
  *  where the content of all tabs is always present.
  *
+ *  <p>Tabs with empty text are invisible, creating a gap
+ *  in the lineup of tabs.
+ *
+ *  <p>While the {@link NavigationTabs} are a {@link BorderPane},
+ *  that is an implementation detail which might change.
+ *  Code that uses the {@link NavigationTabs} should only
+ *  access the public methods of the class itself
+ *  and otherwise treat it as a {@link Node}.
+ *
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
 public class NavigationTabs extends BorderPane
 {
+    /** Listener to {@link NavigationTabs} */
     @FunctionalInterface
     public static interface Listener
     {
+        /** User selected a tab
+         *  @param tab_index Index 0, .. of the selected tab.
+         */
         void tabSelected(int tab_index);
     }
 
+    /** CSS pseudoclass to select HORIZONTAL resp. vertical type of tab buttons */
     private final static PseudoClass HORIZONTAL = PseudoClass.getPseudoClass("horizontal");
 
     /** HBox or VBox for tab buttons */
@@ -61,11 +75,17 @@ public class NavigationTabs extends BorderPane
     /** Direction of tabs */
     private Direction direction = Direction.VERTICAL;
 
+    /** Color of selected vs. de-selected tab button */
     private Color selected = Color.rgb(236, 236, 236),
                   deselected = Color.rgb(200, 200, 200);
 
+    /** Listener to selected tab
+     *
+     *  <p>At this time only supporting one
+     */
     private volatile Listener listener;
 
+    /** Constructor */
     public NavigationTabs()
     {
         // Border pane to auto-resize 'body' and add border + padding via style sheet
@@ -188,6 +208,7 @@ public class NavigationTabs extends BorderPane
         updateTabs();
     }
 
+    /** Re-create all tab buttons */
     private void updateTabs()
     {
         if (direction == Direction.VERTICAL)
@@ -211,6 +232,9 @@ public class NavigationTabs extends BorderPane
         for (int i=0; i<tabs.size(); ++i)
         {
             final ToggleButton button = new ToggleButton(tabs.get(i));
+            // Buttons without text vanish, creating a gap in the tab lineup.
+            if (button.getText().isEmpty())
+                button.setVisible(false);
             if (direction == Direction.HORIZONTAL)
                 button.pseudoClassStateChanged(HORIZONTAL, true);
 

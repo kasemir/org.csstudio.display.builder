@@ -37,8 +37,7 @@ In contrast to Tabs with one Embedded Display per tab,
 the Navigation Tabs maintain exactly one embedded display.
 As you select a different tab, the embedded display is replaced,
 reducing resources compared to having one embedded display
-inside each tab.
-</text>
+inside each tab.</text>
     <y>390</y>
     <width>491</width>
     <height>180</height>
@@ -73,10 +72,9 @@ inside each tab.
         <group_name></group_name>
       </tab>
       <tab>
-        <name>Other</name>
-        <file>embedded/a.bob</file>
+        <name></name>
+        <file></file>
         <macros>
-          <M>Test</M>
         </macros>
         <group_name></group_name>
       </tab>
@@ -89,8 +87,8 @@ inside each tab.
       </tab>
     </tabs>
     <y>60</y>
-    <width>520</width>
-    <height>320</height>
+    <width>590</width>
+    <height>310</height>
     <tab_width>150</tab_width>
     <tab_height>35</tab_height>
     <tab_spacing>10</tab_spacing>

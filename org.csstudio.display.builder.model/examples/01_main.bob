@@ -446,21 +446,6 @@
     <tooltip>$(actions)</tooltip>
   </widget>
   <widget type="action_button" version="3.0.0">
-    <name>Action Button_21</name>
-    <actions>
-      <action type="open_display">
-        <file>structure_array.bob</file>
-        <target>replace</target>
-        <description>Array</description>
-      </action>
-    </actions>
-    <x>750</x>
-    <y>240</y>
-    <width>120</width>
-    <height>26</height>
-    <tooltip>$(actions)</tooltip>
-  </widget>
-  <widget type="action_button" version="3.0.0">
     <name>Action Button_22</name>
     <actions>
       <action type="open_display">
@@ -574,6 +559,36 @@
     </actions>
     <x>890</x>
     <y>200</y>
+    <width>120</width>
+    <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_30</name>
+    <actions>
+      <action type="open_display">
+        <file>structure_array.bob</file>
+        <target>replace</target>
+        <description>Array</description>
+      </action>
+    </actions>
+    <x>750</x>
+    <y>280</y>
+    <width>120</width>
+    <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_31</name>
+    <actions>
+      <action type="open_display">
+        <file>structure_navtabs.bob</file>
+        <target>replace</target>
+        <description>Navigation Tabs</description>
+      </action>
+    </actions>
+    <x>750</x>
+    <y>240</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
