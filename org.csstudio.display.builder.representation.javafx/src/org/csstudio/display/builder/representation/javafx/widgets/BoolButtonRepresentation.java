@@ -75,6 +75,7 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
     {
         led = new Ellipse();
         button = new Button("BoolButton", led);
+        button.getStyleClass().add("action_button");
         button.setOnAction(event -> handlePress());
         button.setMnemonicParsing(false);
 
@@ -105,6 +106,7 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
         model_widget.propOnLabel().addUntypedPropertyListener(this::representationChanged);
         model_widget.propOnImage().addUntypedPropertyListener(this::imagesChanged);
         model_widget.propOnColor().addUntypedPropertyListener(this::representationChanged);
+        model_widget.propShowLED().addUntypedPropertyListener(this::representationChanged);
         model_widget.propFont().addUntypedPropertyListener(this::representationChanged);
         model_widget.propForegroundColor().addUntypedPropertyListener(this::representationChanged);
         model_widget.propBackgroundColor().addUntypedPropertyListener(this::representationChanged);
@@ -216,10 +218,20 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
             jfx_node.setTextFill(foreground);
             jfx_node.setStyle(background);
 
-            final int size = Math.max(wid, hei);
-            led.setRadiusX(size / 15.0);
-            led.setRadiusY(size / 10.0);
-
+            if (model_widget.propShowLED().getValue())
+            {
+                led.setVisible(true);
+                final int size = Math.max(wid, hei);
+                led.setRadiusX(size / 15.0);
+                led.setRadiusY(size / 10.0);
+            }
+            else
+            {
+                led.setVisible(false);
+                // Give all room to label
+                led.setRadiusX(0);
+                led.setRadiusY(0);
+            }
             update_value = true;
         }
         if (dirty_enablement.checkAndClear())
