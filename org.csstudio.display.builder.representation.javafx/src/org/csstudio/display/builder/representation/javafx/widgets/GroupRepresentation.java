@@ -70,6 +70,7 @@ public class GroupRepresentation extends JFXBaseRepresentation<Pane, GroupWidget
     {
         super.registerListeners();
         final UntypedWidgetPropertyListener listener = this::borderChanged;
+        model_widget.propForegroundColor().addUntypedPropertyListener(listener);
         model_widget.propBackgroundColor().addUntypedPropertyListener(listener);
         model_widget.propName().addUntypedPropertyListener(listener);
         model_widget.propStyle().addUntypedPropertyListener(listener);
