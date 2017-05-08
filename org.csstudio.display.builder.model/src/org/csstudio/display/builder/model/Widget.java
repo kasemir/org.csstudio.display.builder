@@ -321,7 +321,7 @@ public class Widget
         DisplayModel model = getDisplayModel();
         while (true)
         {
-           final EmbeddedDisplayWidget embedder = model.getUserData(DisplayModel.USER_DATA_EMBEDDING_WIDGET);
+           final Widget embedder = model.getUserData(DisplayModel.USER_DATA_EMBEDDING_WIDGET);
            if (embedder == null)
                return model;
            model = embedder.getTopDisplayModel();

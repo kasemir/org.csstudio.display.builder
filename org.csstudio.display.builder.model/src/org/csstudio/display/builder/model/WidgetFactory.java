@@ -40,6 +40,7 @@ import org.csstudio.display.builder.model.widgets.LabelWidget;
 import org.csstudio.display.builder.model.widgets.LinearMeterWidget;
 import org.csstudio.display.builder.model.widgets.MeterWidget;
 import org.csstudio.display.builder.model.widgets.MultiStateLEDWidget;
+import org.csstudio.display.builder.model.widgets.NavigationTabsWidget;
 import org.csstudio.display.builder.model.widgets.PictureWidget;
 import org.csstudio.display.builder.model.widgets.PolygonWidget;
 import org.csstudio.display.builder.model.widgets.PolylineWidget;
@@ -155,6 +156,7 @@ public class WidgetFactory
         addWidgetType(LinearMeterWidget.WIDGET_DESCRIPTOR);
         addWidgetType(MeterWidget.WIDGET_DESCRIPTOR);
         addWidgetType(MultiStateLEDWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(NavigationTabsWidget.WIDGET_DESCRIPTOR);
         addWidgetType(PictureWidget.WIDGET_DESCRIPTOR);
         addWidgetType(PolygonWidget.WIDGET_DESCRIPTOR);
         addWidgetType(PolylineWidget.WIDGET_DESCRIPTOR);

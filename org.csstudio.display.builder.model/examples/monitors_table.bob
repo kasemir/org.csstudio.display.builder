@@ -35,15 +35,11 @@ and finally another script can fetch the data and use it in some way.
         <name>PV</name>
         <width>1</width>
         <editable>true</editable>
-        <options>
-        </options>
       </column>
       <column>
         <name>Value</name>
         <width>1</width>
         <editable>true</editable>
-        <options>
-        </options>
       </column>
     </columns>
     <scripts>
@@ -92,8 +88,6 @@ In this example, a script updates that PV:</text>
         <name>Columns taken from PV</name>
         <width>1</width>
         <editable>true</editable>
-        <options>
-        </options>
       </column>
     </columns>
     <scripts>
@@ -136,10 +130,8 @@ You can then edit the cells:</text>
     <columns>
       <column>
         <name>Item</name>
-        <width>1</width>
+        <width>130</width>
         <editable>true</editable>
-        <options>
-        </options>
       </column>
       <column>
         <name>Small</name>
@@ -198,8 +190,6 @@ widget.setValue(data)]]></text>
         <name>Selection</name>
         <width>1</width>
         <editable>true</editable>
-        <options>
-        </options>
       </column>
     </columns>
     <editable>false</editable>
@@ -446,5 +436,38 @@ Changing the value of a table removes all cell colors.
     </foreground_color>
     <transparent use_class="true">true</transparent>
     <wrap_words use_class="true">true</wrap_words>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_4</name>
+    <actions>
+      <action type="execute">
+        <script file="EmbeddedPy">
+          <text><![CDATA[from org.csstudio.display.builder.runtime.script import ScriptUtil
+
+# 'widget' is the action button that invoked the script
+# Locate the table widget by name
+table = ScriptUtil.findWidgetByName(widget, "user_table")
+
+# Get data
+data = table.getValue()
+
+print("Before:")
+print(data)
+
+data.append([ "Item %d" % (len(data) + 1),        "true",         "Excellent" ])
+
+print("After:")
+print(data)
+
+# Update table with new data
+table.setValue(data)
+]]></text>
+        </script>
+        <description>Add Row</description>
+      </action>
+    </actions>
+    <x>740</x>
+    <y>810</y>
+    <tooltip>$(actions)</tooltip>
   </widget>
 </display>

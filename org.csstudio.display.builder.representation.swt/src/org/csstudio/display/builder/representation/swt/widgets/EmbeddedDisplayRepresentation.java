@@ -46,8 +46,6 @@ public class EmbeddedDisplayRepresentation extends SWTBaseRepresentation<Composi
     protected Composite createSWTControl(final Composite parent) throws Exception
     {
         inner = new Composite(parent, SWT.NO_FOCUS);
-        model_widget.setUserData(EmbeddedDisplayWidget.USER_DATA_EMBEDDED_DISPLAY_CONTAINER, inner);
-
         return inner;
     }
 
@@ -68,7 +66,8 @@ public class EmbeddedDisplayRepresentation extends SWTBaseRepresentation<Composi
 
     private void fileChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        final DisplayAndGroup file_and_group = new DisplayAndGroup(model_widget);
+        final DisplayAndGroup file_and_group =
+            new DisplayAndGroup(model_widget.propFile().getValue(), model_widget.propGroupName().getValue());
         final DisplayAndGroup skipped = pending_display_and_group.getAndSet(file_and_group);
         if (skipped != null)
             logger.log(Level.FINE, "Skipped: {0}", skipped);
@@ -97,18 +96,9 @@ public class EmbeddedDisplayRepresentation extends SWTBaseRepresentation<Composi
        final DisplayAndGroup handle = pending_display_and_group.getAndSet(null);
        if (handle == null)
            return;
-       updateEmbeddedDisplay(handle.getDisplayFile(), handle.getGroupName());
-   }
-
-    /** Load and represent embedded display
-     *  @param display_file
-     *  @param group_name
-     */
-    private void updateEmbeddedDisplay(final String display_file, final String group_name)
-    {
         try
         {   // Load new model (potentially slow)
-            final DisplayModel new_model = loadDisplayModel(model_widget, display_file, group_name);
+            final DisplayModel new_model = loadDisplayModel(model_widget, handle);
 
             // Atomically update the 'active' model
             final DisplayModel old_model = active_content_model.getAndSet(new_model);
@@ -133,7 +123,7 @@ public class EmbeddedDisplayRepresentation extends SWTBaseRepresentation<Composi
         }
         catch (Exception ex)
         {
-            logger.log(Level.WARNING, "Failed to handle embedded display " + display_file, ex);
+            logger.log(Level.WARNING, "Failed to handle embedded display " + handle, ex);
         }
     }
 

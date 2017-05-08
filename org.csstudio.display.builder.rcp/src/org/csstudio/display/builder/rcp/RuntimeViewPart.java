@@ -62,6 +62,20 @@ import javafx.scene.control.TextArea;
 
 /** Part that hosts display builder runtime and JFX scene in SWT
  *
+ *  <p>This is a 'view' because views can be saved/switched with Perspectives.
+ *  This view does need display information (path, macros),
+ *  similar to an RCP 'editor' with input.
+ *  The view memento is used to persist the display information
+ *  (see comment on <code>persist()</code> for detail).
+ *
+ *  <p>CS-Studio further extends the perspective handling such
+ *  that all the views stored in saved perspectives include the
+ *  memento information
+ *  (https://github.com/dls-controls/cs-studio/blob/master/core/ui/ui-plugins/org.csstudio.perspectives/src/org/csstudio/perspectives/PerspectiveSaver.java).
+ *  The saved perspectives contain MPlaceholders for the views,
+ *  which have been extended to include the memento information,
+ *  so this code checks for a memento in a placeholder.
+ *
  *  @author Kay Kasemir
  *  @author Will Rogers - code related to reading memento from placeholders
  */

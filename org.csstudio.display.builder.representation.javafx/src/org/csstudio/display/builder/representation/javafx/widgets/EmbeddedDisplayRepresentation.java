@@ -101,8 +101,6 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
             scroll.setStyle("-fx-background-color:transparent;");
         }
 
-        model_widget.setUserData(EmbeddedDisplayWidget.USER_DATA_EMBEDDED_DISPLAY_CONTAINER, inner);
-
         return scroll;
     }
 
@@ -166,7 +164,8 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
 
     private void fileChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        final DisplayAndGroup file_and_group = new DisplayAndGroup(model_widget);
+        final DisplayAndGroup file_and_group =
+            new DisplayAndGroup(model_widget.propFile().getValue(), model_widget.propGroupName().getValue());
 
         // System.out.println("Requested: " + file_and_group);
         final DisplayAndGroup skipped = pending_display_and_group.getAndSet(file_and_group);
@@ -206,19 +205,10 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
             // System.out.println("Aborted: " + handle);
             return;
         }
-        // System.out.println("Handling: " + handle);
-        updateEmbeddedDisplay(handle.getDisplayFile(), handle.getGroupName());
-    }
 
-    /** Load and represent embedded display
-     *  @param display_file
-     *  @param group_name
-     */
-    private void updateEmbeddedDisplay(final String display_file, final String group_name)
-    {
         try
         {   // Load new model (potentially slow)
-            final DisplayModel new_model = loadDisplayModel(model_widget, display_file, group_name);
+            final DisplayModel new_model = loadDisplayModel(model_widget, handle);
 
             // Atomically update the 'active' model
             final DisplayModel old_model = active_content_model.getAndSet(new_model);
@@ -243,7 +233,7 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
         }
         catch (Exception ex)
         {
-            logger.log(Level.WARNING, "Failed to handle embedded display " + display_file, ex);
+            logger.log(Level.WARNING, "Failed to handle embedded display " + handle, ex);
         }
     }
 
@@ -308,7 +298,7 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
     @Override
     public void dispose()
     {
-        super.dispose();
         inner = null;
+        super.dispose();
     }
 }

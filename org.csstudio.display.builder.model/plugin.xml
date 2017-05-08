@@ -220,6 +220,14 @@
          </alternates>
       </widget>
       <widget
+            category="STRUCTURE"
+            class="org.csstudio.display.builder.model.widgets.NavigationTabsWidget"
+            description="%NavigationTabsWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/navtabs.png"
+            name="%NavigationTabsWidget_Name"
+            type="navtabs">
+      </widget>
+      <widget
             category="GRAPHIC"
             class="org.csstudio.display.builder.model.widgets.PictureWidget"
             description="%PictureWidget_Description"
