@@ -10,6 +10,7 @@ package org.csstudio.display.builder.model.widgets;
 import static org.csstudio.display.builder.model.ModelPlugin.logger;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propDirection;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFile;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMacros;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propName;
 import static org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget.propGroupName;
@@ -31,9 +32,11 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.macros.Macros;
+import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.Direction;
 import org.csstudio.display.builder.model.properties.WidgetColor;
+import org.csstudio.display.builder.model.properties.WidgetFont;
 
 /** Widget with tabs to select amongst several embedded displays
  *  @author Kay Kasemir
@@ -102,6 +105,7 @@ public class NavigationTabsWidget extends VisibleWidget
     private volatile WidgetProperty<Integer> tab_spacing;
     private volatile WidgetProperty<WidgetColor> selected_color;
     private volatile WidgetProperty<WidgetColor> deselected_color;
+    private volatile WidgetProperty<WidgetFont> font;
     private volatile WidgetProperty<Integer> active;
     private volatile WidgetProperty<DisplayModel> embedded_model;
 
@@ -124,6 +128,7 @@ public class NavigationTabsWidget extends VisibleWidget
         properties.add(tab_spacing = propTabSpacing.createProperty(this, 2));
         properties.add(selected_color = propSelectedColor.createProperty(this, new WidgetColor(236, 236, 236)));
         properties.add(deselected_color = propDeselectedColor.createProperty(this, new WidgetColor(200, 200, 200)));
+        properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(active = propActiveTab.createProperty(this, 0));
         properties.add(embedded_model = runtimeModel.createProperty(this, null));
 
@@ -172,6 +177,12 @@ public class NavigationTabsWidget extends VisibleWidget
     public WidgetProperty<WidgetColor> propDeselectedColor()
     {
         return deselected_color;
+    }
+
+    /** @return 'font' property */
+    public WidgetProperty<WidgetFont> propFont()
+    {
+        return font;
     }
 
     /** @return 'active_tab' property */
