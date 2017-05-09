@@ -14,6 +14,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
@@ -125,35 +126,29 @@ public class EmbeddedDisplayRepresentationUtil
         final String group_name = display_and_group.getGroupName();
         final List<Widget> children = model.runtimeChildren().getValue();
 
-        // Remove all but groups with matching name
-        int index = 0;
-        while (!children.isEmpty() && index < children.size())
-        {
-            final Widget child = children.get(index);
-            if (child.getType().equals(GroupWidget.WIDGET_DESCRIPTOR.getType()) &&
-                child.getName().equals(group_name))
-                index++;
-            else
-                model.runtimeChildren().removeChild(child);
-        }
+        // Find all groups with desired name.
+        // Could just loop to get the first matching group,
+        // but finding all and logging them helps to debug displays.
+        final List<Widget> groups =
+            children.parallelStream()
+                    .filter(child -> child instanceof GroupWidget &&
+                                     child.getName().equals(group_name))
+                    .collect(Collectors.toList());
 
         // Expect exactly one
-        if (children.size() != 1)
-        {
+        if (groups.size() != 1)
             logger.log(Level.WARNING, "Expected one group named '" + group_name +
                                       "' in '" + display_and_group.getDisplayFile() +
-                                      "', found " + children.size());
-            return;
-        }
+                                      "', found " + groups);
 
-        // Replace display with just that one group
-        final GroupWidget group = (GroupWidget) children.get(0);
-        model.runtimeChildren().removeChild(group);
-        for (Widget child : group.runtimeChildren().getValue())
-        {   // Not removing child from 'group', since group
-            // will be GC'ed anyway.
-            model.runtimeChildren().addChild(child);
-        }
+        // If no group found, use the complete display
+        if (groups.size() <= 0)
+            return;
+
+        // Replace display with just the content of that group
+        final GroupWidget group = (GroupWidget) groups.get(0);
+        model.runtimeChildren().setValue(group.runtimeChildren().getValue());
+        // Not removing children from 'group', since group will be GC'ed anyway.
         shrinkModelToWidgets(model);
     }
 
