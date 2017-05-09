@@ -48,6 +48,14 @@
     -fx-text-overrun: clip;
 }
 
+/** Allow more room for text in combo box */
+.combo-box > .list-cell
+{
+    -fx-padding: 0em 0em 0em 0.2em;
+    -fx-wrap-text: true;
+    -fx-text-overrun: clip;
+}
+
 /* NavigationTabs:
  * tabregion with buttons; horizontal or vertical(default).
  * body contains the embedded widgets.
