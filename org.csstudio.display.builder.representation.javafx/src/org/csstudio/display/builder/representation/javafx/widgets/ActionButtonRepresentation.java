@@ -27,7 +27,6 @@ import org.csstudio.display.builder.representation.javafx.Messages;
 import org.csstudio.javafx.Styles;
 import org.eclipse.osgi.util.NLS;
 
-import javafx.geometry.Side;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.MenuButton;
@@ -139,15 +138,15 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
                 if (showing)
                 {
                     // System.out.println("Showing " + model_widget + " menu: " + showing);
-                    if (++calls > 2)
-                    {
-                        System.out.println("Hack!");
-                        if (button.getPopupSide() == Side.BOTTOM)
-                            button.setPopupSide(Side.LEFT);
-                        else
-                            button.setPopupSide(Side.BOTTOM);
-                        // button.layout();
-                    }
+//                    if (++calls > 2)
+//                    {
+//                        System.out.println("Hack!");
+//                        if (button.getPopupSide() == Side.BOTTOM)
+//                            button.setPopupSide(Side.LEFT);
+//                        else
+//                            button.setPopupSide(Side.BOTTOM);
+//                        // button.layout();
+//                    }
                 }
             });
             for (final ActionInfo action : actions.getActions())
