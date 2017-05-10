@@ -136,6 +136,7 @@ public class NavigationTabsRepresentation extends RegionBaseRepresentation<Navig
         model_widget.propTabSpacing().addPropertyListener(this::tabLookChanged);
         model_widget.propSelectedColor().addPropertyListener(this::tabLookChanged);
         model_widget.propDeselectedColor().addPropertyListener(this::tabLookChanged);
+        model_widget.propFont().addPropertyListener(this::tabLookChanged);
 
         model_widget.propActiveTab().addPropertyListener(this::activeTabChanged);
 
@@ -288,6 +289,7 @@ public class NavigationTabsRepresentation extends RegionBaseRepresentation<Navig
             jfx_node.setTabSpacing(model_widget.propTabSpacing().getValue());
             jfx_node.setSelectedColor(JFXUtil.convert(model_widget.propSelectedColor().getValue()));
             jfx_node.setDeselectedColor(JFXUtil.convert(model_widget.propDeselectedColor().getValue()));
+            jfx_node.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
         }
         if (dirty_tabs.checkAndClear())
         {

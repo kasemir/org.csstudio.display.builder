@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.representation.javafx.widgets;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.csstudio.display.builder.model.properties.Direction;
@@ -23,6 +24,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 
 /** Navigation Tabs
  *
@@ -79,11 +81,14 @@ public class NavigationTabs extends BorderPane
     private Color selected = Color.rgb(236, 236, 236),
                   deselected = Color.rgb(200, 200, 200);
 
+    private Font font = null;
+
     /** Listener to selected tab
      *
      *  <p>At this time only supporting one
      */
     private volatile Listener listener;
+
 
     /** Constructor */
     public NavigationTabs()
@@ -208,6 +213,14 @@ public class NavigationTabs extends BorderPane
         updateTabs();
     }
 
+    public void setFont(final Font font)
+    {
+        if (Objects.equals(this.font, font))
+            return;
+        this.font = font;
+        updateTabs();
+    }
+
     /** Re-create all tab buttons */
     private void updateTabs()
     {
@@ -243,6 +256,8 @@ public class NavigationTabs extends BorderPane
             button.getStyleClass().add("navtab_button");
             button.setMinSize(ButtonBase.USE_PREF_SIZE, ButtonBase.USE_PREF_SIZE);
             button.setPrefSize(tab_width, tab_height);
+            if (font != null)
+                button.setFont(font);
             buttons.getChildren().add(button);
             button.setOnAction(e -> handleTabSelection(button, true));
         }

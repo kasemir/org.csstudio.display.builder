@@ -89,7 +89,18 @@ public class TextUpdateWidget extends PVWidget
                 final Optional<String> text = XMLUtil.getChildString(xml, "text");
                 if (text.isPresent()  &&  text.get().length() > 0  &&
                     ((MacroizedWidgetProperty<String>) text_widget.propPVName()).getSpecification().isEmpty())
-                    logger.log(Level.WARNING, "Replace with Label: " + text_widget + " has 'text' but no 'pv_name'");
+                {
+                    logger.log(Level.WARNING, "Replacing TextUpdate " + text_widget + " with 'text' but no 'pv_name' with a Label");
+
+                    // Replace the widget type with "label"
+                    final String type = xml.getAttribute("typeId");
+                    if (type != null  &&  type.endsWith("TextUpdate"))
+                    {
+                        xml.setAttribute("typeId", "org.csstudio.opibuilder.widgets.Label");
+                        // XMLUtil.dump(xml);
+                        throw new ParseAgainException();
+                    }
+                }
             }
             return true;
         }

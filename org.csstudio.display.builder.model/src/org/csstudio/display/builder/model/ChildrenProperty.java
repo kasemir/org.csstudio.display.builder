@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -31,6 +32,11 @@ import org.w3c.dom.Element;
 @SuppressWarnings("nls")
 public class ChildrenProperty extends RuntimeWidgetProperty<List<Widget>>
 {
+    // 'value' is a thread-safe CopyOnWriteArrayList
+    // that's effectively final because it's assigned in the constructor
+    // and never changed.
+    // addChild/removeChild checks atomically for duplicates/presence
+
     /** 'children' is a property to allow notifications,
      *  but setting its value or creating additional property instances
      *  is not supported.
@@ -115,9 +121,18 @@ public class ChildrenProperty extends RuntimeWidgetProperty<List<Widget>>
     }
 
     @Override
-    public void setValue(final List<Widget> value)
+    public void setValue(final List<Widget> new_value)
     {
-        throw new UnsupportedOperationException("Use ChildrenProperty#addChild()/removeChild()");
+        final List<Widget> old;
+        // Atomically replace all elements of 'value' with new value
+        synchronized (value)
+        {
+            old = new ArrayList<>(value.size());
+            old.addAll(value);
+            value.clear();
+            value.addAll(new_value);
+        }
+        firePropertyChange(old, new_value);
     }
 
     /** Locate a child widget by name

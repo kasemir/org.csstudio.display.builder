@@ -263,6 +263,7 @@ public class Messages extends NLS
     public static String WidgetProperties_ShadowsEnabled;
     public static String WidgetProperties_ShowHigh;
     public static String WidgetProperties_ShowHiHi;
+    public static String WidgetProperties_ShowLED;
     public static String WidgetProperties_ShowLow;
     public static String WidgetProperties_ShowLoLo;
     public static String WidgetProperties_ShowMinorTicks;
