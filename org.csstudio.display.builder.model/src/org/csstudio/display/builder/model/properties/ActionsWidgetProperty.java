@@ -19,7 +19,6 @@ import java.util.logging.Level;
 
 import javax.xml.stream.XMLStreamWriter;
 
-import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
@@ -30,7 +29,6 @@ import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.persist.XMLTags;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo.Target;
-import org.eclipse.osgi.util.NLS;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -365,11 +363,6 @@ public class ActionsWidgetProperty extends WidgetProperty<ActionInfos>
     @Override
     public String toString()
     {
-        final List<ActionInfo> actions = value.getActions();
-        if (actions.isEmpty())
-            return Messages.Actions_Zero;
-        if (actions.size() == 1)
-            return actions.get(0).getDescription();
-        return NLS.bind(Messages.Actions_N_Fmt, actions.size());
+        return ActionInfos.toString(value.getActions());
     }
 }
