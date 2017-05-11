@@ -45,7 +45,7 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
     private volatile double width;
     private volatile double height;
 
-    private static final String[] downloads = new String[] { "zip", "csv" };
+    private static final String[] downloads = new String[] { "zip", "csv", "cif", "tgz" };
 
     class Browser extends Region
     {
@@ -128,6 +128,9 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
 
                 // TODO How to create a workspace file in here?
                 // Need ModelResourceUtil.openOutputStream() which - for RCP - supports workspace
+
+                // Finally, this code should then merge with org.csstudio.display.builder.editor.rcp.OpenDisplayInEditor
+                // which also downloads a file, in that case always into the local workspace
                 stream.close();
             }
             catch (Exception ex)
