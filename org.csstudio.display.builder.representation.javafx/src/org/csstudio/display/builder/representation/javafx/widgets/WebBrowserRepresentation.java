@@ -11,6 +11,7 @@ import java.io.InputStream;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.widgets.WebBrowserWidget;
 import org.csstudio.display.builder.util.ResourceUtil;
 
@@ -44,6 +45,8 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
     private volatile double width;
     private volatile double height;
 
+    private static final String[] downloads = new String[] { "zip", "csv", "cif", "tgz" };
+
     class Browser extends Region
     {
         //================
@@ -58,6 +61,29 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
             getStyleClass().add("browser");
             getChildren().add(browser);
             goToURL(url);
+
+            // XXX Support 'download' links on web pages?
+            // http://stackoverflow.com/questions/9935324/how-to-handle-file-downloads-using-javafx-2-0-webengine
+            // Not supported buy WebView.
+            // Best workaround: Monitor the location and handle certain files:
+            webEngine.locationProperty().addListener((loc, old, location) ->
+            {
+                for (String download : downloads)
+                    if (location.endsWith(download))
+                    {
+                        toolkit.showErrorDialog(model_widget, "Download is not supported, yet.\nCannot download " + location);
+
+                        // TODO Prompt for local location (which could be a workspace location under RCP ..)
+    //                    String file = location;
+    //                    int i = file.lastIndexOf("/");
+    //                    if (i > 0)
+    //                        file = file.substring(i+1);
+    //                    final String download_file = toolkit.showSaveAsDialog(model_widget, location);
+    //                    if (file != null)
+    //                        ModelThreadPool.getExecutor().submit(() -> download(location, download_file));
+                        break;
+                    }
+            });
         }
 
         //================
@@ -90,6 +116,27 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
         protected double computePrefHeight(double width)
         {
             return height;
+        }
+
+        private void download(final String url, final String file)
+        {
+            // If there is no file, try to open the stream for the web URL or external file
+            try
+            {
+                final InputStream stream = ModelResourceUtil.openResourceStream(url);
+                System.out.println("Need to write url into " + file);
+
+                // TODO How to create a workspace file in here?
+                // Need ModelResourceUtil.openOutputStream() which - for RCP - supports workspace
+
+                // Finally, this code should then merge with org.csstudio.display.builder.editor.rcp.OpenDisplayInEditor
+                // which also downloads a file, in that case always into the local workspace
+                stream.close();
+            }
+            catch (Exception ex)
+            {
+                toolkit.showErrorDialog(model_widget, "Cannot save file");
+            }
         }
     }
 

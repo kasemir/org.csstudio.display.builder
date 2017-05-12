@@ -58,6 +58,7 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
     {
         final RadioButton rb = new RadioButton(text);
         rb.setToggleGroup(toggle);
+        rb.setMnemonicParsing(false);
         return rb;
     }
 

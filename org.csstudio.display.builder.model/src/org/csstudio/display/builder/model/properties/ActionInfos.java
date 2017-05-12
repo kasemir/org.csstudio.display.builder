@@ -10,6 +10,9 @@ package org.csstudio.display.builder.model.properties;
 import java.util.Collections;
 import java.util.List;
 
+import org.csstudio.display.builder.model.Messages;
+import org.eclipse.osgi.util.NLS;
+
 /** Information about actions
  *
  *  @author Kay Kasemir
@@ -42,5 +45,20 @@ public class ActionInfos
     public boolean isExecutedAsOne()
     {
         return execute_as_one;
+    }
+
+    public static String toString(final List<ActionInfo> actions)
+    {
+        if (actions.isEmpty())
+            return Messages.Actions_Zero;
+        if (actions.size() == 1)
+            return actions.get(0).getDescription();
+        return NLS.bind(Messages.Actions_N_Fmt, actions.size());
+    }
+
+    @Override
+    public String toString()
+    {
+        return toString(actions);
     }
 }

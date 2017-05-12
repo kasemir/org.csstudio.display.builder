@@ -27,11 +27,12 @@ import org.csstudio.display.builder.representation.javafx.Messages;
 import org.csstudio.javafx.Styles;
 import org.eclipse.osgi.util.NLS;
 
-import javafx.geometry.Side;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -114,7 +115,7 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
         }
     }
 
-    private int calls = 0;
+//    private int calls = 0;
 
     /** Create <code>base</code>, either single-action button
      *  or menu for selecting one out of N actions
@@ -139,20 +140,23 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
                 if (showing)
                 {
                     // System.out.println("Showing " + model_widget + " menu: " + showing);
-                    if (++calls > 2)
-                    {
-                        System.out.println("Hack!");
-                        if (button.getPopupSide() == Side.BOTTOM)
-                            button.setPopupSide(Side.LEFT);
-                        else
-                            button.setPopupSide(Side.BOTTOM);
-                        // button.layout();
-                    }
+//                    if (++calls > 2)
+//                    {
+//                        System.out.println("Hack!");
+//                        if (button.getPopupSide() == Side.BOTTOM)
+//                            button.setPopupSide(Side.LEFT);
+//                        else
+//                            button.setPopupSide(Side.BOTTOM);
+//                        // button.layout();
+//                    }
                 }
             });
             for (final ActionInfo action : actions.getActions())
             {
-                final MenuItem item = new MenuItem(makeActionText(action));
+                final MenuItem item = new MenuItem(makeActionText(action),
+                                                   new ImageView(new Image(action.getType().getIconStream()))
+                                                  );
+                item.getStyleClass().add("action_button_item");
                 item.setOnAction(event -> handleAction(action));
                 button.getItems().add(item);
             }
