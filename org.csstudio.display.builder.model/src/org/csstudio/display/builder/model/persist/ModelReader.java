@@ -134,7 +134,7 @@ public class ModelReader
     public void readWidgets(final ChildrenProperty children, final Element parent_xml)
     {
         // Limit the number of retries to avoid infinite loop
-        for (int retries=0; retries < 50; ++retries)
+        for (int retries=0; retries < 5000; ++retries)
         {
             final List<Widget> widgets = readWidgetsAllowingRetry(parent_xml);
             if (widgets != null)
@@ -168,6 +168,7 @@ public class ModelReader
             }
             catch (ParseAgainException ex)
             {
+                ex.printStackTrace();
                 return null;
             }
             catch (WidgetTypeException ex)
