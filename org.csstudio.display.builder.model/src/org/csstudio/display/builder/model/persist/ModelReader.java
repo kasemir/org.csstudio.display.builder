@@ -19,6 +19,7 @@ import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.Preferences;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetConfigurator.ParseAgainException;
 import org.csstudio.display.builder.model.WidgetDescriptor;
@@ -71,7 +72,7 @@ import org.w3c.dom.Element;
 @SuppressWarnings("nls")
 public class ModelReader
 {
-    private final static int MAX_PARSE_AGAIN = 5000;
+    private final static int MAX_PARSE_AGAIN = Preferences.getMaxReparse();
     private final Element root;
     private final Version version;
 
