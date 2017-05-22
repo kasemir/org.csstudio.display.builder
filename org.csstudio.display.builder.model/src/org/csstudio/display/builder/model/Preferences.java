@@ -26,6 +26,7 @@ public class Preferences
     public static final String READ_TIMEOUT = "read_timeout";
     public static final String LEGACY_FONT_CALIBRATION = "legacy_font_calibration";
     public static final String MACROS = "macros";
+    public static final String MAX_REPARSE_ITERATIONS = "max_reparse_iterations";
     public static final String SUPPORT_STANDALONE_WINDOW = "support_standalone_window";
 
     public static String[] getClassFiles()
@@ -97,6 +98,16 @@ public class Preferences
         {
             return null;
         }
+    }
+
+    /** @return Maximum number of re-parse operations */
+    public static int getMaxReparse()
+    {
+        int max_reparse = 5000;
+        final IPreferencesService prefs = Platform.getPreferencesService();
+        if (prefs != null)
+            max_reparse = prefs.getInt(ModelPlugin.ID, MAX_REPARSE_ITERATIONS, max_reparse, null);
+        return max_reparse;
     }
 
     /** @return Do support standalone window option? */
