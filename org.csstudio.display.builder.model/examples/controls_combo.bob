@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <display version="1.0.0">
-  <name>Display</name>
+  <name>Combo</name>
   <macros>
     <one>Macro "one"</one>
     <three>Macro "three"</three>
@@ -182,6 +182,9 @@
       <item>Item 0</item>
       <item>Item 1</item>
       <item>Item 2</item>
+      <item>High</item>
+      <item>Medium</item>
+      <item>Low</item>
     </items>
     <items_from_pv>false</items_from_pv>
   </widget>
@@ -279,7 +282,7 @@ enum PV) or from the "Items" property.</text>
       <font name="Oddball" family="PakTypeNaqsh" style="REGULAR" size="40.0">
       </font>
     </font>
-    <pv_name>loc://test&lt;String&gt;("0")</pv_name>
+    <pv_name>loc://test&lt;String&gt;</pv_name>
     <items>
       <item>0</item>
       <item>1</item>
