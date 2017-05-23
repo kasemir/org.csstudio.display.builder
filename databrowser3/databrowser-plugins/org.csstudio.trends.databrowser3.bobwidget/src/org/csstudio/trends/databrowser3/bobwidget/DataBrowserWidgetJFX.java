@@ -17,6 +17,7 @@ import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
 import org.csstudio.trends.databrowser3.model.Model;
@@ -124,16 +125,7 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Pane, DataBrowse
                 // At least use background thread to read file into memory, avoiding file access delays on UI thread.
                 final InputStream file_stream = Objects.requireNonNull(model_widget.getFileInputStream(new_value));
                 final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-                byte[] temp = new byte[1024];
-                while (true)
-                {
-                    final int len = file_stream.read(temp);
-                    if (len < 0)
-                        break;
-                    buffer.write(temp, 0, len);
-                }
-                file_stream.close();
-                buffer.close();
+                ModelResourceUtil.copyResource(file_stream, buffer);
                 model_file_stream = new ByteArrayInputStream(buffer.toByteArray());
             }
             catch (Exception ex)
