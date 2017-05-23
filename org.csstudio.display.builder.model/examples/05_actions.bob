@@ -203,4 +203,17 @@ are printed as log messages.
     <width>140</width>
     <tooltip>$(actions)</tooltip>
   </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_6</name>
+    <actions>
+      <action type="open_webpage">
+        <url>http://www.google.com</url>
+        <description>Open Google</description>
+      </action>
+    </actions>
+    <x>440</x>
+    <y>440</y>
+    <width>140</width>
+    <tooltip>$(actions)</tooltip>
+  </widget>
 </display>
