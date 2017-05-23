@@ -24,8 +24,11 @@ import org.eclipse.core.commands.IHandler;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Shell;
@@ -94,31 +97,54 @@ public class OpenDisplayInEditor extends AbstractHandler implements IHandler
     public static void open(final String display_path) throws Exception
     {
         // Locate workspace file
-        IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(display_path));
-        if (! file.exists())
+        final IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(display_path));
+        if (file.exists())
         {
-            // If there is no file, try to open the stream for the web URL or external file
-            final InputStream stream = ModelResourceUtil.openResourceStream(display_path);
-
-            // If that succeeds, prompt for local file name
-            final Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-            if (! MessageDialog.openQuestion(shell, Messages.DownloadTitle,
-                    NLS.bind(Messages.DownloadPromptFMT, display_path)))
-            {
-                stream.close();
-                return;
-            }
-            file = DisplayEditorPart.promptForFile(shell, null);
-            if (file == null)
-                return;
-
-            // Write local copy, then proceed as if we had a workspace file to begin with
-            if (file.exists())
-                file.setContents(stream, IResource.FORCE, new NullProgressMonitor());
-            else
-                file.create(stream, IResource.FORCE, new NullProgressMonitor());
+            DisplayEditorPart.openDisplayFile(file);
+            return;
         }
 
-        DisplayEditorPart.openDisplayFile(file);
+        // If there is no file, prompt for local file name
+        final Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+        if (! MessageDialog.openQuestion(shell, Messages.DownloadTitle,
+                                         NLS.bind(Messages.DownloadPromptFMT, display_path)))
+            return;
+        final IFile local_file = DisplayEditorPart.promptForFile(shell, null);
+        if (local_file == null)
+            return;
+
+        // Download in background
+        Job.create("Download " + display_path, monitor ->
+        {
+            monitor.beginTask("Writing " + local_file, IProgressMonitor.UNKNOWN);
+            try
+            {
+                final InputStream stream = ModelResourceUtil.openResourceStream(display_path);
+                // Write local copy, then proceed as if we had a workspace file to begin with
+                if (local_file.exists())
+                    local_file.setContents(stream, IResource.FORCE, new NullProgressMonitor());
+                else
+                    local_file.create(stream, IResource.FORCE, new NullProgressMonitor());
+
+                // Open the downloaded file on UI thread
+                shell.getDisplay().asyncExec(() ->
+                {
+                    try
+                    {
+                        DisplayEditorPart.openDisplayFile(local_file);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.log(Level.WARNING, "Cannot edit downloaded " + local_file, ex);
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                logger.log(Level.WARNING, "Cannot download " + display_path + " for editing", ex);
+            }
+
+            return Status.OK_STATUS;
+        }).schedule();
     }
 }
