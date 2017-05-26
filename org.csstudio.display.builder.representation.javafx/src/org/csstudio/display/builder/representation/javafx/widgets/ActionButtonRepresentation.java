@@ -20,6 +20,7 @@ import org.csstudio.display.builder.model.macros.MacroValueProvider;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.ActionInfos;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
+import org.csstudio.display.builder.model.properties.RotationStep;
 import org.csstudio.display.builder.model.properties.StringWidgetProperty;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
@@ -36,6 +37,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.transform.Rotate;
+import javafx.scene.transform.Translate;
 
 /** Creates JavaFX item for model widget
  *  @author Megan Grodowitz
@@ -64,6 +67,14 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
     private volatile Color foreground;
     private volatile String button_text;
     private volatile boolean enabled = true;
+
+    /** Was there ever any transformation applied to the jfx_node?
+     *
+     *  <p>Used to optimize:
+     *  If there never was a rotation, don't even _clear()_ it
+     *  to keep the Node's nodeTransformation == null
+     */
+    private boolean was_ever_transformed = false;
 
     /** Optional modifier of the open display 'target */
     private Optional<OpenDisplayActionInfo.Target> target_modifier = Optional.empty();
@@ -250,6 +261,7 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
         model_widget.propHeight().addUntypedPropertyListener(this::representationChanged);
         model_widget.propText().addUntypedPropertyListener(this::representationChanged);
         model_widget.propFont().addUntypedPropertyListener(this::representationChanged);
+        model_widget.propRotationStep().addUntypedPropertyListener(this::representationChanged);
 
         model_widget.propEnabled().addPropertyListener(this::enablementChanged);
         model_widget.runtimePropPVWritable().addPropertyListener(this::enablementChanged);
@@ -314,9 +326,37 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
             button_text = makeButtonText();
             base.setText(button_text);
             base.setTextFill(foreground);
-            base.setPrefSize(model_widget.propWidth().getValue(),
-                             model_widget.propHeight().getValue());
             base.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
+
+            final RotationStep rotation = model_widget.propRotationStep().getValue();
+            final int width = model_widget.propWidth().getValue(),
+                      height = model_widget.propHeight().getValue();
+            switch (rotation)
+            {
+            case NONE:
+                base.setPrefSize(width, height);
+                if (was_ever_transformed)
+                    base.getTransforms().clear();
+                break;
+            case NINETY:
+                base.setPrefSize(height, width);
+                base.getTransforms().setAll(new Rotate(-rotation.getAngle()),
+                                            new Translate(-height, 0));
+                was_ever_transformed = true;
+                break;
+            case ONEEIGHTY:
+                base.setPrefSize(width, height);
+                base.getTransforms().setAll(new Rotate(-rotation.getAngle()),
+                                            new Translate(-width, -height));
+                was_ever_transformed = true;
+                               break;
+            case MINUS_NINETY:
+                base.setPrefSize(height, width);
+                base.getTransforms().setAll(new Rotate(-rotation.getAngle()),
+                                            new Translate(0, -width));
+                was_ever_transformed = true;
+                break;
+            }
         }
         if (dirty_enablement.checkAndClear())
         {
