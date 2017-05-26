@@ -50,6 +50,7 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
     public ComboBox<String> createJFXNode() throws Exception
     {   // Start out 'disconnected' until first value arrives
         final ComboBox<String> combo = new ComboBox<String>();
+        // TODO combo.setEditable(true);
         combo.setOnAction((event)->
         {   // We are updating the UI, ignore
             if (active)
@@ -65,6 +66,12 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
         });
         cellFactory = combo.getCellFactory();
         return combo;
+    }
+
+    @Override
+    protected boolean isFilteringEditModeClicks()
+    {   // Allow selecting the Combo in editor
+        return true;
     }
 
     @Override
