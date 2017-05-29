@@ -48,23 +48,36 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
 
     @Override
     public ComboBox<String> createJFXNode() throws Exception
-    {   // Start out 'disconnected' until first value arrives
+    {
         final ComboBox<String> combo = new ComboBox<String>();
-        combo.setOnAction((event)->
-        {   // We are updating the UI, ignore
-            if (active)
-                return;
-            String value = combo.getValue();
-            if (value != null)
-            {
-                // Restore current value
-                contentChanged(null, null, null);
-                // ... which should soon be replaced by updated value, if accepted
-                toolkit.fireWrite(model_widget, value);
-            }
-        });
+        if (! toolkit.isEditMode())
+        {
+            // 'editable' cannot be changed at runtime
+            combo.setEditable(model_widget.propEditable().getValue());
+
+            // Handle user's selection
+            combo.setOnAction((event)->
+            {   // We are updating the UI, ignore
+                if (active)
+                    return;
+                String value = combo.getValue();
+                if (value != null)
+                {
+                    // Restore current value
+                    contentChanged(null, null, null);
+                    // ... which should soon be replaced by updated value, if accepted
+                    toolkit.fireWrite(model_widget, value);
+                }
+            });
+        }
         cellFactory = combo.getCellFactory();
         return combo;
+    }
+
+    @Override
+    protected boolean isFilteringEditModeClicks()
+    {   // Allow selecting the Combo in editor
+        return true;
     }
 
     @Override
@@ -130,6 +143,7 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
      */
     private List<String> computeItems(final VType value, final boolean fromPV)
     {
+        // System.out.println("computeItems(" + value + ", " + fromPV + "): ");
         if (fromPV)
         {
             index = ((VEnum)value).getIndex();
@@ -144,10 +158,14 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
             final String currValue = VTypeUtil.getValueString(value, false);
             int new_index = new_items.indexOf(currValue);
             if (new_index < 0)
-            {
-                new_items.add(currValue);
-                new_index = items.size()-1;
+            {   // User entered a custom value ('editable' combo).
+                // Add to top of list and select it
+                new_items.add(0, currValue);
+                new_index = 0;
             }
+
+            // System.out.println(new_items);
+            // System.out.println(new_index);
 
             index = new_index;
             return new_items;

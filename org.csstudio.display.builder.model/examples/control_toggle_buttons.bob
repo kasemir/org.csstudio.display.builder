@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <display version="1.0.0">
-  <name>Display</name>
+  <name>Toggle Buttons</name>
   <grid_visible>true</grid_visible>
   <widget type="label" version="2.0.0">
     <name>Label</name>
@@ -36,7 +36,7 @@
   </widget>
   <widget type="bool_button" version="2.0.0">
     <name>Boolean Button</name>
-    <pv_name>loc://boolTest</pv_name>
+    <pv_name>loc://boolTest(0)</pv_name>
     <x>330</x>
     <y>100</y>
     <width>90</width>
@@ -46,7 +46,7 @@
   </widget>
   <widget type="bool_button" version="2.0.0">
     <name>Boolean Button_1</name>
-    <pv_name>loc://boolTest</pv_name>
+    <pv_name>loc://boolTest(0)</pv_name>
     <bit>1</bit>
     <x>220</x>
     <y>100</y>
@@ -83,7 +83,7 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>TextUpdate</name>
-    <pv_name>loc://boolTest</pv_name>
+    <pv_name>loc://boolTest(0)</pv_name>
     <x>110</x>
     <y>61</y>
     <width>280</width>
@@ -105,7 +105,7 @@
   </widget>
   <widget type="bool_button" version="2.0.0">
     <name>Boolean Button_2</name>
-    <pv_name>loc://boolTest</pv_name>
+    <pv_name>loc://boolTest(0)</pv_name>
     <bit>2</bit>
     <x>110</x>
     <y>100</y>
@@ -129,7 +129,7 @@
   </widget>
   <widget type="bool_button" version="2.0.0">
     <name>Boolean Button_3</name>
-    <pv_name>loc://boolTest</pv_name>
+    <pv_name>loc://boolTest(0)</pv_name>
     <bit>3</bit>
     <y>100</y>
     <width>90</width>
@@ -151,7 +151,7 @@
   </widget>
   <widget type="bool_button" version="2.0.0">
     <name>Boolean Button_4</name>
-    <pv_name>loc://boolTest</pv_name>
+    <pv_name>loc://boolTest(0)</pv_name>
     <bit>-1</bit>
     <y>230</y>
     <width>90</width>
@@ -187,7 +187,7 @@
   </widget>
   <widget type="bool_button" version="2.0.0">
     <name>Boolean Button_5</name>
-    <pv_name>loc://boolTest</pv_name>
+    <pv_name>loc://boolTest(0)</pv_name>
     <bit>-1</bit>
     <y>420</y>
     <width>90</width>

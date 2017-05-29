@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
@@ -61,6 +62,7 @@ public class ComboWidget extends WritablePVWidget
             return new ComboWidget();
         }
     };
+
     /** Custom configurator to read legacy *.opi files */
     private static class ComboConfigurator extends WidgetConfigurator
     {
@@ -123,11 +125,15 @@ public class ComboWidget extends WritablePVWidget
             new ArrayWidgetProperty.Descriptor< WidgetProperty<String> >(WidgetPropertyCategory.BEHAVIOR, "items", Messages.ComboWidget_Items,
                                                                          (widget, index) -> propItem.createProperty(widget, "Item " + index));
 
+    private static final WidgetPropertyDescriptor<Boolean> propEditable =
+            newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "editable", Messages.WidgetProperties_Editable);
+
     private volatile WidgetProperty<WidgetColor> foreground;
     private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<WidgetFont> font;
     private volatile ArrayWidgetProperty<WidgetProperty<String>> items;
     private volatile WidgetProperty<Boolean> items_from_pv;
+    private volatile WidgetProperty<Boolean> editable;
     private volatile WidgetProperty<Boolean> enabled;
 
     public ComboWidget()
@@ -144,6 +150,7 @@ public class ComboWidget extends WritablePVWidget
         properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BUTTON_BACKGROUND)));
         properties.add(items = propItems.createProperty(this, Collections.emptyList()));
         properties.add(items_from_pv = propItemsFromPV.createProperty(this, true));
+        properties.add(editable = propEditable.createProperty(this, false));
         properties.add(enabled = propEnabled.createProperty(this, true));
     }
 
@@ -195,6 +202,12 @@ public class ComboWidget extends WritablePVWidget
     public WidgetProperty<Boolean> propItemsFromPV()
     {
         return items_from_pv;
+    }
+
+    /** @return 'editable' property */
+    public WidgetProperty<Boolean> propEditable()
+    {
+        return editable;
     }
 
     /** @return 'enabled' property */
