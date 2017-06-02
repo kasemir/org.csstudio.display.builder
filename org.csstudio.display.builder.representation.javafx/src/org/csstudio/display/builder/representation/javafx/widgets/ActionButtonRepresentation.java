@@ -328,32 +328,40 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
             base.setTextFill(foreground);
             base.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
 
+
             final RotationStep rotation = model_widget.propRotationStep().getValue();
             final int width = model_widget.propWidth().getValue(),
                       height = model_widget.propHeight().getValue();
+            // Button 'base' is inside 'jfx_node' Pane.
+            // Rotation needs to be applied to the Pane,
+            // which then auto-sizes to the 'base' Button dimensions.
+            // If transforming the Button instead of the Pane,
+            // it will still remain sensitive to mouse clicks in the
+            // original, un-transformed rectangle. Unclear why.
+            // Applying the transformation to the Pane does not exhibit this problem.
             switch (rotation)
             {
             case NONE:
                 base.setPrefSize(width, height);
                 if (was_ever_transformed)
-                    base.getTransforms().clear();
+                    jfx_node.getTransforms().clear();
                 break;
             case NINETY:
                 base.setPrefSize(height, width);
-                base.getTransforms().setAll(new Rotate(-rotation.getAngle()),
-                                            new Translate(-height, 0));
+                jfx_node.getTransforms().setAll(new Rotate(-rotation.getAngle()),
+                                                new Translate(-height, 0));
                 was_ever_transformed = true;
                 break;
             case ONEEIGHTY:
                 base.setPrefSize(width, height);
-                base.getTransforms().setAll(new Rotate(-rotation.getAngle()),
-                                            new Translate(-width, -height));
+                jfx_node.getTransforms().setAll(new Rotate(-rotation.getAngle()),
+                                                new Translate(-width, -height));
                 was_ever_transformed = true;
                                break;
             case MINUS_NINETY:
                 base.setPrefSize(height, width);
-                base.getTransforms().setAll(new Rotate(-rotation.getAngle()),
-                                            new Translate(0, -width));
+                jfx_node.getTransforms().setAll(new Rotate(-rotation.getAngle()),
+                                                new Translate(0, -width));
                 was_ever_transformed = true;
                 break;
             }
