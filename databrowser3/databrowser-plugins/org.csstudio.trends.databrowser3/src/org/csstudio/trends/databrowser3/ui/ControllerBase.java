@@ -426,7 +426,10 @@ public abstract class ControllerBase
     {
         if (archive_fetch_delay_task != null)
             archive_fetch_delay_task.cancel(false);
-        archive_fetch_delay_task = update_timer.schedule(this::getArchivedData, archive_fetch_delay, TimeUnit.MILLISECONDS);
+        // Compiler error "schedule(Runnable, long, TimeUnit) is ambiguous"
+        // unless specifically casting getArchivedData to Runnable.
+        final Runnable fetch = this::getArchivedData;
+        archive_fetch_delay_task = update_timer.schedule(fetch, archive_fetch_delay, TimeUnit.MILLISECONDS);
     }
 
     /** Start model items and initiate scrolling/updates
