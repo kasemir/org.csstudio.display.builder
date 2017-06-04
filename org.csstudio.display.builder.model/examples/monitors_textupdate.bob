@@ -320,19 +320,6 @@ while the DMS specialization maps 2 pi to 360 degrees.
     <format>1</format>
     <precision>4</precision>
   </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>Text Update_15</name>
-    <pv_name>BL11B:CS:IOC:All:Stat</pv_name>
-    <x>450</x>
-    <y>320</y>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>Text Update_16</name>
-    <pv_name>BL11B:CS:IOC:All:Stat</pv_name>
-    <x>450</x>
-    <y>351</y>
-    <format>1</format>
-  </widget>
   <widget type="label" version="2.0.0">
     <name>Label_19</name>
     <text>Engineering:</text>
