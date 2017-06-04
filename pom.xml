@@ -24,9 +24,11 @@
   <properties>
     <!-- VERSIONS -->
     <sns.version>0.1</sns.version>
-    <tycho.version>0.23.1</tycho.version>
+    <tycho.version>1.0.0</tycho.version>
     <tycho-extras.version>${tycho.version}</tycho-extras.version>
-    <eclipse-site>http://download.eclipse.org/releases/mars</eclipse-site>
+
+    <eclipse-site>http://download.eclipse.org/releases/neon</eclipse-site>
+    <orbit-site>http://download.eclipse.org/tools/orbit/downloads/drops/R20160520211859/repository</orbit-site>
 
     <!-- Repo that has CSS dependencies.
          Customize via command line option
@@ -63,6 +65,11 @@
     <repository>
       <id>Eclipse</id>
       <url>${eclipse-site}</url>
+      <layout>p2</layout>
+    </repository>
+    <repository>
+      <id>orbit</id>
+      <url>${orbit-site}</url>
       <layout>p2</layout>
     </repository>
   </repositories>
