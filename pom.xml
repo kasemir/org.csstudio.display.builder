@@ -62,6 +62,7 @@
       <url>${css-repo}</url>
       <layout>p2</layout>
     </repository>
+<!--
     <repository>
       <id>Eclipse</id>
       <url>${eclipse-site}</url>
@@ -72,6 +73,7 @@
       <url>${orbit-site}</url>
       <layout>p2</layout>
     </repository>
+-->
   </repositories>
   
   <!-- CHILD MODULES -->
