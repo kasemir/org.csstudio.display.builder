@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.properties;
 
+import java.util.Objects;
+
 /** Description of a font
  *  @author Kay Kasemir
  */
@@ -26,8 +28,8 @@ public class WidgetFont
      */
     public WidgetFont(final String family, final WidgetFontStyle style, final double size)
     {
-        this.family = family;
-        this.style = style;
+        this.family = Objects.requireNonNull(family);
+        this.style = Objects.requireNonNull(style);
         this.size = size;
     }
 

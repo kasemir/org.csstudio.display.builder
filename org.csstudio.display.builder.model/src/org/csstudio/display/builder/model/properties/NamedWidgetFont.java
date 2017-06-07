@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.properties;
 
+import java.util.Objects;
+
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetFontService;
 
@@ -30,7 +32,7 @@ public class NamedWidgetFont extends WidgetFont
     public NamedWidgetFont(final String name, final String family, final WidgetFontStyle style, final double size)
     {
         super(family, style, size);
-        this.name = name;
+        this.name = Objects.requireNonNull(name);
     }
 
     /** @return Name */

@@ -362,12 +362,15 @@ public class MatFileReader
             {
                 try
                 {
+                    // TODO sun.misc.Cleaner is not API. This needs to be updated
                     Method getCleanerMethod = buffer.getClass().getMethod(
                             "cleaner", new Class[0]);
                     getCleanerMethod.setAccessible(true);
+                    /*
                     sun.misc.Cleaner cleaner = (sun.misc.Cleaner) getCleanerMethod
                             .invoke(buffer, new Object[0]);
                     cleaner.clean();
+                    */
                 }
                 catch (Exception e)
                 {

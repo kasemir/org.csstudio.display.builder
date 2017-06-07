@@ -114,8 +114,8 @@ public class WidgetConfigurator
             catch (Exception ex)
             {
                 logger.log(Level.SEVERE,
-                           "Error reading widget " + widget + " property " + property.getName() +
-                           ", line " + XMLUtil.getLineInfo(prop_xml), ex);
+                           "Error reading widget " + widget + " property <" + property.getName() +
+                           ">, line " + XMLUtil.getLineInfo(prop_xml), ex);
             }
         }
     }
