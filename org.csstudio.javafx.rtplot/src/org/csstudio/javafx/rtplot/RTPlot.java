@@ -54,6 +54,7 @@ import javafx.scene.text.Font;
  *
  *  @param <XTYPE> Data type used for the {@link PlotDataItem}
  *  @author Kay Kasemir
+ *  @author Amanda Carpenter - added manual control for axis limits
  */
 @SuppressWarnings("nls")
 public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
@@ -61,7 +62,8 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
     final protected Plot<XTYPE> plot;
     final protected ToolbarHandler<XTYPE> toolbar;
     private boolean handle_keys = false;
-	private TextField axisLimitsField;
+	private TextField axisLimitsField; //Field for adjusting the limits of the axes
+	private final Pane center = new Pane();
 
     /** Constructor
      *  @param active Active mode where plot reacts to mouse/keyboard?
@@ -88,7 +90,7 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
 
         // Plot is not directly size-manageable by a layout.
         // --> Let BorderPane resize 'center', then plot binds to is size.
-        final Pane center = new Pane(plot);
+        center.getChildren().add(plot);
         final ChangeListener<? super Number> resize_listener = (p, o, n) -> plot.setSize(center.getWidth(), center.getHeight());
         center.widthProperty().addListener(resize_listener);
         center.heightProperty().addListener(resize_listener);
@@ -111,22 +113,21 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
             
             setOnMouseClicked(this::mouseClicked);
     		axisLimitsField = constructAxisLimitsField();
+    		center.getChildren().add(axisLimitsField);
         }
     }
     
     private TextField constructAxisLimitsField()
     {
     	final TextField field = new TextField();
-    	
-    	field.setMaxWidth(50); //prevent filling width of bottom row?
-    	
     	//prevent mouse-clicks in TextField from triggering MouseClicked event for RTPlot
     	field.addEventFilter(MouseEvent.MOUSE_CLICKED, (event)->event.consume());
-    	
+    	field.setVisible(false);
+    	field.setManaged(false); //false because we manage layout, not the Parent
     	return field;
     }
     
-    private void showAxisLimitsField(AxisPart<?> axis, boolean isHigh)
+    private void showAxisLimitsField(AxisPart<?> axis, String tip, Rectangle area)
     {
 		axisLimitsField.setOnKeyPressed((KeyEvent event)->
 		{
@@ -135,54 +136,23 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
 				hideAxisLimitsField();
 				//TODO: new ChangeAxisRanges<XTYPE>(???)
 				//(execute with undo manager)
+				System.out.println("Entered: " + axisLimitsField.getText());
 			}
 			//todo KeyCode.ESC
+			System.out.println("Canceled: " + axisLimitsField.getText());
 		});
 		
-    	String tip = null;
-		if (isHigh)
-		{
-			tip = axis.getValueRange().getHigh().toString();
-			if (axis instanceof YAxisImpl<?>)
-			{
-				setRight(axisLimitsField);
-				BorderPane.setAlignment(axisLimitsField, Pos.TOP_CENTER);
-			}
-			else
-			{
-				setBottom(axisLimitsField);
-				BorderPane.setAlignment(axisLimitsField, Pos.CENTER_LEFT);
-			}
-		}
-		else
-		{
-			tip = axis.getValueRange().getLow().toString();
-			if (axis instanceof YAxisImpl<?>)
-			{
-				setRight(axisLimitsField);
-				BorderPane.setAlignment(axisLimitsField, Pos.BOTTOM_CENTER);
-			}
-			else
-			{
-				setBottom(axisLimitsField);
-				BorderPane.setAlignment(axisLimitsField, Pos.CENTER_RIGHT);
-			}
-		}
-    	axisLimitsField.setPromptText(tip);
+    	axisLimitsField.setText(tip);
     	axisLimitsField.setTooltip(new Tooltip(tip));
 		axisLimitsField.setVisible(true);
-		layoutChildren();
+		axisLimitsField.relocate(area.getX(), area.getY());
+		axisLimitsField.resize(area.getWidth(), area.getHeight());
 		axisLimitsField.requestFocus();
 	}
     
     private void hideAxisLimitsField()
     {
 		axisLimitsField.setVisible(false);
-		if (getRight() != null)
-			setRight(null);
-		else //x-axis is showing
-			setBottom(null);
-		layoutChildren();
     }
     
     private void mouseClicked(MouseEvent event)
@@ -202,13 +172,13 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
         		if (upper.contains(event.getX(), event.getY()))
         		{
         			System.out.println("Clicked upper y axis.");
-        			showAxisLimitsField(axis, true);
+        			showAxisLimitsField(axis, axis.getValueRange().getHigh().toString(), upper);
         			return;
         		}
         		else if (lower.contains(event.getX(), event.getY()))
         		{
         			System.out.println("Clicked lower y axis.");
-        			showAxisLimitsField(axis, false);
+        			showAxisLimitsField(axis, axis.getValueRange().getLow().toString(), lower);
         			return;
         		}
     		}
@@ -222,20 +192,23 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
     		if (lesser.contains(event.getX(), event.getY()))
     		{
     			System.out.println("Clicked lower x axis.");
-    			showAxisLimitsField(x_axis, true);
+    			showAxisLimitsField(x_axis, x_axis.getValueRange().getHigh().toString(), lesser);
     			return;
     		}
     		else if (greater.contains(event.getX(), event.getY()))
     		{
     			System.out.println("Clicked upper x axis.");
-    			showAxisLimitsField(x_axis, false);
+    			showAxisLimitsField(x_axis, x_axis.getValueRange().getLow().toString(), greater);
     			return;
     		}
         }
     	//Axis limits field was not shown, and did not consume click event; therefore,
     	//if the axis limits field is showing, it must be hidden.
     	if (axisLimitsField.isVisible())
+    	{
     		hideAxisLimitsField();
+			System.out.println("Canceled: " + axisLimitsField.getText()); //TODO: why does this show up when ENTER is pressed?
+    	}
     }
     
     /** onKeyPressed */
