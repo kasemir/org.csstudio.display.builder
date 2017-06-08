@@ -27,14 +27,14 @@
     <tycho.version>1.0.0</tycho.version>
     <tycho-extras.version>${tycho.version}</tycho-extras.version>
 
-    <eclipse-site>http://download.eclipse.org/releases/neon</eclipse-site>
-    <orbit-site>http://download.eclipse.org/tools/orbit/downloads/drops/R20160520211859/repository</orbit-site>
-
-    <!-- Repo that has CSS dependencies.
+    <!-- Repo that contain target platform and CSS dependencies.
          Customize via command line option
-         -Dcss-repo=file:/path/to/your/repo
+         -Dsingle_repo=file:/path/to/your/repo
+
+         Originally, used ${css-repo} for just the CSS dependencies,
+         using http:// links to target platform
+         <css-repo>file:/Users/ky9/git/org.csstudio.sns/repository/target/repository</css-repo>
       -->
-    <css-repo>file:/Users/ky9/git/org.csstudio.sns/repository/target/repository</css-repo>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -53,28 +53,6 @@
     </pluginRepository>
   </pluginRepositories>
 
-  <!--
-    P2 REPOSITORIES
-  -->
-  <repositories>
-    <repository>
-      <id>CSS</id>
-      <url>${css-repo}</url>
-      <layout>p2</layout>
-    </repository>
-
-    <repository>
-      <id>Eclipse</id>
-      <url>${eclipse-site}</url>
-      <layout>p2</layout>
-    </repository>
-    <repository>
-      <id>orbit</id>
-      <url>${orbit-site}</url>
-      <layout>p2</layout>
-    </repository>
-
-  </repositories>
   
   <!-- CHILD MODULES -->
   <modules>
@@ -205,6 +183,48 @@
   </build>
 
   <profiles>
+    <!-- P2 REPOSITORIES -->
+    <profile>
+      <id>single_repo</id>
+      <activation>
+        <property>
+          <name>single_repo</name>
+        </property>
+      </activation>
+      <repositories>
+        <repository>
+          <id>CSS</id>
+          <url>${single_repo}</url>
+          <layout>p2</layout>
+        </repository>
+      </repositories>
+    </profile>
+    <profile>
+      <id>legacy_repo</id>
+      <activation>
+        <property>
+          <name>!single_repo</name>
+        </property>
+      </activation>
+      <repositories>
+        <repository>
+          <id>CSS</id>
+          <url>${css_repo}</url>
+          <layout>p2</layout>
+        </repository>
+        <repository>
+          <id>Eclipse</id>
+          <url>http://download.eclipse.org/releases/neon</url>
+          <layout>p2</layout>
+        </repository>
+        <repository>
+          <id>orbit</id>
+          <url>http://download.eclipse.org/tools/orbit/downloads/drops/R20160520211859/repository</url>
+          <layout>p2</layout>
+        </repository>
+      </repositories>
+    </profile>
+
     <profile>
       <id>all_platforms</id>
       <activation>
