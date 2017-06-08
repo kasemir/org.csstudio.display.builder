@@ -697,49 +697,6 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         if (selectMouseAnnotation() ||
             selectPlotMarker())
             return;
-        else if (mouse_mode == MouseMode.NONE && clicks == 2)
-        {
-        	//Do the upper or lower end regions any y-axes contain the click?
-        	for (YAxisImpl<XTYPE> axis : y_axes)
-        	{
-        		//Might be unsafe if bounds change between instructions
-        		int x = (int) axis.getBounds().getX();
-        		int w = (int) axis.getBounds().getWidth();
-        		int h = (int) Math.min(axis.getBounds().getHeight()/2, w);
-        		Rectangle upper = new Rectangle(x, (int) axis.getBounds().getY(), w, h);
-        		Rectangle lower = new Rectangle(x, (int) axis.getBounds().getMaxY()-h, w, h);
-        		if (upper.contains(current.getX(), current.getY()))
-        		{
-        			//TODO: adjust upper bounds of axis
-        			System.out.println("Clicked upper y axis.");
-        		}
-        		else if (lower.contains(current.getX(), current.getY()))
-        		{
-        			//TODO: adjust lower bounds of axis
-        			System.out.println("Clicked lower y axis.");
-        		}
-    		}
-        	//Do the left-side (lesser) or right-side (greater) end regions of the x-axis contain?
-        	int y = (int) x_axis.getBounds().getY();
-        	int h = (int) x_axis.getBounds().getHeight();
-        	int w = (int) Math.min(x_axis.getBounds().getWidth()/2, h);
-        	Rectangle lesser = new Rectangle((int) x_axis.getBounds().getX(), y, w, h);
-        	Rectangle greater = new Rectangle((int) x_axis.getBounds().getMaxX()-w, y, w, h);
-    		if (lesser.contains(current.getX(), current.getY()))
-    		{
-    			//TODO: adjust lower bound of axis
-    			System.out.println("Clicked lower x axis.");
-    		}
-    		else if (greater.contains(current.getX(), current.getY()))
-    		{
-    			//TODO: adjust upper bound of axis
-    			System.out.println("Clicked upper x axis.");
-    		}
-    		else
-    		{
-    			System.out.println("Double-click detected.");
-    		}
-        }
         else if (mouse_mode == MouseMode.PAN)
         {   // Determine start of 'pan'
             // For affected Y axes, i.e. mouse_y_axis or all,

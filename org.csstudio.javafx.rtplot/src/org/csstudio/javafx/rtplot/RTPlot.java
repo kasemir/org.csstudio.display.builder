@@ -7,6 +7,7 @@
  ******************************************************************************/
 package org.csstudio.javafx.rtplot;
 
+import java.awt.Rectangle;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,20 +18,28 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.text.ChangedCharSetException;
+
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.rtplot.data.PlotDataItem;
 import org.csstudio.javafx.rtplot.data.PlotDataProvider;
 import org.csstudio.javafx.rtplot.internal.AnnotationImpl;
+import org.csstudio.javafx.rtplot.internal.AxisPart;
 import org.csstudio.javafx.rtplot.internal.MouseMode;
 import org.csstudio.javafx.rtplot.internal.Plot;
 import org.csstudio.javafx.rtplot.internal.ToolbarHandler;
 import org.csstudio.javafx.rtplot.internal.TraceImpl;
+import org.csstudio.javafx.rtplot.internal.YAxisImpl;
+import org.csstudio.javafx.rtplot.internal.undo.ChangeAxisRanges;
 import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -52,6 +61,7 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
     final protected Plot<XTYPE> plot;
     final protected ToolbarHandler<XTYPE> toolbar;
     private boolean handle_keys = false;
+	private TextField axisLimitsField;
 
     /** Constructor
      *  @param active Active mode where plot reacts to mouse/keyboard?
@@ -93,18 +103,145 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
             addEventFilter(MouseEvent.MOUSE_MOVED, event ->
             {
                 handle_keys = true;
-                requestFocus();
+                if (!axisLimitsField.isVisible()) requestFocus();
             });
             // Don't want to handle key events when mouse is outside the widget.
             // Cannot 'loose focus', so using flag to ignore them
             addEventFilter(MouseEvent.MOUSE_EXITED, event -> handle_keys = false);
+            
+            setOnMouseClicked(this::mouseClicked);
+    		axisLimitsField = constructAxisLimitsField();
         }
     }
-
+    
+    private TextField constructAxisLimitsField()
+    {
+    	final TextField field = new TextField();
+    	
+    	field.setMaxWidth(50); //prevent filling width of bottom row?
+    	
+    	//prevent mouse-clicks in TextField from triggering MouseClicked event for RTPlot
+    	field.addEventFilter(MouseEvent.MOUSE_CLICKED, (event)->event.consume());
+    	
+    	return field;
+    }
+    
+    private void showAxisLimitsField(AxisPart<?> axis, boolean isHigh)
+    {
+		axisLimitsField.setOnKeyPressed((KeyEvent event)->
+		{
+			if (event.getCode().equals(KeyCode.ENTER))
+			{
+				hideAxisLimitsField();
+				//TODO: new ChangeAxisRanges<XTYPE>(???)
+				//(execute with undo manager)
+			}
+			//todo KeyCode.ESC
+		});
+		
+    	String tip = null;
+		if (isHigh)
+		{
+			tip = axis.getValueRange().getHigh().toString();
+			if (axis instanceof YAxisImpl<?>)
+			{
+				setRight(axisLimitsField);
+				BorderPane.setAlignment(axisLimitsField, Pos.TOP_CENTER);
+			}
+			else
+			{
+				setBottom(axisLimitsField);
+				BorderPane.setAlignment(axisLimitsField, Pos.CENTER_LEFT);
+			}
+		}
+		else
+		{
+			tip = axis.getValueRange().getLow().toString();
+			if (axis instanceof YAxisImpl<?>)
+			{
+				setRight(axisLimitsField);
+				BorderPane.setAlignment(axisLimitsField, Pos.BOTTOM_CENTER);
+			}
+			else
+			{
+				setBottom(axisLimitsField);
+				BorderPane.setAlignment(axisLimitsField, Pos.CENTER_RIGHT);
+			}
+		}
+    	axisLimitsField.setPromptText(tip);
+    	axisLimitsField.setTooltip(new Tooltip(tip));
+		axisLimitsField.setVisible(true);
+		layoutChildren();
+		axisLimitsField.requestFocus();
+	}
+    
+    private void hideAxisLimitsField()
+    {
+		axisLimitsField.setVisible(false);
+		if (getRight() != null)
+			setRight(null);
+		else //x-axis is showing
+			setBottom(null);
+		layoutChildren();
+    }
+    
+    private void mouseClicked(MouseEvent event)
+    {
+    	MouseMode mouse_mode = MouseMode.NONE; //TODO: get mouse mode
+    	if ((mouse_mode == MouseMode.NONE || mouse_mode == MouseMode.PAN) && event.getClickCount() == 2)
+        {
+        	//Do the upper or lower end regions any y-axes contain the click?
+        	for (YAxisImpl<XTYPE> axis : plot.getYAxes())
+        	{
+        		//Might be unsafe if bounds change between instructions
+        		int x = (int) axis.getBounds().getX();
+        		int w = (int) axis.getBounds().getWidth();
+        		int h = (int) Math.min(axis.getBounds().getHeight()/2, w);
+        		Rectangle upper = new Rectangle(x, (int) axis.getBounds().getY(), w, h);
+        		Rectangle lower = new Rectangle(x, (int) axis.getBounds().getMaxY()-h, w, h);
+        		if (upper.contains(event.getX(), event.getY()))
+        		{
+        			System.out.println("Clicked upper y axis.");
+        			showAxisLimitsField(axis, true);
+        			return;
+        		}
+        		else if (lower.contains(event.getX(), event.getY()))
+        		{
+        			System.out.println("Clicked lower y axis.");
+        			showAxisLimitsField(axis, false);
+        			return;
+        		}
+    		}
+        	//Do the left-side (lesser) or right-side (greater) end regions of the x-axis contain?
+        	AxisPart<XTYPE> x_axis = plot.getXAxis();
+        	int y = (int) x_axis.getBounds().getY();
+        	int h = (int) x_axis.getBounds().getHeight();
+        	int w = (int) Math.min(x_axis.getBounds().getWidth()/2, h);
+        	Rectangle lesser = new Rectangle((int) x_axis.getBounds().getX(), y, w, h);
+        	Rectangle greater = new Rectangle((int) x_axis.getBounds().getMaxX()-w, y, w, h);
+    		if (lesser.contains(event.getX(), event.getY()))
+    		{
+    			System.out.println("Clicked lower x axis.");
+    			showAxisLimitsField(x_axis, true);
+    			return;
+    		}
+    		else if (greater.contains(event.getX(), event.getY()))
+    		{
+    			System.out.println("Clicked upper x axis.");
+    			showAxisLimitsField(x_axis, false);
+    			return;
+    		}
+        }
+    	//Axis limits field was not shown, and did not consume click event; therefore,
+    	//if the axis limits field is showing, it must be hidden.
+    	if (axisLimitsField.isVisible())
+    		hideAxisLimitsField();
+    }
+    
     /** onKeyPressed */
     private void keyPressed(final KeyEvent event)
     {
-        if (! handle_keys)
+        if (! handle_keys || axisLimitsField.isVisible() )
             return;
         if (event.getCode() == KeyCode.Z)
             plot.getUndoableActionManager().undoLast();
@@ -128,6 +265,7 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
             toolbar.selectMouseMode(MouseMode.PAN);
         else
             toolbar.selectMouseMode(MouseMode.NONE);
+        System.out.println("RTPlot consumed event.");
         event.consume();
     }
 
