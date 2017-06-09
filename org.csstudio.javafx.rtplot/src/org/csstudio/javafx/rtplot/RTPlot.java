@@ -10,6 +10,7 @@ package org.csstudio.javafx.rtplot;
 import java.awt.Rectangle;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -18,14 +19,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.text.ChangedCharSetException;
-
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.rtplot.data.PlotDataItem;
 import org.csstudio.javafx.rtplot.data.PlotDataProvider;
 import org.csstudio.javafx.rtplot.internal.AnnotationImpl;
-import org.csstudio.javafx.rtplot.internal.AxisPart;
 import org.csstudio.javafx.rtplot.internal.MouseMode;
+import org.csstudio.javafx.rtplot.internal.NumericAxis;
 import org.csstudio.javafx.rtplot.internal.Plot;
 import org.csstudio.javafx.rtplot.internal.ToolbarHandler;
 import org.csstudio.javafx.rtplot.internal.TraceImpl;
@@ -35,7 +34,6 @@ import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -127,29 +125,64 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
     	return field;
     }
     
-    private void showAxisLimitsField(AxisPart<?> axis, String tip, Rectangle area)
+	private void showAxisLimitsField(NumericAxis axis, boolean isHigh, Rectangle area)
     {
+		//TODO: field is not immediately show with text inside
 		axisLimitsField.setOnKeyPressed((KeyEvent event)->
 		{
 			if (event.getCode().equals(KeyCode.ENTER))
 			{
 				hideAxisLimitsField();
-				//TODO: new ChangeAxisRanges<XTYPE>(???)
-				//(execute with undo manager)
-				System.out.println("Entered: " + axisLimitsField.getText());
+				if (axisLimitsField.getText().isEmpty()) return;
+				try
+				{
+					Double value = Double.parseDouble(axisLimitsField.getText());
+					changeAxisLimit(axis, isHigh, value);
+				} catch (NumberFormatException e) {} //TODO: do something appropriate?
 			}
-			//todo KeyCode.ESC
-			System.out.println("Canceled: " + axisLimitsField.getText());
+			else if (event.getCode().equals(KeyCode.ESCAPE))
+			{
+				hideAxisLimitsField();
+			}
 		});
 		
+		String tip = isHigh ? axis.getValueRange().getHigh().toString() :
+			axis.getValueRange().getLow().toString();
     	axisLimitsField.setText(tip);
     	axisLimitsField.setTooltip(new Tooltip(tip));
 		axisLimitsField.setVisible(true);
 		axisLimitsField.relocate(area.getX(), area.getY());
-		axisLimitsField.resize(area.getWidth(), area.getHeight());
+		axisLimitsField.resize(area.getWidth(), area.getHeight()); //TODO: wider?
 		axisLimitsField.requestFocus();
 	}
-    
+	
+	protected void changeAxisLimit(NumericAxis axis, boolean isHigh, Double value)
+	{
+		//TODO: correct Messages for ChangeAxisRanges objects
+		AxisRange<Double> old_range = axis.getValueRange();
+		AxisRange<Double> new_range = isHigh ? new AxisRange<>(old_range.getLow(), value) :
+			new AxisRange<>(value, old_range.getHigh());
+		if (axis instanceof YAxisImpl<?>) //Y axis?
+		{
+			@SuppressWarnings("unchecked")
+			YAxisImpl<XTYPE> y_axis = (YAxisImpl<XTYPE>)axis; //safe to cast, because plot.getYAxes() returns
+				//List<YAxisImpl<XTYPE>>
+			getUndoableActionManager().execute(new ChangeAxisRanges<>(plot, "NoMessage", Arrays.asList(y_axis),
+					Arrays.asList(old_range), Arrays.asList(new_range),
+					Arrays.asList(y_axis.isAutoscale())));
+			plot.fireYAxisChange(y_axis);
+		}
+		else //X axis
+		{
+			@SuppressWarnings("unchecked")
+			Plot<Double> x_plot = (Plot<Double>)plot; //safe to cast, because a Plot<XTYPE> has an x-axis
+				//which is an AxisPart<Double>, and a NumericAxis is an AxisPart<Double>
+			getUndoableActionManager().execute(new ChangeAxisRanges<>(x_plot, "NoMessage", axis, old_range,
+					new_range));
+			plot.fireXAxisChange();
+		}
+	}
+	
     private void hideAxisLimitsField()
     {
 		axisLimitsField.setVisible(false);
@@ -157,7 +190,13 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
     
     private void mouseClicked(MouseEvent event)
     {
-    	MouseMode mouse_mode = MouseMode.NONE; //TODO: get mouse mode
+    	//TODO: Would be better to let the Axis or Plot handle the clickable areas. The Plot
+    	//could check its own mouse mode without passing it to this RTPlot. Could get info
+    	//from click coordinates: which axis was clicked, which end of that axis. Best method
+    	//would return both simultaneously. Second-best would let Plot give which axis,
+    	//and Axis give which end.
+    	//An idea: Also might add some feedback on mouseover of the area.
+    	MouseMode mouse_mode = MouseMode.NONE; //stop-gap; must fix this
     	if ((mouse_mode == MouseMode.NONE || mouse_mode == MouseMode.PAN) && event.getClickCount() == 2)
         {
         	//Do the upper or lower end regions any y-axes contain the click?
@@ -171,43 +210,40 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
         		Rectangle lower = new Rectangle(x, (int) axis.getBounds().getMaxY()-h, w, h);
         		if (upper.contains(event.getX(), event.getY()))
         		{
-        			System.out.println("Clicked upper y axis.");
-        			showAxisLimitsField(axis, axis.getValueRange().getHigh().toString(), upper);
+        			showAxisLimitsField(axis, true, upper);
         			return;
         		}
         		else if (lower.contains(event.getX(), event.getY()))
         		{
-        			System.out.println("Clicked lower y axis.");
-        			showAxisLimitsField(axis, axis.getValueRange().getLow().toString(), lower);
+        			showAxisLimitsField(axis, false, lower);
         			return;
         		}
     		}
         	//Do the left-side (lesser) or right-side (greater) end regions of the x-axis contain?
-        	AxisPart<XTYPE> x_axis = plot.getXAxis();
-        	int y = (int) x_axis.getBounds().getY();
-        	int h = (int) x_axis.getBounds().getHeight();
-        	int w = (int) Math.min(x_axis.getBounds().getWidth()/2, h);
-        	Rectangle lesser = new Rectangle((int) x_axis.getBounds().getX(), y, w, h);
-        	Rectangle greater = new Rectangle((int) x_axis.getBounds().getMaxX()-w, y, w, h);
-    		if (lesser.contains(event.getX(), event.getY()))
-    		{
-    			System.out.println("Clicked lower x axis.");
-    			showAxisLimitsField(x_axis, x_axis.getValueRange().getHigh().toString(), lesser);
-    			return;
-    		}
-    		else if (greater.contains(event.getX(), event.getY()))
-    		{
-    			System.out.println("Clicked upper x axis.");
-    			showAxisLimitsField(x_axis, x_axis.getValueRange().getLow().toString(), greater);
-    			return;
-    		}
+        	if (plot.getXAxis() instanceof NumericAxis)
+        	{
+        		NumericAxis axis = (NumericAxis)plot.getXAxis();
+	        	int y = (int) axis.getBounds().getY();
+	        	int h = (int) axis.getBounds().getHeight();
+	        	int w = (int) Math.min(axis.getBounds().getWidth()/2, h);
+	        	Rectangle lesser = new Rectangle((int) axis.getBounds().getX(), y, w, h);
+	        	Rectangle greater = new Rectangle((int) axis.getBounds().getMaxX()-w, y, w, h);
+	    		if (lesser.contains(event.getX(), event.getY()))
+	    		{
+	    			showAxisLimitsField(axis, false, lesser);
+	    			return;
+	    		}
+	    		else if (greater.contains(event.getX(), event.getY()))
+	    		{
+	    			showAxisLimitsField(axis, true, greater);
+	    			return;
+	    		}
+        	}
         }
-    	//Axis limits field was not shown, and did not consume click event; therefore,
-    	//if the axis limits field is showing, it must be hidden.
+    	//Click was not on end of axis, nor on the text field; close the field.
     	if (axisLimitsField.isVisible())
     	{
     		hideAxisLimitsField();
-			System.out.println("Canceled: " + axisLimitsField.getText()); //TODO: why does this show up when ENTER is pressed?
     	}
     }
     
@@ -238,7 +274,6 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
             toolbar.selectMouseMode(MouseMode.PAN);
         else
             toolbar.selectMouseMode(MouseMode.NONE);
-        System.out.println("RTPlot consumed event.");
         event.consume();
     }
 
