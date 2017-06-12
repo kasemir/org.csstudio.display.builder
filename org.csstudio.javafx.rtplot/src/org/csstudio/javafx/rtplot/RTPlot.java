@@ -108,7 +108,6 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
             // Don't want to handle key events when mouse is outside the widget.
             // Cannot 'loose focus', so using flag to ignore them
             addEventFilter(MouseEvent.MOUSE_EXITED, event -> handle_keys = false);
-            
             setOnMouseClicked(this::mouseClicked);
     		axisLimitsField = constructAxisLimitsField();
     		center.getChildren().add(axisLimitsField);
@@ -120,6 +119,10 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
     	final TextField field = new TextField();
     	//prevent mouse-clicks in TextField from triggering MouseClicked event for RTPlot
     	field.addEventFilter(MouseEvent.MOUSE_CLICKED, (event)->event.consume());
+    	field.focusedProperty().addListener((prop, oldval, newval)->
+    	{
+    		if (!newval) hideAxisLimitsField();
+    	});
     	field.setVisible(false);
     	field.setManaged(false); //false because we manage layout, not the Parent    	
     	return field;
@@ -190,61 +193,9 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
     
     private void mouseClicked(MouseEvent event)
     {
-    	//TODO: Would be better to let the Axis or Plot handle the clickable areas. The Plot
-    	//could check its own mouse mode without passing it to this RTPlot. Could get info
-    	//from click coordinates: which axis was clicked, which end of that axis. Best method
-    	//would return both simultaneously. Second-best would let Plot give which axis,
-    	//and Axis give which end.
-    	//An idea: Also might add some feedback on mouseover of the area. (Highlight? Cursor?)
-    	MouseMode mouse_mode = MouseMode.NONE; //stop-gap; must fix this
-    	if ((mouse_mode == MouseMode.NONE || mouse_mode == MouseMode.PAN) && event.getClickCount() == 2)
-        {
-        	//Do the upper or lower end regions any y-axes contain the click?
-        	for (YAxisImpl<XTYPE> axis : plot.getYAxes())
-        	{
-        		//Might be unsafe if bounds change between instructions
-        		int x = (int) axis.getBounds().getX();
-        		int w = (int) axis.getBounds().getWidth();
-        		int h = (int) Math.min(axis.getBounds().getHeight()/2, w);
-        		Rectangle upper = new Rectangle(x, (int) axis.getBounds().getY(), w, h);
-        		Rectangle lower = new Rectangle(x, (int) axis.getBounds().getMaxY()-h, w, h);
-        		if (upper.contains(event.getX(), event.getY()))
-        		{
-        			showAxisLimitsField(axis, true, upper);
-        			return;
-        		}
-        		else if (lower.contains(event.getX(), event.getY()))
-        		{
-        			showAxisLimitsField(axis, false, lower);
-        			return;
-        		}
-    		}
-        	//Do the left-side (lesser) or right-side (greater) end regions of the x-axis contain?
-        	if (plot.getXAxis() instanceof NumericAxis)
-        	{
-        		NumericAxis axis = (NumericAxis)plot.getXAxis();
-	        	int y = (int) axis.getBounds().getY();
-	        	int h = (int) axis.getBounds().getHeight();
-	        	int w = (int) Math.min(axis.getBounds().getWidth()/2, h);
-	        	Rectangle lesser = new Rectangle((int) axis.getBounds().getX(), y, w, h);
-	        	Rectangle greater = new Rectangle((int) axis.getBounds().getMaxX()-w, y, w, h);
-	    		if (lesser.contains(event.getX(), event.getY()))
-	    		{
-	    			showAxisLimitsField(axis, false, lesser);
-	    			return;
-	    		}
-	    		else if (greater.contains(event.getX(), event.getY()))
-	    		{
-	    			showAxisLimitsField(axis, true, greater);
-	    			return;
-	    		}
-        	}
-        }
-    	//Click was not on end of axis, nor on the text field; close the field.
-    	if (axisLimitsField.isVisible())
-    	{
-    		hideAxisLimitsField();
-    	}
+    	Object [] info = plot.axisClickInfo(event); 
+    	if (info != null)
+    		showAxisLimitsField((NumericAxis)info[0], (boolean)info[1], (Rectangle)info[2]);
     }
     
     /** onKeyPressed */

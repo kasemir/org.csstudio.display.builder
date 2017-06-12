@@ -97,8 +97,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     private double mouse_annotation_start_value;
 
     final private List<RTPlotListener<XTYPE>> listeners = new CopyOnWriteArrayList<>();
-
-
+    
     // All PlotMarkers
     private final List<PlotMarker<XTYPE>> plot_markers = new CopyOnWriteArrayList<>();
     // Selected plot marker that's being moved by the mouse
@@ -697,7 +696,9 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         if (selectMouseAnnotation() ||
             selectPlotMarker())
             return;
-        else if (mouse_mode == MouseMode.PAN)
+        if ((mouse_mode == MouseMode.NONE || mouse_mode == MouseMode.PAN) && clicks == 2)
+        	; //edit axis ranges (let RTPlot handle it)
+    	else if (mouse_mode == MouseMode.PAN)
         {   // Determine start of 'pan'
             // For affected Y axes, i.e. mouse_y_axis or all,
             // store the pre-pan auto scale state for un-do
@@ -757,6 +758,71 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         }
         else if ((mouse_mode == MouseMode.ZOOM_IN && clicks == 2)  ||  mouse_mode == MouseMode.ZOOM_OUT)
             zoomInOut(current.getX(), current.getY(), ZOOM_FACTOR);
+    }
+    
+    /**
+     * Check if the mouse double-clicked on the end of an axis, and if mouse_mode is PAN or NONE.
+     * If true, return information about the clicked axis; if not, return null.
+     * <p>
+     * @param event MouseEvent to get info for
+     * @return An Object [3] containing:
+     * <ol>
+     * <li>{@link NumericAxis} axis - clicked axis<\li>
+     * <li>boolean isHighEnd - true if click was on high-value end of axis; else, false<\li>
+     * <li>{@link Rectangle} area - dimensions and location of click region<\li>
+     * </ol>
+     */
+    public Object [] axisClickInfo(MouseEvent event)
+    {
+    	//For event.getX(), etc. to work as desired, 'this' must be the source of the MouseEvent
+    	if (!this.equals(event.getSource()))
+    		event = event.copyFor(this, event.getTarget());
+        if ((mouse_mode == MouseMode.NONE || mouse_mode == MouseMode.PAN) && event.getClickCount() == 2)
+        {
+        	double click_x = event.getX();
+        	double click_y = event.getY();
+        	//Do the upper or lower end regions any y-axes contain the click?
+        	for (YAxisImpl<XTYPE> axis : y_axes)
+        	{
+        		//Might be unsafe if bounds change between instructions //TODO: verify safety
+        		int x = (int) axis.getBounds().getX();
+        		int w = (int) axis.getBounds().getWidth();
+        		int h = (int) Math.min(axis.getBounds().getHeight()/2, w);
+        		Rectangle upper = new Rectangle(x, (int) axis.getBounds().getY(), w, h);
+        		Rectangle lower = new Rectangle(x, (int) axis.getBounds().getMaxY()-h, w, h);
+        		if (upper.contains(click_x, click_y))
+        		{
+        			Object [] ret = {axis, true, upper};
+        			return ret;
+        		}
+        		else if (lower.contains(click_x, click_y))
+        		{
+        			Object [] ret = {axis, false, lower};
+        			return ret;
+        		}
+    		}
+        	//Do the left-side (lesser) or right-side (greater) end regions of the x-axis contain it?
+        	if (x_axis instanceof NumericAxis)
+        	{
+        		NumericAxis axis = (NumericAxis)x_axis;
+	        	int y = (int) axis.getBounds().getY();
+	        	int h = (int) axis.getBounds().getHeight();
+	        	int w = (int) Math.min(axis.getBounds().getWidth()/2, h);
+	        	Rectangle lesser = new Rectangle((int) axis.getBounds().getX(), y, w, h);
+	        	Rectangle greater = new Rectangle((int) axis.getBounds().getMaxX()-w, y, w, h);
+	    		if (lesser.contains(click_x, click_y))
+	    		{
+        			Object [] ret = {axis, false, lesser};
+        			return ret;
+	    		}
+	    		else if (greater.contains(click_x, click_y))
+	    		{
+        			Object [] ret = {axis, true, greater};
+        			return ret;
+	    		}
+        	}
+        }
+    	return null;
     }
 
     /** setOnMouseMoved */
