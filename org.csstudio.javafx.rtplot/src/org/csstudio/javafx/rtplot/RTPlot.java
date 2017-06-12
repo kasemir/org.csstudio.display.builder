@@ -121,7 +121,7 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
     	//prevent mouse-clicks in TextField from triggering MouseClicked event for RTPlot
     	field.addEventFilter(MouseEvent.MOUSE_CLICKED, (event)->event.consume());
     	field.setVisible(false);
-    	field.setManaged(false); //false because we manage layout, not the Parent
+    	field.setManaged(false); //false because we manage layout, not the Parent    	
     	return field;
     }
     
@@ -158,28 +158,27 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
 	
 	protected void changeAxisLimit(NumericAxis axis, boolean isHigh, Double value)
 	{
-		//TODO: correct Messages for ChangeAxisRanges objects
 		AxisRange<Double> old_range = axis.getValueRange();
 		AxisRange<Double> new_range = isHigh ? new AxisRange<>(old_range.getLow(), value) :
 			new AxisRange<>(value, old_range.getHigh());
-		//if (new_range.getLow() <= new_range.getHigh()) return; //TODO: is use case for "backwards" axis?
+		//TODO: find where x-axis handles range; it does "backward" ranges oddly
 		if (axis instanceof YAxisImpl<?>) //Y axis?
 		{
 			@SuppressWarnings("unchecked")
 			YAxisImpl<XTYPE> y_axis = (YAxisImpl<XTYPE>)axis; //safe to cast, because plot.getYAxes() returns
 				//List<YAxisImpl<XTYPE>>
-			getUndoableActionManager().execute(new ChangeAxisRanges<>(plot, "NoMessage", Arrays.asList(y_axis),
-					Arrays.asList(old_range), Arrays.asList(new_range),
+			getUndoableActionManager().execute(new ChangeAxisRanges<>(plot, Messages.Set_Axis_Range,
+					Arrays.asList(y_axis), Arrays.asList(old_range), Arrays.asList(new_range),
 					Arrays.asList(y_axis.isAutoscale())));
 			plot.fireYAxisChange(y_axis);
 		}
 		else //X axis
 		{
 			@SuppressWarnings("unchecked")
-			Plot<Double> x_plot = (Plot<Double>)plot; //safe to cast, because a Plot<XTYPE> has an x-axis
-				//which is an AxisPart<Double>, and a NumericAxis is an AxisPart<Double>
-			getUndoableActionManager().execute(new ChangeAxisRanges<>(x_plot, "NoMessage", axis, old_range,
-					new_range));
+			Plot<Double> x_plot = (Plot<Double>)plot; //safe to cast, because 'axis' is a NumericAxis
+				//(an AxisPart<Double>), and an x-axis has the same type parameter as its Plot
+			getUndoableActionManager().execute(new ChangeAxisRanges<>(x_plot, Messages.Set_Axis_Range,
+					axis, old_range, new_range));
 			plot.fireXAxisChange();
 		}
 	}
