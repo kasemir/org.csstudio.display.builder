@@ -127,7 +127,6 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
     
 	private void showAxisLimitsField(NumericAxis axis, boolean isHigh, Rectangle area)
     {
-		//TODO: field is not immediately show with text inside
 		axisLimitsField.setOnKeyPressed((KeyEvent event)->
 		{
 			if (event.getCode().equals(KeyCode.ENTER))
@@ -138,7 +137,7 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
 				{
 					Double value = Double.parseDouble(axisLimitsField.getText());
 					changeAxisLimit(axis, isHigh, value);
-				} catch (NumberFormatException e) {} //TODO: do something appropriate?
+				} catch (NumberFormatException e) {}
 			}
 			else if (event.getCode().equals(KeyCode.ESCAPE))
 			{
@@ -152,8 +151,9 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
     	axisLimitsField.setTooltip(new Tooltip(tip));
 		axisLimitsField.setVisible(true);
 		axisLimitsField.relocate(area.getX(), area.getY());
-		axisLimitsField.resize(area.getWidth(), area.getHeight()); //TODO: wider?
+		axisLimitsField.resize(area.getWidth(), area.getHeight());
 		axisLimitsField.requestFocus();
+		axisLimitsField.layout(); //force text to appear in field
 	}
 	
 	protected void changeAxisLimit(NumericAxis axis, boolean isHigh, Double value)
@@ -162,6 +162,7 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
 		AxisRange<Double> old_range = axis.getValueRange();
 		AxisRange<Double> new_range = isHigh ? new AxisRange<>(old_range.getLow(), value) :
 			new AxisRange<>(value, old_range.getHigh());
+		//if (new_range.getLow() <= new_range.getHigh()) return; //TODO: is use case for "backwards" axis?
 		if (axis instanceof YAxisImpl<?>) //Y axis?
 		{
 			@SuppressWarnings("unchecked")
@@ -195,7 +196,7 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
     	//from click coordinates: which axis was clicked, which end of that axis. Best method
     	//would return both simultaneously. Second-best would let Plot give which axis,
     	//and Axis give which end.
-    	//An idea: Also might add some feedback on mouseover of the area.
+    	//An idea: Also might add some feedback on mouseover of the area. (Highlight? Cursor?)
     	MouseMode mouse_mode = MouseMode.NONE; //stop-gap; must fix this
     	if ((mouse_mode == MouseMode.NONE || mouse_mode == MouseMode.PAN) && event.getClickCount() == 2)
         {
