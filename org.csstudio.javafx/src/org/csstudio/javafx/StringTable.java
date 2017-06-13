@@ -277,6 +277,15 @@ public class StringTable extends BorderPane
         setData(Arrays.asList(Arrays.asList()));
     }
 
+    /** @param select_rows Select complete rows, or individual cells? */
+    public void setRowSelectionMode(final boolean select_rows)
+    {
+    	if (select_rows)
+            table.getSelectionModel().setCellSelectionEnabled(false);
+    	else
+            table.getSelectionModel().setCellSelectionEnabled(true);
+    }
+    
     /** @param listener Listener to notify of changes */
     public void setListener(final StringTableListener listener)
     {
