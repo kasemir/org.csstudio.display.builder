@@ -164,12 +164,10 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
 		AxisRange<Double> old_range = axis.getValueRange();
 		AxisRange<Double> new_range = isHigh ? new AxisRange<>(old_range.getLow(), value) :
 			new AxisRange<>(value, old_range.getHigh());
-		//TODO: find where x-axis handles range; it does "backward" ranges oddly
 		if (axis instanceof YAxisImpl<?>) //Y axis?
 		{
 			@SuppressWarnings("unchecked")
-			YAxisImpl<XTYPE> y_axis = (YAxisImpl<XTYPE>)axis; //safe to cast, because plot.getYAxes() returns
-				//List<YAxisImpl<XTYPE>>
+			YAxisImpl<XTYPE> y_axis = (YAxisImpl<XTYPE>)axis;
 			getUndoableActionManager().execute(new ChangeAxisRanges<>(plot, Messages.Set_Axis_Range,
 					Arrays.asList(y_axis), Arrays.asList(old_range), Arrays.asList(new_range),
 					Arrays.asList(y_axis.isAutoscale())));

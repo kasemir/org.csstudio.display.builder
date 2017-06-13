@@ -29,6 +29,7 @@ import org.csstudio.javafx.rtplot.Axis;
 import org.csstudio.javafx.rtplot.AxisRange;
 import org.csstudio.javafx.rtplot.ColorMappingFunction;
 import org.csstudio.javafx.rtplot.Interpolation;
+import org.csstudio.javafx.rtplot.Messages;
 import org.csstudio.javafx.rtplot.RTImagePlotListener;
 import org.csstudio.javafx.rtplot.RegionOfInterest;
 import org.csstudio.javafx.rtplot.internal.undo.ChangeImageZoom;
@@ -851,6 +852,63 @@ public class ImagePlot extends PlotCanvasBase
             updateLocationInfo(e.getX(), e.getY());
     }
 
+    /**
+     * Check if the mouse double-clicked on the end of an axis, and if mouse_mode is PAN or NONE.
+     * If true, return information about the clicked axis; if not, return null.
+     * @author Amanda Carpenter
+     * @param event MouseEvent to get info for
+     * @return An Object [3] containing:
+     * <ol>
+     * <li>{@link AxisPart}&lt;Double&gt; axis - clicked axis<\li>
+     * <li>boolean isHighEnd - true if click was on high-value end of axis; else, false<\li>
+     * <li>{@link Rectangle} area - dimensions and location of click region<\li>
+     * </ol>
+     */
+    public Object [] axisClickInfo(MouseEvent event)
+    {
+    	//For event.getX(), etc. to work as desired, 'this' must be the source of the MouseEvent
+    	if (!this.equals(event.getSource()))
+    		event = event.copyFor(this, event.getTarget());
+        if ((mouse_mode == MouseMode.NONE || mouse_mode == MouseMode.PAN) && event.getClickCount() == 2)
+        {
+        	double click_x = event.getX();
+        	double click_y = event.getY();
+        	//Do the upper or lower end regions of y_axis contain the click?
+    		int x = (int) y_axis.getBounds().getX();
+    		int w = (int) y_axis.getBounds().getWidth();
+    		int h = (int) Math.min(y_axis.getBounds().getHeight()/2, w);
+    		Rectangle upper = new Rectangle(x, (int) y_axis.getBounds().getY(), w, h);
+    		Rectangle lower = new Rectangle(x, (int) y_axis.getBounds().getMaxY()-h, w, h);
+    		if (upper.contains(click_x, click_y))
+    		{
+    			Object [] ret = {y_axis, true, upper};
+    			return ret;
+    		}
+    		else if (lower.contains(click_x, click_y))
+    		{
+    			Object [] ret = {y_axis, false, lower};
+    			return ret;
+    		}
+        	//Do the left-side (lesser) or right-side (greater) end regions of the x-axis contain it?
+        	int y = (int) x_axis.getBounds().getY();
+        	h = (int) x_axis.getBounds().getHeight();
+        	w = (int) Math.min(x_axis.getBounds().getWidth()/2, h);
+        	Rectangle lesser = new Rectangle((int) x_axis.getBounds().getX(), y, w, h);
+        	Rectangle greater = new Rectangle((int) x_axis.getBounds().getMaxX()-w, y, w, h);
+    		if (lesser.contains(click_x, click_y))
+    		{
+    			Object [] ret = {x_axis, false, lesser};
+    			return ret;
+    		}
+    		else if (greater.contains(click_x, click_y))
+    		{
+    			Object [] ret = {x_axis, true, greater};
+    			return ret;
+        	}
+        }
+    	return null;
+    }
+    
     /** Update information about the image location under the mouse pointer
      *  @param mouse_x
      *  @param mouse_y
@@ -960,7 +1018,7 @@ public class ImagePlot extends PlotCanvasBase
         if (mouse_mode == MouseMode.PAN_PLOT)
         {
             mouseMove(e);
-            undo.add(new ChangeImageZoom(x_axis, mouse_start_x_range, x_axis.getValueRange(),
+            undo.add(new ChangeImageZoom(Messages.Pan, x_axis, mouse_start_x_range, x_axis.getValueRange(),
                                          y_axis, mouse_start_y_range, y_axis.getValueRange()));
             mouse_mode = MouseMode.PAN;
             mouse_start_x_range = null;

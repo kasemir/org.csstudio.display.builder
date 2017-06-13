@@ -763,11 +763,11 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     /**
      * Check if the mouse double-clicked on the end of an axis, and if mouse_mode is PAN or NONE.
      * If true, return information about the clicked axis; if not, return null.
-     * <p>
+     * @author Amanda Carpenter
      * @param event MouseEvent to get info for
      * @return An Object [3] containing:
      * <ol>
-     * <li>{@link NumericAxis} axis - clicked axis<\li>
+     * <li>{@link AxisPart}&lt;Double&gt; axis - clicked axis<\li>
      * <li>boolean isHighEnd - true if click was on high-value end of axis; else, false<\li>
      * <li>{@link Rectangle} area - dimensions and location of click region<\li>
      * </ol>
