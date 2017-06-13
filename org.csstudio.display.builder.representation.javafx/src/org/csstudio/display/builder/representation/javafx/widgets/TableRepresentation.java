@@ -138,13 +138,14 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
             });
         }
 
-        UntypedWidgetPropertyListener listener = this::styleChanged;
+        final UntypedWidgetPropertyListener listener = this::styleChanged;
         model_widget.propWidth().addUntypedPropertyListener(listener);
         model_widget.propHeight().addUntypedPropertyListener(listener);
         model_widget.propBackgroundColor().addUntypedPropertyListener(listener);
         model_widget.propForegroundColor().addUntypedPropertyListener(listener);
         model_widget.propFont().addUntypedPropertyListener(listener);
         model_widget.propToolbar().addUntypedPropertyListener(listener);
+        model_widget.propRowSelectionMode().addUntypedPropertyListener(listener);
 
         columnsChanged(model_widget.propColumns(), null, model_widget.propColumns().getValue());
         model_widget.propColumns().addPropertyListener(this::columnsChanged);
@@ -274,6 +275,7 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
             jfx_node.setTextColor(JFXUtil.convert(model_widget.propForegroundColor().getValue()));
             jfx_node.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
             jfx_node.showToolbar(model_widget.propToolbar().getValue());
+            jfx_node.setRowSelectionMode(model_widget.propRowSelectionMode().getValue());
         }
 
         if (dirty_columns.checkAndClear())
