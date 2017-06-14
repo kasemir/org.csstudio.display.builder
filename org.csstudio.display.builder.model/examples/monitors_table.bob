@@ -154,6 +154,14 @@ You can then edit the cells:</text>
         </options>
       </column>
     </columns>
+    <rules>
+      <rule name="Select Rows?" prop_id="row_selection_mode" out_exp="true">
+        <exp bool_exp="true">
+          <expression>pv0&gt;0</expression>
+        </exp>
+        <pv_name>loc://sel_rows(1)</pv_name>
+      </rule>
+    </rules>
     <scripts>
       <script file="EmbeddedPy">
         <text><![CDATA[# Embedded python script
@@ -196,8 +204,8 @@ widget.setValue(data)]]></text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_4</name>
-    <text>Information about the currently selected cells in the table
-are written to a PV.
+    <text>Information about the currently selected cells
+(or complete rows) in the table are written to a PV.
 That value can itself be displayed in a table:</text>
     <x>521</x>
     <y>542</y>
@@ -469,5 +477,13 @@ table.setValue(data)
     <x>740</x>
     <y>810</y>
     <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="checkbox" version="2.0.0">
+    <name>CheckBox</name>
+    <pv_name>loc://sel_rows(1)</pv_name>
+    <label>Select rows?</label>
+    <x>980</x>
+    <y>570</y>
+    <width>112</width>
   </widget>
 </display>
