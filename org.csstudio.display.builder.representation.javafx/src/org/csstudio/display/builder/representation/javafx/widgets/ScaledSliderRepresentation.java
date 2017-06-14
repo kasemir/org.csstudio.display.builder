@@ -374,8 +374,10 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
 
             if (model_widget.propShowScale().getValue())
             {
-                final String format = model_widget.propScaleFormat().getValue();
-                slider.setLabelFormatter(new FormatStringConverter<Double>(new DecimalFormat(format)));
+                String format = model_widget.propScaleFormat().getValue();
+                if (format.isEmpty())
+                	format = "#.#";
+            	slider.setLabelFormatter(new FormatStringConverter<Double>(new DecimalFormat(format)));
                 slider.setShowTickLabels(true);
                 slider.setShowTickMarks(model_widget.propShowMinorTicks().getValue());
             }
