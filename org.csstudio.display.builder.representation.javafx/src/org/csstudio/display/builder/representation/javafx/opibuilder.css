@@ -68,7 +68,7 @@
 /** Allow more room for text in combo box */
 .combo-box > .list-cell
 {
-    -fx-padding: 0em 0.333333em 0em 0.333333em;
+    -fx-padding: 0em 0em 0em 0.2em;
     -fx-wrap-text: true;
     -fx-text-overrun: clip;
 }
