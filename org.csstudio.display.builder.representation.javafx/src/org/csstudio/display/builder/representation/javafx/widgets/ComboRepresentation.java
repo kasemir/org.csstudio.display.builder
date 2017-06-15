@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -21,16 +22,8 @@ import org.diirt.vtype.VEnum;
 import org.diirt.vtype.VType;
 
 import javafx.collections.FXCollections;
-import javafx.geometry.Insets;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.util.Callback;
 
 /** Creates JavaFX item for model widget
  *  @author Amanda Carpenter
@@ -44,7 +37,6 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
     private final DirtyFlag dirty_enable = new DirtyFlag();
     private volatile List<String> items = Collections.emptyList();
     private volatile int index = -1;
-    private volatile Callback<ListView<String>,ListCell<String>> cellFactory = null;
 
     @Override
     public ComboBox<String> createJFXNode() throws Exception
@@ -70,7 +62,6 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
                 }
             });
         }
-        cellFactory = combo.getCellFactory();
         return combo;
     }
 
@@ -99,33 +90,8 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
         styleChanged(null, null, null);
     }
 
-    private Callback<ListView<String>,ListCell<String>> createCellFactory(Color fg, Color bg, Font font)
-    {
-        return (param)->
-        {
-            ListCell<String> cell = new ListCell<String>()
-            {
-                @Override
-                public void updateItem(String item, boolean empty)
-                {
-                    super.updateItem(item, empty);
-                    setText(item);
-                }
-            };
-            cell.setTextFill(fg);
-            cell.setBackground(new Background(new BackgroundFill(bg, CornerRadii.EMPTY, Insets.EMPTY)));
-            cell.setFont(font);
-
-            return cell;
-        };
-    }
-
     private void styleChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        cellFactory = createCellFactory(JFXUtil.convert(model_widget.propForegroundColor().getValue()),
-                                        JFXUtil.convert(model_widget.propBackgroundColor().getValue()),
-                                        JFXUtil.convert(model_widget.propFont().getValue()) );
-
         dirty_style.mark();
         toolkit.scheduleUpdate(this);
     }
@@ -187,13 +153,23 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
         super.updateChanges();
         if (dirty_style.checkAndClear())
         {
+
             jfx_node.setPrefSize(model_widget.propWidth().getValue(),
                                  model_widget.propHeight().getValue());
-            if (cellFactory != null)
-            {
-                //jfx_node.setCellFactory(cellFactory);
-                jfx_node.setButtonCell(cellFactory.call(null));
-            }
+
+            Font f = JFXUtil.convert(model_widget.propFont().getValue());
+
+            jfx_node.setStyle(MessageFormat.format(
+                "-fx-body-color: linear-gradient(to bottom,ladder({0}, derive({0},8%) 75%, derive({0},10%) 80%), derive({0},-8%)); "
+              + "-fx-text-base-color: ladder(-fx-color, -fx-light-text-color 45%, -fx-dark-text-color 46%, -fx-dark-text-color 59%, {1}); "
+              + "-fx-font: {2} {3}px \"{4}\";",
+                JFXUtil.webRGB(model_widget.propBackgroundColor().getValue()),
+                JFXUtil.webRGB(model_widget.propForegroundColor().getValue()),
+                f.getStyle().toLowerCase().replace("regular", "normal"),
+                f.getSize(),
+                f.getFamily()
+            ));
+
         }
         if (dirty_content.checkAndClear())
         {
