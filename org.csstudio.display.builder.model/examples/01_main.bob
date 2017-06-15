@@ -26,7 +26,7 @@
     <transparent use_class="true">true</transparent>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>Label_1</name>
+    <name>Information</name>
     <text>Information</text>
     <y>50</y>
     <width>120</width>
@@ -135,7 +135,7 @@
     <tooltip>$(actions)</tooltip>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>Label_2</name>
+    <name>Widgets</name>
     <text>Widgets</text>
     <x>190</x>
     <y>50</y>
@@ -147,7 +147,7 @@
     </font>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>Label_3</name>
+    <name>Graphics</name>
     <text>Graphics</text>
     <x>190</x>
     <y>90</y>
@@ -204,7 +204,7 @@
     <tooltip>$(actions)</tooltip>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>Label_4</name>
+    <name>Monitors</name>
     <text>Monitors</text>
     <x>330</x>
     <y>90</y>
@@ -291,7 +291,7 @@
     <tooltip>$(actions)</tooltip>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>Label_5</name>
+    <name>Controls</name>
     <text>Controls</text>
     <x>470</x>
     <y>90</y>
@@ -408,7 +408,7 @@
     <tooltip>$(actions)</tooltip>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>Label_6</name>
+    <name>Plots</name>
     <text>Plots</text>
     <x>610</x>
     <y>90</y>
@@ -449,8 +449,23 @@
     <height>26</height>
     <tooltip>$(actions)</tooltip>
   </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_21</name>
+    <actions>
+      <action type="open_display">
+        <file>plots_databrowser.bob</file>
+        <target>replace</target>
+        <description>Data Browser</description>
+      </action>
+    </actions>
+    <x>610</x>
+    <y>200</y>
+    <width>120</width>
+    <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
   <widget type="label" version="2.0.0">
-    <name>Label_7</name>
+    <name>Structure</name>
     <text>Structure</text>
     <x>750</x>
     <y>90</y>
@@ -537,7 +552,7 @@
     <tooltip>$(actions)</tooltip>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>Label_8</name>
+    <name>Misc</name>
     <text>Miscellaneous</text>
     <x>890</x>
     <y>90</y>
