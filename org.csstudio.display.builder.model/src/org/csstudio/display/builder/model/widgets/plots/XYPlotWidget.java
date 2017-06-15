@@ -258,13 +258,17 @@ public class XYPlotWidget extends VisibleWidget
             // "trace_0_..." held the trace info
             for (int legacy_trace=0; legacy_trace < trace_count; ++legacy_trace)
             {
+                // Y PV
+                final String pv_name = XMLUtil.getChildString(xml, "trace_" + legacy_trace + "_y_pv").orElse("");
+                
                 // Was legacy widget used with scalar data, concatenated into waveform?
                 final Optional<String> concat = XMLUtil.getChildString(xml, "trace_" + legacy_trace + "_concatenate_data");
                 if (concat.isPresent()  &&  concat.get().equals("true"))
-                    logger.log(Level.WARNING, plot + " does not support 'concatenate_data' for trace " + legacy_trace);
-
-                // Y PV
-                final String pv_name = XMLUtil.getChildString(xml, "trace_" + legacy_trace + "_y_pv").orElse("");
+                {
+                	logger.log(Level.WARNING, plot + " does not support 'concatenate_data' for trace " + legacy_trace + ", PV " + pv_name);
+                	logger.log(Level.WARNING, "To plot a scalar PV over time, consider the Data Browser widget");
+                }
+                
                 final TraceWidgetProperty trace;
                 if (plot.traces.size() <= legacy_trace)
                     trace = plot.traces.addElement();
