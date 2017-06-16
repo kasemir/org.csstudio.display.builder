@@ -449,7 +449,7 @@ public class StringTable extends BorderPane
      *  list (combo box) for selecting one of the options.
      *
      *  @param column Column index, 0 .. <code>getHeaders().size()-1</code>
-     *  @param options
+     *  @param options Options, may be <code>null</code>
      */
     public void setColumnOptions(final int column, final List<String> options)
     {

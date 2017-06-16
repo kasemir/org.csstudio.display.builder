@@ -291,7 +291,10 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
 
                 final List<WidgetProperty<String>> options_value = column.options().getValue();
                 if (options_value.isEmpty())
-                    jfx_node.setColumnOptions(col, Collections.emptyList());
+                {
+                	// See https://github.com/kasemir/org.csstudio.display.builder/issues/245
+                    jfx_node.setColumnOptions(col, null);
+                }
                 else
                 {
                     final List<String> options = new ArrayList<>();

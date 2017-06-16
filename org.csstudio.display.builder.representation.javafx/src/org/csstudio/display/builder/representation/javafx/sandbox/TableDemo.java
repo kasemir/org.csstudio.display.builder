@@ -79,6 +79,15 @@ public class TableDemo extends Application
 
         // Example scene
         final Label label = new Label("Demo:");
+
+        final Button new_headers = new Button("New Headers");
+        new_headers.setOnAction(event ->
+        {
+            table.setHeaders(Arrays.asList("One", "Other"));
+            table.setColumnOptions(0, null);
+            table.setColumnOptions(1, Arrays.asList("Two", "Due", "Zwo", "1+2-1"));
+        });
+        
         final Button new_data = new Button("New Data");
         new_data.setOnAction(event ->
         {
@@ -104,7 +113,7 @@ public class TableDemo extends Application
         final BorderPane layout = new BorderPane();
         layout.setTop(label);
         layout.setCenter(table);
-        layout.setRight(new VBox(10, new_data, set_color, sel_row));
+        layout.setRight(new VBox(10, new_headers, new_data, set_color, sel_row));
 
         final Scene scene = new Scene(layout, 800, 700);
         stage.setScene(scene);
