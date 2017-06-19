@@ -59,6 +59,7 @@ import org.csstudio.display.builder.model.widgets.RectangleWidget;
 import org.csstudio.display.builder.model.widgets.ScaledSliderWidget;
 import org.csstudio.display.builder.model.widgets.ScrollBarWidget;
 import org.csstudio.display.builder.model.widgets.SpinnerWidget;
+import org.csstudio.display.builder.model.widgets.SymbolWidget;
 import org.csstudio.display.builder.model.widgets.TableWidget;
 import org.csstudio.display.builder.model.widgets.TabsWidget;
 import org.csstudio.display.builder.model.widgets.TankWidget;
@@ -100,6 +101,7 @@ import org.csstudio.display.builder.representation.javafx.widgets.RectangleRepre
 import org.csstudio.display.builder.representation.javafx.widgets.ScaledSliderRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.ScrollBarRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.SpinnerRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.SymbolRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TableRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TabsRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TankRepresentation;
@@ -270,8 +272,9 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         factories.put(RadioWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new RadioRepresentation());
         factories.put(RectangleWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new RectangleRepresentation());
         factories.put(ScaledSliderWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new ScaledSliderRepresentation());
-        factories.put(SpinnerWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new SpinnerRepresentation());
         factories.put(ScrollBarWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new ScrollBarRepresentation());
+        factories.put(SpinnerWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new SpinnerRepresentation());
+        factories.put(SymbolWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new SymbolRepresentation());
         factories.put(TableWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new TableRepresentation());
         factories.put(TabsWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new TabsRepresentation());
         factories.put(TankWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new TankRepresentation());
