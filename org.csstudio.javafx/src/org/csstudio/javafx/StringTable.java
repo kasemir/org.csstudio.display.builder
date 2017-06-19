@@ -90,6 +90,9 @@ public class StringTable extends BorderPane
      */
     private static final List<String> MAGIC_LAST_ROW = Arrays.asList(Messages.MagicLastRow);
 
+    /** Value used to temporarily detach the 'data' from table */
+    private static final ObservableList<List<String>> NO_DATA = FXCollections.observableArrayList();
+
     /** Data shown in the table, includes MAGIC_LAST_ROW */
     private final ObservableList<List<String>> data = FXCollections.observableArrayList();
 
@@ -104,12 +107,14 @@ public class StringTable extends BorderPane
     {
         final TableView<List<String>> table = param.getTableView();
         final int col_index = table.getColumns().indexOf(param.getTableColumn());
-        List<String> value = param.getValue();
+        final List<String> value = param.getValue();
         final String text;
         if (value == MAGIC_LAST_ROW)
             text = col_index == 0 ? MAGIC_LAST_ROW.get(0): "";
-        else
+        else if (col_index < value.size())
             text = value.get(col_index);
+        else
+        	text = "<col " + col_index + "?>";
         return new SimpleStringProperty(text);
     };
 
@@ -829,10 +834,19 @@ public class StringTable extends BorderPane
         cell_colors = null;
         if (column < 0)
             column = table.getColumns().size();
+        
+        // Cannot update data and table concurrently, so detach data from table:
+        table.setItems(NO_DATA);
+        // Add new column
         createTableColumn(column, name);
+        // Add empty col. to data
         for (List<String> row : data)
             if (row != MAGIC_LAST_ROW)
                 row.add(column, "");
+        // Show the updated data
+        table.setItems(data);
+        table.refresh();
+        
         fireTableChanged();
     }
 
@@ -871,7 +885,7 @@ public class StringTable extends BorderPane
         // concurrently because otherwise a checkbox cell would briefly try to
         // represent non-boolean data, resulting in a long stack trace.
         // Cannot update data and table concurrently, so detach data from table:
-        table.setItems(null);
+        table.setItems(NO_DATA);
 
         // Move table column
         final TableColumn<List<String>, ?> col = table.getColumns().remove(column);
@@ -900,10 +914,16 @@ public class StringTable extends BorderPane
         final int column = getSelectedColumn();
         if (column < 0)
             return;
+        // Detach data from table
+        table.setItems(NO_DATA);
+        // Update table columns
         table.getColumns().remove(column);
+        // Remove that column from data
         for (List<String> row : data)
-            if (row != MAGIC_LAST_ROW)
+            if (row != MAGIC_LAST_ROW  &&  column < row.size())
                 row.remove(column);
+        // Re-attach data to table
+        table.setItems(data);
         fireTableChanged();
     }
 
