@@ -254,11 +254,18 @@ public class StringTable extends BorderPane
             public void onChanged(Change<? extends Object> change)
             {
                 change.next();
-                if(change.wasReplaced())
+                if (change.wasReplaced())
                 {
                     // setAll doesn't work, must clear and then set
+                    // System.out.println("Restoring columns to " +
+                    //                    columns.stream().map(c -> c.getText()).collect(Collectors.toList()));
+                    // Change columns while data has been detached
+                    table.setItems(NO_DATA);
                     table.getColumns().clear();
                     table.getColumns().addAll(columns);
+                    // Re-attach data and force update
+                    table.setItems(data);
+                    table.refresh();
                 }
             }
          });
