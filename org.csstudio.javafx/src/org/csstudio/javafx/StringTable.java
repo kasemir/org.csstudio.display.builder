@@ -411,12 +411,21 @@ public class StringTable extends BorderPane
      */
     public void setHeaders(final List<String> headers)
     {
+        // Remove all data
+        table.setItems(NO_DATA);
+
         table.getColumns().clear();
         cell_colors = null;
+        
+        // Start over with no data, since table columns changed
         data.clear();
         if (editable)
             data.add(MAGIC_LAST_ROW);
-
+        table.setItems(data);
+        // Forcing this refresh avoids https://github.com/kasemir/org.csstudio.display.builder/issues/245,
+        // an IndexOutOfBoundsException somewhere in CSS updates that uses the wrong table row count 
+        table.refresh();
+        
         for (String header : headers)
             createTableColumn(-1, header);
     }
