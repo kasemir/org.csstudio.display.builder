@@ -639,7 +639,7 @@ public class ImagePlot extends PlotCanvasBase
      */
     private static BufferedImage drawData(final int data_width, final int data_height, final ListNumber numbers,
                                           final ToDoubleFunction<IteratorNumber> next_sample_func,
-                                          final double min, final double max, final ColorMappingFunction color_mapping)
+                                          double min, double max, final ColorMappingFunction color_mapping)
     {
         if (data_width <= 0  ||  data_height <= 0)
         {
@@ -655,7 +655,8 @@ public class ImagePlot extends PlotCanvasBase
         if (!  (min < max))  // Implies min and max being finite, not-NaN
         {
             logger.log(Level.WARNING, "Invalid value range {0} .. {1}", new Object[] { min, max });
-            return null;
+            min = 0.0;
+            max = 1.0;
         }
 
         // final long start = System.nanoTime();
