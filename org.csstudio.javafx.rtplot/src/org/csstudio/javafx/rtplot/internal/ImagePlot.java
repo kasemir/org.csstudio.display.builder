@@ -641,16 +641,26 @@ public class ImagePlot extends PlotCanvasBase
                                           final ToDoubleFunction<IteratorNumber> next_sample_func,
                                           double min, double max, final ColorMappingFunction color_mapping)
     {
+        // final long start = System.nanoTime();
+
         if (data_width <= 0  ||  data_height <= 0)
         {
-            logger.log(Level.FINE, "Cannot draw image sized {0} x {1}", new Object[] { data_width, data_height });
+            // With invalid size, cannot create a BufferedImage, not even for the error message
+            logger.log(Level.WARNING, "Cannot draw image sized {0} x {1}", new Object[] { data_width, data_height });
             return null;
         }
+
+        final BufferedImage image = new BufferedImage(data_width, data_height, BufferedImage.TYPE_INT_ARGB);
         if (numbers.size() < data_width * data_height)
         {
-            logger.log(Level.WARNING, "Image sized {0} x {1} received only {2} data samples",
-                                      new Object[] { data_width, data_height, numbers.size() });
-            return null;
+            final String message = "Image sized " + data_width + " x " + data_height +
+                                   " received only " + numbers.size() + " data samples";
+            logger.log(Level.WARNING, message);
+            final Graphics2D gc = image.createGraphics();
+            gc.setColor(Color.RED);
+            gc.drawString(message, 0, 10);
+            gc.dispose();
+            return image;
         }
         if (!  (min < max))  // Implies min and max being finite, not-NaN
         {
@@ -659,9 +669,6 @@ public class ImagePlot extends PlotCanvasBase
             max = 1.0;
         }
 
-        // final long start = System.nanoTime();
-
-        final BufferedImage image = new BufferedImage(data_width, data_height, BufferedImage.TYPE_INT_ARGB);
         // Direct access to 'int' pixels in data buffer is about twice as fast as access
         // via image.setRGB(x, y, color.getRGB()),
         // which in turn is about 3x faster than drawLine or fillRect.
