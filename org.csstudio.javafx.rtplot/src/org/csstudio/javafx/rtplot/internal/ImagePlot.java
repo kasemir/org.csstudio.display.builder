@@ -650,6 +650,8 @@ public class ImagePlot extends PlotCanvasBase
             return null;
         }
 
+        // NOT using BufferUtil because the Graphics2D are only used for error message.
+        // Other image access is directly to raster buffer.
         final BufferedImage image = new BufferedImage(data_width, data_height, BufferedImage.TYPE_INT_ARGB);
         if (numbers.size() < data_width * data_height)
         {
