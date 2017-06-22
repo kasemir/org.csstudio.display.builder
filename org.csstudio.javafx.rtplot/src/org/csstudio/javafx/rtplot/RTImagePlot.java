@@ -7,19 +7,25 @@
  ******************************************************************************/
 package org.csstudio.javafx.rtplot;
 
+import java.awt.Rectangle;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.rtplot.data.PlotDataItem;
+import org.csstudio.javafx.rtplot.internal.AxisPart;
 import org.csstudio.javafx.rtplot.internal.ImagePlot;
 import org.csstudio.javafx.rtplot.internal.ImageToolbarHandler;
 import org.csstudio.javafx.rtplot.internal.MouseMode;
+import org.csstudio.javafx.rtplot.internal.YAxisImpl;
+import org.csstudio.javafx.rtplot.internal.undo.ChangeImageZoom;
 import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 import org.diirt.util.array.ListNumber;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -37,6 +43,8 @@ public class RTImagePlot extends BorderPane
     final protected ImagePlot plot;
     final protected ImageToolbarHandler toolbar;
     private boolean handle_keys = false;
+	private TextField axisLimitsField; //Field for adjusting the limits of the axes
+	private final Pane center = new Pane();
 
     /** Constructor
      *  @param active Active mode where plot reacts to mouse/keyboard?
@@ -49,7 +57,7 @@ public class RTImagePlot extends BorderPane
 
         // Canvas, i.e. plot, is not directly size-manageable by a layout.
         // --> Let BorderPane resize 'center', then plot binds to is size.
-        final Pane center = new Pane(plot);
+        center.getChildren().add(plot);
         final ChangeListener<? super Number> resize_listener = (p, o, n) -> plot.setSize(center.getWidth(), center.getHeight());
         center.widthProperty().addListener(resize_listener);
         center.heightProperty().addListener(resize_listener);
@@ -64,18 +72,89 @@ public class RTImagePlot extends BorderPane
             addEventFilter(MouseEvent.MOUSE_MOVED, event ->
             {
                 handle_keys = true;
-                requestFocus();
+                if (!axisLimitsField.isVisible()) requestFocus();
             } );
             // Don't want to handle key events when mouse is outside the widget.
             // Cannot 'loose focus', so using flag to ignore them
             addEventFilter(MouseEvent.MOUSE_EXITED, event -> handle_keys = false);
+            setOnMouseClicked(this::mouseClicked);
+    		axisLimitsField = constructAxisLimitsField();
+    		center.getChildren().add(axisLimitsField);
         }
     }
+    
+    private TextField constructAxisLimitsField()
+    {
+    	final TextField field = new TextField();
+    	//prevent mouse-clicks in TextField from triggering MouseClicked event for RTPlot
+    	field.addEventFilter(MouseEvent.MOUSE_CLICKED, (event)->event.consume());
+    	field.focusedProperty().addListener((prop, oldval, newval)->
+    	{
+    		if (!newval) hideAxisLimitsField();
+    	});
+    	field.setVisible(false);
+    	field.setManaged(false); //false because we manage layout, not the Parent    	
+    	return field;
+    }
+    
+	private void showAxisLimitsField(AxisPart<Double> axis, boolean isHigh, Rectangle area)
+    {
+		axisLimitsField.setOnKeyPressed((KeyEvent event)->
+		{
+			if (event.getCode().equals(KeyCode.ENTER))
+			{
+				hideAxisLimitsField();
+				if (axisLimitsField.getText().isEmpty()) return;
+				try
+				{
+					Double value = Double.parseDouble(axisLimitsField.getText());
+					changeAxisLimit(axis, isHigh, value);
+				} catch (NumberFormatException e) {}
+			}
+			else if (event.getCode().equals(KeyCode.ESCAPE))
+			{
+				hideAxisLimitsField();
+			}
+		});
+		
+		String tip = isHigh ? axis.getValueRange().getHigh().toString() :
+			axis.getValueRange().getLow().toString();
+    	axisLimitsField.setText(tip);
+    	axisLimitsField.setTooltip(new Tooltip(tip));
+		axisLimitsField.setVisible(true);
+		axisLimitsField.relocate(area.getX(), area.getY());
+		axisLimitsField.resize(area.getWidth(), area.getHeight());
+		axisLimitsField.requestFocus();
+		axisLimitsField.layout(); //force text to appear in field
+	}
+	
+	protected void changeAxisLimit(AxisPart<Double> axis, boolean isHigh, Double value)
+	{
+		AxisRange<Double> old_range = axis.getValueRange();
+		AxisRange<Double> new_range = isHigh ? new AxisRange<>(old_range.getLow(), value) :
+			new AxisRange<>(value, old_range.getHigh());
+		if (axis instanceof YAxisImpl<?>) //Y axis?
+		{
+			getUndoableActionManager().execute(new ChangeImageZoom(Messages.Set_Axis_Range,
+					null, null, null, axis, old_range, new_range));
+		}
+		else //X axis
+		{
+			getUndoableActionManager().execute(new ChangeImageZoom(Messages.Set_Axis_Range,
+					axis, old_range, new_range, null, null, null));
+		}
+	}
+	
+    private void hideAxisLimitsField()
+    {
+		axisLimitsField.setVisible(false);
+    }
+
 
     /** onKeyPressed */
     private void keyPressed(final KeyEvent event)
     {
-        if (! handle_keys)
+        if (! handle_keys || axisLimitsField.isVisible())
             return;
         if (event.getCode() == KeyCode.Z)
             plot.getUndoableActionManager().undoLast();
@@ -94,6 +173,14 @@ public class RTImagePlot extends BorderPane
         else
             toolbar.selectMouseMode(MouseMode.NONE);
         event.consume();
+    }
+    
+    @SuppressWarnings("unchecked")
+	private void mouseClicked(MouseEvent event)
+    {
+    	Object [] info = plot.axisClickInfo(event); 
+    	if (info != null)
+    		showAxisLimitsField((AxisPart<Double>)info[0], (boolean)info[1], (Rectangle)info[2]);
     }
 
     /** @param plot_listener Plot listener */
