@@ -29,6 +29,7 @@ import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget.MarkerPrope
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.widgets.RegionBaseRepresentation;
 import org.csstudio.javafx.rtplot.Axis;
+import org.csstudio.javafx.rtplot.AxisRange;
 import org.csstudio.javafx.rtplot.PlotMarker;
 import org.csstudio.javafx.rtplot.PointType;
 import org.csstudio.javafx.rtplot.RTPlotListener;
@@ -464,14 +465,22 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
 
     private void updateAxisRange(final Axis<Double> plot_axis, final AxisWidgetProperty model_axis)
     {
-        // In autoscale mode, don't update the value range because that would
-        // result in flicker when both we and the autoscaling adjust the range
+        // In auto-scale mode, don't update the value range because that would
+        // result in flicker when both we and the auto-scaling adjust the range
         if (model_axis.autoscale().getValue())
             plot_axis.setAutoscale(true);
         else
         {
             plot_axis.setAutoscale(false);
-            plot_axis.setValueRange(model_axis.minimum().getValue(), model_axis.maximum().getValue());
+            // Originally considered it a great idea to restore the original
+            // model values:
+            //          plot_axis.setValueRange(model_axis.minimum().getValue(), model_axis.maximum().getValue());
+            // But users prefer for the axis to just keep the current range
+            // when auto-scale is disabled.
+            // Update model in case other code wants to 'see' the result of auto-scale.
+            final AxisRange<Double> range = plot_axis.getValueRange();
+            model_axis.minimum().setValue(range.getLow());
+            model_axis.maximum().setValue(range.getHigh());
         }
     }
 
