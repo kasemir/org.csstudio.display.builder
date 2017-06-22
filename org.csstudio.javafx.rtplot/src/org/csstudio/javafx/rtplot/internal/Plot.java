@@ -97,7 +97,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     private double mouse_annotation_start_value;
 
     final private List<RTPlotListener<XTYPE>> listeners = new CopyOnWriteArrayList<>();
-    
+
     // All PlotMarkers
     private final List<PlotMarker<XTYPE>> plot_markers = new CopyOnWriteArrayList<>();
     // Selected plot marker that's being moved by the mouse
@@ -134,7 +134,6 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
 
         if (active)
         {
-            setMouseMode(MouseMode.PAN);
             setOnMousePressed(this::mouseDown);
             setOnMouseMoved(this::mouseMove);
             setOnMouseDragged(this::mouseMove);
@@ -759,7 +758,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         else if ((mouse_mode == MouseMode.ZOOM_IN && clicks == 2)  ||  mouse_mode == MouseMode.ZOOM_OUT)
             zoomInOut(current.getX(), current.getY(), ZOOM_FACTOR);
     }
-    
+
     /**
      * Check if the mouse double-clicked on the end of an axis, and if mouse_mode is PAN or NONE.
      * If true, return information about the clicked axis; if not, return null.
