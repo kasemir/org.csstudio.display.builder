@@ -254,11 +254,18 @@ public class StringTable extends BorderPane
             public void onChanged(Change<? extends Object> change)
             {
                 change.next();
-                if(change.wasReplaced())
+                if (change.wasReplaced())
                 {
                     // setAll doesn't work, must clear and then set
+                    // System.out.println("Restoring columns to " +
+                    //                    columns.stream().map(c -> c.getText()).collect(Collectors.toList()));
+                    // Change columns while data has been detached
+                    table.setItems(NO_DATA);
                     table.getColumns().clear();
                     table.getColumns().addAll(columns);
+                    // Re-attach data and force update
+                    table.setItems(data);
+                    table.refresh();
                 }
             }
          });
@@ -411,12 +418,21 @@ public class StringTable extends BorderPane
      */
     public void setHeaders(final List<String> headers)
     {
+        // Remove all data
+        table.setItems(NO_DATA);
+
         table.getColumns().clear();
         cell_colors = null;
+        
+        // Start over with no data, since table columns changed
         data.clear();
         if (editable)
             data.add(MAGIC_LAST_ROW);
-
+        table.setItems(data);
+        // Forcing this refresh avoids https://github.com/kasemir/org.csstudio.display.builder/issues/245,
+        // an IndexOutOfBoundsException somewhere in CSS updates that uses the wrong table row count 
+        table.refresh();
+        
         for (String header : headers)
             createTableColumn(-1, header);
     }
