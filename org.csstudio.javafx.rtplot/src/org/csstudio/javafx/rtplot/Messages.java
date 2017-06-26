@@ -48,6 +48,7 @@ public class Messages extends NLS
     public static String Scroll_Off_TT;
     public static String Scroll_On_TT;
     public static String Scroll_OnOff;
+    public static String Set_Axis_Range;
     public static String Snapshot;
     public static String Toolbar_Close;
     public static String Toolbar_Hide;

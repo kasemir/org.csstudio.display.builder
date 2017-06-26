@@ -11,6 +11,7 @@ import static org.csstudio.display.builder.representation.ToolkitRepresentation.
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
@@ -53,6 +54,28 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
     private final DirtyFlag dirty_position = new DirtyFlag();
     private final DirtyFlag dirty_range = new DirtyFlag();
     private final DirtyFlag dirty_config = new DirtyFlag();
+
+    /** Data for one trace: X, Y and optional error array */
+    private class LatestData
+    {
+        final ListNumber x_array, y_array, error;
+
+        public LatestData(final ListNumber x_array, final ListNumber y_array, final ListNumber error)
+        {
+            this.x_array = x_array;
+            this.y_array = y_array;
+            this.error = error;
+        }
+    }
+
+    /** Plot needs a consistent combination of X, Y[, Error]
+     *
+     *  <p>Assume we receive updates X1,Y1, then X2,Y2.
+     *  Updates need to be handled on other thread.
+     *  If posting the values to a thread pool, it might handle XY2 _before_ XY1.
+     *  Caching the most recent value avoids handling old data.
+     */
+    private final AtomicReference<LatestData> latest_data = new AtomicReference<>();
 
     private final UntypedWidgetPropertyListener range_listener = (WidgetProperty<?> property, Object old_value, Object new_value) ->
     {
@@ -195,15 +218,23 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
                 x_data = y_data = error = XYVTypeDataProvider.EMPTY;
 
             // Decouple from CAJ's PV thread to avoid deadlock when setData() takes its lock
-            ModelThreadPool.getExecutor().submit(() -> updateData(x_data, y_data, error));
+            latest_data.set(new LatestData(x_data, y_data, error));
+            ModelThreadPool.getExecutor().submit(() -> updateData());
         }
 
         // Update XYPlot data on different thread, not from CAJ callback.
         // Void to be usable as Callable(..) with Exception on error
-        private Void updateData(final ListNumber x_array, final ListNumber y_array, final ListNumber error) throws Exception
+        private Void updateData() throws Exception
         {
-            data.setData(x_array, y_array, error);
-            plot.requestUpdate();
+            // Flurry of N updates will schedule N updateData() calls,
+            // but the first one that actually runs will handle the most
+            // recent data and the rest can then return with nothing else to do.
+            final LatestData latest = latest_data.getAndSet(null);
+            if (latest != null)
+            {
+                data.setData(latest.x_array, latest.y_array, latest.error);
+                plot.requestUpdate();
+            }
             return null;
         }
 
