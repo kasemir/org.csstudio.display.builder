@@ -77,8 +77,15 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
      */
     private final AtomicReference<LatestData> latest_data = new AtomicReference<>();
 
+    /** Prevent event loop when this code changes the range,
+     *  and then receives the range-change-event
+     */
+    private volatile boolean changing_range = false;
+
     private final UntypedWidgetPropertyListener range_listener = (WidgetProperty<?> property, Object old_value, Object new_value) ->
     {
+        if (changing_range)
+            return;
         dirty_range.mark();
         toolkit.scheduleUpdate(this);
     };
@@ -496,22 +503,24 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
 
     private void updateAxisRange(final Axis<Double> plot_axis, final AxisWidgetProperty model_axis)
     {
-        // In auto-scale mode, don't update the value range because that would
-        // result in flicker when both we and the auto-scaling adjust the range
         if (model_axis.autoscale().getValue())
+        {   // In auto-scale mode, don't update the value range because that would
+            // result in flicker when both we and the auto-scaling adjust the range
             plot_axis.setAutoscale(true);
+        }
         else
-        {
-            plot_axis.setAutoscale(false);
-            // Originally considered it a great idea to restore the original
-            // model values:
-            //          plot_axis.setValueRange(model_axis.minimum().getValue(), model_axis.maximum().getValue());
-            // But users prefer for the axis to just keep the current range
-            // when auto-scale is disabled.
-            // Update model in case other code wants to 'see' the result of auto-scale.
-            final AxisRange<Double> range = plot_axis.getValueRange();
-            model_axis.minimum().setValue(range.getLow());
-            model_axis.maximum().setValue(range.getHigh());
+        {   // No auto-scale requested.
+            if (plot_axis.setAutoscale(false))
+            {   // Autoscale was on.
+                // Turn off, and update model to the last range used by the plot
+                final AxisRange<Double> range = plot_axis.getValueRange();
+                changing_range = true;
+                model_axis.minimum().setValue(range.getLow());
+                model_axis.maximum().setValue(range.getHigh());
+                changing_range = false;
+            }
+            else
+                plot_axis.setValueRange(model_axis.minimum().getValue(), model_axis.maximum().getValue());
         }
     }
 
