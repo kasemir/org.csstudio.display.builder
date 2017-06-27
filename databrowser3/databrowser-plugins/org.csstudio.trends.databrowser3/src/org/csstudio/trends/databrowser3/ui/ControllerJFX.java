@@ -17,6 +17,8 @@ import org.csstudio.trends.databrowser3.archive.ArchiveFetchJob;
 import org.csstudio.trends.databrowser3.model.ArchiveDataSource;
 import org.csstudio.trends.databrowser3.model.Model;
 import org.csstudio.trends.databrowser3.model.PVItem;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 
 import javafx.application.Platform;
 
@@ -63,7 +65,9 @@ public class ControllerJFX extends ControllerBase
         @Override
         public void timeConfigRequested()
         {
-            // TODO Javafx time config dialog?
+            // There is no JavaFX time config dialog, so call the SWT version
+            final Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+            StartEndTimeAction.run(shell, model, plot.getPlot().getUndoableActionManager());
         }
 
         @Override
