@@ -275,6 +275,8 @@ public class ValueUtil
 
         return data;
     }
+    
+    //TODO: (?) Similar to getTable(VType), a List<List<Object>> getStructure(VType, name) ?
 
     /** Get a table cell from PV
      *
@@ -332,11 +334,28 @@ public class ValueUtil
 	*
 	*  @param value Value of a PV (should be a VTable)
 	*  @param name Structure element name
-	*  @return (???) need doc
+	*  @return If the value has an elements with a matching name, a List<String> or List<Number>
+	*  		is returned, depending on the element's data type. If not, and the value is a VTable,
+	*  		an empty list is returned. Otherwise, a List containing one element, a String representation
+	*  		of the value.
 	*/
     public static List<Object> getStructureElement(final VType value, final String name)
     {
-    	//TODO
+    	if (value instanceof VTable)
+    	{
+    		VTable table = (VTable) value;
+    		List<Object> result = new ArrayList<>();
+    		for (int c = 0; c < table.getColumnCount(); ++c)
+    		{
+    			if (isMatchColName(table.getColumnName(c), name))
+    			{
+    				for (int r = 0; r < table.getRowCount(); ++r)
+    					result.add(getColumnCell(table.getColumnData(c), r));
+    				return result;
+    			}
+    		}
+    		return result;
+    	}
     	return Arrays.asList(Objects.toString(value));
     }
     
@@ -357,17 +376,21 @@ public class ValueUtil
             if (index > table.getRowCount()) return null;
             for (int i = 0; i < table.getColumnCount(); ++i)
             {
-            	//A column name "x/yy/z" must match "x/yy/z", "yy/z", and "z",
-            	//but NOT "y/z".
-            	String colName = table.getColumnName(i);
-            	if (colName.endsWith(name) && (colName.length() - name.length() == 0 ||
-            			colName.charAt(colName.length() - name.length() - 1) == '/'))
+            	if (isMatchColName(table.getColumnName(i), name))
             	{
             		return getColumnCell(table.getColumnData(i), index);
             	}
             }
         }
         return Objects.toString(value);
+    }
+    
+    //a colName "x/yy/z" must match "x/yy/z", "yy/z", and "z",
+    //but not "y/z"
+    private static boolean isMatchColName(String colName, String searchName)
+    {
+    	return (colName.endsWith(searchName) && (colName.length() - searchName.length() == 0 ||
+    			colName.charAt(colName.length() - searchName.length() - 1) == '/'));
     }
 
     /** Create a VTable for Strings
