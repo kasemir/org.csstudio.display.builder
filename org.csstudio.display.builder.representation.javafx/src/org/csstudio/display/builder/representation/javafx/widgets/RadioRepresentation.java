@@ -83,6 +83,12 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
         contentChanged(null, null, null);
     }
 
+    @Override
+    protected boolean isFilteringEditModeClicks()
+    {
+        return true;
+    }
+
     private void valueChanged(final ObservableValue<? extends Toggle> obs, final Toggle oldval, final Toggle newval)
     {
         if (!active && newval != null)

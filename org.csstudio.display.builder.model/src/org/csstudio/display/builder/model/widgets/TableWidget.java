@@ -105,7 +105,7 @@ public class TableWidget extends VisibleWidget
         {
             super(propColumn, widget,
                   Arrays.asList(propName.createProperty(widget, name),
-                                propWidth.createProperty(widget, 50),
+                                propWidth.createProperty(widget, 100),
                                 propEditable.createProperty(widget, true),
                                 propOptions.createProperty(widget, Collections.emptyList())));
         }
@@ -182,7 +182,7 @@ public class TableWidget extends VisibleWidget
 
     private static final WidgetPropertyDescriptor<Boolean> propRowSelectionMode =
             newBooleanPropertyDescriptor(WidgetPropertyCategory.MISC, "row_selection_mode", "Select Rows");
-    
+
     /** Runtime info about selection */
     private static final WidgetPropertyDescriptor<VType> runtimePropSelectionInfo =
         newRuntimeValue("selection", Messages.WidgetProperties_Selection);

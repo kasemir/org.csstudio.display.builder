@@ -90,8 +90,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     private int mouse_y_axis = -1;
 
     // Annotation-related info. If mouse_annotation is set, the rest should be set.
-    // TODO Use null for the local Optionals
-    private Optional<AnnotationImpl<XTYPE>> mouse_annotation = Optional.empty();
+    private AnnotationImpl<XTYPE> mouse_annotation = null;
     private Point2D mouse_annotation_start_offset;
     private XTYPE mouse_annotation_start_position;
     private double mouse_annotation_start_value;
@@ -103,7 +102,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     // Selected plot marker that's being moved by the mouse
     private PlotMarker<XTYPE> plot_marker = null;
 
-    private volatile Optional<List<CursorMarker>> cursor_markers = Optional.empty();
+    private volatile List<CursorMarker> cursor_markers = null;
 
 
     /** Constructor
@@ -443,7 +442,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
                     mouse_annotation_start_offset = annotation.getOffset();
                     mouse_annotation_start_position = annotation.getPosition();
                     mouse_annotation_start_value = annotation.getValue();
-                    mouse_annotation = Optional.of(annotation);
+                    mouse_annotation = annotation;
                     requestUpdate();
                     return true;
                 }
@@ -453,16 +452,16 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     /** De-select an Annotation */
     private void deselectMouseAnnotation()
     {
-        if (mouse_annotation.isPresent())
+        final AnnotationImpl<XTYPE> anno = mouse_annotation;
+        if (anno != null)
         {
-            AnnotationImpl<XTYPE> anno = mouse_annotation.get();
             undo.add(new UpdateAnnotationAction<XTYPE>(this, anno,
                     mouse_annotation_start_position, mouse_annotation_start_value,
                     mouse_annotation_start_offset,
                     anno.getPosition(), anno.getValue(),
                     anno.getOffset()));
             anno.deselect();
-            mouse_annotation = Optional.empty();
+            mouse_annotation = null;
             requestUpdate();
         }
     }
@@ -633,7 +632,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         final Rectangle plot_bounds = plot_area.getBounds();
 
         if (mouse_mode == MouseMode.PAN_X  ||  mouse_mode == MouseMode.PAN_Y || mouse_mode == MouseMode.PAN_PLOT ||
-            (mouse_annotation.isPresent()  &&  start != null))
+            (mouse_annotation != null  &&  start != null))
         {
             // NOP, minimize additional UI thread drawing to allow better 'pan' updates
             //      and also hide the crosshair when moving an annotation
@@ -653,7 +652,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
             for (YAxisImpl<XTYPE> axis : y_axes)
                 axis.drawTickLabel(gc, axis.getValue((int)current.getY()), true);
             // Trace markers
-            final List<CursorMarker> safe_markers = cursor_markers.orElse(null);
+            final List<CursorMarker> safe_markers = cursor_markers;
             if (safe_markers != null)
                 CursorMarker.drawMarkers(gc, safe_markers, area);
         }
@@ -833,15 +832,15 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
 
         final Point2D start = mouse_start.orElse(null);
 
+        final AnnotationImpl<XTYPE> anno = mouse_annotation;
         if (plot_marker != null)
         {
             plot_marker.setPosition(x_axis.getValue((int) current.getX()));
             requestUpdate();
             firePlotMarkersChanged(plot_markers.indexOf(plot_marker));
         }
-        else if (mouse_annotation.isPresent()  &&  start != null)
+        else if (anno != null  &&  start != null)
         {
-            final AnnotationImpl<XTYPE> anno = mouse_annotation.get();
             if (anno.getSelection() == AnnotationImpl.Selection.Body)
             {
                 anno.setOffset(
@@ -898,11 +897,14 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     }
 
     /** Called by {@link PlotProcessor}
-     *  @param markers Markers for current cursor position
+     *  @param markers Markers for current cursor position, may be <code>null</code>
      */
     private void updateCursors(final List<CursorMarker> markers)
     {
-        cursor_markers = Optional.ofNullable(markers);
+        if (markers != null  &&  ! markers.isEmpty())
+            cursor_markers = markers;
+        else
+            cursor_markers = null;
         // Need to redraw for crosshair?
         if (show_crosshair)
             requestRedraw();
