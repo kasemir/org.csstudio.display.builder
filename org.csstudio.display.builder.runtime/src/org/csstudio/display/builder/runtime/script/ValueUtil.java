@@ -298,7 +298,8 @@ public class ValueUtil
      * @param name Name of the substructure to get; if blank (empty String, ""), the entire structure is returned
 
      * @return A List of "rows", where rows are lists of scalar data (Strings or Numbers)
-     * belonging to scalar fields of the matching sub-structure
+     * belonging to scalar fields of the matching sub-structure; if there is no matching sub-structure,
+     * the list is empty.
      */
     public static List<List<Object>> getStructure(final VType value, final String name)
     {
