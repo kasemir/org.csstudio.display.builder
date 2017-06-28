@@ -400,9 +400,9 @@ public class Tracker extends Group
             if (y < restriction.getMinY())
                 y = restriction.getMinY();
             if (x + width > restriction.getMaxX())
-                x = restriction.getMaxX() - width;
+                width = restriction.getMaxX() - x;
             if (y + height > restriction.getMaxY())
-                y = restriction.getMaxY() - height;
+                height = restriction.getMaxY() - y;
         }
 
         // relocate() will _not_ update Rectangle.x, y!

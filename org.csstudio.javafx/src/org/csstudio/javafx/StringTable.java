@@ -297,7 +297,7 @@ public class StringTable extends BorderPane
     	else
             table.getSelectionModel().setCellSelectionEnabled(true);
     }
-    
+
     /** @param listener Listener to notify of changes */
     public void setListener(final StringTableListener listener)
     {
@@ -423,21 +423,21 @@ public class StringTable extends BorderPane
 
         table.getColumns().clear();
         cell_colors = null;
-        
+
         // Start over with no data, since table columns changed
         data.clear();
         if (editable)
             data.add(MAGIC_LAST_ROW);
         table.setItems(data);
         // Forcing this refresh avoids https://github.com/kasemir/org.csstudio.display.builder/issues/245,
-        // an IndexOutOfBoundsException somewhere in CSS updates that uses the wrong table row count 
+        // an IndexOutOfBoundsException somewhere in CSS updates that uses the wrong table row count
         table.refresh();
-        
+
         for (String header : headers)
             createTableColumn(-1, header);
     }
 
-    /** Set (minimum) column width
+    /** Set (minimum and preferred) column width
      *
      *  @param column Column index, 0 .. <code>getHeaders().size()-1</code>
      *  @param width Width
@@ -445,6 +445,7 @@ public class StringTable extends BorderPane
     public void setColumnWidth(final int column, final int width)
     {
         table.getColumns().get(column).setMinWidth(width);
+        table.getColumns().get(column).setPrefWidth(width);
     }
 
     /** Allow editing a column
@@ -850,7 +851,7 @@ public class StringTable extends BorderPane
         cell_colors = null;
         if (column < 0)
             column = table.getColumns().size();
-        
+
         // Cannot update data and table concurrently, so detach data from table:
         table.setItems(NO_DATA);
         // Add new column
@@ -862,7 +863,7 @@ public class StringTable extends BorderPane
         // Show the updated data
         table.setItems(data);
         table.refresh();
-        
+
         fireTableChanged();
     }
 
