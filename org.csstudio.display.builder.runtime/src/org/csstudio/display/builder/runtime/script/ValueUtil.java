@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.csstudio.display.builder.model.properties.FormatOption;
 import org.csstudio.display.builder.model.util.FormatOptionHandler;
@@ -276,7 +278,63 @@ public class ValueUtil
         return data;
     }
     
-    //TODO: (?) Similar to getTable(VType), a List<List<Object>> getStructure(VType, name) ?
+    /**
+     * Get data from a structured value by name.
+     * <p>As with other structure-related get methods, full and partial names may be used. However, the
+     * name must designate a structured field, rather than a scalar data field. For example, the structure
+     * <pre>
+	 * structure value
+	 * 	  structure Foo
+	 * 		  scalar_t[] a
+	 * 		  structure Bar
+	 * 			  scalar_t[] a
+	 * 			  scalar_t[] x
+     * </pre>
+     * can match "Foo" (which returns data for Foo/a, Bar/a, and x) or "Foo/Bar" (which returns data for Bar/a and x),
+     * but not "Foo/a" or "Bar/x". For those, use {@link getStructureElement(int)}.
+     * Ambiguous names will find the first structure with a matching name.
+     * 
+     * @param value Value of a structured PV; should be VTable
+     * @param name Name of the substructure to get; if blank (empty String, ""), the entire structure is returned
+
+     * @return A List of "rows", where rows are lists of scalar data (Strings or Numbers)
+     * belonging to scalar fields of the matching sub-structure
+     */
+    public static List<List<Object>> getStructure(final VType value, final String name)
+    {
+    	List<List<Object>> data = new ArrayList<>();
+    	if (name == null)
+    		throw new IllegalArgumentException("Name cannot be null");
+    	if (value instanceof VTable)
+    	{
+    		VTable table = (VTable) value;
+    		Pattern p = Pattern.compile(name + "(/.*)?");
+    		for (int c = 0; c < table.getColumnCount(); ++c)
+    		{
+    			String colName = table.getColumnName(c);
+    			Matcher m = p.matcher(colName);
+    			m.find();
+    			int st = m.start();
+    			if (st == 0 || colName.charAt(st-1) == '/')
+    			{	//Once the first matching column (scalar field) is found, only use fields
+    				//with the same prefix (parent). The prevents matching multiple, separate
+    				//structures to ambiguous names.
+    				String prefix = colName.substring(0, st+name.length());
+    				do
+    				{
+	    				List<Object> row = new ArrayList<>();
+	    				for (int r = 0; r < table.getRowCount(); ++r)
+	    				{
+	    					row.add(getColumnCell(table.getColumnData(c), r));
+	    				}
+	    				data.add(row);
+    				} while (++c < table.getColumnCount() && table.getColumnName(c).startsWith(prefix));
+    				return data;
+    			}
+    		}
+    	}
+    	return data;
+    }
 
     /** Get a table cell from PV
      *
@@ -287,7 +345,6 @@ public class ValueUtil
      *  @param column Column index, 0..
      *  @return Either String or Number for the cell's value, null if invalid row/column
      */
-    @SuppressWarnings("rawtypes")
     public static Object getTableCell(final VType value, final int row, final int column)
     {
         if (value instanceof VTable)
@@ -303,6 +360,7 @@ public class ValueUtil
             return Objects.toString(value);
     }
     
+    @SuppressWarnings("rawtypes")
     private static Object getColumnCell(final Object col_data, final int row)
     {
         if (col_data instanceof List)
