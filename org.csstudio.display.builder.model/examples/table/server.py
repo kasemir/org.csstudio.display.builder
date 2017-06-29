@@ -1,3 +1,5 @@
+# Requires pvaPy installed and on Python path
+
 from pvaccess import PvObject, STRING, INT, BOOLEAN, DOUBLE, PvaServer
 from collections import OrderedDict
 from time import sleep

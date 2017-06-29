@@ -1,3 +1,5 @@
+# Requires pvaPy installed and on Python path
+
 # Example PVA server. Serves a table that looks something like this:
 # ID	Name	Title
 # 1	Fred	Fred1
@@ -11,7 +13,7 @@
 # the table manually on the client side.
 
 # This server simply serves the data, directly, as a table.
-# The 'name' PV is monitored so that changed to the name
+# The 'name' PV is monitored so that changes to the name
 # affect the values served in the table.
 
 from pvaccess import PvObject, PvString, STRING, UINT, PvaServer, Channel
