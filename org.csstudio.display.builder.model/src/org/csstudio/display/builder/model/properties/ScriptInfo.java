@@ -84,6 +84,14 @@ public class ScriptInfo
         return path.endsWith(".js")  ||  EMBEDDED_JAVASCRIPT.equals(path);
     }
 
+    /** @param path Path to the script.
+     *  @return <code>true</code> if script text is embedded
+     */
+    public static boolean isEmbedded(final String path)
+    {
+        return EMBEDDED_PYTHON.equals(path) || EMBEDDED_JAVASCRIPT.equals(path);
+    }
+
     /** @param path Script path. May be URL, contain macros, or use magic EMBEDDED_* name.
      *  @param text Text or <code>null</code>
      *  @param check_connections Check connections before executing the script, or always execute?
