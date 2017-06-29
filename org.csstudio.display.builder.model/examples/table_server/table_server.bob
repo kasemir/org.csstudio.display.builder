@@ -27,10 +27,11 @@
   <widget type="label" version="2.0.0">
     <name>Label_2</name>
     <class>COMMENT</class>
-    <text>clear this (enter nothing, or "") to see all names</text>
+    <text>Enter a name to filter table by name. Enter nothing ("") to see all names.</text>
     <x>220</x>
-    <y>50</y>
+    <y>40</y>
     <width>310</width>
+    <height>40</height>
     <font use_class="true">
       <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
       </font>
@@ -66,7 +67,7 @@ In the past, creating tables from tabular data has been a two-step process invol
 
 This server is much simpler. The data is served directly as a table. In the display, a Table widget displays the data with no extra effort.
 
-It's even fairly simple to add a monitor to the server script which filters the data by name. No additional scripting is needed for the display.
+It's even fairly simple to add a monitor to the server script which filters the data by name. No additional scripts are needed for the display.
 </text>
     <x>30</x>
     <y>350</y>

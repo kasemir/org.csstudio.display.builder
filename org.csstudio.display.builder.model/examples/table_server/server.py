@@ -34,26 +34,27 @@ server.addRecord('name', namePV)
 
 # update value
 def updateValue(pv):
-	name = tablePV['value']
-	print("updating table for name '%s'" % name)
+	name = namePV['value']
+	#print("updating table for name '%s'" % name)
 	value = tablePV['value']
 	if name is '':
 		value['id'] = []
 		value['name'] = names
 		value['title'] = []
-		for i in range(1, len(names)):
-			value['id'].append(i)
+		for i in range(0, len(names)):
+			value['id'].append(i+1)
 			value['title'].append(titles[i])
 	elif name in ids:
 		value['id'] = ids[name]
 		value['name'] = [name] * len(value['id'])
 		value['title'] = []
 		for id in value['id']:
-			value['title'].append(titles[id])
+			value['title'].append(titles[id-1])
 	else:
 		value['id'] = [0]
 		value['name'] = [None]
 		value['title'] = [None]
+	#print("value = %s" % str(value))
 	tablePV['value'] = value
 
 # create monitor
