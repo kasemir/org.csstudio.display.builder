@@ -40,14 +40,25 @@ server.addRecord('nt_table_str', ntTableStrPV)
 server.addRecord('table_str', tableStrPV)
 
 while(True):
+	# a bunch of jiggery-pokery to change the value in a somewhat random-looking way
 	value = tablePV['value']
 
-	thing2_quality = value['Dingus']['Quality'][1]
-	thing2_quality -= 20;
-	if thing2_quality < 0:
-		thing2_quality = 50
+	quality = value['Dingus']['Quality'][1]
+	quality -= 20;
+	if quality < 0:
+		quality = 50
+	value['Dingus']['Quality'][1] = quality
 
-	value['Dingus']['Quality'][1] = thing2_quality
+	quality = value['Dingus']['Quality'][2]
+	quality += 7
+	if quality > 100:
+		quality = (value['Dingus']['Quality'][1] + quality) / 2
+	value['Dingus']['Quality'][2] = round(quality,1)
+	
+	quality += value['Dingus']['Quality'][0]*15
+	quality /= 16
+	value['Dingus']['Quality'][0] = round(quality, 1)
+	
 	tablePV['value'] = value
 
 	tableStrPV['value'] = str(tablePV)
