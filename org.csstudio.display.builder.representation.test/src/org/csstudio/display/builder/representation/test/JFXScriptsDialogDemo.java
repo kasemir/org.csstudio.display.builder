@@ -9,6 +9,7 @@ package org.csstudio.display.builder.representation.test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
@@ -37,6 +38,13 @@ public class JFXScriptsDialogDemo extends Application
         scripts.add(new ScriptInfo("/tmp/demo2.py", false, new ScriptPV("pv1"), new ScriptPV("pv2", false)));
 
         final ScriptsDialog dialog = new ScriptsDialog(new Widget("demo"), scripts);
-        System.out.println(dialog.showAndWait());
+        final Optional<List<ScriptInfo>> result = dialog.showAndWait();
+        if (result.isPresent())
+        {
+            for (ScriptInfo info : result.get())
+                System.out.println(info + ", embedded text: " + info.getText());
+        }
+        else
+            System.out.println("Cancelled");
     }
 }

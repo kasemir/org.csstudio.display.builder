@@ -56,7 +56,6 @@ import javafx.scene.layout.VBox;
 public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 {
     // XXX Smoother script type change:
-    // If already "EmbeddedPy" and file is selected, prompt if embedded script should be deleted.
     // If already "EmbeddedPy" and Embedded JS is selected, prompt if type should be changed from python to JS.
     // If already "EmbeddedJS", ..
 
@@ -129,7 +128,23 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         {
             final List<ScriptPV> spvs = new ArrayList<>();
             pvs.forEach(pv -> spvs.add(pv.toScriptPV()));
-            return new ScriptInfo(file.get(), text, check_connections, spvs);
+
+            // 'text' is kept while the dialog is open.
+            // This allows user to enter embedded text,
+            // then select a script file,
+            // then go back to editing the embedded text.
+            // -> text is not lost when selecting a file.
+            // Once the dialog is closed, however,
+            // the embedded text is deleted when a file
+            // was selected because otherwise
+            // the display file is larger (embedded text that's not used)
+            // or the runtime would be confused and actually execute the
+            // embedded text.
+            // #249
+            if (ScriptInfo.isEmbedded(file.get()))
+                return new ScriptInfo(file.get(), text, check_connections, spvs);
+            else
+                return new ScriptInfo(file.get(), null, check_connections, spvs);
         }
 
         public StringProperty fileProperty()
