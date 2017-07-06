@@ -26,7 +26,7 @@ ids = {'Fred' : [1, 2, 7], 'Lisa' : [3, 5, 8], 'Larry' : [4, 6]}
 
 # create PVs
 tableValueDict = OrderedDict([('id', [UINT]), ('name', [STRING]), ('title', [STRING])])
-tablePV = PvObject({ 'labels' : [STRING], 'value' : tableValueDict }, "NTTable:1.0")
+tablePV = PvObject({ 'labels' : [STRING], 'value' : tableValueDict }, "epics:nt/NTTable:1.0")
 tablePV['labels'] = ['ID', 'Name', 'Title']
 namePV = PvString('')
 
