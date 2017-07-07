@@ -351,37 +351,16 @@ public class CommonWidgetProperties
     public static final WidgetPropertyDescriptor<Boolean> propSquare =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "square", Messages.WidgetProperties_Square);
 
-    /** Group widget style */
-    public enum WidgetLineStyle
-    {
-        DASH(Messages.LineStyle_Dash),
-        SOLID(Messages.LineStyle_Solid),
-        NONE(Messages.LineStyle_None);
-
-        private final String name;
-
-        private WidgetLineStyle(final String name)
-        {
-            this.name = name;
-        }
-
-        @Override
-        public String toString()
-        {
-            return name;
-        }
-    }
-
     /** 'style' property */
-    public static final WidgetPropertyDescriptor<WidgetLineStyle> propLineStyle =
-            new WidgetPropertyDescriptor<WidgetLineStyle>(
+    public static final WidgetPropertyDescriptor<LineStyle> propLineStyle =
+            new WidgetPropertyDescriptor<LineStyle>(
                     WidgetPropertyCategory.DISPLAY, "line_style", Messages.LineStyle)
     {
         @Override
-        public EnumWidgetProperty<WidgetLineStyle> createProperty(final Widget widget,
-                final WidgetLineStyle default_value)
+        public EnumWidgetProperty<LineStyle> createProperty(final Widget widget,
+                final LineStyle default_value)
         {
-            return new EnumWidgetProperty<WidgetLineStyle>(this, widget, default_value);
+            return new EnumWidgetProperty<LineStyle>(this, widget, default_value);
         }
     };
 
