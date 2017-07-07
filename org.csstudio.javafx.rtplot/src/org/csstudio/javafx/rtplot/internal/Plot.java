@@ -14,6 +14,7 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Stroke;
 import java.awt.image.BufferedImage;
 import java.time.Duration;
 import java.time.Instant;
@@ -30,12 +31,14 @@ import org.csstudio.javafx.PlatformInfo;
 import org.csstudio.javafx.rtplot.Annotation;
 import org.csstudio.javafx.rtplot.AxisRange;
 import org.csstudio.javafx.rtplot.Messages;
+import org.csstudio.javafx.rtplot.PlotMarker;
 import org.csstudio.javafx.rtplot.RTPlotListener;
 import org.csstudio.javafx.rtplot.Trace;
 import org.csstudio.javafx.rtplot.YAxis;
 import org.csstudio.javafx.rtplot.data.PlotDataItem;
 import org.csstudio.javafx.rtplot.internal.undo.ChangeAxisRanges;
 import org.csstudio.javafx.rtplot.internal.undo.UpdateAnnotationAction;
+import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 import org.csstudio.javafx.rtplot.internal.util.ScreenTransform;
 
 import javafx.geometry.Point2D;
@@ -87,14 +90,20 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     private int mouse_y_axis = -1;
 
     // Annotation-related info. If mouse_annotation is set, the rest should be set.
-    private Optional<AnnotationImpl<XTYPE>> mouse_annotation = Optional.empty();
+    private AnnotationImpl<XTYPE> mouse_annotation = null;
     private Point2D mouse_annotation_start_offset;
     private XTYPE mouse_annotation_start_position;
     private double mouse_annotation_start_value;
 
     final private List<RTPlotListener<XTYPE>> listeners = new CopyOnWriteArrayList<>();
 
-    private volatile Optional<List<CursorMarker>> cursor_markers = Optional.empty();
+    // All PlotMarkers
+    private final List<PlotMarker<XTYPE>> plot_markers = new CopyOnWriteArrayList<>();
+    // Selected plot marker that's being moved by the mouse
+    private PlotMarker<XTYPE> plot_marker = null;
+
+    private volatile List<CursorMarker> cursor_markers = null;
+
 
     /** Constructor
      *  @param active Active mode where plot reacts to mouse/keyboard?
@@ -124,7 +133,6 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
 
         if (active)
         {
-            setMouseMode(MouseMode.PAN);
             setOnMousePressed(this::mouseDown);
             setOnMouseMoved(this::mouseMove);
             setOnMouseDragged(this::mouseMove);
@@ -285,6 +293,71 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         requestUpdate();
     }
 
+    /** Add plot marker
+     *  @param color
+     *  @param interactive
+     *  @return {@link PlotMarker}
+     */
+    public PlotMarker<XTYPE> addMarker(final javafx.scene.paint.Color color, final boolean interactive, final XTYPE position)
+    {   // Return a PlotMarker that triggers a redraw as it's changed
+        final PlotMarker<XTYPE> marker = new PlotMarker<XTYPE>(color, interactive, position)
+        {
+            @Override
+            public void setPosition(XTYPE position)
+            {
+                super.setPosition(position);
+                requestUpdate();
+            }
+        };
+        plot_markers.add(marker);
+        return marker;
+    }
+
+    /** @return {@link PlotMarker}s */
+    public List<PlotMarker<XTYPE>> getMarkers()
+    {
+        return plot_markers;
+    }
+
+    /** @param index Index of Marker to remove
+     *  @throws IndexOutOfBoundsException
+     */
+    public void removeMarker(final int index)
+    {
+        plot_markers.remove(index);
+        requestUpdate();
+    }
+
+    /** Select plot marker at mouse position?
+     *  @return Was plot marker set?
+     */
+    private boolean selectPlotMarker()
+    {
+        if (! mouse_start.isPresent())
+            return false;
+        final int x = (int) (mouse_start.get().getX() + 0.5);
+        for (PlotMarker<XTYPE> marker : plot_markers)
+        {
+            final int mx = x_axis.getScreenCoord(marker.getPosition());
+            if (Math.abs(mx - x) < 5)
+            {
+                plot_marker = marker;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** De-select an plot marker */
+    private void deselectPlotMarker()
+    {
+        if (plot_marker != null)
+        {
+            plot_marker = null;
+            requestUpdate();
+        }
+    }
+
     /** Add Annotation to a trace,
      *  determining initial position based on some
      *  sample of that trace
@@ -324,10 +397,10 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
      *  @param position New position
      *  @param value New value
      */
-    public void updateAnnotation(final AnnotationImpl<XTYPE> annotation, final XTYPE position, final double value,
+    public void updateAnnotation(final AnnotationImpl<XTYPE> annotation, final XTYPE position, final double value, final String info,
             final Point2D offset)
     {
-        annotation.setLocation(position, value);
+        annotation.setLocation(position, value, info);
         annotation.setOffset(offset);
         requestUpdate();
         fireAnnotationsChanged();
@@ -369,7 +442,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
                     mouse_annotation_start_offset = annotation.getOffset();
                     mouse_annotation_start_position = annotation.getPosition();
                     mouse_annotation_start_value = annotation.getValue();
-                    mouse_annotation = Optional.of(annotation);
+                    mouse_annotation = annotation;
                     requestUpdate();
                     return true;
                 }
@@ -379,16 +452,16 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     /** De-select an Annotation */
     private void deselectMouseAnnotation()
     {
-        if (mouse_annotation.isPresent())
+        final AnnotationImpl<XTYPE> anno = mouse_annotation;
+        if (anno != null)
         {
-            AnnotationImpl<XTYPE> anno = mouse_annotation.get();
             undo.add(new UpdateAnnotationAction<XTYPE>(this, anno,
                     mouse_annotation_start_position, mouse_annotation_start_value,
                     mouse_annotation_start_offset,
                     anno.getPosition(), anno.getValue(),
                     anno.getOffset()));
             anno.deselect();
-            mouse_annotation = Optional.empty();
+            mouse_annotation = null;
             requestUpdate();
         }
     }
@@ -515,6 +588,8 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
             for (Trace<XTYPE> trace : y_axis.getTraces())
                 trace_painter.paint(gc, plot_area.getBounds(), x_transform, y_axis, trace);
 
+        drawPlotMarkers(gc);
+
         // Annotations use label font
         for (AnnotationImpl<XTYPE> annotation : annotations)
             annotation.paint(gc, x_axis, y_axes.get(annotation.getTrace().getYAxis()));
@@ -522,6 +597,24 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         gc.dispose();
 
         return image;
+    }
+
+    /** Draw the {@link PlotMarker}s
+     *  @param gc Graphics context
+     */
+    private void drawPlotMarkers(final Graphics2D gc)
+    {
+        final int y0 = plot_area.getBounds().y;
+        final int y1 = y0 + plot_area.getBounds().height;
+        final Stroke old_stroke = gc.getStroke();
+        gc.setStroke(AxisPart.TICK_STROKE);
+        for (PlotMarker<XTYPE> marker : plot_markers)
+        {
+            gc.setColor(GraphicsUtils.convert(marker.getColor()));
+            final int x = x_axis.getScreenCoord(marker.getPosition());
+            gc.drawLine(x, y0, x, y1);
+        }
+        gc.setStroke(old_stroke);
     }
 
     /** Draw visual feedback (rubber band rectangle etc.)
@@ -538,9 +631,11 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         final Point2D start = mouse_start.orElse(null);
         final Rectangle plot_bounds = plot_area.getBounds();
 
-        if (mouse_mode == MouseMode.PAN_X  ||  mouse_mode == MouseMode.PAN_Y || mouse_mode == MouseMode.PAN_PLOT)
+        if (mouse_mode == MouseMode.PAN_X  ||  mouse_mode == MouseMode.PAN_Y || mouse_mode == MouseMode.PAN_PLOT ||
+            (mouse_annotation != null  &&  start != null))
         {
             // NOP, minimize additional UI thread drawing to allow better 'pan' updates
+            //      and also hide the crosshair when moving an annotation
         }
         else if (show_crosshair  &&  plot_bounds.contains(current.getX(), current.getY()))
         {   // Cross-hair Cursor
@@ -557,7 +652,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
             for (YAxisImpl<XTYPE> axis : y_axes)
                 axis.drawTickLabel(gc, axis.getValue((int)current.getY()), true);
             // Trace markers
-            final List<CursorMarker> safe_markers = cursor_markers.orElse(null);
+            final List<CursorMarker> safe_markers = cursor_markers;
             if (safe_markers != null)
                 CursorMarker.drawMarkers(gc, safe_markers, area);
         }
@@ -596,9 +691,12 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         mouse_start = mouse_current = Optional.of(current);
 
         final int clicks = e.getClickCount();
-        if (selectMouseAnnotation())
+        if (selectMouseAnnotation() ||
+            selectPlotMarker())
             return;
-        else if (mouse_mode == MouseMode.PAN)
+        if ((mouse_mode == MouseMode.NONE || mouse_mode == MouseMode.PAN) && clicks == 2)
+        	; //edit axis ranges (let RTPlot handle it)
+    	else if (mouse_mode == MouseMode.PAN)
         {   // Determine start of 'pan'
             // For affected Y axes, i.e. mouse_y_axis or all,
             // store the pre-pan auto scale state for un-do
@@ -660,6 +758,71 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
             zoomInOut(current.getX(), current.getY(), ZOOM_FACTOR);
     }
 
+    /**
+     * Check if the mouse double-clicked on the end of an axis, and if mouse_mode is PAN or NONE.
+     * If true, return information about the clicked axis; if not, return null.
+     * @author Amanda Carpenter
+     * @param event MouseEvent to get info for
+     * @return An Object [3] containing:
+     * <ol>
+     * <li>{@link AxisPart}&lt;Double&gt; axis - clicked axis<\li>
+     * <li>boolean isHighEnd - true if click was on high-value end of axis; else, false<\li>
+     * <li>{@link Rectangle} area - dimensions and location of click region<\li>
+     * </ol>
+     */
+    public Object [] axisClickInfo(MouseEvent event)
+    {
+    	//For event.getX(), etc. to work as desired, 'this' must be the source of the MouseEvent
+    	if (!this.equals(event.getSource()))
+    		event = event.copyFor(this, event.getTarget());
+        if ((mouse_mode == MouseMode.NONE || mouse_mode == MouseMode.PAN) && event.getClickCount() == 2)
+        {
+        	double click_x = event.getX();
+        	double click_y = event.getY();
+        	//Do the upper or lower end regions any y-axes contain the click?
+        	for (YAxisImpl<XTYPE> axis : y_axes)
+        	{
+        		//Might be unsafe if bounds change between instructions //TODO: verify safety
+        		int x = (int) axis.getBounds().getX();
+        		int w = (int) axis.getBounds().getWidth();
+        		int h = (int) Math.min(axis.getBounds().getHeight()/2, w);
+        		Rectangle upper = new Rectangle(x, (int) axis.getBounds().getY(), w, h);
+        		Rectangle lower = new Rectangle(x, (int) axis.getBounds().getMaxY()-h, w, h);
+        		if (upper.contains(click_x, click_y))
+        		{
+        			Object [] ret = {axis, true, upper};
+        			return ret;
+        		}
+        		else if (lower.contains(click_x, click_y))
+        		{
+        			Object [] ret = {axis, false, lower};
+        			return ret;
+        		}
+    		}
+        	//Do the left-side (lesser) or right-side (greater) end regions of the x-axis contain it?
+        	if (x_axis instanceof NumericAxis)
+        	{
+        		NumericAxis axis = (NumericAxis)x_axis;
+	        	int y = (int) axis.getBounds().getY();
+	        	int h = (int) axis.getBounds().getHeight();
+	        	int w = (int) Math.min(axis.getBounds().getWidth()/2, h);
+	        	Rectangle lesser = new Rectangle((int) axis.getBounds().getX(), y, w, h);
+	        	Rectangle greater = new Rectangle((int) axis.getBounds().getMaxX()-w, y, w, h);
+	    		if (lesser.contains(click_x, click_y))
+	    		{
+        			Object [] ret = {axis, false, lesser};
+        			return ret;
+	    		}
+	    		else if (greater.contains(click_x, click_y))
+	    		{
+        			Object [] ret = {axis, true, greater};
+        			return ret;
+	    		}
+        	}
+        }
+    	return null;
+    }
+
     /** setOnMouseMoved */
     private void mouseMove(final MouseEvent e)
     {
@@ -669,14 +832,20 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
 
         final Point2D start = mouse_start.orElse(null);
 
-        if (mouse_annotation.isPresent()  &&  start != null)
+        final AnnotationImpl<XTYPE> anno = mouse_annotation;
+        if (plot_marker != null)
         {
-            final AnnotationImpl<XTYPE> anno = mouse_annotation.get();
+            plot_marker.setPosition(x_axis.getValue((int) current.getX()));
+            requestUpdate();
+            firePlotMarkersChanged(plot_markers.indexOf(plot_marker));
+        }
+        else if (anno != null  &&  start != null)
+        {
             if (anno.getSelection() == AnnotationImpl.Selection.Body)
             {
                 anno.setOffset(
                         new Point2D((int)(mouse_annotation_start_offset.getX() + current.getX() - start.getX()),
-                                (int)(mouse_annotation_start_offset.getY() + current.getY() - start.getY())));
+                                    (int)(mouse_annotation_start_offset.getY() + current.getY() - start.getY())));
                 requestUpdate();
                 fireAnnotationsChanged();
             }
@@ -728,11 +897,14 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     }
 
     /** Called by {@link PlotProcessor}
-     *  @param markers Markers for current cursor position
+     *  @param markers Markers for current cursor position, may be <code>null</code>
      */
     private void updateCursors(final List<CursorMarker> markers)
     {
-        cursor_markers = Optional.ofNullable(markers);
+        if (markers != null  &&  ! markers.isEmpty())
+            cursor_markers = markers;
+        else
+            cursor_markers = null;
         // Need to redraw for crosshair?
         if (show_crosshair)
             requestRedraw();
@@ -742,6 +914,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     /** setOnMouseReleased */
     private void mouseUp(final MouseEvent e)
     {
+        deselectPlotMarker();
         deselectMouseAnnotation();
 
         final Point2D start = mouse_start.orElse(null);
@@ -984,6 +1157,13 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     {
         for (RTPlotListener<XTYPE> listener : listeners)
             listener.changedAutoScale(axis);
+    }
+
+    /** Notify listeners */
+    private void firePlotMarkersChanged(final int marker_index)
+    {
+        for (RTPlotListener<XTYPE> listener : listeners)
+            listener.changedPlotMarker(marker_index);
     }
 
     /** Notify listeners */

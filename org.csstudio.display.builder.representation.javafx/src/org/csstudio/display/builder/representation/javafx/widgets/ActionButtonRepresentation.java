@@ -18,7 +18,9 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.macros.MacroValueProvider;
 import org.csstudio.display.builder.model.properties.ActionInfo;
+import org.csstudio.display.builder.model.properties.ActionInfos;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
+import org.csstudio.display.builder.model.properties.RotationStep;
 import org.csstudio.display.builder.model.properties.StringWidgetProperty;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
@@ -26,14 +28,17 @@ import org.csstudio.display.builder.representation.javafx.Messages;
 import org.csstudio.javafx.Styles;
 import org.eclipse.osgi.util.NLS;
 
-import javafx.geometry.Side;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.transform.Rotate;
+import javafx.scene.transform.Translate;
 
 /** Creates JavaFX item for model widget
  *  @author Megan Grodowitz
@@ -62,6 +67,14 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
     private volatile Color foreground;
     private volatile String button_text;
     private volatile boolean enabled = true;
+
+    /** Was there ever any transformation applied to the jfx_node?
+     *
+     *  <p>Used to optimize:
+     *  If there never was a rotation, don't even _clear()_ it
+     *  to keep the Node's nodeTransformation == null
+     */
+    private boolean was_ever_transformed = false;
 
     /** Optional modifier of the open display 'target */
     private Optional<OpenDisplayActionInfo.Target> target_modifier = Optional.empty();
@@ -113,47 +126,48 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
         }
     }
 
-    private int calls = 0;
+//    private int calls = 0;
 
     /** Create <code>base</code>, either single-action button
      *  or menu for selecting one out of N actions
      */
     private ButtonBase makeBaseButton()
     {
-        final List<ActionInfo> actions = model_widget.propActions().getValue();
+        final ActionInfos actions = model_widget.propActions().getValue();
         final ButtonBase result;
-        if (actions.size() < 2)
+        if (actions.isExecutedAsOne()  ||  actions.getActions().size() < 2)
         {
             final Button button = new Button();
-            if (actions.size() > 0)
-            {
-                final ActionInfo the_action = actions.get(0);
-                button.setOnAction(event -> handleAction(the_action));
-            }
+            button.setOnAction(event -> handleActions(actions.getActions()));
             result = button;
         }
         else
         {
             final MenuButton button = new MenuButton();
+            // Experimenting with ways to force update of popup location,
+            // #226
             button.showingProperty().addListener((prop, old, showing) ->
             {
                 if (showing)
                 {
                     // System.out.println("Showing " + model_widget + " menu: " + showing);
-                    if (++calls > 2)
-                    {
-                        System.out.println("Hack!");
-                        if (button.getPopupSide() == Side.BOTTOM)
-                            button.setPopupSide(Side.LEFT);
-                        else
-                            button.setPopupSide(Side.BOTTOM);
-                        // button.layout();
-                    }
+//                    if (++calls > 2)
+//                    {
+//                        System.out.println("Hack!");
+//                        if (button.getPopupSide() == Side.BOTTOM)
+//                            button.setPopupSide(Side.LEFT);
+//                        else
+//                            button.setPopupSide(Side.BOTTOM);
+//                        // button.layout();
+//                    }
                 }
             });
-            for (final ActionInfo action : actions)
+            for (final ActionInfo action : actions.getActions())
             {
-                final MenuItem item = new MenuItem(makeActionText(action));
+                final MenuItem item = new MenuItem(makeActionText(action),
+                                                   new ImageView(new Image(action.getType().getIconStream()))
+                                                  );
+                item.getStyleClass().add("action_button_item");
                 item.setOnAction(event -> handleAction(action));
                 button.getItems().add(item);
             }
@@ -186,7 +200,7 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
         final StringWidgetProperty text_prop = (StringWidgetProperty)model_widget.propText();
         if ("$(actions)".equals(text_prop.getSpecification()))
         {
-            final List<ActionInfo> actions = model_widget.propActions().getValue();
+            final List<ActionInfo> actions = model_widget.propActions().getValue().getActions();
             if (actions.size() < 1)
                 return Messages.ActionButton_NoActions;
             if (actions.size() > 1)
@@ -216,6 +230,13 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
         return expanded;
     }
 
+    /** @param actions Actions that the user invoked */
+    private void handleActions(final List<ActionInfo> actions)
+    {
+        for (ActionInfo action : actions)
+            handleAction(action);
+    }
+
     /** @param action Action that the user invoked */
     private void handleAction(ActionInfo action)
     {
@@ -240,6 +261,7 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
         model_widget.propHeight().addUntypedPropertyListener(this::representationChanged);
         model_widget.propText().addUntypedPropertyListener(this::representationChanged);
         model_widget.propFont().addUntypedPropertyListener(this::representationChanged);
+        model_widget.propRotationStep().addUntypedPropertyListener(this::representationChanged);
 
         model_widget.propEnabled().addPropertyListener(this::enablementChanged);
         model_widget.runtimePropPVWritable().addPropertyListener(this::enablementChanged);
@@ -304,9 +326,45 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
             button_text = makeButtonText();
             base.setText(button_text);
             base.setTextFill(foreground);
-            base.setPrefSize(model_widget.propWidth().getValue(),
-                             model_widget.propHeight().getValue());
             base.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
+
+
+            final RotationStep rotation = model_widget.propRotationStep().getValue();
+            final int width = model_widget.propWidth().getValue(),
+                      height = model_widget.propHeight().getValue();
+            // Button 'base' is inside 'jfx_node' Pane.
+            // Rotation needs to be applied to the Pane,
+            // which then auto-sizes to the 'base' Button dimensions.
+            // If transforming the Button instead of the Pane,
+            // it will still remain sensitive to mouse clicks in the
+            // original, un-transformed rectangle. Unclear why.
+            // Applying the transformation to the Pane does not exhibit this problem.
+            switch (rotation)
+            {
+            case NONE:
+                base.setPrefSize(width, height);
+                if (was_ever_transformed)
+                    jfx_node.getTransforms().clear();
+                break;
+            case NINETY:
+                base.setPrefSize(height, width);
+                jfx_node.getTransforms().setAll(new Rotate(-rotation.getAngle()),
+                                                new Translate(-height, 0));
+                was_ever_transformed = true;
+                break;
+            case ONEEIGHTY:
+                base.setPrefSize(width, height);
+                jfx_node.getTransforms().setAll(new Rotate(-rotation.getAngle()),
+                                                new Translate(-width, -height));
+                was_ever_transformed = true;
+                               break;
+            case MINUS_NINETY:
+                base.setPrefSize(height, width);
+                jfx_node.getTransforms().setAll(new Rotate(-rotation.getAngle()),
+                                                new Translate(0, -width));
+                was_ever_transformed = true;
+                break;
+            }
         }
         if (dirty_enablement.checkAndClear())
         {

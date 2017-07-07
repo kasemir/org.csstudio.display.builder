@@ -66,6 +66,7 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DropTarget;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -271,7 +272,9 @@ public class DataBrowserEditor extends EditorPart
 
             @Override
             public void changedItemLook(final ModelItem item)
-            {   setDirty(true);   }
+            {
+                site.getShell().getDisplay().asyncExec(() -> setDirty(true));
+            }
 
             @Override
             public void changedItemDataConfig(PVItem item)
@@ -323,7 +326,17 @@ public class DataBrowserEditor extends EditorPart
         final Control plot_canvas = wrapper.getFXCanvas();
         final Scene scene = wrapper.getScene();
         JFXCursorFix.apply(scene, parent.getDisplay());
-        fixCanvasDragAndDrop(plot_canvas);
+
+        try
+        {
+            hookDragAndDrop(plot_canvas);
+        }
+        catch (Throwable ex)
+        {
+            // Adding D&D to FXCanvas involves some hacking
+            // that might break as SWT internals get updated.
+           logger.log(Level.WARNING, "Cannot initialize Drag&Drop", ex);
+        }
 
         // Create and start controller
         controller = new ControllerSWT(parent.getShell(), model, plot);
@@ -387,12 +400,54 @@ public class DataBrowserEditor extends EditorPart
         createContextMenu(plot_canvas);
     }
 
-    private void fixCanvasDragAndDrop(final Control canvas)
+    /** Allow 'drop' of PV name, archive, ..
+     *  @param canvas FXCanvas
+     */
+    private void hookDragAndDrop(final Control canvas)
     {
-        // The droptarget gets set automatically for fxcanvas in setscene
-        // Which will cause the ControlSystemDropTarget constructor to fail
-        // unless we remove the drop target
-        canvas.setData(DND.DROP_TARGET_KEY, null);
+        // CS-Studio uses the ControlSystemDragSource
+        // and ControlSystemDropTarget to transfer its own
+        // data types, using the SWT drag-and-drop API
+        // plus some class loader hacking to de-serialize
+        // types from other plugins.
+        //
+        // The JavaFX plot is inside an FXCanvas.
+        // The FXCanvas establishes an SWT DropTarget
+        // to forward drops from SWT to the hosted JavaFX scene.
+        //
+        // Issues:
+        // The FXCanvas only reliably forwards standard transfers
+        // (string, ..), and not custom data types.
+        // SWT generally doesn't allow multiple drop targets.
+        //
+        // Option 1)
+        // Use the JavaFX drop API on the plot, and parse the received strings.
+        // -> Don't want to parse possibly arbitrary strings.
+        //
+        // Option 2)
+        // Change the ControlSystemDropTarget to use
+        // getSite().getService(IDragAndDropService.class).addMergedDropTarget(..)
+        // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162192
+        // This would allow 'adding' another DropTarget,
+        // but requires changes to the ControlSystemDropTarget,
+        // would only work in RCP, not plain SWT.
+        // Who then receives the drop events would depend on the order
+        // in which drop targets are added and which transfers they use.
+        //
+        // Option 3)
+        // Hack around the SWT limitation by fetching
+        // the FXCanva's DropTarget via
+        //    control.getData(DND.DROP_TARGET_KEY);
+        // and disposing it.
+        // Checking the source code for the SWT DropTarget
+        // on Windows, Mac and Linux for SWT 3.104,
+        // this detaches the DropTarget and allows us
+        // to add our own.
+        final DropTarget old = (DropTarget) canvas.getData(DND.DROP_TARGET_KEY);
+        if (old != null)
+            old.dispose();
+        if (canvas.getData(DND.DROP_TARGET_KEY) != null)
+            throw new IllegalStateException("Cannot remove FXCanvas's DropTarget");
 
         // Allow dropped arrays
         new ControlSystemDropTarget(canvas, ChannelInfo[].class,
@@ -543,6 +598,8 @@ public class DataBrowserEditor extends EditorPart
     @Override
     public void dispose()
     {
+        if (plot != null)
+            plot.dispose();
         // If editor is disposed because of error during init(),
         // model_listener will be null
         if (model_listener != null)

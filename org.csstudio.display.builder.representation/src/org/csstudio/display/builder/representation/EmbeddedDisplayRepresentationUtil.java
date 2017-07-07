@@ -1,3 +1,10 @@
+/*******************************************************************************
+ * Copyright (c) 2016 Oak Ridge National Laboratory.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *******************************************************************************/
 package org.csstudio.display.builder.representation;
 
 import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
@@ -7,6 +14,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
@@ -14,11 +22,13 @@ import org.csstudio.display.builder.model.persist.ModelLoader;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
-import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget.Resize;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
+import org.csstudio.display.builder.model.widgets.NavigationTabsWidget;
+import org.csstudio.display.builder.model.widgets.VisibleWidget;
+import org.osgi.framework.Version;
 
-/** Helper for common (SWT, JFX) representation code of {@link EmbeddedDisplayWidget}
+/** Helper for common (SWT, JFX) representation code of {@link EmbeddedDisplayWidget} and {@link NavigationTabsWidget}
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
@@ -32,10 +42,10 @@ public class EmbeddedDisplayRepresentationUtil
     {
         private final String display_file, group_name;
 
-        public DisplayAndGroup(final EmbeddedDisplayWidget widget)
+        public DisplayAndGroup(final String file, final String group)
         {
-            display_file = widget.propFile().getValue();
-            group_name = widget.propGroupName().getValue();
+            display_file = file;
+            group_name = group;
         }
 
         public String getDisplayFile()
@@ -62,10 +72,10 @@ public class EmbeddedDisplayRepresentationUtil
      *  @param group_name
      *  @return {@link DisplayModel}
      */
-    public static  DisplayModel loadDisplayModel(final EmbeddedDisplayWidget model_widget, final String display_file, final String group_name)
+    public static DisplayModel loadDisplayModel(final VisibleWidget model_widget, final DisplayAndGroup display_and_group)
     {
         DisplayModel embedded_model;
-        if (display_file.isEmpty())
+        if (display_and_group.getDisplayFile().isEmpty())
         {   // Empty model for empty file name
             embedded_model = new DisplayModel();
             embedded_model.setUserData(DisplayModel.USER_DATA_EMBEDDING_WIDGET, model_widget);
@@ -77,19 +87,26 @@ public class EmbeddedDisplayRepresentationUtil
             {   // Load model for displayFile, allowing lookup relative to this widget's model
                 final DisplayModel display = model_widget.getDisplayModel();
                 final String parent_display = display.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
-                embedded_model = ModelLoader.resolveAndLoadModel(parent_display, display_file);
+                embedded_model = ModelLoader.resolveAndLoadModel(parent_display, display_and_group.getDisplayFile());
+
+                // Didn't honor the display size of legacy files,
+                // always shrunk those to wrap their widgets
+                final Version input_version = embedded_model.getUserData(DisplayModel.USER_DATA_INPUT_VERSION);
+                if (input_version.getMajor() < 2)
+                    shrinkModelToWidgets(embedded_model);
+
                 // Tell embedded model that it is held by this widget,
                 // which provides access to macros of model_widget.
                 embedded_model.setUserData(DisplayModel.USER_DATA_EMBEDDING_WIDGET, model_widget);
-                if (!group_name.isEmpty())
-                    reduceDisplayModelToGroup(model_widget, display_file, embedded_model, group_name);
+                if (!display_and_group.getGroupName().isEmpty())
+                    reduceDisplayModelToGroup(model_widget, embedded_model, display_and_group);
                 // Adjust model name to reflect source file
-                embedded_model.propName().setValue("EmbeddedDisplay " + display_file);
+                embedded_model.propName().setValue("EmbeddedDisplay " + display_and_group.getDisplayFile());
                 model_widget.runtimePropConnected().setValue(true);
             }
             catch (final Throwable ex)
             {   // Log error and show message in pseudo model
-                final String message = "Failed to load embedded display '" + display_file + "'";
+                final String message = "Failed to load embedded display '" + display_and_group + "'";
                 logger.log(Level.WARNING, message, ex);
                 embedded_model = createErrorModel(model_widget, message);
                 model_widget.runtimePropConnected().setValue(false);
@@ -104,48 +121,53 @@ public class EmbeddedDisplayRepresentationUtil
      *  @param model Model loaded from that file
      *  @param group_name Name of group to use
      */
-    private static void reduceDisplayModelToGroup(final EmbeddedDisplayWidget model_widget, final String display_file, final DisplayModel model, final String group_name)
+    private static void reduceDisplayModelToGroup(final Widget model_widget, final DisplayModel model, final DisplayAndGroup display_and_group)
     {
+        final String group_name = display_and_group.getGroupName();
         final List<Widget> children = model.runtimeChildren().getValue();
 
-        // Remove all but groups with matching name
-        int index = 0;
-        while (!children.isEmpty() && index < children.size())
-        {
-            final Widget child = children.get(index);
-            if (child.getType().equals(GroupWidget.WIDGET_DESCRIPTOR.getType()) &&
-                child.getName().equals(group_name))
-                index++;
-            else
-                model.runtimeChildren().removeChild(child);
-        }
+        // Find all groups with desired name.
+        // Could just loop to get the first matching group,
+        // but finding all and logging them helps to debug displays.
+        final List<Widget> groups =
+            children.parallelStream()
+                    .filter(child -> child instanceof GroupWidget &&
+                                     child.getName().equals(group_name))
+                    .collect(Collectors.toList());
 
         // Expect exactly one
-        final int groups = model.runtimeChildren().getValue().size();
-        if (children.size() != 1)
-        {
-            model_widget.propResize().setValue(Resize.None);
-            logger.log(Level.WARNING, "Expected one group named '" + group_name + "' in '" + display_file + "', found " + groups);
-            return;
-        }
+        if (groups.size() != 1)
+            logger.log(Level.WARNING, "Expected one group named '" + group_name +
+                                      "' in '" + display_and_group.getDisplayFile() +
+                                      "', found " + groups);
 
-        // Replace display with just that one group
-        final GroupWidget group = (GroupWidget) children.get(0);
-        model.runtimeChildren().removeChild(group);
+        // If no group found, use the complete display
+        if (groups.size() <= 0)
+            return;
+
+        // Replace display with just the content of that group
+        final GroupWidget group = (GroupWidget) groups.get(0);
+        model.runtimeChildren().setValue(group.runtimeChildren().getValue());
+        // Not removing children from 'group', since group will be GC'ed anyway.
+        shrinkModelToWidgets(model);
+    }
+
+    /** Move widgets into top-left corner and set model's size to match
+     *  @param model {@link DisplayModel}
+     */
+    private static void shrinkModelToWidgets(final DisplayModel model)
+    {
         int xmin = Integer.MAX_VALUE, ymin = Integer.MAX_VALUE,
             xmax = 0,                 ymax = 0;
-        for (Widget child : group.runtimeChildren().getValue())
+        for (Widget child : model.runtimeChildren().getValue())
         {
-            // Not removing child from 'group', since group
-            // will be GC'ed anyway.
-            model.runtimeChildren().addChild(child);
             xmin = Math.min(xmin, child.propX().getValue());
             ymin = Math.min(ymin, child.propY().getValue());
-            xmax = Math.min(xmax, child.propX().getValue() + child.propWidth().getValue());
-            ymax = Math.min(ymax, child.propY().getValue() + child.propHeight().getValue());
+            xmax = Math.max(xmax, child.propX().getValue() + child.propWidth().getValue());
+            ymax = Math.max(ymax, child.propY().getValue() + child.propHeight().getValue());
         }
         // Move all widgets to top-left corner
-        for (Widget child : children)
+        for (Widget child : model.runtimeChildren().getValue())
         {
             child.propX().setValue(child.propX().getValue() - xmin);
             child.propY().setValue(child.propY().getValue() - ymin);
@@ -158,7 +180,7 @@ public class EmbeddedDisplayRepresentationUtil
     /** @param message Error message
      *  @return DisplayModel that shows the message
      */
-    private static DisplayModel createErrorModel(final EmbeddedDisplayWidget model_widget, final String message)
+    private static DisplayModel createErrorModel(final Widget model_widget, final String message)
     {
         final LabelWidget info = new LabelWidget();
         info.propText().setValue(message);
@@ -192,7 +214,7 @@ public class EmbeddedDisplayRepresentationUtil
      *  @param message
      *  @throws Exception
      */
-    public static void checkCompletion(final EmbeddedDisplayWidget model_widget, final Future<Object> completion, final String message) throws Exception
+    public static void checkCompletion(final Widget model_widget, final Future<Object> completion, final String message) throws Exception
     {
         try
         {

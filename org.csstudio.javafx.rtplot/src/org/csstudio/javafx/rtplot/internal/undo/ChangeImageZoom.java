@@ -37,7 +37,26 @@ public class ChangeImageZoom  extends UndoableAction
             final AxisRange<Double> original_y_range,
             final AxisRange<Double> new_y_range)
     {
-        super(Messages.Zoom_In);
+    	this(Messages.Zoom_In, x_axis, original_x_range, new_x_range, y_axis, original_y_range, new_y_range);
+    }
+    /** @param name Name of undo action
+     *  @param x_axis X Axis or <code>null</code>
+     *  @param original_x_range Original ..
+     *  @param new_x_range .. and new X range, or <code>null</code>
+     *  @param y_axis Y Axis or <code>null</code>
+     *  @param original_y_range Original ..
+     *  @param new_y_range .. and new Y range, or <code>null</code>
+     */
+    public ChangeImageZoom(
+    		final String name,
+            final Axis<Double> x_axis,
+            final AxisRange<Double> original_x_range,
+            final AxisRange<Double> new_x_range,
+            final Axis<Double> y_axis,
+            final AxisRange<Double> original_y_range,
+            final AxisRange<Double> new_y_range)
+    {
+        super(name);
         this.x_axis = x_axis;
         this.original_x_range = original_x_range;
         this.new_x_range = new_x_range;

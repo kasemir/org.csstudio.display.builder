@@ -17,8 +17,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
+import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.EditorUtil;
-import org.csstudio.display.builder.editor.WidgetSelectionHandler;
+import org.csstudio.display.builder.editor.actions.ActionDescription;
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
@@ -39,6 +40,7 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
@@ -53,8 +55,8 @@ public class WidgetTree
     /** Is this class updating the selection of tree or model? */
     private final AtomicBoolean active = new AtomicBoolean();
 
-    /** Handler for setting and tracking the currently selected widgets */
-    private final WidgetSelectionHandler selection;
+    /** Associated Editor */
+    private final DisplayEditor editor;
 
     private final TreeView<WidgetOrTab> tree_view = new TreeView<>();
 
@@ -67,7 +69,7 @@ public class WidgetTree
      */
     private final Map<Widget, TreeItem<WidgetOrTab>> widget2tree = new ConcurrentHashMap<>();
 
-    /** Map of tab's name.. to TreeItem */
+    /** Map of tab's name property to TreeItem */
     private final Map<WidgetProperty<String>, TreeItem<WidgetOrTab>> tab_name2tree = new ConcurrentHashMap<>();
 
     /** Listener to changes in Widget's children */
@@ -105,34 +107,57 @@ public class WidgetTree
     /** Construct widget tree
      *  @param selection Handler of selected widgets
      */
-    public WidgetTree(final WidgetSelectionHandler selection)
+    public WidgetTree(final DisplayEditor editor)
     {
-        this.selection = selection;
+        this.editor = editor;
 
         children_listener = (p, removed, added) ->
         {
             // Update must be on UI thread.
             // Even if already on UI thread, decouple.
-            Platform.runLater(() ->
-            {
-                active.set(true);
-                try
+            if (removed != null)
+                Platform.runLater(() ->
                 {
-                    if (removed != null)
+                    active.set(true);
+                    try
+                    {
                         for (Widget removed_widget : removed)
                             removeWidget(removed_widget);
-                    if (added != null)
-                        for (Widget added_widget : added)
-                            addWidget(added_widget);
-                }
-                finally
+                    }
+                    finally
+                    {
+                        active.set(false);
+                    }
+                });
+
+            if (added != null)
+            {   // Need to determine the index of added item in model _now_,
+                // not in decoupled thread.
+                // Assume model [ a, b, c, d ] that moves a, b, to the end: [ b, c, d, a ], then [ c, d, a, b ]
+                // By the time decoupled thread moves a, it will already see the model as [ c, d, a, b ]
+                // and thus determine that a needs to be at index 2 -> [ b, c, a, d ]
+                // Then it moves b, determined that it needs to be at index 3 -> [ c, a, d, b ]
+                final int[] indices = new int[added.size()];
+                for (int i=0; i<indices.length; ++i)
+                    indices[i] = determineWidgetIndex(added.get(i));
+
+                Platform.runLater(() ->
                 {
-                    active.set(false);
-                }
-                // Restore tree's selection to match model
-                // after removing/adding items may have changed it.
-                setSelectedWidgets(selection.getSelection());
-            });
+                    active.set(true);
+                    try
+                    {
+                        for (int i=0; i<indices.length; ++i)
+                            addWidget(added.get(i), indices[i]);
+                    }
+                    finally
+                    {
+                        active.set(false);
+                    }
+                    // Restore tree's selection to match model
+                    // after removing/adding items may have changed it.
+                    setSelectedWidgets(editor.getWidgetSelectionHandler().getSelection());
+                });
+            }
         };
     }
 
@@ -151,8 +176,49 @@ public class WidgetTree
         box.getChildren().addAll(tree_view);
 
         bindSelections();
+        tree_view.setOnKeyPressed(this::handleKeyPress);
 
         return box;
+    }
+
+    private void handleKeyPress(final KeyEvent event)
+    {
+        WidgetTree.handleWidgetOrderKeys(event, editor);
+    }
+
+    /** Handle Alt-[Up, Down, PgUp, PgDown] to move widgets in hierarchy
+     *
+     *  @param event {@link KeyEvent}
+     *  @param editor {@link DisplayEditor}
+     *  @return <code>true</code> if key was handled
+     */
+    public static boolean handleWidgetOrderKeys(final KeyEvent event, final DisplayEditor editor)
+    {
+        if (event.isAltDown())
+        {
+            switch (event.getCode())
+            {
+            case PAGE_UP:
+                event.consume();
+                ActionDescription.TO_BACK.run(editor);
+                return true;
+            case UP:
+                event.consume();
+                ActionDescription.MOVE_UP.run(editor);
+                return true;
+            case DOWN:
+                event.consume();
+                ActionDescription.MOVE_DOWN.run(editor);
+                return true;
+            case PAGE_DOWN:
+                event.consume();
+                ActionDescription.TO_FRONT.run(editor);
+                return true;
+            default:
+                break;
+            }
+        }
+        return false;
     }
 
     /** Link selections in tree view and model */
@@ -178,7 +244,7 @@ public class WidgetTree
                         widgets.add(widget);
                 };
                 logger.log(Level.FINE, "Selected in tree: {0}", widgets);
-                selection.setSelection(widgets);
+                editor.getWidgetSelectionHandler().setSelection(widgets);
             }
             finally
             {
@@ -188,7 +254,7 @@ public class WidgetTree
         tree_selection.addListener(listener);
 
         // Update selection in tree_view from selected widgets in model
-        selection.addListener(this::setSelectedWidgets);
+        editor.getWidgetSelectionHandler().addListener(this::setSelectedWidgets);
     }
 
     /** @param model Model to display as widget tree */
@@ -217,7 +283,7 @@ public class WidgetTree
             {
                 widget2tree.put(model, root);
                 for (Widget widget : model.runtimeChildren().getValue())
-                    addWidget(widget);
+                    addWidget(widget, -1);
                 root.setExpanded(true);
                 model.runtimeChildren().addPropertyListener(children_listener);
             }
@@ -225,7 +291,7 @@ public class WidgetTree
             Platform.runLater(() ->
             {
                 tree_view.setRoot(root);
-                setSelectedWidgets(selection.getSelection());
+                setSelectedWidgets(editor.getWidgetSelectionHandler().getSelection());
             });
         });
     }
@@ -250,39 +316,60 @@ public class WidgetTree
         }
     }
 
-    /** Add widget to existing model & tree
-     *  @param added_widget Widget to add
+    /** Determine location of widget within parent of model
+     *  @param widget Widget
+     *  @return Index of widget in model's parent
      */
-    private void addWidget(final Widget added_widget)
-    {   // Determine location of widget within parent of model
-        final Widget widget_parent = added_widget.getParent().get();
-        int index = -1;
-        TreeItem<WidgetOrTab> item_parent = null;
+    private int determineWidgetIndex(final Widget widget)
+    {
+        final Widget widget_parent = Objects.requireNonNull(widget.getParent().get());
         if (widget_parent instanceof TabsWidget)
         {
             for (TabItemProperty tab : ((TabsWidget)widget_parent).propTabs().getValue())
             {
-                index = tab.children().getValue().indexOf(added_widget);
+                int index = tab.children().getValue().indexOf(widget);
                 if (index >= 0)
+                    return index;
+            }
+        }
+        else
+            return ChildrenProperty.getChildren(widget_parent).getValue().indexOf(widget);
+        return -1;
+    }
+
+    /** Add widget to existing model & tree
+     *  @param added_widget Widget to add
+     *  @param index Index of widget within parent. -1 to add at end
+     */
+    private void addWidget(final Widget added_widget, final int index)
+    {
+        // Have widget and its parent in model
+        final Widget widget_parent = added_widget.getParent().get();
+        // Determine parent tree item
+        TreeItem<WidgetOrTab> item_parent = null;
+        if (widget_parent instanceof TabsWidget)
+        {
+            for (TabItemProperty tab : ((TabsWidget)widget_parent).propTabs().getValue())
+                if (tab.children().getValue().contains(added_widget))
                 {
                     item_parent = tab_name2tree.get(tab.name());
                     break;
                 }
-            }
         }
         else
-        {
-            index = ChildrenProperty.getChildren(widget_parent).getValue().indexOf(added_widget);
             item_parent = widget2tree.get(widget_parent);
-        }
 
         Objects.requireNonNull(item_parent, "Cannot obtain parent item for " + added_widget);
 
-        // Create Tree item, add at same index into Tree
+        // Create Tree item
         final TreeItem<WidgetOrTab> item = new TreeItem<>(WidgetOrTab.of(added_widget));
         widget2tree.put(added_widget, item);
         item.setExpanded(true);
-        item_parent.getChildren().add(index, item);
+        if (index >= 0)
+            // Add at same index into Tree
+            item_parent.getChildren().add(index, item);
+        else// Append to end
+            item_parent.getChildren().add(item);
 
         added_widget.propName().addPropertyListener(name_listener);
 
@@ -299,7 +386,7 @@ public class WidgetTree
             {
                 children.addPropertyListener(children_listener);
                 for (Widget child : children.getValue())
-                    addWidget(child);
+                    addWidget(child, -1);
             }
         }
     }
@@ -315,7 +402,7 @@ public class WidgetTree
             tab.name().addPropertyListener(tab_name_listener);
 
             for (Widget child : tab.children().getValue())
-                addWidget(child);
+                addWidget(child, -1);
 
             tab.children().addPropertyListener(children_listener);
         }

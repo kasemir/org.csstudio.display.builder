@@ -76,6 +76,10 @@
             type="multi_state_led">
       </representation>
       <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.NavigationTabsRepresentation"
+            type="navtabs">
+      </representation>
+      <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.PictureRepresentation"
             type="picture">
       </representation>
@@ -110,6 +114,10 @@
       <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.SpinnerRepresentation"
             type="spinner">
+      </representation>
+      <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.SymbolRepresentation"
+            type="symbol">
       </representation>
       <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.TableRepresentation"

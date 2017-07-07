@@ -24,6 +24,7 @@ import org.csstudio.ui.util.dialogs.ResourceSelectionDialog;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
@@ -118,16 +119,31 @@ public class RCP_JFXRepresentation extends JFXRepresentation
     }
 
     @Override
-    public String showSaveAsDialog(final Widget widget, final String initial_value)
+    public String showSaveAsDialog(final Widget widget, String initial_value)
     {
         final AtomicReference<String> result = new AtomicReference<String>();
         final Display display = Display.getDefault();
+
+        // Unless initial value already contains a path,
+        // suggest the first project
+        if (initial_value.length() > 0  &&  ! initial_value.contains("/"))
+        {
+            final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+            for (IProject project : root.getProjects())
+                if (project.isOpen())
+                {
+                    initial_value = "/" + project.getName() + "/" + initial_value;
+                    break;
+                }
+        }
+
+        final Path initial_path = new Path(initial_value);
 
         final Runnable doit = () ->
         {
             final ResourceSelectionDialog dialog = new ResourceSelectionDialog(display.getActiveShell(),
                     Messages.SelectWorkspaceFile, new String[] { "*.*" });
-            dialog.setSelectedResource(new Path(initial_value));
+            dialog.setSelectedResource(initial_path);
             if (dialog.open() != Window.OK)
                 return;
             final IPath resource = dialog.getSelectedResource();

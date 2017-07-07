@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -36,20 +36,18 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
 
     private void embeddedModelChanged(final WidgetProperty<DisplayModel> property, final DisplayModel old_model, final DisplayModel new_model)
     {
-        // Dispose old model
+        // Stop old model
         if (old_model != null)
             RuntimeUtil.stopRuntime(old_model);
+        // Start new model
         if (new_model != null)
-            // Back off UI thread, start runtimes of child widgets
             RuntimeUtil.startRuntime(new_model);
     }
 
     @Override
     public void stop()
     {
-        final DisplayModel old_model = widget.runtimePropEmbeddedModel().getValue();
-        if (old_model != null)
-            RuntimeUtil.stopRuntime(old_model);
+        embeddedModelChanged(null, widget.runtimePropEmbeddedModel().getValue(), null);
         super.stop();
     }
 }

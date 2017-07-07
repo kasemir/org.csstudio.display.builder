@@ -34,6 +34,7 @@ import org.csstudio.trends.databrowser3.preferences.Preferences;
 import org.diirt.util.time.TimeDuration;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
@@ -121,17 +122,21 @@ public class Model
     /** Background color */
     private volatile RGB background = new RGB(255, 255, 255);
 
+    /** Checking once if the desired default fonts are available */
+    private static volatile boolean have_checked_fonts = false;
+    private static volatile boolean have_liberation_font = false;
+
     /** Title font */
-    private volatile FontData title_font = new FontData("", 15, 0);
+    private volatile FontData title_font = new FontData("Liberation Sans", 20, SWT.BOLD);
 
     /** Label font */
-    private volatile FontData label_font = new FontData("", 10, 0);
+    private volatile FontData label_font = new FontData("Liberation Sans", 14, SWT.BOLD);
 
     /** Scale font */
-    private volatile FontData scale_font = new FontData("", 10, 0);
+    private volatile FontData scale_font = new FontData("Liberation Sans", 12, 0);
 
     /** Legend font */
-    private volatile FontData legend_font = new FontData("", 10, 0);
+    private volatile FontData legend_font = new FontData("Liberation Sans", 14, 0);
 
     /** Annotations */
     private volatile List<AnnotationInfo> annotations = Collections.emptyList();
@@ -149,12 +154,24 @@ public class Model
     {
         final Display display = Display.getCurrent();
         if (display != null)
-        {   // Based on system font, use BOLD for labels, and smaller version for scales
-            final FontData default_font = display.getSystemFont().getFontData()[0];
-            title_font = new FontData(default_font.getName(), (default_font.getHeight()*3)/2, SWT.BOLD);
-            label_font = new FontData(default_font.getName(), default_font.getHeight(), SWT.BOLD);
-            scale_font = new FontData(default_font.getName(), default_font.getHeight()-1, SWT.NORMAL);
-            legend_font = new FontData(default_font.getName(), default_font.getHeight()-1, SWT.NORMAL);
+        {
+            if (! have_checked_fonts)
+            {
+                final Font actual = new Font(display, title_font);
+                final FontData[] actual_data = actual.getFontData();
+                have_liberation_font = actual_data.length > 0  &&
+                                       actual_data[0].getName().equals(title_font.getName());
+                have_checked_fonts = true;
+            }
+
+            if (! have_liberation_font)
+            {   // Based on system font, use BOLD for labels, and smaller version for scales
+                final FontData default_font = display.getSystemFont().getFontData()[0];
+                title_font = new FontData(default_font.getName(), (default_font.getHeight()*3)/2, SWT.BOLD);
+                label_font = new FontData(default_font.getName(), default_font.getHeight(), SWT.BOLD);
+                scale_font = new FontData(default_font.getName(), default_font.getHeight()-1, SWT.NORMAL);
+                legend_font = new FontData(default_font.getName(), default_font.getHeight()-1, SWT.NORMAL);
+            }
         }
         start_spec = "-" + PeriodFormat.formatSeconds(TimeDuration.toSecondsDouble(time_span));
         end_spec = RelativeTime.NOW;
@@ -829,7 +846,6 @@ public class Model
         label_font = font;
         for (ModelListener listener : listeners)
             listener.changedColorsOrFonts();
-
     }
 
     /** @return Scale font */

@@ -85,7 +85,7 @@ public class TableWidget extends VisibleWidget
 
     /** Structure for column configuration */
     private static final WidgetPropertyDescriptor<Boolean> propEditable =
-        newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "editable", "Editable");
+        newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "editable", Messages.WidgetProperties_Editable);
 
     private static final WidgetPropertyDescriptor<String> columnOption =
             newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "option", "Option");
@@ -105,7 +105,7 @@ public class TableWidget extends VisibleWidget
         {
             super(propColumn, widget,
                   Arrays.asList(propName.createProperty(widget, name),
-                                propWidth.createProperty(widget, 50),
+                                propWidth.createProperty(widget, 100),
                                 propEditable.createProperty(widget, true),
                                 propOptions.createProperty(widget, Collections.emptyList())));
         }
@@ -179,6 +179,9 @@ public class TableWidget extends VisibleWidget
     /** PV for runtime info about selection */
     private static final WidgetPropertyDescriptor<String> propSelectionPV =
         newStringPropertyDescriptor(WidgetPropertyCategory.MISC, "selection_pv", Messages.WidgetProperties_SelectionPV);
+
+    private static final WidgetPropertyDescriptor<Boolean> propRowSelectionMode =
+            newBooleanPropertyDescriptor(WidgetPropertyCategory.MISC, "row_selection_mode", "Select Rows");
 
     /** Runtime info about selection */
     private static final WidgetPropertyDescriptor<VType> runtimePropSelectionInfo =
@@ -265,6 +268,7 @@ public class TableWidget extends VisibleWidget
     private volatile WidgetProperty<Object> value;
     private volatile WidgetProperty<List<List<WidgetColor>>> cell_colors;
     private volatile WidgetProperty<Boolean> editable;
+    private volatile WidgetProperty<Boolean> row_selection_mode;
     private volatile WidgetProperty<String> selection_pv;
     private volatile WidgetProperty<VType> selection;
 
@@ -287,6 +291,7 @@ public class TableWidget extends VisibleWidget
         properties.add(value = runtimeValueDescriptor.createProperty(this, null));
         properties.add(cell_colors = runtimeCellColorsDescriptor.createProperty(this, null));
         properties.add(editable = propEditable.createProperty(this, true));
+        properties.add(row_selection_mode = propRowSelectionMode.createProperty(this, false));
         properties.add(selection_pv = propSelectionPV.createProperty(this, ""));
         properties.add(selection = runtimePropSelectionInfo.createProperty(this, null));
     }
@@ -591,6 +596,12 @@ public class TableWidget extends VisibleWidget
     public WidgetProperty<Boolean> propEditable()
     {
         return editable;
+    }
+
+    /** @return Misc. 'row_selection_mode' */
+    public WidgetProperty<Boolean> propRowSelectionMode()
+    {
+        return row_selection_mode;
     }
 
     /** @return Misc. 'selection_pv' */

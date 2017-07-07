@@ -58,6 +58,16 @@ one for the "X" and one for the "Y" axis.</text>
         <point_size>5</point_size>
       </trace>
     </traces>
+    <marker>
+      <marker>
+        <color>
+          <color red="204" green="128" blue="153">
+          </color>
+        </color>
+        <pv_name>loc://pos(50)</pv_name>
+        <interactive>true</interactive>
+      </marker>
+    </marker>
   </widget>
   <widget type="picture" version="2.0.0">
     <name>Picture</name>
@@ -157,7 +167,7 @@ Double-click zooms back out.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_10</name>
-    <text>Pointer mode: Mouse is just a pointer</text>
+    <text>Pointer mode: Mouse is just a pointer (good for moving marker)</text>
     <x>121</x>
     <y>711</y>
     <width>450</width>
@@ -335,6 +345,7 @@ pvs[1].write(err)
           <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
           </font>
         </scale_font>
+        <visible>true</visible>
       </y_axis>
     </y_axes>
     <traces>
@@ -491,6 +502,7 @@ plot.setPropertyValue("y_axes[0].autoscale", True)
           <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
           </font>
         </scale_font>
+        <visible>true</visible>
       </y_axis>
     </y_axes>
     <traces>
@@ -548,5 +560,36 @@ For a "Line Width" of zero, the bar graph turns into a histogram-type display wi
       <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
       </font>
     </font>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry</name>
+    <pv_name>loc://pos(50)</pv_name>
+    <x>410</x>
+    <y>441</y>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_30</name>
+    <text>Marker:</text>
+    <x>300</x>
+    <y>441</y>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_31</name>
+    <class>COMMENT</class>
+    <text>(Can also move marker with mouse)</text>
+    <x>300</x>
+    <y>461</y>
+    <width>250</width>
+    <height>30</height>
+    <font use_class="true">
+      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
+      </font>
+    </font>
+    <foreground_color use_class="true">
+      <color name="Text" red="0" green="0" blue="0">
+      </color>
+    </foreground_color>
+    <transparent use_class="true">true</transparent>
+    <wrap_words use_class="true">true</wrap_words>
   </widget>
 </display>

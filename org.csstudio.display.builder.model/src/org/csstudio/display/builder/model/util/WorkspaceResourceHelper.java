@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.model.util;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 
 /** Helper for handling workspace files
  *
@@ -43,4 +44,9 @@ public interface WorkspaceResourceHelper
      */
     public InputStream openWorkspaceResource(String resource_name) throws Exception;
 
+    /** @param resource_name Name of resource in workspace
+     *  @return Stream for the resource
+     *  @throws Exception on error
+     */
+    public OutputStream writeWorkspaceResource(String resource_name) throws Exception;
 }

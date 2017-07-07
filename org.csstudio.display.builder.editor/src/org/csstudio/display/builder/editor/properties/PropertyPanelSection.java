@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,6 @@ import static org.csstudio.display.builder.editor.Plugin.logger;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -35,6 +34,7 @@ import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
 import org.csstudio.display.builder.model.properties.FilenameWidgetProperty;
 import org.csstudio.display.builder.model.properties.FontWidgetProperty;
 import org.csstudio.display.builder.model.properties.MacrosWidgetProperty;
+import org.csstudio.display.builder.model.properties.PVNameWidgetProperty;
 import org.csstudio.display.builder.model.properties.PointsWidgetProperty;
 import org.csstudio.display.builder.model.properties.RulesWidgetProperty;
 import org.csstudio.display.builder.model.properties.ScriptsWidgetProperty;
@@ -61,6 +61,30 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 
 /** Section of Property panel
+ *
+ *  <p>A grid with 3 columns:
+ *  <ol>
+ *  <li>Name of property
+ *  <li>Class Indicator. May be empty or show the "C" for class-defined property.
+ *      In class-editor mode it turns into a checkbox.
+ *  <li>Editor for Value of Property.
+ *      The editor for the value of the property may be a single text field,
+ *      or a button or even a HBox with more elements.
+ *  </ol>
+ *
+ *  <p>The {@link PropertyPanel} currently uses just one large {@link PropertyPanelSection}.
+ *
+ *  <p>The elements of a structure or elements of an array could be (and had in the past been)
+ *  placed in their own sub-{@link PropertyPanelSection}s.
+ *  That makes it easier to add/remove array elements by just updating the affected sub-section,
+ *  but is would then be much harder to get all property name and editor fields to align
+ *  through subsections.
+ *
+ *  <p>With one large grid, adding and removing array elements requires either shifting
+ *  the following properties into different rows (harder to do),
+ *  or to re-create the complete section (currently done).
+ *  See {@link ArraySizePropertyBinding} for details.
+ *
  *  @author Kay Kasemir
  *  @author Claudio Rosati
  */
@@ -75,22 +99,16 @@ public class PropertyPanelSection extends GridPane
 
     private final List<WidgetPropertyBinding<?,?>> bindings = new ArrayList<>();
     private int next_row = -1;
-    private Collection<WidgetProperty<?>> properties = Collections.emptyList();
-    private boolean show_categories;
 
     public void setClassMode(final boolean class_mode)
     {
         this.class_mode = class_mode;
     }
 
-    public void fill(final UndoableActionManager undo,
-                     final Collection<WidgetProperty<?>> properties,
-                     final List<Widget> other,
-                     final boolean show_categories)
+    void fill(final UndoableActionManager undo,
+              final Collection<WidgetProperty<?>> properties,
+              final List<Widget> other)
     {
-        clear();
-        this.properties = properties;
-        this.show_categories = show_categories;
         // Add UI items for each property
         WidgetPropertyCategory category = null;
         for (final WidgetProperty<?> property : properties)
@@ -105,29 +123,22 @@ public class PropertyPanelSection extends GridPane
                 continue;
 
             // Start of new category that needs to be shown?
-            if (show_categories &&
-                property.getCategory() != category)
+            if (property.getCategory() != category)
             {
                 category = property.getCategory();
 
                 final Label header = new Label(category.getDescription());
                 header.getStyleClass().add("property_category");
                 header.setMaxWidth(Double.MAX_VALUE);
-                add(header, 0, getNextGridRow(), 2, 1);
+                add(header, 0, getNextGridRow(), 3, 1);
 
                 final Separator separator = new Separator();
                 separator.getStyleClass().add("property_separator");
-                add(separator, 0, getNextGridRow(), 2, 1);
+                add(separator, 0, getNextGridRow(), 3, 1);
             }
 
             createPropertyUI(undo, property, other, 0);
         }
-    }
-
-    public void refill(final UndoableActionManager undo,
-                       final List<Widget> other)
-    {
-        fill(undo, this.properties, other, this.show_categories);
     }
 
     /** @return Next row in grid layout, i.e. row that is not populated */
@@ -237,6 +248,22 @@ public class PropertyPanelSection extends GridPane
             binding.bind();
             field = map_button;
         }
+        else if (property instanceof WidgetClassProperty)
+        {
+            final WidgetClassProperty widget_class_prop = (WidgetClassProperty) property;
+            final ComboBox<String> combo = new ComboBox<>();
+            combo.setPromptText(property.getDefaultValue().toString());
+            combo.setEditable(true);
+            // List classes of this widget
+            final String type = widget.getType();
+            final Collection<String> classes = WidgetClassesService.getWidgetClasses().getWidgetClasses(type);
+            combo.getItems().addAll(classes);
+            combo.setMaxWidth(Double.MAX_VALUE);
+            final WidgetClassBinding binding = new WidgetClassBinding(undo, combo, widget_class_prop, other);
+            bindings.add(binding);
+            binding.bind();
+            field = combo;
+        }
         else if (property instanceof FilenameWidgetProperty)
         {
             final FilenameWidgetProperty file_prop = (FilenameWidgetProperty)property;
@@ -263,47 +290,37 @@ public class PropertyPanelSection extends GridPane
             field = new HBox(text, select_file);
             HBox.setHgrow(text, Priority.ALWAYS);
         }
-        else if (property instanceof WidgetClassProperty)
+        else if (property instanceof PVNameWidgetProperty)
         {
-            final WidgetClassProperty widget_class_prop = (WidgetClassProperty) property;
-            final ComboBox<String> combo = new ComboBox<>();
-            combo.setPromptText(property.getDefaultValue().toString());
-            combo.setEditable(true);
-            // List classes of this widget
-            final String type = widget.getType();
-            final Collection<String> classes = WidgetClassesService.getWidgetClasses().getWidgetClasses(type);
-            combo.getItems().addAll(classes);
-            combo.setMaxWidth(Double.MAX_VALUE);
-            final WidgetClassBinding binding = new WidgetClassBinding(undo, combo, widget_class_prop, other);
+            final PVNameWidgetProperty pv_prop = (PVNameWidgetProperty)property;
+            final TextField text = new TextField();
+            text.setPromptText(pv_prop.getDefaultValue().toString());
+            final MacroizedWidgetPropertyBinding binding = new MacroizedWidgetPropertyBinding(undo, text, pv_prop, other)
+            {
+                @Override
+                public void bind()
+                {
+                    super.bind();
+                    autocomplete_menu.attachField(text);
+                }
+
+                @Override
+                public void unbind()
+                {
+                    super.unbind();
+                    autocomplete_menu.removeField(text);
+                }
+            };
             bindings.add(binding);
             binding.bind();
-            field = combo;
+            field = text;
         }
         else if (property instanceof MacroizedWidgetProperty)
-        {
+        {   // MacroizedWidgetProperty needs to be checked _after_ subclasses like PVNameWidgetProperty, FilenameWidgetProperty
             final MacroizedWidgetProperty<?> macro_prop = (MacroizedWidgetProperty<?>)property;
             final TextField text = new TextField();
             text.setPromptText(macro_prop.getDefaultValue().toString());
-            // For now properties that hold a PV name contain "pv" in their name:
-            // "pv_name", "selection_value_pv", "x_pv", "y_pv", ...
-            final MacroizedWidgetPropertyBinding binding = (property.getName().contains("pv"))
-                ? new MacroizedWidgetPropertyBinding(undo, text, macro_prop, other)
-                {
-                    @Override
-                    public void bind()
-                    {
-                        super.bind();
-                        autocomplete_menu.attachField(text);
-                    }
-
-                    @Override
-                    public void unbind()
-                    {
-                        super.unbind();
-                        autocomplete_menu.removeField(text);
-                    }
-                }
-                : new MacroizedWidgetPropertyBinding(undo, text, macro_prop, other);
+            final MacroizedWidgetPropertyBinding binding = new MacroizedWidgetPropertyBinding(undo, text, macro_prop, other);
             bindings.add(binding);
             binding.bind();
             if (CommonWidgetProperties.propText.getName().equals(property.getName())  ||
@@ -421,11 +438,11 @@ public class PropertyPanelSection extends GridPane
             header.getStyleClass().add("structure_property_name");
             header.setMaxWidth(Double.MAX_VALUE);
 
-            add(header, 0, getNextGridRow(), 2, 1);
+            add(header, 0, getNextGridRow(), 3, 1);
 
             final Separator separator = new Separator();
             separator.getStyleClass().add("property_separator");
-            add(separator, 0, getNextGridRow(), 2, 1);
+            add(separator, 0, getNextGridRow(), 3, 1);
 
             for (WidgetProperty<?> elem : struct.getValue())
                 this.createPropertyUI(undo, elem, other, -1);
@@ -452,12 +469,12 @@ public class PropertyPanelSection extends GridPane
             spinner.getStyleClass().add("array_property_value");
             // Place array size spinner in 'label' section
             HBox.setHgrow(label, Priority.ALWAYS);
-            add(new HBox(label, spinner), 0, row, 2, 1);
+            add(new HBox(label, spinner), 0, row, 3, 1);
 
             Separator separator = new Separator();
 
             separator.getStyleClass().add("property_separator");
-            add(separator, 0, getNextGridRow(), 2, 1);
+            add(separator, 0, getNextGridRow(), 3, 1);
 
             // array elements
             final List<WidgetProperty<?>> wpeList = array.getValue();
@@ -472,12 +489,12 @@ public class PropertyPanelSection extends GridPane
             endlabel.setMaxWidth(Double.MAX_VALUE);
             GridPane.setHgrow(endlabel, Priority.ALWAYS);
             endlabel.getStyleClass().add("array_property_end");
-            add(endlabel, 0, getNextGridRow(), 2, 1);
+            add(endlabel, 0, getNextGridRow(), 3, 1);
 
             separator = new Separator();
 
             separator.getStyleClass().add("property_separator");
-            add(separator, 0, getNextGridRow(), 2, 1);
+            add(separator, 0, getNextGridRow(), 3, 1);
 
             return;
         }
@@ -491,16 +508,17 @@ public class PropertyPanelSection extends GridPane
             field = text;
         }
 
+        // Display Label, Class indicator/checkbox, field
+        final int row = getNextGridRow();
+
         label.getStyleClass().add("property_name");
         field.getStyleClass().add("property_value");
 
-        final int row = getNextGridRow();
         // Allow label to shrink (can use tooltip to see),
         // but show the value
         // GridPane.setHgrow(label, Priority.ALWAYS);
         GridPane.setHgrow(field, Priority.ALWAYS);
         add(label, 0, row);
-        add(field, 1, row);
 
         final Widget widget = property.getWidget();
         if (! (property == widget.getProperty("type")  ||
@@ -527,13 +545,14 @@ public class PropertyPanelSection extends GridPane
                 add(indicator, 1, row);
             }
         }
+        add(field, 2, row);
 
         final Separator separator = new Separator();
         separator.getStyleClass().add("property_separator");
-        add(separator, 0, getNextGridRow(), 2, 1);
+        add(separator, 0, getNextGridRow(), 3, 1);
     }
 
-    public AutocompleteMenu getAutocompleteMenu()
+    AutocompleteMenu getAutocompleteMenu()
     {
         return autocomplete_menu;
     }
@@ -541,7 +560,7 @@ public class PropertyPanelSection extends GridPane
     /** Clear the property UI
      *  <P>Removes all property bindings and their UI
      */
-    public void clear()
+    void clear()
     {
         bindings.forEach(WidgetPropertyBinding::unbind);
         bindings.clear();

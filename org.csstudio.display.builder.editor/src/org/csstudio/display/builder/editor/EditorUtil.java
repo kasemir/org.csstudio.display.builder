@@ -7,14 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
-import org.csstudio.display.builder.model.DisplayModel;
-import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.util.NamedDaemonPool;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 
@@ -38,19 +32,5 @@ public class EditorUtil
     {
         JFXRepresentation.setSceneStyle(scene);
         scene.getStylesheets().add(EditorUtil.class.getResource("opieditor.css").toExternalForm());
-    }
-
-    /** Load model from file
-     *  @param file File that contains the model
-     *  @return
-     */
-    public Future<DisplayModel> loadModel(final File file)
-    {
-        final Callable<DisplayModel> task = () ->
-        {
-            final ModelReader reader = new ModelReader(new FileInputStream(file));
-            return reader.readModel();
-        };
-        return executor.submit(task);
     }
 }

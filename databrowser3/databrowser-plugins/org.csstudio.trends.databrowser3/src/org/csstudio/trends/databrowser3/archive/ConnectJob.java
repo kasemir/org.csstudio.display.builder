@@ -7,6 +7,10 @@
  ******************************************************************************/
 package org.csstudio.trends.databrowser3.archive;
 
+import static org.csstudio.trends.databrowser3.Activator.logger;
+
+import java.util.logging.Level;
+
 import org.csstudio.archive.reader.ArchiveInfo;
 import org.csstudio.archive.reader.ArchiveReader;
 import org.csstudio.archive.reader.ArchiveRepository;
@@ -52,6 +56,7 @@ abstract public class ConnectJob extends Job
         }
         catch (final Exception ex)
         {
+            logger.log(Level.WARNING, "Cannot connect to archive " + url, ex);
             archiveServerError(url, ex);
             monitor.setCanceled(true);
             return Status.CANCEL_STATUS;

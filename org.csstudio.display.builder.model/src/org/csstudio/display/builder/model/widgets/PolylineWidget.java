@@ -10,6 +10,7 @@ package org.csstudio.display.builder.model.widgets;
 import static org.csstudio.display.builder.model.ModelPlugin.logger;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newIntegerPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLineColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLineStyle;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLineWidth;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPoints;
 
@@ -28,6 +29,7 @@ import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
+import org.csstudio.display.builder.model.properties.LineStyle;
 import org.csstudio.display.builder.model.properties.Points;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.osgi.framework.Version;
@@ -131,6 +133,7 @@ public class PolylineWidget extends VisibleWidget
 
     private volatile WidgetProperty<WidgetColor> line_color;
     private volatile WidgetProperty<Integer> line_width;
+    private volatile WidgetProperty<LineStyle> line_style;
     private volatile WidgetProperty<Points> points;
     private volatile WidgetProperty<Arrows> arrows;
     private volatile WidgetProperty<Integer> arrow_length;
@@ -152,6 +155,7 @@ public class PolylineWidget extends VisibleWidget
         super.defineProperties(properties);
         properties.add(line_width = propLineWidth.createProperty(this, 3));
         properties.add(line_color = propLineColor.createProperty(this, new WidgetColor(0, 0, 255)));
+        properties.add(line_style = propLineStyle.createProperty(this, LineStyle.SOLID));
         properties.add(arrows = propArrows.createProperty(this, Arrows.NONE));
         properties.add(arrow_length = propArrowLength.createProperty(this, 20));
         properties.add(points = propPoints.createProperty(this, new Points()));
@@ -188,6 +192,12 @@ public class PolylineWidget extends VisibleWidget
     public WidgetProperty<Integer> propLineWidth()
     {
         return line_width;
+    }
+
+    /** @return 'line_style' property */
+    public WidgetProperty<LineStyle> propLineStyle()
+    {
+        return line_style;
     }
 
     /** @return 'arrows' property */

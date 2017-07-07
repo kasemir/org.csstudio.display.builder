@@ -22,6 +22,11 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 /** Indicate if property's value is based on class or not
+ *
+ *  <p>Binds to the widget's "class" property.
+ *  As the widget class is changed, it updates the enablement
+ *  and is-using-class-setting indicator of the property.
+ *
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
@@ -56,13 +61,13 @@ public class ShowWidgetClassBinding extends WidgetPropertyBinding<Node, WidgetPr
     public void bind()
     {
         updateFromModel();
-        widget_property.addUntypedPropertyListener(model_listener);
+        widget_property.getWidget().propClass().addUntypedPropertyListener(model_listener);
     }
 
     @Override
     public void unbind()
     {
-        widget_property.removePropertyListener(model_listener);
+        widget_property.getWidget().propClass().removePropertyListener(model_listener);
     }
 
     private void updateFromModel()

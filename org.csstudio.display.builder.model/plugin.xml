@@ -220,6 +220,14 @@
          </alternates>
       </widget>
       <widget
+            category="STRUCTURE"
+            class="org.csstudio.display.builder.model.widgets.NavigationTabsWidget"
+            description="%NavigationTabsWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/navtabs.png"
+            name="%NavigationTabsWidget_Name"
+            type="navtabs">
+      </widget>
+      <widget
             category="GRAPHIC"
             class="org.csstudio.display.builder.model.widgets.PictureWidget"
             description="%PictureWidget_Description"
@@ -326,6 +334,20 @@
       </widget>
       <widget
             category="MONITOR"
+            class="org.csstudio.display.builder.model.widgets.SymbolWidget"
+            description="%SymbolWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/symbol.png"
+            name="%SymbolWidget_Name"
+            type="symbol">
+         <alternates
+               type="org.csstudio.opibuilder.widgets.symbol.bool.BoolControlWidget">
+         </alternates>
+         <alternates
+               type="org.csstudio.opibuilder.widgets.symbol.multistate.MultistateControlWidget">
+         </alternates>
+      </widget>
+      <widget
+            category="MONITOR"
             class="org.csstudio.display.builder.model.widgets.TableWidget"
             description="%TableWidget_Description"
             icon="platform:/plugin/org.csstudio.display.builder.model/icons/table.gif"
@@ -366,6 +388,9 @@
             type="textentry">
          <alternates
                type="org.csstudio.opibuilder.widgets.TextInput">
+         </alternates>
+         <alternates
+               type="org.csstudio.opibuilder.widgets.NativeText">
          </alternates>
       </widget>
       <widget

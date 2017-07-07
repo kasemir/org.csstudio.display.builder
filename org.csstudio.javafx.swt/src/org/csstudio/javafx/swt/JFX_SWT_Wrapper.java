@@ -33,6 +33,11 @@ import javafx.scene.Scene;
  *  <p>FXViewPart, however, can be reached via plain plugin dependency
  *  on org.eclupse.fx.ui.workbench3, so using that to create the FXCanvas.
  *
+ *  <p>This works well when executing under OSGi.
+ *  For standalone tests launched from the IDE,
+ *  it might still be necessary to add
+ *  JRE/lib/jfxswt.jar to the classpath.
+ *
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")

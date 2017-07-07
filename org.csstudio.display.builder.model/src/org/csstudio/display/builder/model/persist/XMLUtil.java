@@ -7,10 +7,23 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.persist;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
+
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.util.Iterator;
 import java.util.Optional;
+import java.util.logging.Level;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.csstudio.display.builder.model.properties.NamedWidgetColor;
+import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -25,6 +38,48 @@ public class XMLUtil
 {
     /** Text encoding used for the XML */
     public static final String ENCODING = "UTF-8";
+
+    /** Dump XML for debugging
+     *  @param doc XML Document
+     */
+    public static void dump(final Document doc)
+    {
+        try
+        {
+            final Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+            transformer.transform(new DOMSource(doc),
+                                  new StreamResult(new OutputStreamWriter(System.out, ENCODING)));
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Cannot dump XML",  ex);
+        }
+    }
+
+    /** Dump XML for debugging
+     *  @param doc XML Node
+     */
+    public static void dump(final Node xml)
+    {
+        try
+        {
+            final Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+            // Create copy of the XML that's detached from the original document
+            final Node copy = doc.importNode(xml, true);
+            doc.appendChild(copy);
+            dump(doc);
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Cannot dump XML",  ex);
+        }
+    }
+
 
     /** Open XML document, locate root element
      *  @param stream XML stream
@@ -296,6 +351,63 @@ public class XMLUtil
             return Optional.empty();
     }
 
+    /**
+     * Given a parent element, locate color value of a child node.
+     *
+     * @param parent Parent element.
+     * @param name Name of child element.
+     * @return Value of child element, or empty result.
+     */
+    public static Optional<WidgetColor> getChildColor ( final Element parent, final String name ) {
+
+        final Element child = getChildElement(parent, name);
+
+        if ( child != null ) {
+
+            Element colorElement = XMLUtil.getChildElement(child, XMLTags.COLOR);
+
+            if ( colorElement == null ) {
+                return Optional.empty();
+            }
+
+            WidgetColor color = null;
+            String colorName = colorElement.getAttribute(XMLTags.NAME);
+
+            try {
+
+                int red = getAttribute(colorElement, XMLTags.RED);
+                int green = getAttribute(colorElement, XMLTags.GREEN);
+                int blue = getAttribute(colorElement, XMLTags.BLUE);
+                String alphaString = colorElement.getAttribute(XMLTags.ALPHA);
+                int alpha = alphaString.isEmpty() ? 255 : Integer.parseInt(alphaString);
+
+                if ( colorName.isEmpty() ) {
+                    // Plain color
+                    color = new WidgetColor(red, green, blue, alpha);
+                } else {
+                    color = WidgetColorService.getColors().resolve(new NamedWidgetColor(colorName, red, green, blue, alpha));
+                }
+
+            } catch ( Exception ex ) {   // Older legacy files had no red/green/blue info for named colors
+
+                logger.log(Level.WARNING, "Line " + XMLUtil.getLineInfo(child), ex);
+
+                if ( colorName.isEmpty() ) {
+                    color = WidgetColorService.getColor(NamedWidgetColors.TEXT);
+                } else {
+                    color = WidgetColorService.getColor(colorName);
+                }
+
+            }
+
+            return ( color == null ) ? Optional.empty() : Optional.of(color);
+
+        } else {
+            return Optional.empty();
+        }
+
+    }
+
     /** @param text Text that should contain true or false
      *  @param default_value Value to use when text is empty
      *  @return Boolean value of text
@@ -306,6 +418,35 @@ public class XMLUtil
             return default_value;
         return Boolean.parseBoolean(text);
     }
+
+    /** Update the value of a tag
+     *
+     *  <p>Creates or updates a child element with given tag and value.
+     *  The child element will have only that value as a text node,
+     *  other existing values will be removed.
+     *
+     *  @param parent Parent element
+     *  @param name Tag name to update
+     *  @param value Value of that tag
+     */
+    public static void updateTag(final Element parent, final String name, final String value)
+    {
+        final Document doc = parent.getOwnerDocument();
+        Element child = getChildElement(parent, name);
+        if (child == null)
+        {
+            child = doc.createElement(name);
+            parent.appendChild(child);
+        }
+        Node n = child.getFirstChild();
+        while (n != null)
+        {
+            child.removeChild(n);
+            n = n.getNextSibling();
+        }
+        child.appendChild(doc.createTextNode(value));
+    }
+
 
     /** Transform xml element and children into a string
      *
@@ -385,6 +526,18 @@ public class XMLUtil
             }
         }
         return ret;
+    }
+
+    private static int getAttribute ( final Element element, final String attribute ) throws Exception {
+
+        final String text = element.getAttribute(attribute);
+
+        if ( text.isEmpty() ) {
+            throw new Exception("<color> without " + attribute);
+        }
+
+        return Integer.parseInt(text);
+
     }
 
 }

@@ -70,13 +70,15 @@ public class HorizontalNumericAxis extends NumericAxis
         gc.drawLine(region.x, region.y, region.x + region.width-1, region.y);
         computeTicks(gc);
 
+        final double low_value = range.getLow();
         final double high_value = range.getHigh();
+        final boolean normal = low_value <= high_value;
         final int minor_ticks = ticks.getMinorTicks();
         double tick = ticks.getStart();
         double prev = ticks.getPrevious(tick);
         for (/**/;
-            tick <= high_value  &&  Double.isFinite(tick);
-            tick = ticks.getNext(tick))
+                (normal ? tick <= high_value : tick >= high_value)  &&  Double.isFinite(tick);
+                tick = ticks.getNext(tick))
         {   // Minor ticks?
             for (int i=1; i<minor_ticks; ++i)
             {

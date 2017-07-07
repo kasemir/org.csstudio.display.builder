@@ -47,7 +47,8 @@ public class Activator extends AbstractUIPlugin
     /** Logger for this plugin */
     public static final Logger logger = Logger.getLogger(PLUGIN_ID);
 
-    final public static ExecutorService thread_pool = Executors.newCachedThreadPool(new NamedThreadFactory("DataBrowserJobs"));
+    /** Thread pool, mostly for fetching archived data */
+    private static final ExecutorService thread_pool = Executors.newCachedThreadPool(new NamedThreadFactory("DataBrowserJobs"));
 
     /** {@inheritDoc} */
     @Override

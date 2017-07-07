@@ -59,14 +59,14 @@ public class PropertyPanel extends ScrollPane
         if (widgets.size() < 1)
         {   // Use the DisplayModel
             if (model != null)
-                section.fill(editor.getUndoableActionManager(), model.getProperties(), Collections.emptyList(), true);
+                section.fill(editor.getUndoableActionManager(), model.getProperties(), Collections.emptyList());
         }
         else
         {   // Determine common properties
             final List<Widget> other = new ArrayList<>(widgets);
             final Widget primary = other.remove(0);
             final Set<WidgetProperty<?>> properties = commonProperties(primary, other);
-            section.fill(editor.getUndoableActionManager(), properties, other, true);
+            section.fill(editor.getUndoableActionManager(), properties, other);
         }
     }
 

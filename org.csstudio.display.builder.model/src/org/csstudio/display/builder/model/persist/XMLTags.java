@@ -22,6 +22,7 @@ public interface XMLTags
     public static final String COMMAND = "command";
     public static final String DESCRIPTION = "description";
     public static final String DISPLAY = "display";
+    public static final String EXECUTE_AS_ONE = "execute_as_one";
     public static final String FILE = "file";
     public static final String FONT = "font";
     public static final String GREEN = "green";

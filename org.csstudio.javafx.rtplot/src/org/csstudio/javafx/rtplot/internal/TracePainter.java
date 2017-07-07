@@ -14,6 +14,8 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Stroke;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
 import org.csstudio.javafx.rtplot.PointType;
@@ -108,7 +110,16 @@ public class TracePainter<XTYPE extends Comparable<XTYPE>>
         // For now, main point is that this happens in non-UI thread,
         // so the slower the better to test UI responsiveness.
         final PlotDataProvider<XTYPE> data = trace.getData();
-        data.getLock().lock();
+        try
+        {
+            if (! data.getLock().tryLock(10, TimeUnit.SECONDS))
+                throw new TimeoutException();
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Skip painting " + trace + ", cannot lock " + data, ex);
+            return;
+        }
         try
         {
             final TraceType type = trace.getType();

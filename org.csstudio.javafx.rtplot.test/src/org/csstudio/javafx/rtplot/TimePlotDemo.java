@@ -19,6 +19,7 @@ import org.csstudio.javafx.rtplot.util.RGBFactory;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.stage.Stage;
@@ -66,6 +67,8 @@ public class TimePlotDemo extends Application
         plot.addTrace("Jane", "handbags", data[1], colors.next(), TraceType.AREA, 5, PointType.NONE, 5, 1);
         plot.addTrace("Another", "mA", data[2], colors.next(), TraceType.LINES_DIRECT, 1, PointType.TRIANGLES, 15, 2);
 
+        plot.addMarker(Color.BLUE, true, Instant.now().plusSeconds(5));
+
         final AtomicBoolean run = new AtomicBoolean(true);
         // Update data at 50Hz
         final Thread update_data = new Thread(() ->
@@ -100,6 +103,11 @@ public class TimePlotDemo extends Application
             public void changedYAxis(YAxis<Instant> y_axis)
             {
                 System.out.println("Y Axis changed: " + y_axis);
+            }
+            @Override
+            public void changedPlotMarker(final int index)
+            {
+                System.out.println("Moved " + plot.getMarkers().get(index));
             }
             @Override
             public void changedAnnotations()

@@ -7,8 +7,10 @@
  ******************************************************************************/
 package org.csstudio.javafx.rtplot;
 
+import java.awt.Rectangle;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -22,15 +24,20 @@ import org.csstudio.javafx.rtplot.data.PlotDataItem;
 import org.csstudio.javafx.rtplot.data.PlotDataProvider;
 import org.csstudio.javafx.rtplot.internal.AnnotationImpl;
 import org.csstudio.javafx.rtplot.internal.MouseMode;
+import org.csstudio.javafx.rtplot.internal.NumericAxis;
 import org.csstudio.javafx.rtplot.internal.Plot;
 import org.csstudio.javafx.rtplot.internal.ToolbarHandler;
 import org.csstudio.javafx.rtplot.internal.TraceImpl;
+import org.csstudio.javafx.rtplot.internal.YAxisImpl;
+import org.csstudio.javafx.rtplot.internal.undo.ChangeAxisRanges;
 import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -45,6 +52,7 @@ import javafx.scene.text.Font;
  *
  *  @param <XTYPE> Data type used for the {@link PlotDataItem}
  *  @author Kay Kasemir
+ *  @author Amanda Carpenter - added manual control for axis limits
  */
 @SuppressWarnings("nls")
 public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
@@ -52,6 +60,8 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
     final protected Plot<XTYPE> plot;
     final protected ToolbarHandler<XTYPE> toolbar;
     private boolean handle_keys = false;
+	private TextField axisLimitsField; //Field for adjusting the limits of the axes
+	private final Pane center = new Pane();
 
     /** Constructor
      *  @param active Active mode where plot reacts to mouse/keyboard?
@@ -78,7 +88,7 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
 
         // Plot is not directly size-manageable by a layout.
         // --> Let BorderPane resize 'center', then plot binds to is size.
-        final Pane center = new Pane(plot);
+        center.getChildren().add(plot);
         final ChangeListener<? super Number> resize_listener = (p, o, n) -> plot.setSize(center.getWidth(), center.getHeight());
         center.widthProperty().addListener(resize_listener);
         center.heightProperty().addListener(resize_listener);
@@ -93,18 +103,103 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
             addEventFilter(MouseEvent.MOUSE_MOVED, event ->
             {
                 handle_keys = true;
-                requestFocus();
+                if (!axisLimitsField.isVisible()) requestFocus();
             });
             // Don't want to handle key events when mouse is outside the widget.
             // Cannot 'loose focus', so using flag to ignore them
             addEventFilter(MouseEvent.MOUSE_EXITED, event -> handle_keys = false);
+            setOnMouseClicked(this::mouseClicked);
+    		axisLimitsField = constructAxisLimitsField();
+    		center.getChildren().add(axisLimitsField);
         }
     }
-
+    
+    private TextField constructAxisLimitsField()
+    {
+    	final TextField field = new TextField();
+    	//prevent mouse-clicks in TextField from triggering MouseClicked event for RTPlot
+    	field.addEventFilter(MouseEvent.MOUSE_CLICKED, (event)->event.consume());
+    	field.focusedProperty().addListener((prop, oldval, newval)->
+    	{
+    		if (!newval) hideAxisLimitsField();
+    	});
+    	field.setVisible(false);
+    	field.setManaged(false); //false because we manage layout, not the Parent    	
+    	return field;
+    }
+    
+	private void showAxisLimitsField(NumericAxis axis, boolean isHigh, Rectangle area)
+    {
+		axisLimitsField.setOnKeyPressed((KeyEvent event)->
+		{
+			if (event.getCode().equals(KeyCode.ENTER))
+			{
+				hideAxisLimitsField();
+				if (axisLimitsField.getText().isEmpty()) return;
+				try
+				{
+					Double value = Double.parseDouble(axisLimitsField.getText());
+					changeAxisLimit(axis, isHigh, value);
+				} catch (NumberFormatException e) {}
+			}
+			else if (event.getCode().equals(KeyCode.ESCAPE))
+			{
+				hideAxisLimitsField();
+			}
+		});
+		
+		String tip = isHigh ? axis.getValueRange().getHigh().toString() :
+			axis.getValueRange().getLow().toString();
+    	axisLimitsField.setText(tip);
+    	axisLimitsField.setTooltip(new Tooltip(tip));
+		axisLimitsField.setVisible(true);
+		axisLimitsField.relocate(area.getX(), area.getY());
+		axisLimitsField.resize(area.getWidth(), area.getHeight());
+		axisLimitsField.requestFocus();
+		axisLimitsField.layout(); //force text to appear in field
+	}
+	
+	protected void changeAxisLimit(NumericAxis axis, boolean isHigh, Double value)
+	{
+		AxisRange<Double> old_range = axis.getValueRange();
+		AxisRange<Double> new_range = isHigh ? new AxisRange<>(old_range.getLow(), value) :
+			new AxisRange<>(value, old_range.getHigh());
+		if (axis instanceof YAxisImpl<?>) //Y axis?
+		{
+			@SuppressWarnings("unchecked")
+			YAxisImpl<XTYPE> y_axis = (YAxisImpl<XTYPE>)axis;
+			getUndoableActionManager().execute(new ChangeAxisRanges<>(plot, Messages.Set_Axis_Range,
+					Arrays.asList(y_axis), Arrays.asList(old_range), Arrays.asList(new_range),
+					Arrays.asList(y_axis.isAutoscale())));
+			plot.fireYAxisChange(y_axis);
+		}
+		else //X axis
+		{
+			@SuppressWarnings("unchecked")
+			Plot<Double> x_plot = (Plot<Double>)plot; //safe to cast, because 'axis' is a NumericAxis
+				//(an AxisPart<Double>), and an x-axis has the same type parameter as its Plot
+			getUndoableActionManager().execute(new ChangeAxisRanges<>(x_plot, Messages.Set_Axis_Range,
+					axis, old_range, new_range));
+			plot.fireXAxisChange();
+		}
+	}
+	
+    private void hideAxisLimitsField()
+    {
+		axisLimitsField.setVisible(false);
+    }
+    
+    private void mouseClicked(MouseEvent event)
+    {
+    	Object [] info = plot.axisClickInfo(event); 
+    	if (info != null)
+    		showAxisLimitsField((NumericAxis)info[0], (boolean)info[1], (Rectangle)info[2]);
+    }
+    
     /** onKeyPressed */
     private void keyPressed(final KeyEvent event)
     {
-        if (! handle_keys)
+        if (! handle_keys || axisLimitsField.isVisible() )
             return;
         if (event.getCode() == KeyCode.Z)
             plot.getUndoableActionManager().undoLast();
@@ -356,6 +451,30 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
     public void removeTrace(final Trace<XTYPE> trace)
     {
         plot.removeTrace(trace);
+    }
+
+    /** Add plot marker
+     *  @param color
+     *  @param interactive
+     *  @return {@link PlotMarker}
+     */
+    public PlotMarker<XTYPE> addMarker(final javafx.scene.paint.Color color, final boolean interactive, final XTYPE position)
+    {
+        return plot.addMarker(color, interactive, position);
+    }
+
+    /** @return {@link PlotMarker}s */
+    public List<PlotMarker<XTYPE>> getMarkers()
+    {
+        return plot.getMarkers();
+    }
+
+    /** @param index Index of Marker to remove
+     *  @throws IndexOutOfBoundsException
+     */
+    public void removeMarker(final int index)
+    {
+        plot.removeMarker(index);
     }
 
     /** Update the dormant time between updates

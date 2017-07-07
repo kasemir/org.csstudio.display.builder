@@ -11,6 +11,7 @@ import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.BaseLEDWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
+import org.diirt.vtype.AlarmSeverity;
 import org.diirt.vtype.VType;
 
 import javafx.geometry.Pos;
@@ -139,14 +140,23 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
 
     private void contentChanged(final WidgetProperty<VType> property, final VType old_value, final VType new_value)
     {
-        int value_index = computeColorIndex(new_value);
-        final Color[] save_colors = colors;
-        if (value_index < 0)
-            value_index = 0;
-        if (value_index >= save_colors.length)
-            value_index = save_colors.length-1;
-        value_color = save_colors[value_index];
-        value_label = computeLabel(value_index);
+        final VType value = model_widget.runtimePropValue().getValue();
+        if (value == null)
+        {
+            value_color = alarm_colors[AlarmSeverity.UNDEFINED.ordinal()];
+            value_label = "";
+        }
+        else
+        {
+            int value_index = computeColorIndex(new_value);
+            final Color[] save_colors = colors;
+            if (value_index < 0)
+                value_index = 0;
+            if (value_index >= save_colors.length)
+                value_index = save_colors.length-1;
+            value_color = save_colors[value_index];
+            value_label = computeLabel(value_index);
+        }
 
         dirty_content.mark();
         toolkit.scheduleUpdate(this);

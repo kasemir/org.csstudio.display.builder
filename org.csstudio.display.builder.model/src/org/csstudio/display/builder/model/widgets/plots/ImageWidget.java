@@ -8,7 +8,9 @@
 package org.csstudio.display.builder.model.widgets.plots;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFile;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propInteractive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMaximum;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMinimum;
 import static org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.propToolbar;
@@ -34,7 +36,6 @@ import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.persist.XMLUtil;
-import org.csstudio.display.builder.model.properties.BooleanWidgetProperty;
 import org.csstudio.display.builder.model.properties.ColorMap;
 import org.csstudio.display.builder.model.properties.ColorMapWidgetProperty;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
@@ -189,13 +190,13 @@ public class ImageWidget extends PVWidget
             WidgetPropertyCategory.BEHAVIOR, "unsigned", Messages.WidgetProperties_UnsignedData);
 
     private static final WidgetPropertyDescriptor<String> propCursorInfoPV =
-        CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.MISC, "cursor_info_pv", Messages.WidgetProperties_CursorInfoPV);
+        CommonWidgetProperties.newPVNamePropertyDescriptor(WidgetPropertyCategory.MISC, "cursor_info_pv", Messages.WidgetProperties_CursorInfoPV);
 
     private static final WidgetPropertyDescriptor<String> propCursorXPV =
-        CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.MISC, "x_pv", Messages.WidgetProperties_CursorXPV);
+        CommonWidgetProperties.newPVNamePropertyDescriptor(WidgetPropertyCategory.MISC, "x_pv", Messages.WidgetProperties_CursorXPV);
 
     private static final WidgetPropertyDescriptor<String> propCursorYPV =
-        CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.MISC, "y_pv", Messages.WidgetProperties_CursorYPV);
+        CommonWidgetProperties.newPVNamePropertyDescriptor(WidgetPropertyCategory.MISC, "y_pv", Messages.WidgetProperties_CursorYPV);
 
     /** Runtime info about cursor location */
     private static final WidgetPropertyDescriptor<VType> runtimePropCursorInfo =
@@ -225,30 +226,17 @@ public class ImageWidget extends PVWidget
         };
 
     /** Structure for ROI */
-    private static final WidgetPropertyDescriptor<WidgetColor> propColor =
-        CommonWidgetProperties.newColorPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "color", Messages.PlotWidget_Color);
-
-    private static final WidgetPropertyDescriptor<Boolean> propInteractive =
-        new WidgetPropertyDescriptor<Boolean>(WidgetPropertyCategory.DISPLAY, "interactive", Messages.WidgetProperties_Interactive)
-        {
-            @Override
-            public WidgetProperty<Boolean> createProperty(final Widget widget, final Boolean value)
-            {
-                return new BooleanWidgetProperty(this, widget, value);
-            }
-        };
-
     private static final WidgetPropertyDescriptor<String> propXPVName =
-        CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "x_pv", Messages.WidgetProperties_XPVName);
+        CommonWidgetProperties.newPVNamePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "x_pv", Messages.WidgetProperties_XPVName);
 
     private static final WidgetPropertyDescriptor<String> propYPVName =
-        CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "y_pv", Messages.WidgetProperties_YPVName);
+        CommonWidgetProperties.newPVNamePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "y_pv", Messages.WidgetProperties_YPVName);
 
     private static final WidgetPropertyDescriptor<String> propWidthPVName =
-        CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "width_pv", Messages.WidgetProperties_WidthPVName);
+        CommonWidgetProperties.newPVNamePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "width_pv", Messages.WidgetProperties_WidthPVName);
 
     private static final WidgetPropertyDescriptor<String> propHeightPVName =
-        CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "height_pv", Messages.WidgetProperties_HeightPVName);
+        CommonWidgetProperties.newPVNamePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "height_pv", Messages.WidgetProperties_HeightPVName);
 
     public static final WidgetPropertyDescriptor<Double> propXValue =
         CommonWidgetProperties.newDoublePropertyDescriptor(WidgetPropertyCategory.RUNTIME, "x_value", Messages.WidgetProperties_X);

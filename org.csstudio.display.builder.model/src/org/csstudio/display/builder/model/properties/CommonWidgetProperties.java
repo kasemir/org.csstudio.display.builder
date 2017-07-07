@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -64,6 +64,24 @@ public class CommonWidgetProperties
             public WidgetProperty<String> createProperty(final Widget widget, final String value)
             {
                 return new FilenameWidgetProperty(this, widget, value);
+            }
+        };
+    }
+
+    /** Constructor for PV name property
+     *  @param category Widget property category
+     *  @param name Internal name of the property
+     *  @param description Human-readable description
+     */
+    public static final WidgetPropertyDescriptor<String> newPVNamePropertyDescriptor(final WidgetPropertyCategory category,
+                                                                                     final String name, final String description)
+    {
+        return new WidgetPropertyDescriptor<String>(category, name, description)
+        {
+            @Override
+            public WidgetProperty<String> createProperty(final Widget widget, final String value)
+            {
+                return new PVNameWidgetProperty(this, widget, value);
             }
         };
     }
@@ -320,6 +338,10 @@ public class CommonWidgetProperties
     public static final WidgetPropertyDescriptor<WidgetColor> propLineColor =
             newColorPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "line_color", Messages.WidgetProperties_LineColor);
 
+    /** 'color' property */
+    public static final WidgetPropertyDescriptor<WidgetColor> propColor =
+            CommonWidgetProperties.newColorPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "color", Messages.PlotWidget_Color);
+
     /** 'line_width' property */
     public static final WidgetPropertyDescriptor<Integer> propLineWidth =
             newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "line_width", Messages.WidgetProperties_LineWidth,
@@ -329,37 +351,16 @@ public class CommonWidgetProperties
     public static final WidgetPropertyDescriptor<Boolean> propSquare =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "square", Messages.WidgetProperties_Square);
 
-    /** Group widget style */
-    public enum WidgetLineStyle
-    {
-        DASH(Messages.LineStyle_Dash),
-        SOLID(Messages.LineStyle_Solid),
-        NONE(Messages.LineStyle_None);
-
-        private final String name;
-
-        private WidgetLineStyle(final String name)
-        {
-            this.name = name;
-        }
-
-        @Override
-        public String toString()
-        {
-            return name;
-        }
-    }
-
     /** 'style' property */
-    public static final WidgetPropertyDescriptor<WidgetLineStyle> propLineStyle =
-            new WidgetPropertyDescriptor<WidgetLineStyle>(
+    public static final WidgetPropertyDescriptor<LineStyle> propLineStyle =
+            new WidgetPropertyDescriptor<LineStyle>(
                     WidgetPropertyCategory.DISPLAY, "line_style", Messages.LineStyle)
     {
         @Override
-        public EnumWidgetProperty<WidgetLineStyle> createProperty(final Widget widget,
-                final WidgetLineStyle default_value)
+        public EnumWidgetProperty<LineStyle> createProperty(final Widget widget,
+                final LineStyle default_value)
         {
-            return new EnumWidgetProperty<WidgetLineStyle>(this, widget, default_value);
+            return new EnumWidgetProperty<LineStyle>(this, widget, default_value);
         }
     };
 
@@ -548,22 +549,25 @@ public class CommonWidgetProperties
     public static final WidgetPropertyDescriptor<Boolean> propLabelsFromPV =
             newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "labels_from_pv", Messages.WidgetProperties_LabelsFromPV);
 
+    /** 'items_from_pv' property: If PV is enum PV, get items from PV? */
+    public static final WidgetPropertyDescriptor<Boolean> propItemsFromPV =
+        CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "items_from_pv", Messages.WidgetProperties_ItemsFromPV);
+
     /** 'pv_name' property: Primary PV Name */
     public static final WidgetPropertyDescriptor<String> propPVName =
-            newStringPropertyDescriptor(WidgetPropertyCategory.WIDGET, "pv_name", Messages.WidgetProperties_PVName);
+            newPVNamePropertyDescriptor(WidgetPropertyCategory.WIDGET, "pv_name", Messages.WidgetProperties_PVName);
 
     /** 'bit' property: Bit to check in value */
     public static final WidgetPropertyDescriptor<Integer> propBit =
             newIntegerPropertyDescriptor(WidgetPropertyCategory.WIDGET, "bit", Messages.WidgetProperties_Bit);
 
     /** 'actions' property: Actions that user can invoke */
-    public static final WidgetPropertyDescriptor<List<ActionInfo>> propActions =
-            new WidgetPropertyDescriptor<List<ActionInfo>>(
+    public static final WidgetPropertyDescriptor<ActionInfos> propActions =
+            new WidgetPropertyDescriptor<ActionInfos>(
                     WidgetPropertyCategory.BEHAVIOR, "actions", Messages.WidgetProperties_Actions)
     {
         @Override
-        public WidgetProperty<List<ActionInfo>> createProperty(final Widget widget,
-                final List<ActionInfo> actions)
+        public WidgetProperty<ActionInfos> createProperty(final Widget widget, final ActionInfos actions)
         {
             return new ActionsWidgetProperty(this, widget, actions)
             {
@@ -611,6 +615,9 @@ public class CommonWidgetProperties
     /** 'enabled' property: Is widget enabled, or should it not allow user actions? */
     public static final WidgetPropertyDescriptor<Boolean> propEnabled =
             newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "enabled", Messages.WidgetProperties_Enabled);
+
+    public static final WidgetPropertyDescriptor<Boolean> propInteractive =
+            newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "interactive", Messages.WidgetProperties_Interactive);
 
     /** 'limits_from_pv' property: Use limits from PV's meta data? */
     public static final WidgetPropertyDescriptor<Boolean> propLimitsFromPV =

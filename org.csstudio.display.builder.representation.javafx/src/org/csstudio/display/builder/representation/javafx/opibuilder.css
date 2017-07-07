@@ -48,6 +48,81 @@
     -fx-text-overrun: clip;
 }
 
+/* Action buttons with multiple actions become a MenuButton
+ * with popup items for each action.
+ * The text fill of that context menu uses a ladder()
+ * to become black vs. white based on the background color
+ * .. of the _button_, while the background of the context menu
+ * remains white.
+ * This can result in white text on white background.
+ *  -> Force black text for the context menu.
+ *
+ * See MenuButtonDemo
+ */
+.action_button_item .label
+{
+    -fx-text-fill: black;
+}
+
+
+/** Allow more room for text in combo box */
+.combo-box > .list-cell
+{
+    -fx-padding: 0em 0em 0em 0.2em;
+    -fx-wrap-text: true;
+    -fx-text-overrun: clip;
+}
+
+/* NavigationTabs:
+ * tabregion with buttons; horizontal or vertical(default).
+ * body contains the embedded widgets.
+ */
+ 
+.navtab_tabregion
+{
+    -fx-background-color: transparent;
+}
+ 
+.navtab_button
+{
+    -fx-padding: 0em 0em 0em 0em;
+    /* 'vertical': Attach to body on right, rounded corners on left
+     * The right-inset=3/4/5 leaves a gap between the inactive tab and the body
+     */
+    -fx-background-color: -fx-outer-border, -fx-inner-border, -fx-body-color;
+    -fx-background-insets: 1 3 0 0, 2 4 1 1, 3 5 2 2;
+    -fx-background-radius: 3 0 0 3, 2 0 0 2, 1 0 0 1;
+}
+
+.navtab_button:selected
+{
+    /* The right-inset=-1 so that it reaches into the body */
+    -fx-background-insets: 1 -1 0 0, 2 -1 1 1, 3 -1 2 2;
+}
+
+.navtab_button:horizontal
+{
+    /* 'horizontal': Attach to body on bottom, rounded corners on top
+     * The bottom-inset=3/4/5 leaves a gap between the inactive tab and the body
+     */
+    -fx-background-insets: 0 1 3 0, 1 2 4 1, 2 3 5 2;
+    -fx-background-radius: 3 3 0 0, 2 2 0 0, 1 1 0 0;
+}
+
+.navtab_button:horizontal:selected
+{
+    /* The bottom-inset=-1 so that it reaches into the body */
+    -fx-background-insets: 0 1 -1 0, 1 2 -1 1, 2 3 -1 2;
+}
+
+.navtab_body
+{   
+    -fx-border-color: -fx-outer-border;
+    -fx-border-radius: 2;
+    -fx-border-width: 1;
+    -fx-padding: 4;
+}
+
 /** Default text-input padding in modena.css:
  * .text-input
  *  -fx-padding: 0.333333em 0.583em 0.333333em 0.583em; (top right bottom left)

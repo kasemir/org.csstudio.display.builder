@@ -20,6 +20,7 @@ import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
+import org.csstudio.display.builder.model.widgets.NavigationTabsWidget;
 import org.osgi.framework.Version;
 
 /** Display Model.
@@ -58,6 +59,12 @@ public class DisplayModel extends Widget
     /** Reserved DisplayModel user data key for name of input file */
     public static final String USER_DATA_INPUT_FILE = "_input_file";
 
+    /** Reserved DisplayModel user data key for version of input file
+     *
+     *  <p>Holds Version.
+     */
+    public static final String USER_DATA_INPUT_VERSION = "_input_version";
+
     /** Reserved DisplayModel user data key for storing toolkit used as representation.
      *
      *  <p>Holds ToolkitRepresentation.
@@ -66,7 +73,7 @@ public class DisplayModel extends Widget
 
     /** Widget user data key for storing the embedding widget.
      *
-     *  <p>For a {@link DisplayModel} that is held by an {@link EmbeddedDisplayWidget},
+     *  <p>For a {@link DisplayModel} that is held by an {@link EmbeddedDisplayWidget} or {@link NavigationTabsWidget},
      *  this user data element of the model points to the embedding widget.
      */
     public static final String USER_DATA_EMBEDDING_WIDGET = "_embedding_widget";
@@ -149,7 +156,7 @@ public class DisplayModel extends Widget
      */
     public final boolean isTopDisplayModel()
     {
-        final EmbeddedDisplayWidget embedder = getUserData(DisplayModel.USER_DATA_EMBEDDING_WIDGET);
+        final Widget embedder = getUserData(DisplayModel.USER_DATA_EMBEDDING_WIDGET);
         return embedder == null;
     }
 
@@ -246,5 +253,13 @@ public class DisplayModel extends Widget
     public WidgetProperty<Boolean> propGridVisible()
     {
         return gridVisible;
+    }
+
+    @Override
+    public String toString()
+    {
+        // Show name's specification, not value, because otherwise
+        // a plain debug printout can trigger macro resolution for the name
+        return "DisplayModel '" + ((MacroizedWidgetProperty<?>)propName()).getSpecification() + "'";
     }
 }

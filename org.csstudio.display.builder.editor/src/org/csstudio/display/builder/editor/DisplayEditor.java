@@ -19,6 +19,7 @@ import java.util.logging.Level;
 import org.csstudio.display.builder.editor.palette.Palette;
 import org.csstudio.display.builder.editor.poly.PointsBinding;
 import org.csstudio.display.builder.editor.tracker.SelectedWidgetUITracker;
+import org.csstudio.display.builder.editor.tree.WidgetTree;
 import org.csstudio.display.builder.editor.undo.AddWidgetAction;
 import org.csstudio.display.builder.editor.undo.RemoveWidgetsAction;
 import org.csstudio.display.builder.editor.util.AutoScrollHandler;
@@ -48,6 +49,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 
 /** Display editor UI
@@ -114,7 +116,7 @@ public class DisplayEditor
     private SplitPane root;
     private ScrollPane model_root;
     private Palette palette;
-    private Group model_parent;
+    private Pane model_parent;
 
     /** @param toolkit JFX Toolkit
      *  @param stack_size Number of undo/redo entries
@@ -139,9 +141,9 @@ public class DisplayEditor
         model_root = toolkit.createModelRoot();
         autoScrollHandler = new AutoScrollHandler(model_root);
 
-        final Pane scroll_body = (Pane) model_root.getContent();
+        final Group scroll_body = (Group) model_root.getContent();
 
-        model_parent = (Group) scroll_body.getChildren().get(0);
+        model_parent = (Pane) scroll_body.getChildren().get(0);
 
         scroll_body.getChildren().add(edit_tools);
 
@@ -215,6 +217,13 @@ public class DisplayEditor
         new PointsBinding(edit_tools, selection, undo);
 
         WidgetTransfer.addDropSupport(model_root, group_handler, selection_tracker, this::addWidgets);
+
+        model_root.addEventFilter(KeyEvent.KEY_PRESSED, this::handleKeyPress);
+    }
+
+    private void handleKeyPress(final KeyEvent event)
+    {
+        WidgetTree.handleWidgetOrderKeys(event, this);
     }
 
     private void handleRubberbandSelection(final Rectangle2D region, final boolean update_existing)

@@ -688,4 +688,87 @@ widget.setPropertyValue("text", str(PVUtil.getSeverity(pvs[0])))
     <y>371</y>
     <width>80</width>
   </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_36</name>
+    <text>RCPUtil: Eclipse Commands</text>
+    <y>910</y>
+    <width>320</width>
+    <font>
+      <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_15</name>
+    <actions>
+      <action type="execute">
+        <script file="EmbeddedPy">
+          <text><![CDATA[from org.csstudio.display.builder.rcp.script import RCPUtil
+
+RCPUtil.executeEclipseCommand("org.eclipse.ui.perspectives.showPerspective",
+       [ "org.eclipse.ui.perspectives.showPerspective.perspectiveId",
+         "org.csstudio.trends.databrowser.Perspective"
+       ])
+]]></text>
+        </script>
+        <description>Switch Perspective</description>
+      </action>
+    </actions>
+    <y>960</y>
+    <width>150</width>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_37</name>
+    <text>Scripts can control Eclipse</text>
+    <x>4</x>
+    <y>933</y>
+    <width>385</width>
+    <height>40</height>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_16</name>
+    <actions>
+      <action type="execute">
+        <script file="EmbeddedPy">
+          <text><![CDATA[from org.csstudio.display.builder.rcp.script import RCPUtil
+
+RCPUtil.executeEclipseCommand("org.eclipse.ui.views.showView",
+       [ "org.eclipse.ui.views.showView.viewId",
+         "org.eclipse.ui.views.ResourceNavigator"
+       ])
+]]></text>
+        </script>
+        <description>Open Navigator</description>
+      </action>
+    </actions>
+    <x>160</x>
+    <y>960</y>
+    <width>150</width>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_17</name>
+    <actions>
+      <action type="execute">
+        <script file="EmbeddedPy">
+          <text><![CDATA[from org.csstudio.display.builder.runtime.script import ScriptUtil
+from org.csstudio.display.builder.rcp.script import RCPUtil
+
+if ScriptUtil.showConfirmationDialog(widget, "Dude, this was just meant as an example.\nDo you really want to close CS-Studio?"):
+    RCPUtil.executeEclipseCommand("org.eclipse.ui.file.exit")
+
+
+
+
+]]></text>
+        </script>
+        <description>Close CSS</description>
+      </action>
+    </actions>
+    <x>320</x>
+    <y>960</y>
+    <width>150</width>
+    <tooltip>$(actions)</tooltip>
+  </widget>
 </display>

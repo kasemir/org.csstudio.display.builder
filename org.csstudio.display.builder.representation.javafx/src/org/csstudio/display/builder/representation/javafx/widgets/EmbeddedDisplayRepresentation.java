@@ -101,8 +101,6 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
             scroll.setStyle("-fx-background-color:transparent;");
         }
 
-        model_widget.setUserData(EmbeddedDisplayWidget.USER_DATA_EMBEDDED_DISPLAY_CONTAINER, inner);
-
         return scroll;
     }
 
@@ -143,19 +141,20 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
             final int content_width = content_model.propWidth().getValue();
             final int content_height = content_model.propHeight().getValue();
             if (resize == Resize.ResizeContent)
-            {
-                final double zoom_x = content_width  > 0 ? (double)widget_width  / content_width : 1.0;
-                final double zoom_y = content_height > 0 ? (double)widget_height / content_height : 1.0;
+            {   // Adjust sizes by +-1 so that content is completely visible
+                final double zoom_x = content_width  > 0 ? (double)(widget_width-1)  / (content_width+1) : 1.0;
+                final double zoom_y = content_height > 0 ? (double)(widget_height-1) / (content_height+1) : 1.0;
                 zoom_factor = Math.min(zoom_x, zoom_y);
             }
             else if (resize == Resize.SizeToContent)
             {
                 zoom_factor = 1.0;
                 resizing = true;
+                // Adjust sizes by 2 so that content is completely visible
                 if (content_width > 0)
-                    model_widget.propWidth().setValue(content_width);
+                    model_widget.propWidth().setValue(content_width+2);
                 if (content_height > 0)
-                    model_widget.propHeight().setValue(content_height);
+                    model_widget.propHeight().setValue(content_height+2);
                 resizing = false;
             }
         }
@@ -166,7 +165,8 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
 
     private void fileChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        final DisplayAndGroup file_and_group = new DisplayAndGroup(model_widget);
+        final DisplayAndGroup file_and_group =
+            new DisplayAndGroup(model_widget.propFile().getValue(), model_widget.propGroupName().getValue());
 
         // System.out.println("Requested: " + file_and_group);
         final DisplayAndGroup skipped = pending_display_and_group.getAndSet(file_and_group);
@@ -206,19 +206,10 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
             // System.out.println("Aborted: " + handle);
             return;
         }
-        // System.out.println("Handling: " + handle);
-        updateEmbeddedDisplay(handle.getDisplayFile(), handle.getGroupName());
-    }
 
-    /** Load and represent embedded display
-     *  @param display_file
-     *  @param group_name
-     */
-    private void updateEmbeddedDisplay(final String display_file, final String group_name)
-    {
         try
         {   // Load new model (potentially slow)
-            final DisplayModel new_model = loadDisplayModel(model_widget, display_file, group_name);
+            final DisplayModel new_model = loadDisplayModel(model_widget, handle);
 
             // Atomically update the 'active' model
             final DisplayModel old_model = active_content_model.getAndSet(new_model);
@@ -243,7 +234,7 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
         }
         catch (Exception ex)
         {
-            logger.log(Level.WARNING, "Failed to handle embedded display " + display_file, ex);
+            logger.log(Level.WARNING, "Failed to handle embedded display " + handle, ex);
         }
     }
 
@@ -254,8 +245,15 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
         {
             sizesChanged(null, null, null);
             toolkit.representModel(inner, content_model);
-            // TODO
+            // TODO Haven't found perfect way to set the 'background' color
+            // of the embedded content.
+            // Setting the 'inner' background will sometimes leave a gray section in the right and or bottom edge
+            // of the embedded content if the container is (much) larger than the content
             inner.setBackground(new Background(new BackgroundFill(JFXUtil.convert(content_model.propBackgroundColor().getValue()), CornerRadii.EMPTY, Insets.EMPTY)));
+            // The scroll pane background can only be set via style,
+            // and then shines through on the outside of the scrollbars
+            // scroll.setStyle("-fx-control-inner-background: " + JFXUtil.webRGB(content_model.propBackgroundColor().getValue()) +
+            //                  "; -fx-background: " + JFXUtil.webRGB(content_model.propBackgroundColor().getValue()));
         }
         catch (final Exception ex)
         {
@@ -301,7 +299,7 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
     @Override
     public void dispose()
     {
-        super.dispose();
         inner = null;
+        super.dispose();
     }
 }

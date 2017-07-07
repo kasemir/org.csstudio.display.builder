@@ -9,9 +9,13 @@ package org.csstudio.display.builder.model.widgets.plots;
 
 import static org.csstudio.display.builder.model.ModelPlugin.logger;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propInteractive;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
 import static org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.propToolbar;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -22,16 +26,21 @@ import java.util.regex.Pattern;
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.MacroizedWidgetProperty;
 import org.csstudio.display.builder.model.Messages;
+import org.csstudio.display.builder.model.StructuredWidgetProperty;
+import org.csstudio.display.builder.model.StructuredWidgetProperty.Descriptor;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetConfigurator;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyCategory;
+import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.persist.XMLUtil;
+import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.StringWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
@@ -66,6 +75,38 @@ public class XYPlotWidget extends VisibleWidget
             return new XYPlotWidget();
         }
     };
+
+    // Elements of Plot Marker
+    private static final WidgetPropertyDescriptor<Double> propValue =
+            CommonWidgetProperties.newDoublePropertyDescriptor(WidgetPropertyCategory.RUNTIME, "value", Messages.WidgetProperties_Value);
+
+    private static final StructuredWidgetProperty.Descriptor propMarker =
+            new Descriptor(WidgetPropertyCategory.DISPLAY, "marker", "Marker");
+
+    /** Structure for Plot Marker */
+    public static class MarkerProperty extends StructuredWidgetProperty
+    {
+        protected MarkerProperty(final Widget widget, final String name)
+        {
+            super(propMarker, widget,
+                  Arrays.asList(propColor.createProperty(widget, new WidgetColor(0, 0, 255)),
+                                propPVName.createProperty(widget, ""),
+                                propInteractive.createProperty(widget, true),
+                                propValue.createProperty(widget, Double.NaN)
+                               ));
+        }
+
+        public WidgetProperty<WidgetColor> color()     { return getElement(0); }
+        public WidgetProperty<String> pv()             { return getElement(1); }
+        public WidgetProperty<Boolean> interactive()   { return getElement(2); }
+        public WidgetProperty<Double> value()          { return getElement(3); }
+    };
+
+    /** 'marker' array */
+    private static final ArrayWidgetProperty.Descriptor<MarkerProperty> propMarkers =
+        new ArrayWidgetProperty.Descriptor<>(WidgetPropertyCategory.MISC, "marker", "Markers",
+                                             (widget, index) -> new MarkerProperty(widget, "Marker " + index),
+                                             0);
 
     /** Legacy properties that have already triggered a warning */
     private final CopyOnWriteArraySet<String> warnings_once = new CopyOnWriteArraySet<>();
@@ -217,13 +258,17 @@ public class XYPlotWidget extends VisibleWidget
             // "trace_0_..." held the trace info
             for (int legacy_trace=0; legacy_trace < trace_count; ++legacy_trace)
             {
+                // Y PV
+                final String pv_name = XMLUtil.getChildString(xml, "trace_" + legacy_trace + "_y_pv").orElse("");
+                
                 // Was legacy widget used with scalar data, concatenated into waveform?
                 final Optional<String> concat = XMLUtil.getChildString(xml, "trace_" + legacy_trace + "_concatenate_data");
                 if (concat.isPresent()  &&  concat.get().equals("true"))
-                    logger.log(Level.WARNING, plot + " does not support 'concatenate_data' for trace " + legacy_trace);
-
-                // Y PV
-                final String pv_name = XMLUtil.getChildString(xml, "trace_" + legacy_trace + "_y_pv").orElse("");
+                {
+                	logger.log(Level.WARNING, plot + " does not support 'concatenate_data' for trace " + legacy_trace + ", PV " + pv_name);
+                	logger.log(Level.WARNING, "To plot a scalar PV over time, consider the Data Browser widget");
+                }
+                
                 final TraceWidgetProperty trace;
                 if (plot.traces.size() <= legacy_trace)
                     trace = plot.traces.addElement();
@@ -275,6 +320,7 @@ public class XYPlotWidget extends VisibleWidget
     private volatile AxisWidgetProperty x_axis;
     private volatile ArrayWidgetProperty<YAxisWidgetProperty> y_axes;
     private volatile ArrayWidgetProperty<TraceWidgetProperty> traces;
+    private volatile ArrayWidgetProperty<MarkerProperty> markers;
 
     public XYPlotWidget()
     {
@@ -299,6 +345,7 @@ public class XYPlotWidget extends VisibleWidget
         properties.add(x_axis = AxisWidgetProperty.create(this, Messages.PlotWidget_X));
         properties.add(y_axes = PlotWidgetProperties.propYAxes.createProperty(this, Arrays.asList(YAxisWidgetProperty.create(this, Messages.PlotWidget_Y))));
         properties.add(traces = PlotWidgetProperties.propTraces.createProperty(this, Arrays.asList(new TraceWidgetProperty(this, 0))));
+        properties.add(markers = propMarkers.createProperty(this, Collections.emptyList()));
     }
 
     @Override
@@ -390,5 +437,11 @@ public class XYPlotWidget extends VisibleWidget
     public ArrayWidgetProperty<TraceWidgetProperty> propTraces()
     {
         return traces;
+    }
+
+    /** @return 'markers' property */
+    public ArrayWidgetProperty<MarkerProperty> propMarkers()
+    {
+        return markers;
     }
 }

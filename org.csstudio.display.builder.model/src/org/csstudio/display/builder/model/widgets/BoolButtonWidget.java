@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newFilenamePropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBit;
@@ -96,6 +97,8 @@ public class BoolButtonWidget extends WritablePVWidget
         newFilenamePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "off_image", Messages.WidgetProperties_OffImage);
     private static final WidgetPropertyDescriptor<String> propOnImage =
         newFilenamePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "on_image", Messages.WidgetProperties_OnImage);
+    private static final WidgetPropertyDescriptor<Boolean> propShowLED =
+            newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_led", Messages.WidgetProperties_ShowLED);
 
     private volatile WidgetProperty<Integer> bit;
     private volatile WidgetProperty<String> off_label;
@@ -104,8 +107,7 @@ public class BoolButtonWidget extends WritablePVWidget
     private volatile WidgetProperty<String> on_label;
     private volatile WidgetProperty<WidgetColor> on_color;
     private volatile WidgetProperty<String> on_image;
-    // TODO Stretch To Fit (See Picture Widget)?
-
+    private volatile WidgetProperty<Boolean> show_LED;
     private volatile WidgetProperty<WidgetFont> font;
     private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<WidgetColor> foreground;
@@ -135,6 +137,7 @@ public class BoolButtonWidget extends WritablePVWidget
         properties.add(on_label = propOnLabel.createProperty(this, "On"));
         properties.add(on_color = propOnColor.createProperty(this, new WidgetColor(60, 255, 60)));
         properties.add(on_image = propOnImage.createProperty(this, ""));
+        properties.add(show_LED = propShowLED.createProperty(this, true));
         properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
         properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BUTTON_BACKGROUND)));
@@ -182,6 +185,12 @@ public class BoolButtonWidget extends WritablePVWidget
     public WidgetProperty<String> propOnImage()
     {
         return on_image;
+    }
+
+    /** @return 'show_LED' property */
+    public WidgetProperty<Boolean> propShowLED()
+    {
+        return show_LED;
     }
 
     /** @return 'font' property */

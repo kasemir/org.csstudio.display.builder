@@ -302,7 +302,6 @@ public class SearchView extends ViewPart
                 final Object[] objs = selection.toArray();
                 final ChannelInfo[] channels = Arrays.copyOf(objs, objs.length, ChannelInfo[].class);
                 return channels;
-                // return selection.getFirstElement();
             }
         };
 

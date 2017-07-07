@@ -40,6 +40,7 @@ import org.csstudio.display.builder.model.widgets.LabelWidget;
 import org.csstudio.display.builder.model.widgets.LinearMeterWidget;
 import org.csstudio.display.builder.model.widgets.MeterWidget;
 import org.csstudio.display.builder.model.widgets.MultiStateLEDWidget;
+import org.csstudio.display.builder.model.widgets.NavigationTabsWidget;
 import org.csstudio.display.builder.model.widgets.PictureWidget;
 import org.csstudio.display.builder.model.widgets.PolygonWidget;
 import org.csstudio.display.builder.model.widgets.PolylineWidget;
@@ -49,6 +50,7 @@ import org.csstudio.display.builder.model.widgets.RectangleWidget;
 import org.csstudio.display.builder.model.widgets.ScaledSliderWidget;
 import org.csstudio.display.builder.model.widgets.ScrollBarWidget;
 import org.csstudio.display.builder.model.widgets.SpinnerWidget;
+import org.csstudio.display.builder.model.widgets.SymbolWidget;
 import org.csstudio.display.builder.model.widgets.TableWidget;
 import org.csstudio.display.builder.model.widgets.TabsWidget;
 import org.csstudio.display.builder.model.widgets.TankWidget;
@@ -78,6 +80,25 @@ public class WidgetFactory
 {
     /** Extension point that allows contributing widgets */
     public static final String EXTENSION_POINT_ID = "org.csstudio.display.builder.model.widgets";
+
+    /** Exception that indicates an unknown widget type */
+    public static class WidgetTypeException extends Exception
+    {
+        private static final long serialVersionUID = 1L;
+        private final String type;
+
+        public WidgetTypeException(final String type, final String message)
+        {
+            super(message);
+            this.type = type;
+        }
+
+        /** @return Widget type that's not known */
+        public String getType()
+        {
+            return type;
+        }
+    }
 
     /** Singleton instance */
     private static final WidgetFactory instance = new WidgetFactory();
@@ -136,6 +157,7 @@ public class WidgetFactory
         addWidgetType(LinearMeterWidget.WIDGET_DESCRIPTOR);
         addWidgetType(MeterWidget.WIDGET_DESCRIPTOR);
         addWidgetType(MultiStateLEDWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(NavigationTabsWidget.WIDGET_DESCRIPTOR);
         addWidgetType(PictureWidget.WIDGET_DESCRIPTOR);
         addWidgetType(PolygonWidget.WIDGET_DESCRIPTOR);
         addWidgetType(PolylineWidget.WIDGET_DESCRIPTOR);
@@ -145,6 +167,7 @@ public class WidgetFactory
         addWidgetType(ScaledSliderWidget.WIDGET_DESCRIPTOR);
         addWidgetType(ScrollBarWidget.WIDGET_DESCRIPTOR);
         addWidgetType(SpinnerWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(SymbolWidget.WIDGET_DESCRIPTOR);
         addWidgetType(TableWidget.WIDGET_DESCRIPTOR);
         addWidgetType(TabsWidget.WIDGET_DESCRIPTOR);
         addWidgetType(TankWidget.WIDGET_DESCRIPTOR);
@@ -200,9 +223,9 @@ public class WidgetFactory
     /** Get all widget descriptors
      *  @param type Type ID of the widget or alternate type
      *  @return {@link WidgetDescriptor}s, starting with primary followed by possible alternates
-     *  @throws Exception on error
+     *  @throws WidgetTypeException when widget type is not known
      */
-    public List<WidgetDescriptor> getAllWidgetDescriptors(final String type) throws Exception
+    public List<WidgetDescriptor> getAllWidgetDescriptors(final String type) throws WidgetTypeException
     {
         final List<WidgetDescriptor> descs = new ArrayList<>();
         final WidgetDescriptor descriptor = descriptor_by_type.get(type);
@@ -212,7 +235,7 @@ public class WidgetFactory
         if (alt != null)
             descs.addAll(alt);
         if (descs.isEmpty())
-            throw new Exception("Unknown widget type '" + type + "'");
+            throw new WidgetTypeException(type, "Unknown widget type '" + type + "'");
         return descs;
     }
 }

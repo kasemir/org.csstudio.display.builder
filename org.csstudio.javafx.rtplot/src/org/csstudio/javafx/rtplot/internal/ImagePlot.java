@@ -29,6 +29,7 @@ import org.csstudio.javafx.rtplot.Axis;
 import org.csstudio.javafx.rtplot.AxisRange;
 import org.csstudio.javafx.rtplot.ColorMappingFunction;
 import org.csstudio.javafx.rtplot.Interpolation;
+import org.csstudio.javafx.rtplot.Messages;
 import org.csstudio.javafx.rtplot.RTImagePlotListener;
 import org.csstudio.javafx.rtplot.RegionOfInterest;
 import org.csstudio.javafx.rtplot.internal.undo.ChangeImageZoom;
@@ -639,28 +640,38 @@ public class ImagePlot extends PlotCanvasBase
      */
     private static BufferedImage drawData(final int data_width, final int data_height, final ListNumber numbers,
                                           final ToDoubleFunction<IteratorNumber> next_sample_func,
-                                          final double min, final double max, final ColorMappingFunction color_mapping)
+                                          double min, double max, final ColorMappingFunction color_mapping)
     {
+        // final long start = System.nanoTime();
+
         if (data_width <= 0  ||  data_height <= 0)
         {
-            logger.log(Level.FINE, "Cannot draw image sized {0} x {1}", new Object[] { data_width, data_height });
+            // With invalid size, cannot create a BufferedImage, not even for the error message
+            logger.log(Level.WARNING, "Cannot draw image sized {0} x {1}", new Object[] { data_width, data_height });
             return null;
         }
+
+        // NOT using BufferUtil because the Graphics2D are only used for error message.
+        // Other image access is directly to raster buffer.
+        final BufferedImage image = new BufferedImage(data_width, data_height, BufferedImage.TYPE_INT_ARGB);
         if (numbers.size() < data_width * data_height)
         {
-            logger.log(Level.WARNING, "Image sized {0} x {1} received only {2} data samples",
-                                      new Object[] { data_width, data_height, numbers.size() });
-            return null;
+            final String message = "Image sized " + data_width + " x " + data_height +
+                                   " received only " + numbers.size() + " data samples";
+            logger.log(Level.WARNING, message);
+            final Graphics2D gc = image.createGraphics();
+            gc.setColor(Color.RED);
+            gc.drawString(message, 0, 10);
+            gc.dispose();
+            return image;
         }
         if (!  (min < max))  // Implies min and max being finite, not-NaN
         {
             logger.log(Level.WARNING, "Invalid value range {0} .. {1}", new Object[] { min, max });
-            return null;
+            min = 0.0;
+            max = 1.0;
         }
 
-        // final long start = System.nanoTime();
-
-        final BufferedImage image = new BufferedImage(data_width, data_height, BufferedImage.TYPE_INT_ARGB);
         // Direct access to 'int' pixels in data buffer is about twice as fast as access
         // via image.setRGB(x, y, color.getRGB()),
         // which in turn is about 3x faster than drawLine or fillRect.
@@ -851,6 +862,63 @@ public class ImagePlot extends PlotCanvasBase
             updateLocationInfo(e.getX(), e.getY());
     }
 
+    /**
+     * Check if the mouse double-clicked on the end of an axis, and if mouse_mode is PAN or NONE.
+     * If true, return information about the clicked axis; if not, return null.
+     * @author Amanda Carpenter
+     * @param event MouseEvent to get info for
+     * @return An Object [3] containing:
+     * <ol>
+     * <li>{@link AxisPart}&lt;Double&gt; axis - clicked axis<\li>
+     * <li>boolean isHighEnd - true if click was on high-value end of axis; else, false<\li>
+     * <li>{@link Rectangle} area - dimensions and location of click region<\li>
+     * </ol>
+     */
+    public Object [] axisClickInfo(MouseEvent event)
+    {
+    	//For event.getX(), etc. to work as desired, 'this' must be the source of the MouseEvent
+    	if (!this.equals(event.getSource()))
+    		event = event.copyFor(this, event.getTarget());
+        if ((mouse_mode == MouseMode.NONE || mouse_mode == MouseMode.PAN) && event.getClickCount() == 2)
+        {
+        	double click_x = event.getX();
+        	double click_y = event.getY();
+        	//Do the upper or lower end regions of y_axis contain the click?
+    		int x = (int) y_axis.getBounds().getX();
+    		int w = (int) y_axis.getBounds().getWidth();
+    		int h = (int) Math.min(y_axis.getBounds().getHeight()/2, w);
+    		Rectangle upper = new Rectangle(x, (int) y_axis.getBounds().getY(), w, h);
+    		Rectangle lower = new Rectangle(x, (int) y_axis.getBounds().getMaxY()-h, w, h);
+    		if (upper.contains(click_x, click_y))
+    		{
+    			Object [] ret = {y_axis, true, upper};
+    			return ret;
+    		}
+    		else if (lower.contains(click_x, click_y))
+    		{
+    			Object [] ret = {y_axis, false, lower};
+    			return ret;
+    		}
+        	//Do the left-side (lesser) or right-side (greater) end regions of the x-axis contain it?
+        	int y = (int) x_axis.getBounds().getY();
+        	h = (int) x_axis.getBounds().getHeight();
+        	w = (int) Math.min(x_axis.getBounds().getWidth()/2, h);
+        	Rectangle lesser = new Rectangle((int) x_axis.getBounds().getX(), y, w, h);
+        	Rectangle greater = new Rectangle((int) x_axis.getBounds().getMaxX()-w, y, w, h);
+    		if (lesser.contains(click_x, click_y))
+    		{
+    			Object [] ret = {x_axis, false, lesser};
+    			return ret;
+    		}
+    		else if (greater.contains(click_x, click_y))
+    		{
+    			Object [] ret = {x_axis, true, greater};
+    			return ret;
+        	}
+        }
+    	return null;
+    }
+    
     /** Update information about the image location under the mouse pointer
      *  @param mouse_x
      *  @param mouse_y
@@ -960,7 +1028,7 @@ public class ImagePlot extends PlotCanvasBase
         if (mouse_mode == MouseMode.PAN_PLOT)
         {
             mouseMove(e);
-            undo.add(new ChangeImageZoom(x_axis, mouse_start_x_range, x_axis.getValueRange(),
+            undo.add(new ChangeImageZoom(Messages.Pan, x_axis, mouse_start_x_range, x_axis.getValueRange(),
                                          y_axis, mouse_start_y_range, y_axis.getValueRange()));
             mouse_mode = MouseMode.PAN;
             mouse_start_x_range = null;

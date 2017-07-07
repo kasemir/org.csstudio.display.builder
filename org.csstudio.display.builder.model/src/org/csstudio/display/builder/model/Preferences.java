@@ -19,12 +19,14 @@ import org.eclipse.core.runtime.preferences.IPreferencesService;
 @SuppressWarnings("nls")
 public class Preferences
 {
+    public static final String CACHE_TIMEOUT = "cache_timeout";
     public static final String CLASS_FILES = "class_files";
     public static final String COLOR_FILES = "color_files";
     public static final String FONT_FILES = "font_files";
     public static final String READ_TIMEOUT = "read_timeout";
     public static final String LEGACY_FONT_CALIBRATION = "legacy_font_calibration";
     public static final String MACROS = "macros";
+    public static final String MAX_REPARSE_ITERATIONS = "max_reparse_iterations";
     public static final String SUPPORT_STANDALONE_WINDOW = "support_standalone_window";
 
     public static String[] getClassFiles()
@@ -58,6 +60,16 @@ public class Preferences
         return timeout;
     }
 
+    /** @return Cache timeout [sec] */
+    public static int getCacheTimeout()
+    {
+        int timeout = 60;
+        final IPreferencesService prefs = Platform.getPreferencesService();
+        if (prefs != null)
+            timeout = prefs.getInt(ModelPlugin.ID, CACHE_TIMEOUT, timeout, null);
+        return timeout;
+    }
+
     /** @return Legacy font size calibration */
     public static double getLegacyFontCalibration()
     {
@@ -86,6 +98,16 @@ public class Preferences
         {
             return null;
         }
+    }
+
+    /** @return Maximum number of re-parse operations */
+    public static int getMaxReparse()
+    {
+        int max_reparse = 5000;
+        final IPreferencesService prefs = Platform.getPreferencesService();
+        if (prefs != null)
+            max_reparse = prefs.getInt(ModelPlugin.ID, MAX_REPARSE_ITERATIONS, max_reparse, null);
+        return max_reparse;
     }
 
     /** @return Do support standalone window option? */

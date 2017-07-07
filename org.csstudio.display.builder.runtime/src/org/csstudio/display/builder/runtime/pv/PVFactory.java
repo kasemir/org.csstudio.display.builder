@@ -38,6 +38,9 @@ public class PVFactory
     /** The PV factory */
     private static final RuntimePVFactory factory;
 
+    /** Has RuntimePV.setValue() issued warning about being called? */
+    static volatile boolean issued_write_warning = false;
+
     static
     {
         final List<String> impl = new ArrayList<>();

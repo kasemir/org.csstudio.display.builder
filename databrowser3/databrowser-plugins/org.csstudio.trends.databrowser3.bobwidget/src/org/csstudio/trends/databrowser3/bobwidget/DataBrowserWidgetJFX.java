@@ -17,6 +17,7 @@ import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
 import org.csstudio.trends.databrowser3.model.Model;
@@ -61,6 +62,8 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Pane, DataBrowse
         super.dispose();
         if (controller != null)
             controller.stop();
+        if (plot != null)
+            plot.dispose();
     }
 
     /** @return Data Browser Plot */
@@ -79,10 +82,11 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Pane, DataBrowse
         model_widget.propWidth().addUntypedPropertyListener(this::sizeChanged);
         model_widget.propHeight().addUntypedPropertyListener(this::sizeChanged);
         model_widget.propShowToolbar().addUntypedPropertyListener(this::optsChanged);
-
-        final String img_name = model_widget.propFile().getValue();
+        // Not monitoring macros.
+        // Macros are read when the file property updates
+        final String file_name = model_widget.propFile().getValue();
         model_widget.propFile().addPropertyListener(this::fileChanged);
-        ModelThreadPool.getExecutor().execute(() -> fileChanged(null, null, img_name));
+        ModelThreadPool.getExecutor().execute(() -> fileChanged(null, null, file_name));
 
         if (controller != null)
         {
@@ -121,16 +125,7 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Pane, DataBrowse
                 // At least use background thread to read file into memory, avoiding file access delays on UI thread.
                 final InputStream file_stream = Objects.requireNonNull(model_widget.getFileInputStream(new_value));
                 final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-                byte[] temp = new byte[1024];
-                while (true)
-                {
-                    final int len = file_stream.read(temp);
-                    if (len < 0)
-                        break;
-                    buffer.write(temp, 0, len);
-                }
-                file_stream.close();
-                buffer.close();
+                ModelResourceUtil.copyResource(file_stream, buffer);
                 model_file_stream = new ByteArrayInputStream(buffer.toByteArray());
             }
             catch (Exception ex)
@@ -163,7 +158,7 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Pane, DataBrowse
             if (safe_stream != null)
                 try
                 {
-                    db_model.setMacros(model_widget.getEffectiveMacros());
+                    db_model.setMacros(model_widget.getMacrosOrProperties());
                     new XMLPersistence().load(db_model, safe_stream);
 
                     // Override settings in *.plt file with those of widget

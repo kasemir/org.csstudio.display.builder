@@ -18,6 +18,7 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.ActionInfo.ActionType;
+import org.csstudio.display.builder.model.properties.ActionInfos;
 import org.csstudio.display.builder.model.properties.ExecuteCommandActionInfo;
 import org.csstudio.display.builder.model.properties.ExecuteScriptActionInfo;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
@@ -34,6 +35,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -57,7 +59,7 @@ import javafx.scene.layout.VBox;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class ActionsDialog extends Dialog<List<ActionInfo>>
+public class ActionsDialog extends Dialog<ActionInfos>
 {
     // XXX: Smoother handling of script type changes
     // Prompt if embedded text should be deleted when changing to external file
@@ -75,6 +77,7 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
 
     /** Table of actions */
     private final ListView<ActionInfo> action_list = new ListView<>(actions);
+    private CheckBox execute_all;
 
     // UI elements for OpenDisplayAction
     private TextField open_display_description, open_display_path;
@@ -99,8 +102,6 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
 
     /** Prevent circular updates */
     private boolean updating = false;
-
-
 
     /** ListView cell for ActionInfo, shows title if possible */
     private static class ActionInfoCell extends ListCell<ActionInfo>
@@ -133,7 +134,7 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
      *  @param widget Widget
      *  @param initial_actions Initial list of actions
      */
-    public ActionsDialog(final Widget widget, final List<ActionInfo> initial_actions)
+    public ActionsDialog(final Widget widget, final ActionInfos initial_actions)
     {
         this(widget, initial_actions, new AutocompleteMenu());
     }
@@ -143,12 +144,12 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
      *  @param initial_actions Initial list of actions
      *  @param menu {@link AutocompleteMenu} to use for PV names (must not be null)
      */
-    public ActionsDialog(final Widget widget, final List<ActionInfo> initial_actions, final AutocompleteMenu menu)
+    public ActionsDialog(final Widget widget, final ActionInfos initial_actions, final AutocompleteMenu menu)
     {
         this.widget = widget;
         this.menu = menu;
 
-        actions.addAll(initial_actions);
+        actions.addAll(initial_actions.getActions());
 
         setTitle(Messages.ActionsDialog_Title);
         setHeaderText(Messages.ActionsDialog_Info);
@@ -166,11 +167,20 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
         layout.setVgap(10);
         layout.setPadding(new Insets(10));
 
+        // Left "Actions" column of UI
         layout.add(new Label(Messages.ActionsDialog_Actions), 0, 0);
 
         action_list.setCellFactory(view -> new ActionInfoCell());
         layout.add(action_list, 0, 1);
 
+        execute_all = new CheckBox(Messages.ActionsDialog_ExecuteAll);
+        execute_all.setSelected(initial_actions.isExecutedAsOne());
+        layout.add(execute_all, 0, 2);
+
+        GridPane.setVgrow(action_list, Priority.ALWAYS);
+        GridPane.setVgrow(execute_all, Priority.NEVER);
+
+        // Middle button column of UI
         final MenuButton add = new MenuButton(Messages.Add, JFXUtil.getIcon("add.png"));
         for (ActionType type : ActionType.values())
         {
@@ -236,11 +246,10 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
             }
         });
 
-
         final VBox buttons = new VBox(10, add, remove, up, down);
         layout.add(buttons, 1, 1);
 
-
+        // Right "Action Detail" column of UI
         layout.add(new Label(Messages.ActionsDialog_Detail), 2, 0);
 
         final GridPane open_display_details = createOpenDisplayDetails();
@@ -260,7 +269,7 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
         final StackPane details = new StackPane(open_display_details, write_pv_details,
                                                 execute_script_details, execute_command_details,
                                                 open_file_details, open_web_details);
-        layout.add(details, 2, 1);
+        layout.add(details, 2, 1, 1, 2);
         GridPane.setHgrow(details, Priority.ALWAYS);
         GridPane.setVgrow(details, Priority.ALWAYS);
 
@@ -319,7 +328,7 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
         setResultConverter(button ->
         {
             if (button == ButtonType.OK)
-                return actions;
+                return new ActionInfos(actions, execute_all.isSelected());
             return null;
         });
 

@@ -19,6 +19,7 @@ import org.diirt.vtype.VType;
 /** Implements {@link RuntimePV} for {@link PV}
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class VTypePV implements RuntimePV, PVListener
 {
     private final PV pv;
@@ -67,7 +68,14 @@ public class VTypePV implements RuntimePV, PVListener
     @Override
     public void write(final Object new_value) throws Exception
     {
-        pv.write(new_value);
+        try
+        {
+            pv.write(new_value);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Cannot write " + new_value + " to PV " + getName(), ex);
+        }
     }
 
     @Override

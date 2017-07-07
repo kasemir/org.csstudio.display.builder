@@ -7,6 +7,12 @@
  ******************************************************************************/
 package org.csstudio.trends.databrowser3.sampleview;
 
+import static org.csstudio.trends.databrowser3.Activator.logger;
+
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
+
 import org.csstudio.trends.databrowser3.model.ModelItem;
 import org.csstudio.trends.databrowser3.model.PlotSample;
 import org.csstudio.trends.databrowser3.model.PlotSamples;
@@ -18,6 +24,7 @@ import org.eclipse.jface.viewers.Viewer;
  *  TableViewerInput is a ModelItem
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class SampleTableContentProvider implements ILazyContentProvider
 {
     private TableViewer sample_table;
@@ -44,19 +51,27 @@ public class SampleTableContentProvider implements ILazyContentProvider
     public void updateElement(final int row)
     {
         PlotSample sample;
-        samples.getLock().lock();
         try
         {
-            if (row < samples.size())
-                sample = samples.get(row);
-            else // Sample count has changed.. Hack to avoid null
-                sample = samples.get(samples.size()-1);
+            if (! samples.getLock().tryLock(10, TimeUnit.SECONDS))
+                throw new TimeoutException(samples.toString());
+            try
+            {
+                if (row < samples.size())
+                    sample = samples.get(row);
+                else // Sample count has changed.. Hack to avoid null
+                    sample = samples.get(samples.size()-1);
+            }
+            finally
+            {
+                samples.getLock().unlock();
+            }
+            sample_table.replace(sample, row);
         }
-        finally
+        catch (Exception ex)
         {
-            samples.getLock().unlock();
+            logger.log(Level.WARNING, "Sample Table error", ex);
         }
-        sample_table.replace(sample, row);
     }
 
     @Override

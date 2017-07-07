@@ -43,6 +43,8 @@ public class DisplayEditorToolbarContributor extends EditorActionBarContributor
         EditorPartAction.forToggledActionDescription(ActionDescription.ENABLE_COORDS),
         null, // Marker for Separator
         EditorPartAction.forActionDescription(ActionDescription.TO_BACK),
+        EditorPartAction.forActionDescription(ActionDescription.MOVE_UP),
+        EditorPartAction.forActionDescription(ActionDescription.MOVE_DOWN),
         EditorPartAction.forActionDescription(ActionDescription.TO_FRONT),
         null, // Marker for Separator
         EditorPartAction.forActionDescription(ActionDescription.ALIGN_LEFT),

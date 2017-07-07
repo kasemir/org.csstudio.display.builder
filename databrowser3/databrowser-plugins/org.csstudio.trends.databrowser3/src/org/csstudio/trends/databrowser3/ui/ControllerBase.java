@@ -50,6 +50,8 @@ import org.csstudio.trends.databrowser3.preferences.Preferences;
 import org.diirt.util.time.TimeDuration;
 import org.eclipse.osgi.util.NLS;
 
+import javafx.scene.text.Font;
+
 /** Controller that interfaces the {@link Model} with the {@link ModelBasedPlotSWT}:
  *  <ul>
  *  <li>For each item in the Model, create a trace in the plot.
@@ -288,13 +290,7 @@ public abstract class ControllerBase
                 plot.getPlot().setBackground(SWTMediaPool.getJFX(model.getPlotBackground()));
                 plot.getPlot().setTitleFont(SWTMediaPool.getJFX(model.getTitleFont()));
                 plot.getPlot().setLegendFont(SWTMediaPool.getJFX(model.getLegendFont()));
-
-                final int acount = plot.getTotalAxesCount();
-                for (int idx = 0; idx < acount; idx++)
-                {
-                    plot.getPlotAxis(idx).setLabelFont(SWTMediaPool.getJFX(model.getLabelFont()));
-                    plot.getPlotAxis(idx).setScaleFont(SWTMediaPool.getJFX(model.getScaleFont()));
-                }
+                setAxisFonts();
             }
 
             @Override
@@ -400,6 +396,12 @@ public abstract class ControllerBase
         model.addListener(model_listener);
     }
 
+    /** @return Data Browser model */
+    public Model getModel()
+    {
+        return model;
+    }
+
     /** @param suppress_redraws <code>true</code> if controller should suppress
      *        redraws because window is hidden
      */
@@ -424,7 +426,10 @@ public abstract class ControllerBase
     {
         if (archive_fetch_delay_task != null)
             archive_fetch_delay_task.cancel(false);
-        archive_fetch_delay_task = update_timer.schedule(this::getArchivedData, archive_fetch_delay, TimeUnit.MILLISECONDS);
+        // Compiler error "schedule(Runnable, long, TimeUnit) is ambiguous"
+        // unless specifically casting getArchivedData to Runnable.
+        final Runnable fetch = this::getArchivedData;
+        archive_fetch_delay_task = update_timer.schedule(fetch, archive_fetch_delay, TimeUnit.MILLISECONDS);
     }
 
     /** Start model items and initiate scrolling/updates
@@ -538,6 +543,20 @@ public abstract class ControllerBase
         for (ModelItem item : model.getItems())
             if (item.isVisible())
                 plot.addTrace(item);
+        setAxisFonts();
+    }
+
+    /** Set all axis fonts to the scale and label font of the model */
+    private void setAxisFonts()
+    {
+        final int acount = plot.getTotalAxesCount();
+        final Font label_font = SWTMediaPool.getJFX(model.getLabelFont());
+        final Font scale_font = SWTMediaPool.getJFX(model.getScaleFont());
+        for (int idx = 0; idx < acount; idx++)
+        {
+            plot.getPlotAxis(idx).setLabelFont(label_font);
+            plot.getPlotAxis(idx).setScaleFont(scale_font);
+        }
     }
 
     /** Initiate archive data retrieval for all model items

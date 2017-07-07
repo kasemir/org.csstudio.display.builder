@@ -20,6 +20,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DisplayModel;
@@ -69,13 +72,18 @@ public class WidgetRuntime<MW extends Widget>
     /** If widget has 'pv_name' and 'value', this listener establishes the primary PV */
     private PVNameListener pv_name_listener = null;
 
-    /** Primary widget PV for behaviorPVName property
-     *  <p>SYNC on this
-     */
-    private Optional<RuntimePV> primary_pv = Optional.empty();
+    /** Primary widget PV for behaviorPVName property, or <code>null</code> */
+    private final AtomicReference<RuntimePV> primary_pv = new AtomicReference<>();
 
     /** Listener for <code>primary_pv</code> */
     private RuntimePVListener primary_pv_listener;
+
+    /** start() involves background jobs to start script support etc.
+     *  This latch indicates that they have completed
+     *  and lazily set variables (action_scripts, writable_pvs, ..)
+     *  can now be used.
+     */
+    private volatile CountDownLatch started = new CountDownLatch(1);
 
     /** List of _all_ PVs:
      *  Primary PV,
@@ -163,10 +171,7 @@ public class WidgetRuntime<MW extends Widget>
             try
             {
                 final RuntimePV pv = PVFactory.getPV(pv_name);
-                synchronized (WidgetRuntime.this)
-                {
-                    primary_pv = Optional.of(pv);
-                }
+                primary_pv.set(pv);
                 pv.addListener(primary_pv_listener);
                 // For widgets that have a "pv_writable" property, update it
                 addPV(pv, widget.checkProperty(runtimePropPVWritable).isPresent());
@@ -214,7 +219,9 @@ public class WidgetRuntime<MW extends Widget>
      *  @param need_write_access Does widget need write access to this PV?
      */
     public void addPV(final RuntimePV pv, final boolean need_write_access)
-    {
+    {   // Adding the first PV creates the RuntimePVs for this widget.
+        // Sync. to serialize concurrent calls to addPV() so only _one_
+        // instance is created.
         synchronized (this)
         {
             if (runtime_pvs == null)
@@ -240,7 +247,7 @@ public class WidgetRuntime<MW extends Widget>
     /** @return {@link Optional} containing primary PV of widget, if present. */
     public Optional<RuntimePV> getPrimaryPV()
     {
-        return primary_pv;
+        return Optional.ofNullable(primary_pv.get());
     }
 
     /** Runtime actions
@@ -278,7 +285,7 @@ public class WidgetRuntime<MW extends Widget>
         }
 
         // Prepare action-related PVs
-        final List<ActionInfo> actions = widget.propActions().getValue();
+        final List<ActionInfo> actions = widget.propActions().getValue().getActions();
         if (actions.size() > 0)
         {
             final List<RuntimePV> action_pvs = new ArrayList<>();
@@ -365,9 +372,8 @@ public class WidgetRuntime<MW extends Widget>
         }
 
 
-
         // Compile scripts invoked by actions
-        final List<ActionInfo> actions = widget.propActions().getValue();
+        final List<ActionInfo> actions = widget.propActions().getValue().getActions();
         if (actions.size() > 0)
         {
             final Map<ExecuteScriptActionInfo, Script> scripts = new HashMap<>();
@@ -402,6 +408,26 @@ public class WidgetRuntime<MW extends Widget>
             if (scripts.size() > 0)
                 action_scripts = scripts;
         }
+
+        // Signal that start() has completed
+        started.countDown();
+    }
+
+    /** Wait for start() and related operations to complete.
+     *
+     *  <p>Call before reading 'lazily' populated variables
+     *  */
+    private void awaitStartup()
+    {
+        try
+        {
+            if (! started.await(10, TimeUnit.SECONDS))
+                logger.log(Level.WARNING, "Runtime startup not completed for " + widget);
+        }
+        catch (InterruptedException ex)
+        {
+            // Ignore
+        }
     }
 
     /** Write a value to the primary PV
@@ -411,11 +437,8 @@ public class WidgetRuntime<MW extends Widget>
     {
         try
         {
-            final RuntimePV pv;
-            synchronized (this)
-            {
-                pv = primary_pv.orElse(null);
-            }
+            awaitStartup();
+            final RuntimePV pv = primary_pv.get();
             if (pv == null)
                 throw new Exception("No PV");
             pv.write(value);
@@ -448,6 +471,7 @@ public class WidgetRuntime<MW extends Widget>
             if (sep > 0)
                 name_to_check = name_to_check.substring(0, sep);
         }
+        awaitStartup();
         final List<RuntimePV> safe_pvs = writable_pvs;
         if (safe_pvs != null)
             for (final RuntimePV pv : safe_pvs)
@@ -472,6 +496,7 @@ public class WidgetRuntime<MW extends Widget>
      */
     public void executeScriptAction(final ExecuteScriptActionInfo action_info) throws NullPointerException
     {
+        awaitStartup();
         final Map<ExecuteScriptActionInfo, Script> actions = Objects.requireNonNull(action_scripts);
         final Script script = Objects.requireNonNull(actions.get(action_info));
         script.submit(widget);
@@ -483,12 +508,7 @@ public class WidgetRuntime<MW extends Widget>
      */
     private void disconnectPrimaryPV()
     {
-        final RuntimePV pv;
-        synchronized (this)
-        {
-            pv = primary_pv.orElse(null);
-            primary_pv = Optional.empty();
-        }
+        final RuntimePV pv = primary_pv.getAndSet(null);
         if (pv == null)
             return;
         removePV(pv);
@@ -499,6 +519,7 @@ public class WidgetRuntime<MW extends Widget>
     /** Stop: Disconnect PVs, ... */
     public void stop()
     {
+        awaitStartup();
         widget.propClass().removePropertyListener(update_widget_class);
 
         final List<RuntimePV> safe_pvs = writable_pvs;
@@ -546,6 +567,9 @@ public class WidgetRuntime<MW extends Widget>
         final ScriptSupport scripting = widget.getUserData(Widget.USER_DATA_SCRIPT_SUPPORT);
         if (scripting != null)
         	scripting.close();
+
+        // Prepare for another start()
+        started = new CountDownLatch(1);
     }
 }
 

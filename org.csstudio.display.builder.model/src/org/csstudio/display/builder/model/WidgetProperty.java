@@ -28,10 +28,6 @@ import org.w3c.dom.Element;
  * description, which can be localized, is meant for user interfaces that
  * present the property to humans.
  *
- * <p>
- * Note: names including the string 'pv' are reserved for properties to which PV
- * name auto-completion is applied.
- *
  * @author Kay Kasemir
  *
  * @param <T> Type of the property's value

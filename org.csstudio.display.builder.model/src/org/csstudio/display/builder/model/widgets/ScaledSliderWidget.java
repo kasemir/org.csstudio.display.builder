@@ -221,7 +221,7 @@ public class ScaledSliderWidget extends WritablePVWidget
         properties.add(show_scale = propShowScale.createProperty(this, true));
         properties.add(show_minor_ticks = propShowMinorTicks.createProperty(this, true));
         properties.add(major_tick_step_hint = propMajorTickStepHint.createProperty(this, 40));
-        properties.add(scale_format = propScaleFormat.createProperty(this, ""));
+        properties.add(scale_format = propScaleFormat.createProperty(this, "#.##"));
         properties.add(level_hihi = propLevelHiHi.createProperty(this, 90.0));
         properties.add(level_high = propLevelHigh.createProperty(this, 80.0));
         properties.add(level_low = propLevelLow.createProperty(this, 20.0));

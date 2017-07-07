@@ -10,6 +10,7 @@ package org.csstudio.display.builder.runtime.script;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -424,10 +425,10 @@ public class ScriptUtil
 
     /** Read a file
      *
-     * @param widget Widget used to resolve resource that's relative to a display file
-     * @param resource_name Name of resource
-     * @return BufferedReader. Keep calling <code>readLine()</code> until it returns <code>null</code>.
-     * @throws Exception on error
+     *  @param widget Widget used to resolve resource that's relative to a display file
+     *  @param resource_name Name of resource
+     *  @return BufferedReader. Keep calling <code>readLine()</code> until it returns <code>null</code>.
+     *  @throws Exception on error
      */
     public static BufferedReader getResourceReader(final Widget widget, final String resource_name) throws Exception
     {
@@ -437,10 +438,10 @@ public class ScriptUtil
 
     /** Read XML file
      *
-     * @param widget Widget used to resolve resource that's relative to a display file
-     * @param resource_name Name of resource
-     * @return Root element of the XML document
-     * @throws Exception on error
+     *  @param widget Widget used to resolve resource that's relative to a display file
+     *  @param resource_name Name of resource
+     *  @return Root element of the XML document
+     *  @throws Exception on error
      */
     public static Element readXMLFile(final Widget widget, final String resource_name) throws Exception
     {
@@ -449,5 +450,27 @@ public class ScriptUtil
         final Document doc = docBuilder.parse(ModelResourceUtil.openResourceStream(resolved));
         doc.getDocumentElement().normalize();
         return doc.getDocumentElement();
+    }
+
+    /** Read Text file as list of strings
+     *
+     *  @param widget Widget used to resolve resource that's relative to a display file
+     *  @param resource_name Name of resource
+     *  @return List with all the lines in the file. <code>null</code> (jython None) for empty lines.
+     *  @throws Exception on error
+     */
+    public static List<String> readTextFile(final Widget widget, final String resource_name) throws Exception
+    {
+        final BufferedReader reader = getResourceReader(widget, resource_name);
+        final List<String> result = new ArrayList<>();
+        String line;
+        while ((line = reader.readLine()) != null)
+        {
+            if (line.length() > 0)
+                result.add(line);
+            else
+                result.add(null);
+        }
+        return result;
     }
 }

@@ -8,18 +8,20 @@
 package org.csstudio.trends.databrowser3.export;
 
 import java.time.Instant;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.csstudio.archive.reader.ValueIterator;
 import org.csstudio.archive.vtype.VTypeHelper;
 import org.csstudio.trends.databrowser3.model.ModelItem;
 import org.csstudio.trends.databrowser3.model.PlotSample;
 import org.csstudio.trends.databrowser3.model.PlotSamples;
-import org.csstudio.trends.databrowser3.model.TimeHelper;
 import org.diirt.vtype.VType;
 
 /** Iterator for the samples in a ModelItem, not fetching archived data
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class ModelSampleIterator implements ValueIterator
 {
     /** Samples from which to return values from 'start' to 'end' */
@@ -36,15 +38,17 @@ public class ModelSampleIterator implements ValueIterator
 
     /** Initialize
      *  @param item Item from which to get samples
-    /** @param start Start time
-    /** @param end End time
+     *  @param start Start time
+     *  @param end End time
+     *  @throws Exception on error
      */
-    public ModelSampleIterator(final ModelItem item, final Instant start,
-            final Instant end)
+    public ModelSampleIterator(final ModelItem item, final Instant start, final Instant end) throws Exception
     {
         this.samples = item.getSamples();
         this.end = end;
-        samples.getLock().lock();
+
+        if (! samples.getLock().tryLock(10, TimeUnit.SECONDS))
+            throw new TimeoutException("Cannot lock " + samples);
         try
         {
             // Anything?
@@ -127,10 +131,11 @@ public class ModelSampleIterator implements ValueIterator
     public VType next() throws Exception
     {
         if (index < 0)
-            throw new Exception("End of samples"); //$NON-NLS-1$
+            throw new Exception("End of samples");
         // Remember value, prepare the next value
         final VType result = value;
-        samples.getLock().lock();
+        if (! samples.getLock().tryLock(10, TimeUnit.SECONDS))
+            throw new TimeoutException("Cannot lock " + samples);
         try
         {
             ++index;

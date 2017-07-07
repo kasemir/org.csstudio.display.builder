@@ -93,7 +93,7 @@ public class GroupWidget extends VisibleWidget
     }
 
     /** 'style' property */
-    private static final WidgetPropertyDescriptor<Style> propStyle =
+    static final WidgetPropertyDescriptor<Style> propStyle =
         new WidgetPropertyDescriptor<Style>(
             WidgetPropertyCategory.DISPLAY, "style", Messages.Style)
     {
@@ -104,6 +104,42 @@ public class GroupWidget extends VisibleWidget
             return new EnumWidgetProperty<Style>(this, widget, default_value);
         }
     };
+
+    /** Convert legacy "border_style"
+     *
+     *  @param border_style Legacy &lt;border_style> value
+     *  @return {@link Style}
+     */
+    static Style convertLegacyStyle(final int border_style)
+    {
+        switch (border_style)
+        {
+        case  0: // NONE
+        case 15: // EMPTY
+            return Style.NONE;
+
+        case  1: // LINE
+        case  2: // RAISED
+        case  3: // LOWERED
+        case  4: // ETCHED
+        case  5: // RIDGED
+        case  6: // BUTTON_RAISED
+        case  7: // BUTTON_PRESSED
+        case  8: // DOTTED
+        case  9: // DASHED
+        case 10: // DASH_DOT
+        case 11: // DASH_DOT_DOT
+        case 14: // ROUND_RECTANGLE_BACKGROUND
+            return Style.LINE;
+
+        case 12: // TITLE_BAR
+            return Style.TITLE;
+
+        case 13: // GROUP_BOX
+        default:
+            return Style.GROUP;
+        }
+    }
 
     /** Custom WidgetConfigurator to load legacy file */
     private static class GroupWidgetConfigurator extends WidgetConfigurator
@@ -124,14 +160,8 @@ public class GroupWidget extends VisibleWidget
             {
                 final GroupWidget group_widget = (GroupWidget) widget;
                 // Translate border styles
-                final int old_spec = XMLUtil.getChildInteger(xml, "border_style").orElse(13);
-                if (old_spec == 0  ||  old_spec == 15)     // NONE, Empty
-                    group_widget.style.setValue(Style.NONE);
-                else if (old_spec >= 1  && old_spec <= 11) // Line, dash, raised, ..
-                    group_widget.style.setValue(Style.LINE);
-                else if (old_spec == 12)                   // Title Bar
-                    group_widget.style.setValue(Style.TITLE);
-                // else leave at default 13 = GROUP_BOX
+                XMLUtil.getChildInteger(xml, "border_style")
+                       .ifPresent(old -> group_widget.style.setValue(convertLegacyStyle(old)));
 
                 // Legacy had 'border_color'.
                 // It wasn't used by Group Box style, which had built-in gray,

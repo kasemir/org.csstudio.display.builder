@@ -8,11 +8,16 @@
 package org.csstudio.display.builder.representation.javafx.widgets;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.widgets.WebBrowserWidget;
 import org.csstudio.display.builder.util.ResourceUtil;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
@@ -44,6 +49,8 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
     private volatile double width;
     private volatile double height;
 
+    private static final String[] downloads = new String[] { "zip", "csv", "cif", "tgz" };
+
     class Browser extends Region
     {
         //================
@@ -58,6 +65,32 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
             getStyleClass().add("browser");
             getChildren().add(browser);
             goToURL(url);
+
+            // Support 'download' links on web page.
+            // http://stackoverflow.com/questions/9935324/how-to-handle-file-downloads-using-javafx-2-0-webengine
+            // Not supported by WebView.
+            // Best workaround: Monitor the location and handle file extensions that look like a download.
+            webEngine.locationProperty().addListener((loc, old, location) ->
+            {
+                for (String download : downloads)
+                    if (location.endsWith(download))
+                    {
+                        // Prompt for local location (which could be a workspace location under RCP ..)
+                        String file = location;
+                        int i = file.lastIndexOf("/");
+                        if (i > 0)
+                            file = file.substring(i+1);
+                        final String download_file = toolkit.showSaveAsDialog(model_widget, file);
+                        if (download_file != null)
+                            Job.create("Download " + location, monitor ->
+                            {
+                                monitor.beginTask("Writing " + download_file, IProgressMonitor.UNKNOWN);
+                                download(location, download_file);
+                                return Status.OK_STATUS;
+                            }).schedule();
+                        break;
+                    }
+            });
         }
 
         //================
@@ -90,6 +123,20 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
         protected double computePrefHeight(double width)
         {
             return height;
+        }
+
+        private void download(final String url, final String file)
+        {
+            try
+            {
+                final InputStream input = ModelResourceUtil.openURL(url);
+                final OutputStream output = ModelResourceUtil.writeResource(file);
+                ModelResourceUtil.copyResource(input, output);
+            }
+            catch (Exception ex)
+            {
+                toolkit.showErrorDialog(model_widget, "Cannot save file:\n" + ex.getMessage());
+            }
         }
     }
 
@@ -255,6 +302,12 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
         }
         return toolbar ? new BrowserWithToolbar(model_widget.propWidgetURL().getValue())
                 : new Browser(model_widget.propWidgetURL().getValue());
+    }
+
+    @Override
+    protected boolean isFilteringEditModeClicks()
+    {
+        return true;
     }
 
     @Override

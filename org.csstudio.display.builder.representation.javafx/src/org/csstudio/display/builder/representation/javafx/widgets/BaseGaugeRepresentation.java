@@ -17,8 +17,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang3.StringUtils;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.model.persist.NamedWidgetColors;
-import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.util.FormatOptionHandler;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.BaseGaugeWidget;
@@ -39,9 +37,6 @@ import javafx.scene.paint.Paint;
  * @version 1.0.0 8 Feb 2017
  */
 public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends RegionBaseRepresentation<Gauge, W> {
-
-    private static final Color MINOR_COLOR = JFXUtil.convert(WidgetColorService.getColor(NamedWidgetColors.ALARM_MINOR));
-    private static final Color MAJOR_COLOR = JFXUtil.convert(WidgetColorService.getColor(NamedWidgetColors.ALARM_MAJOR));
 
     private final DirtyFlag               dirtyContent  = new DirtyFlag();
     private final DirtyFlag               dirtyGeometry = new DirtyFlag();
@@ -308,19 +303,19 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         List<Section> sections = new ArrayList<>(4);
 
         if ( !loloNaN ) {
-            sections.add(createZone(min, lolo, "LoLo", MAJOR_COLOR));
+            sections.add(createZone(min, lolo, "LoLo", JFXUtil.convert(model_widget.propColorLoLo().getValue())));
         }
 
         if ( !Double.isNaN(low) ) {
-            sections.add(createZone(loloNaN ? min : lolo, low, "Low", MINOR_COLOR));
+            sections.add(createZone(loloNaN ? min : lolo, low, "Low", JFXUtil.convert(model_widget.propColorLow().getValue())));
         }
 
         if ( !Double.isNaN(high) ) {
-            sections.add(createZone(high, hihiNaN ? max : hihi, "High", MINOR_COLOR));
+            sections.add(createZone(high, hihiNaN ? max : hihi, "High", JFXUtil.convert(model_widget.propColorHigh().getValue())));
         }
 
         if ( !hihiNaN ) {
-            sections.add(createZone(hihi, max, "HiHi", MAJOR_COLOR));
+            sections.add(createZone(hihi, max, "HiHi", JFXUtil.convert(model_widget.propColorHiHi().getValue())));
         }
 
         return sections.toArray(new Section[sections.size()]);
@@ -350,8 +345,12 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         model_widget.propValueColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propValueVisible().addUntypedPropertyListener(this::lookChanged);
 
+        model_widget.propColorHiHi().addUntypedPropertyListener(this::limitsColorChanged);
+        model_widget.propColorHigh().addUntypedPropertyListener(this::limitsColorChanged);
+        model_widget.propColorLoLo().addUntypedPropertyListener(this::limitsColorChanged);
+        model_widget.propColorLow().addUntypedPropertyListener(this::limitsColorChanged);
         model_widget.propLevelHiHi().addUntypedPropertyListener(this::limitsChanged);
-        model_widget.propLevelHight().addUntypedPropertyListener(this::limitsChanged);
+        model_widget.propLevelHigh().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propLevelLoLo().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propLevelLow().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propLimitsFromPV().addUntypedPropertyListener(this::limitsChanged);
@@ -388,7 +387,7 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         double newMax = model_widget.propMaximum().getValue();
         double newLoLo = model_widget.propLevelLoLo().getValue();
         double newLow = model_widget.propLevelLow().getValue();
-        double newHigh = model_widget.propLevelHight().getValue();
+        double newHigh = model_widget.propLevelHigh().getValue();
         double newHiHi = model_widget.propLevelHiHi().getValue();
 
         if ( model_widget.propLimitsFromPV().getValue() ) {
@@ -495,6 +494,12 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
 
     private void geometryChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
         dirtyGeometry.mark();
+        toolkit.scheduleUpdate(this);
+    }
+
+    private void limitsColorChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
+        updateLimits();
+        dirtyLimits.mark();
         toolkit.scheduleUpdate(this);
     }
 

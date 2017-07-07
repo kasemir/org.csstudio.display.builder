@@ -7,10 +7,12 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets.plots;
 
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.csstudio.javafx.rtplot.data.InstrumentedReadWriteLock;
 import org.csstudio.javafx.rtplot.data.PlotDataItem;
 import org.csstudio.javafx.rtplot.data.PlotDataProvider;
 import org.csstudio.javafx.rtplot.data.SimpleDataItem;
@@ -19,16 +21,28 @@ import org.diirt.util.array.ListNumber;
 
 /** Data provider for RTPlot
  *
- *  <p>Adapts two waveforms received from PV
+ *  <p>Adapts waveforms received from PV
  *  into samples for a trace in the RTPlot.
+ *  <ul>
+ *  <li>X and Y waveform: Plots Y over X
+ *  <li>Y waveform with <code>null</code> for X: Plots Y over array index
+ *  </ul>
+ *
+ *  Error data may be
+ *  <ul>
+ *  <li><code>null</code> or zero elements: No error bars
+ *  <li>One element: Use that error for all samples
+ *  <li>One element per sample: Error bar for each sample
+ *  </ul>
  *
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class XYVTypeDataProvider implements PlotDataProvider<Double>
 {
     public final static ListNumber EMPTY = new ArrayDouble(new double[0], true);
 
-    final private ReadWriteLock lock = new ReentrantReadWriteLock();
+    final private ReadWriteLock lock = new InstrumentedReadWriteLock();
 
     private volatile ListNumber x_data, y_data, error_data;
     private volatile int size = 0;
@@ -41,14 +55,15 @@ public class XYVTypeDataProvider implements PlotDataProvider<Double>
      */
     public void setData(final ListNumber x_data, final ListNumber y_data, final ListNumber error_data) throws Exception
     {
-        lock.writeLock().lock();
+        if (! lock.writeLock().tryLock(10, TimeUnit.SECONDS))
+            throw new TimeoutException("Cannot lock " + lock);
         try
         {
             // In principle, error_data should have 1 element or same size as X and Y..
             this.x_data = x_data;
             this.y_data = y_data;
             size = x_data == null ? y_data.size() : Math.min(x_data.size(), y_data.size());
-            this.error_data = error_data;
+            this.error_data = error_data == null ? EMPTY : error_data;
         }
         finally
         {
@@ -85,5 +100,11 @@ public class XYVTypeDataProvider implements PlotDataProvider<Double>
             max = y + error;
         }
         return new SimpleDataItem<Double>(x, y, Double.NaN, min, max, null);
+    }
+
+    @Override
+    public String toString()
+    {
+        return "XYVTypeDataProvider, lock: " + lock.toString();
     }
 }

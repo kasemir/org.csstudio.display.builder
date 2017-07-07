@@ -35,15 +35,11 @@ and finally another script can fetch the data and use it in some way.
         <name>PV</name>
         <width>1</width>
         <editable>true</editable>
-        <options>
-        </options>
       </column>
       <column>
         <name>Value</name>
         <width>1</width>
         <editable>true</editable>
-        <options>
-        </options>
       </column>
     </columns>
     <scripts>
@@ -92,8 +88,6 @@ In this example, a script updates that PV:</text>
         <name>Columns taken from PV</name>
         <width>1</width>
         <editable>true</editable>
-        <options>
-        </options>
       </column>
     </columns>
     <scripts>
@@ -136,10 +130,8 @@ You can then edit the cells:</text>
     <columns>
       <column>
         <name>Item</name>
-        <width>1</width>
+        <width>130</width>
         <editable>true</editable>
-        <options>
-        </options>
       </column>
       <column>
         <name>Small</name>
@@ -162,6 +154,14 @@ You can then edit the cells:</text>
         </options>
       </column>
     </columns>
+    <rules>
+      <rule name="Select Rows?" prop_id="row_selection_mode" out_exp="true">
+        <exp bool_exp="true">
+          <expression>pv0&gt;0</expression>
+        </exp>
+        <pv_name>loc://sel_rows(1)</pv_name>
+      </rule>
+    </rules>
     <scripts>
       <script file="EmbeddedPy">
         <text><![CDATA[# Embedded python script
@@ -198,16 +198,14 @@ widget.setValue(data)]]></text>
         <name>Selection</name>
         <width>1</width>
         <editable>true</editable>
-        <options>
-        </options>
       </column>
     </columns>
     <editable>false</editable>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_4</name>
-    <text>Information about the currently selected cells in the table
-are written to a PV.
+    <text>Information about the currently selected cells
+(or complete rows) in the table are written to a PV.
 That value can itself be displayed in a table:</text>
     <x>521</x>
     <y>542</y>
@@ -446,5 +444,46 @@ Changing the value of a table removes all cell colors.
     </foreground_color>
     <transparent use_class="true">true</transparent>
     <wrap_words use_class="true">true</wrap_words>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_4</name>
+    <actions>
+      <action type="execute">
+        <script file="EmbeddedPy">
+          <text><![CDATA[from org.csstudio.display.builder.runtime.script import ScriptUtil
+
+# 'widget' is the action button that invoked the script
+# Locate the table widget by name
+table = ScriptUtil.findWidgetByName(widget, "user_table")
+
+# Get data
+data = table.getValue()
+
+print("Before:")
+print(data)
+
+data.append([ "Item %d" % (len(data) + 1),        "true",         "Excellent" ])
+
+print("After:")
+print(data)
+
+# Update table with new data
+table.setValue(data)
+]]></text>
+        </script>
+        <description>Add Row</description>
+      </action>
+    </actions>
+    <x>740</x>
+    <y>810</y>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="checkbox" version="2.0.0">
+    <name>CheckBox</name>
+    <pv_name>loc://sel_rows(1)</pv_name>
+    <label>Select rows?</label>
+    <x>980</x>
+    <y>570</y>
+    <width>112</width>
   </widget>
 </display>

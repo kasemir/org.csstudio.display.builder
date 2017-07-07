@@ -19,12 +19,17 @@ import java.util.List;
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
+import org.csstudio.display.builder.model.WidgetConfigurator;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.persist.ModelReader;
+import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
+import org.osgi.framework.Version;
+import org.w3c.dom.Element;
 
 
 /**
@@ -232,6 +237,11 @@ public class MeterWidget extends BaseMeterWidget {
         super(WIDGET_DESCRIPTOR.getType(), 240, 120);
     }
 
+    @Override
+    public WidgetConfigurator getConfigurator ( final Version persistedVersion ) throws Exception {
+        return new MeterConfigurator(persistedVersion);
+    }
+
     public WidgetProperty<Boolean> propAverage ( ) {
         return average;
     }
@@ -398,6 +408,56 @@ public class MeterWidget extends BaseMeterWidget {
         properties.add(tick_mark_ring_color   = propTickMarkRingColor.createProperty(this, new WidgetColor(19, 17, 13)));
         properties.add(tick_mark_ring_visible = propTickMarkRingVisible.createProperty(this, false));
         properties.add(zero_color             = propZeroColor.createProperty(this, new WidgetColor(127, 17, 13)));
+
+    }
+
+    /**
+     * Custom configurator to read legacy *.opi files.
+     */
+    protected static class MeterConfigurator extends BaseMeterConfigurator{
+
+        public MeterConfigurator ( Version xmlVersion ) {
+            super(xmlVersion);
+        }
+
+        @Override
+        public boolean configureFromXML ( final ModelReader reader, final Widget widget, final Element xml ) throws Exception {
+
+            if ( !super.configureFromXML(reader, widget, xml) ) {
+                return false;
+            }
+
+            if ( xml_version.getMajor() < 2 ) {
+
+                MeterWidget meter = (MeterWidget) widget;
+
+                XMLUtil.getChildColor(xml, "foreground_color").ifPresent(c -> {
+                    meter.propMajorTickColor().setValue(c);
+                    meter.propMediumTickColor().setValue(c);
+                    meter.propMinorTickColor().setValue(c);
+                    meter.propTickLabelColor().setValue(c);
+                });
+                XMLUtil.getChildBoolean(xml, "show_minor_ticks").ifPresent(s -> {
+                    meter.propMediumTickVisible().setValue(s);
+                    meter.propMinorTickVisible().setValue(s);
+                });
+                XMLUtil.getChildBoolean(xml, "show_scale").ifPresent(s -> {
+                    meter.propMajorTickVisible().setValue(s);
+                    meter.propMediumTickVisible().setValue(s && meter.propMediumTickVisible().getValue());
+                    meter.propMinorTickVisible().setValue(s && meter.propMinorTickVisible().getValue());
+                    meter.propTickLabelsVisible().setValue(s);
+                });
+                XMLUtil.getChildBoolean(xml, "show_value_label").ifPresent(s -> meter.propValueVisible().setValue(s));
+
+                meter.propHighlightZones().setValue(false);
+                meter.propNeedleShape().setValue(NeedleShape.FLAT);
+                meter.propNeedleType().setValue(NeedleType.BIG);
+
+            }
+
+            return true;
+
+        }
 
     }
 

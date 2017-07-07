@@ -9,17 +9,19 @@ package org.csstudio.javafx.rtplot.data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /** {@link PlotDataProvider} based on {@link List}
  *  @param <XTYPE> Data type used for the horizontal {@link Axis}
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class ArrayPlotDataProvider<XTYPE extends Comparable<XTYPE>> implements PlotDataProvider<XTYPE>
 {
-    final private ReadWriteLock lock = new ReentrantReadWriteLock();
+    final private ReadWriteLock lock = new InstrumentedReadWriteLock();
     final private List<PlotDataItem<XTYPE>> data;
 
     /** Construct with existing data
@@ -36,10 +38,13 @@ public class ArrayPlotDataProvider<XTYPE extends Comparable<XTYPE>> implements P
         this(new ArrayList<PlotDataItem<XTYPE>>());
     }
 
-    /** @param item Item to add to the list */
-    public void add(final PlotDataItem<XTYPE> item)
+    /** @param item Item to add to the list
+     *  @throws Exception on error
+     */
+    public void add(final PlotDataItem<XTYPE> item) throws Exception
     {
-        lock.writeLock().lock();
+        if (! lock.writeLock().tryLock(10, TimeUnit.SECONDS))
+            throw new TimeoutException("Cannot lock for writing, " + lock);
         try
         {
             data.add(item);
@@ -66,5 +71,11 @@ public class ArrayPlotDataProvider<XTYPE extends Comparable<XTYPE>> implements P
     public PlotDataItem<XTYPE> get(final int index)
     {
         return data.get(index);
+    }
+
+    @Override
+    public String toString()
+    {
+        return "ArrayPlotDataProvider, lock: " + lock.toString();
     }
 }

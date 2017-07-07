@@ -1,16 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<display version="1.0.0">
+<display version="2.0.0">
   <name>Text Update</name>
   <height>800</height>
   <widget type="label" version="2.0.0">
     <name>Label</name>
+    <class>TITLE</class>
     <text>Text Update Widget</text>
+    <x use_class="true">0</x>
+    <y use_class="true">0</y>
     <width>241</width>
     <height>31</height>
-    <font>
+    <font use_class="true">
       <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
       </font>
     </font>
+    <foreground_color use_class="true">
+      <color name="Text" red="0" green="0" blue="0">
+      </color>
+    </foreground_color>
+    <transparent use_class="true">true</transparent>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_1</name>
@@ -312,19 +320,6 @@ while the DMS specialization maps 2 pi to 360 degrees.
     <format>1</format>
     <precision>4</precision>
   </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>Text Update_15</name>
-    <pv_name>BL11B:CS:IOC:All:Stat</pv_name>
-    <x>450</x>
-    <y>320</y>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>Text Update_16</name>
-    <pv_name>BL11B:CS:IOC:All:Stat</pv_name>
-    <x>450</x>
-    <y>351</y>
-    <format>1</format>
-  </widget>
   <widget type="label" version="2.0.0">
     <name>Label_19</name>
     <text>Engineering:</text>
@@ -348,5 +343,33 @@ while the DMS specialization maps 2 pi to 360 degrees.
     <width>109</width>
     <format>3</format>
     <precision>4</precision>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Text Update_8</name>
+    <pv_name>sim://sine</pv_name>
+    <x>460</x>
+    <y>121</y>
+    <width>160</width>
+    <horizontal_alignment>1</horizontal_alignment>
+    <rotation_step>2</rotation_step>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Text Update_18</name>
+    <pv_name>sim://sine</pv_name>
+    <x>636</x>
+    <y>91</y>
+    <width>40</width>
+    <height>80</height>
+    <horizontal_alignment>1</horizontal_alignment>
+    <vertical_alignment>1</vertical_alignment>
+    <rotation_step>3</rotation_step>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_20</name>
+    <text>The widget can be rotated:</text>
+    <x>450</x>
+    <y>91</y>
+    <width>186</width>
+    <height>28</height>
   </widget>
 </display>

@@ -12,10 +12,13 @@ import static org.csstudio.javafx.rtplot.Activator.logger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
@@ -71,29 +74,46 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
                         if (! trace.isVisible())
                             continue;
                         final PlotDataProvider<XTYPE> data = trace.getData();
-                        data.getLock().lock();
+                        if (! data.getLock().tryLock(10, TimeUnit.SECONDS))
+                            throw new TimeoutException("Cannot lock data for " + trace + ": " + data);
                         try
                         {
                             final int N = data.size();
                             if (N <= 0)
                                 continue;
-                            // Only checks the first and last position,
+                            // Try to only check the first and last position,
                             // assuming all samples are ordered as common
                             // for a time axis or position axis
                             XTYPE pos = data.get(0).getPosition();
+                            // If first sample is Double (not Instant), AND NaN/inf, skip this trace
                             if ((pos instanceof Double)  &&  !Double.isFinite((Double) pos))
                                 continue;
                             if (start == null  ||  start.compareTo(pos) > 0)
                                 start = pos;
                             if (end == null  ||  end.compareTo(pos) < 0)
                                 end = pos;
+                            // Last position
                             pos = data.get(N-1).getPosition();
                             if ((pos instanceof Double)  &&  !Double.isFinite((Double) pos))
-                                    continue;
+                                continue;
                             if (start.compareTo(pos) > 0)
                                 start = pos;
                             if (end.compareTo(pos) < 0)
                                 end = pos;
+                            // Need to check all values?
+                            if (Objects.equals(start, end))
+                            {
+                                for (int i=N-2; i>0; --i)
+                                {
+                                    pos = data.get(i).getPosition();
+                                    if ((pos instanceof Double)  &&  !Double.isFinite((Double) pos))
+                                        continue;
+                                    if (start.compareTo(pos) > 0)
+                                        start = pos;
+                                    if (end.compareTo(pos) < 0)
+                                        end = pos;
+                                }
+                            }
                         }
                         finally
                         {
@@ -125,7 +145,9 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
                 double low = Double.MAX_VALUE;
                 double high = -Double.MAX_VALUE;
                 final PlotDataSearch<XTYPE> search = new PlotDataSearch<XTYPE>();
-                data.getLock().lock();
+
+                if (! data.getLock().tryLock(10, TimeUnit.SECONDS))
+                    throw new TimeoutException("Cannot lock " + data);
                 try
                 {
                     if (data.size() > 0)
@@ -329,7 +351,7 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
     public void updateCursorMarkers(final int cursor_x, final XTYPE location, final Consumer<List<CursorMarker>> callback)
     {
         // Run in thread
-        thread_pool.execute(() ->
+        thread_pool.submit(() ->
         {
             final List<CursorMarker> markers = new ArrayList<>();
             final PlotDataSearch<XTYPE> search = new PlotDataSearch<>();
@@ -340,7 +362,8 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
                         continue;
                     final PlotDataProvider<XTYPE> data = trace.getData();
                     final PlotDataItem<XTYPE> sample;
-                    data.getLock().lock();
+                    if (! data.getLock().tryLock(10, TimeUnit.SECONDS))
+                        throw new TimeoutException("Cannot update cursor markers, no lock on " + data);
                     try
                     {
                         final int index = search.findSampleLessOrEqual(data, location);
@@ -360,11 +383,15 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
                         final String units = trace.getUnits();
                         if (! units.isEmpty())
                             label += " " + units;
+                        final String info = sample.getInfo();
+                        if (info != null  &&  info.length() > 0)
+                            label += " (" + info + ")";
                         markers.add(new CursorMarker(cursor_x, axis.getScreenCoord(value), GraphicsUtils.convert(trace.getColor()), label));
                     }
                 }
             Collections.sort(markers);
             callback.accept(markers);
+            return null;
         });
     }
 
@@ -376,14 +403,15 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
     {
         final AxisPart<XTYPE> x_axis = plot.getXAxis();
         // Run in thread
-        thread_pool.execute(() ->
+        thread_pool.submit(() ->
         {
             final AxisRange<Integer> range = x_axis.getScreenRange();
             XTYPE location = x_axis.getValue((range.getLow() + range.getHigh())/2);
             final PlotDataSearch<XTYPE> search = new PlotDataSearch<>();
             final PlotDataProvider<XTYPE> data = trace.getData();
             double value= Double.NaN;
-            data.getLock().lock();
+            if (! data.getLock().tryLock(10, TimeUnit.SECONDS))
+                throw new TimeoutException("Cannot create annotation, no lock on " + data);
             try
             {
                 final int index = search.findSampleGreaterOrEqual(data, location);
@@ -405,32 +433,38 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
                                                    new AnnotationImpl<XTYPE>(false, trace, location, value,
                                                                              new Point2D(20, -20),
                                                                              text)));
+            return null;
         });
     }
 
     public void updateAnnotation(final AnnotationImpl<XTYPE> annotation, final XTYPE location)
     {
         // Run in thread
-        thread_pool.execute(() ->
+        thread_pool.submit(() ->
         {
             final PlotDataSearch<XTYPE> search = new PlotDataSearch<>();
             final PlotDataProvider<XTYPE> data = annotation.getTrace().getData();
             XTYPE position;
             double value;
-            data.getLock().lock();
+            String info;
+            if (! data.getLock().tryLock(10, TimeUnit.SECONDS))
+                throw new TimeoutException("Cannot update annotation, no lock on " + data);
             try
             {
                 final int index = search.findSampleLessOrEqual(data, location);
                 if (index < 0)
-                    return;
-                position = data.get(index).getPosition();
-                value = data.get(index).getValue();
+                    return null;
+                final PlotDataItem<XTYPE> sample = data.get(index);
+                position = sample.getPosition();
+                value = sample.getValue();
+                info = sample.getInfo();
             }
             finally
             {
                 data.getLock().unlock();
             }
-            plot.updateAnnotation(annotation, position, value, annotation.getOffset());
+            plot.updateAnnotation(annotation, position, value, info, annotation.getOffset());
+            return null;
         });
     }
 

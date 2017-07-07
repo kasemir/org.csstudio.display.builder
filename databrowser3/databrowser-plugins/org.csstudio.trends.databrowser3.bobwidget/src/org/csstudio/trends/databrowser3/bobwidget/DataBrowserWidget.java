@@ -164,13 +164,12 @@ public class DataBrowserWidget extends VisibleWidget
 
     /** @return {@link Model} of the data browser (samples, ...) */
     public Model getDataBrowserModel()
-    {   // TODO Move this to the DataBrowserWidgetRuntime since it's really a runtime aspect
+    {
         return model;
     }
 
     public Model cloneModel()
     {
-        // TODO Move to DataBrowserWidgetRuntime
         // XXX: see about copying over live samples from old to new model
         final Model model = new Model();
         model.setMacros(this.getMacrosOrProperties());

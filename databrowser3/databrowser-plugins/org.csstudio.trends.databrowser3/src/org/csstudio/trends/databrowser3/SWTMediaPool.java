@@ -10,6 +10,7 @@ package org.csstudio.trends.databrowser3;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.Font;
@@ -131,7 +132,14 @@ public class SWTMediaPool
 
     public static javafx.scene.text.Font getJFX(final FontData font_data)
     {
-        return new javafx.scene.text.Font(font_data.getName(), font_data.getHeight());
+        javafx.scene.text.FontWeight weight = javafx.scene.text.FontWeight.NORMAL;
+        javafx.scene.text.FontPosture posture = javafx.scene.text.FontPosture.REGULAR;
+
+        if ((font_data.getStyle() & SWT.BOLD) == SWT.BOLD)
+            weight = javafx.scene.text.FontWeight.BOLD;
+        if ((font_data.getStyle() & SWT.ITALIC) == SWT.ITALIC)
+            posture = javafx.scene.text.FontPosture.ITALIC;
+        return javafx.scene.text.Font.font(font_data.getName(), weight, posture, font_data.getHeight());
     }
 
     /** @param font_data Font description

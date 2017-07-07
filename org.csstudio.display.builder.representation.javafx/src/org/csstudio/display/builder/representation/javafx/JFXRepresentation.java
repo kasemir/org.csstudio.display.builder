@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -49,6 +49,7 @@ import org.csstudio.display.builder.model.widgets.LabelWidget;
 import org.csstudio.display.builder.model.widgets.LinearMeterWidget;
 import org.csstudio.display.builder.model.widgets.MeterWidget;
 import org.csstudio.display.builder.model.widgets.MultiStateLEDWidget;
+import org.csstudio.display.builder.model.widgets.NavigationTabsWidget;
 import org.csstudio.display.builder.model.widgets.PictureWidget;
 import org.csstudio.display.builder.model.widgets.PolygonWidget;
 import org.csstudio.display.builder.model.widgets.PolylineWidget;
@@ -58,6 +59,7 @@ import org.csstudio.display.builder.model.widgets.RectangleWidget;
 import org.csstudio.display.builder.model.widgets.ScaledSliderWidget;
 import org.csstudio.display.builder.model.widgets.ScrollBarWidget;
 import org.csstudio.display.builder.model.widgets.SpinnerWidget;
+import org.csstudio.display.builder.model.widgets.SymbolWidget;
 import org.csstudio.display.builder.model.widgets.TableWidget;
 import org.csstudio.display.builder.model.widgets.TabsWidget;
 import org.csstudio.display.builder.model.widgets.TankWidget;
@@ -89,6 +91,7 @@ import org.csstudio.display.builder.representation.javafx.widgets.LabelRepresent
 import org.csstudio.display.builder.representation.javafx.widgets.LinearMeterRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.MeterRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.MultiStateLEDRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.NavigationTabsRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.PictureRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.PolygonRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.PolylineRepresentation;
@@ -98,6 +101,7 @@ import org.csstudio.display.builder.representation.javafx.widgets.RectangleRepre
 import org.csstudio.display.builder.representation.javafx.widgets.ScaledSliderRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.ScrollBarRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.SpinnerRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.SymbolRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TableRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TabsRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TankRepresentation;
@@ -137,6 +141,7 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Line;
+import javafx.scene.transform.Scale;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 
@@ -153,12 +158,13 @@ import javafx.stage.Window;
  *   |
  *  scroll_body
  *   |
- *  model_parent
+ *  widget_parent
  *  </pre>
  *
- *  <p>model_parent:
- *  This is where the model items get represented.
+ *  <p>widget_parent:
+ *  This is where the widgets of the model get represented.
  *  Its scaling factors are used to zoom.
+ *  Also used to set the overall background color.
  *
  *  <p>scroll_body:
  *  Needed for scroll pane to use visual bounds, i.e. be aware of zoom.
@@ -194,14 +200,14 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     private static final float GRID_LINE_WIDTH = 0.222F;
 
     /** Update model size indicators (in edit mode) */
-    private WidgetPropertyListener<Integer> model_size_listener = ( p, o, n ) -> execute( ( ) -> updateModelSizeIndicators());
+    private WidgetPropertyListener<Integer> model_size_listener = ( p, o, n ) -> execute(this::updateModelSizeIndicators);
 
     /** Update background color, grid */
-    private UntypedWidgetPropertyListener background_listener = ( p, o, n ) -> execute( ( ) -> updateBackground());
+    private UntypedWidgetPropertyListener background_listener = ( p, o, n ) -> execute(this::updateBackground);
 
     private Line horiz_bound, vert_bound;
-    private Group model_parent;
-    private Pane scroll_body;
+    private Pane widget_parent;
+    private Group scroll_body;
     private ScrollPane model_root;
 
     /** Constructor
@@ -237,7 +243,8 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
      * Add known representations as fallback in absence of registry information
      */
     @SuppressWarnings( { "unchecked", "rawtypes" } )
-    private static void registerKnownRepresentations ( Map<String, WidgetRepresentationFactory<Parent, Node>> factories ) {
+    private static void registerKnownRepresentations(final Map<String, WidgetRepresentationFactory<Parent, Node>> factories)
+    {
         factories.put(ActionButtonWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new ActionButtonRepresentation());
         factories.put(ArcWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new ArcRepresentation());
         factories.put(ArrayWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new ArrayRepresentation());
@@ -257,6 +264,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         factories.put(LinearMeterWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new LinearMeterRepresentation());
         factories.put(MeterWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new MeterRepresentation());
         factories.put(MultiStateLEDWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new MultiStateLEDRepresentation());
+        factories.put(NavigationTabsWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new NavigationTabsRepresentation());
         factories.put(PictureWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new PictureRepresentation());
         factories.put(PolygonWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new PolygonRepresentation());
         factories.put(PolylineWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new PolylineRepresentation());
@@ -264,8 +272,9 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         factories.put(RadioWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new RadioRepresentation());
         factories.put(RectangleWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new RectangleRepresentation());
         factories.put(ScaledSliderWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new ScaledSliderRepresentation());
-        factories.put(SpinnerWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new SpinnerRepresentation());
         factories.put(ScrollBarWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new ScrollBarRepresentation());
+        factories.put(SpinnerWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new SpinnerRepresentation());
+        factories.put(SymbolWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new SymbolRepresentation());
         factories.put(TableWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new TableRepresentation());
         factories.put(TabsWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new TabsRepresentation());
         factories.put(TankWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new TankRepresentation());
@@ -292,8 +301,8 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         if (model_root != null)
             throw new IllegalStateException("Already created model root");
 
-        model_parent = new Group();
-        scroll_body = new Pane(model_parent);
+        widget_parent = new Pane();
+        scroll_body = new Group(widget_parent);
 
         if (isEditMode())
         {
@@ -317,13 +326,10 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         return model_root;
     }
 
-    /** @see JFXRepresentation#createScene(DisplayModel)
-     *  @param scene Scene created for model
-     *  @return Root element
-     */
+    /** @return Parent node of model widgets */
     final public Parent getModelParent()
     {
-        return model_parent;
+        return widget_parent;
     }
 
     /** @param scene Scene where style sheet for display builder is added */
@@ -336,7 +342,6 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         Styles.setSceneStyle(scene);
     }
 
-
     /** Set zoom level
      *  @param zoom Zoom level: 1.0 for 100%, 0.5 for 50%, ZOOM_ALL, ZOOM_WIDTH, ZOOM_HEIGHT
      *  @return Zoom level actually used
@@ -346,7 +351,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         if (zoom <= 0.0)
         {   // Determine zoom to fit outline of display into available space
             final Bounds available = model_root.getLayoutBounds();
-            final Bounds outline = model_parent.getLayoutBounds();
+            final Bounds outline = widget_parent.getLayoutBounds();
             final double zoom_x = outline.getWidth()  > 0 ? available.getWidth()  / outline.getWidth() : 1.0;
             final double zoom_y = outline.getHeight() > 0 ? available.getHeight() / outline.getHeight() : 1.0;
 
@@ -358,8 +363,16 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
                 zoom = Math.min(zoom_x, zoom_y);
         }
 
-        model_parent.setScaleX(zoom);
-        model_parent.setScaleY(zoom);
+        widget_parent.getTransforms().setAll(new Scale(zoom, zoom));
+        // Appears similar to using this API:
+        //     widget_parent.setScaleX(zoom);
+        //     widget_parent.setScaleY(zoom);
+        // but when resizing the window,
+        // using setScaleX/Y results in sluggish updates,
+        // sometimes shifting the content around
+        // (top left origin of content no longer in top left corner of window).
+        // Setting a Scale() transform does not exhibit that quirk,
+        // maybe because both X and Y scaling are set 'at once'?
 
         return zoom;
     }
@@ -386,14 +399,18 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     /** Handle changes in on-screen size of this representation */
     private void handleViewportChanges()
     {
-        final DisplayModel copy = model;
-        if (copy == null)
-            return;
-
-        final int model_width = copy.propWidth().getValue();
-        final int model_height = copy.propHeight().getValue();
         final int view_width = (int) model_root.getWidth();
         final int view_height = (int) model_root.getHeight();
+
+        final int model_width, model_height;
+        final DisplayModel copy = model;
+        if (copy == null)
+            model_width = model_height = 0;
+        else
+        {
+            model_width = copy.propWidth().getValue();
+            model_height = copy.propHeight().getValue();
+        }
 
         // If on-screen viewport is larger than model,
         // grow the scroll_body so that the complete area is
@@ -401,20 +418,29 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         // and - in edit mode - the grid.
         // If the viewport is smaller, use the model's size
         // to get appropriate scrollbars.
-        if (view_width >= model_width)
-            scroll_body.setMinWidth(view_width-SCROLLBAR_ADJUST);
-        else
-            scroll_body.setMinWidth(model_width);
+        final int show_x = view_width >= model_width
+                         ? view_width-SCROLLBAR_ADJUST
+                         : model_width;
+        final int show_y = view_height >= model_height
+                         ? view_height-SCROLLBAR_ADJUST
+                         : model_height;
 
-        if (view_height >= model_height)
-            scroll_body.setMinHeight(view_height-SCROLLBAR_ADJUST);
-        else
-            scroll_body.setMinHeight(model_height);
+        // Does not consider zooming.
+        // If the widget_parent is zoomed 'out', e.g. 50%,
+        // the widget_parent will only be half as large
+        // as we specify here in pixels
+        // -> Ignore. If user zooms out a lot, there'll be an
+        //    area a gray area at the right and bottom of the display.
+        //    But user tends to zoom out to see the complete set of widgets,
+        //    so there is very little gray area.
+        //        widget_parent.setMinWidth(show_x / zoom);
+        //        widget_parent.setMinHeight(show_y / zoom);
+        widget_parent.setMinSize(show_x, show_y);
     }
 
     /** Update lines that indicate model's size in edit mode */
-    private void updateModelSizeIndicators ( ) {
-
+    private void updateModelSizeIndicators()
+    {
         final int width = model.propWidth().getValue();
         final int height = model.propHeight().getValue();
 
@@ -425,7 +451,6 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         vert_bound.setStartX(width);
         vert_bound.setEndY(height);
         vert_bound.setEndX(width);
-
     }
 
     @Override
@@ -696,7 +721,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         final WritableImage wimage = new WritableImage(gridStepX, gridStepY);
         SwingFXUtils.toFXImage(image, wimage);
         final ImagePattern pattern = new ImagePattern(wimage, 0, 0, gridStepX, gridStepY, false);
-        scroll_body.setBackground(new Background(new BackgroundFill(pattern, CornerRadii.EMPTY, Insets.EMPTY)));
+        widget_parent.setBackground(new Background(new BackgroundFill(pattern, CornerRadii.EMPTY, Insets.EMPTY)));
     }
 
     // Future for controlling the audio player
@@ -794,7 +819,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         {
             final MediaPlayer copy = player;
             if (copy == null)
-                return "Disposed autio player";
+                return "Disposed audio player";
             return "Audio player for " + player.getMedia().getSource() + " (" + player.getStatus() + ")";
         }
     }

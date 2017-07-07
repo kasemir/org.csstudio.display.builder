@@ -328,7 +328,13 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
 
         contentChanged(null, null, null);
         behaviorChanged(null, null, null);
-   }
+    }
+
+    @Override
+    protected boolean isFilteringEditModeClicks()
+    {
+        return true;
+    }
 
     private void styleChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {

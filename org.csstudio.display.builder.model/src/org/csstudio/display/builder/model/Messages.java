@@ -38,7 +38,6 @@ public class Messages extends NLS
     public static String Center;
     public static String ComboWidget_Item;
     public static String ComboWidget_Items;
-    public static String ComboWidget_ItemsFromPV;
     public static String EmbeddedDisplayWidget_GroupName;
     public static String FontStyle_Bold;
     public static String FontStyle_BoldItalic;
@@ -63,8 +62,10 @@ public class Messages extends NLS
     public static String Left;
     public static String LineStyle;
     public static String LineStyle_Solid;
-    public static String LineStyle_None;
     public static String LineStyle_Dash;
+    public static String LineStyle_DashDot;
+    public static String LineStyle_DashDotDot;
+    public static String LineStyle_Dot;
     public static String Middle;
     public static String PlotWidget_AutoScale;
     public static String PlotWidget_Color;
@@ -153,6 +154,10 @@ public class Messages extends NLS
     public static String WidgetProperties_BorderWidth;
     public static String WidgetProperties_CellColors;
     public static String WidgetProperties_Class;
+    public static String WidgetProperties_ColorHiHi;
+    public static String WidgetProperties_ColorHigh;
+    public static String WidgetProperties_ColorLoLo;
+    public static String WidgetProperties_ColorLow;
     public static String WidgetProperties_ColorMap;
     public static String WidgetProperties_Connected;
     public static String WidgetProperties_CornerHeight;
@@ -170,6 +175,7 @@ public class Messages extends NLS
     public static String WidgetProperties_DiscreteHours;
     public static String WidgetProperties_DiscreteMinutes;
     public static String WidgetProperties_DiscreteSeconds;
+    public static String WidgetProperties_Editable;
     public static String WidgetProperties_EmptyColor;
     public static String WidgetProperties_Enabled;
     public static String WidgetProperties_File;
@@ -195,6 +201,7 @@ public class Messages extends NLS
     public static String WidgetProperties_Insets;
     public static String WidgetProperties_Interactive;
     public static String WidgetProperties_Interpolation;
+    public static String WidgetProperties_ItemsFromPV;
     public static String WidgetProperties_KnobColor;
     public static String WidgetProperties_KnobPosition;
     public static String WidgetProperties_KnobType;
@@ -259,6 +266,7 @@ public class Messages extends NLS
     public static String WidgetProperties_ShadowsEnabled;
     public static String WidgetProperties_ShowHigh;
     public static String WidgetProperties_ShowHiHi;
+    public static String WidgetProperties_ShowLED;
     public static String WidgetProperties_ShowLow;
     public static String WidgetProperties_ShowLoLo;
     public static String WidgetProperties_ShowMinorTicks;

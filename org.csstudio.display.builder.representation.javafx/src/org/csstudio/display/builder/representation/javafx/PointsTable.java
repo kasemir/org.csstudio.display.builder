@@ -9,6 +9,7 @@ package org.csstudio.display.builder.representation.javafx;
 
 import org.csstudio.display.builder.model.properties.Point;
 import org.csstudio.display.builder.model.properties.Points;
+import org.csstudio.javafx.TableHelper;
 
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.value.ObservableValue;
@@ -155,7 +156,15 @@ public class PointsTable
                 data.remove(sel);
         });
 
-        final VBox buttons = new VBox(10, add, remove);
+        final Button up = new Button(Messages.MoveUp, JFXUtil.getIcon("up.png"));
+        up.setMaxWidth(Double.MAX_VALUE);
+        up.setOnAction(event -> TableHelper.move_item_up(table, data));
+
+        final Button down = new Button(Messages.MoveDown, JFXUtil.getIcon("down.png"));
+        down.setMaxWidth(Double.MAX_VALUE);
+        down.setOnAction(event -> TableHelper.move_item_down(table, data));
+
+        final VBox buttons = new VBox(10, add, remove, up, down);
         final HBox content = new HBox(10, table, buttons);
         HBox.setHgrow(table, Priority.ALWAYS);
         return content;

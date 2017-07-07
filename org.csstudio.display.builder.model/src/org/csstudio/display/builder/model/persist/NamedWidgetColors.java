@@ -42,7 +42,7 @@ public class NamedWidgetColors extends ConfigFileParser
     private static final NamedWidgetColor DEFAULT_ALARM_MINOR = new NamedWidgetColor(ALARM_MINOR, 255, 128, 0);
     private static final NamedWidgetColor DEFAULT_ALARM_MAJOR = new NamedWidgetColor(ALARM_MAJOR, 255, 0, 0);
     private static final NamedWidgetColor DEFAULT_ALARM_INVALID = new NamedWidgetColor(ALARM_INVALID, 255, 0, 255);
-    private static final NamedWidgetColor DEFAULT_ALARM_DISCONNECTED = new NamedWidgetColor(ALARM_DISCONNECTED, 255, 0, 255);
+    private static final NamedWidgetColor DEFAULT_ALARM_DISCONNECTED = new NamedWidgetColor(ALARM_DISCONNECTED, 200, 0, 200, 200);
 
     private static final NamedWidgetColor DEFAULT_TEXT = new NamedWidgetColor(TEXT, 0, 0, 0);
     private static final NamedWidgetColor DEFAULT_ACTIVE_TEXT = new NamedWidgetColor(ACTIVE_TEXT, 255, 255, 0);

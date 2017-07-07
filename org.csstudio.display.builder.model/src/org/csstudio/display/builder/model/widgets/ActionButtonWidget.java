@@ -12,12 +12,12 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propRotationStep;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propText;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropPVWritable;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.MacroizedWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
@@ -30,6 +30,7 @@ import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.persist.XMLUtil;
+import org.csstudio.display.builder.model.properties.RotationStep;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.osgi.framework.Version;
@@ -48,7 +49,8 @@ import org.w3c.dom.Text;
 @SuppressWarnings("nls")
 public class ActionButtonWidget extends VisibleWidget
 {
-    final static Logger logger = Logger.getLogger(ActionButtonWidget.class.getName());
+    public static final int DEFAULT_WIDTH = 100,
+                            DEFAULT_HEIGHT = 30;
 
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
@@ -139,11 +141,12 @@ public class ActionButtonWidget extends VisibleWidget
     private volatile WidgetProperty<WidgetFont> font;
     private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<WidgetColor> foreground;
+    private volatile WidgetProperty<RotationStep> rotation_step;
     private volatile WidgetProperty<Boolean> pv_writable;
 
     public ActionButtonWidget()
     {
-        super(WIDGET_DESCRIPTOR.getType(), 100, 30);
+        super(WIDGET_DESCRIPTOR.getType(), DEFAULT_WIDTH, DEFAULT_HEIGHT);
     }
 
     /** @return Widget version number */
@@ -163,6 +166,7 @@ public class ActionButtonWidget extends VisibleWidget
         properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
         properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BUTTON_BACKGROUND)));
+        properties.add(rotation_step = propRotationStep.createProperty(this, RotationStep.NONE));
         properties.add(enabled = propEnabled.createProperty(this, true));
         properties.add(pv_writable = runtimePropPVWritable.createProperty(this, true));
     }
@@ -202,6 +206,12 @@ public class ActionButtonWidget extends VisibleWidget
     public WidgetProperty<WidgetColor> propForegroundColor()
     {
         return foreground;
+    }
+
+    /** @return 'rotation_step' property */
+    public WidgetProperty<RotationStep> propRotationStep()
+    {
+        return rotation_step;
     }
 
     /** @return 'enabled' property */

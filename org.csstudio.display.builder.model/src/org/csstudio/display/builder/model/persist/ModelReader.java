@@ -11,15 +11,20 @@ import static org.csstudio.display.builder.model.ModelPlugin.logger;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.Preferences;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.WidgetConfigurator.ParseAgainException;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetFactory;
+import org.csstudio.display.builder.model.WidgetFactory.WidgetTypeException;
 import org.osgi.framework.Version;
 import org.w3c.dom.Element;
 
@@ -67,6 +72,7 @@ import org.w3c.dom.Element;
 @SuppressWarnings("nls")
 public class ModelReader
 {
+    private final static int MAX_PARSE_AGAIN = Preferences.getMaxReparse();
     private final Element root;
     private final Version version;
 
@@ -108,6 +114,8 @@ public class ModelReader
     {
         final DisplayModel model = new DisplayModel();
 
+        model.setUserData(DisplayModel.USER_DATA_INPUT_VERSION, version);
+
         // Read display's own properties
         model.getConfigurator(version).configureFromXML(this, model, root);
         // Read widgets of model
@@ -117,39 +125,72 @@ public class ModelReader
 
     final private Set<String> unknown_widget_type = new HashSet<>();
 
-    /** Read all <widget>.. child entries
+    /** Read all '&lt;widget>..' child entries
+     *
+     *  <p>Continues to read the same parent_xml
+     *  if one of the widget configurators throws a ParseAgainException
+     *
      *  @param children 'children' property where widgets are added
      *  @param parent_xml XML of the parent widget from which child entries are read
      */
     public void readWidgets(final ChildrenProperty children, final Element parent_xml)
     {
+        // Limit the number of retries to avoid infinite loop
+        for (int retries=0; retries < MAX_PARSE_AGAIN; ++retries)
+        {
+            final List<Widget> widgets = readWidgetsAllowingRetry(parent_xml);
+            if (widgets != null)
+            {
+                for (Widget child : widgets)
+                    children.addChild(child);
+                return;
+            }
+        }
+
+        throw new IllegalStateException("Too many requests to parse again, limited to " + MAX_PARSE_AGAIN + " requests");
+    }
+
+    /** Read all '&lt;widget>..' child entries
+     *
+     *  @param parent_xml XML of the parent widget from which child entries are read
+     *  @return List of widgets. May be empty if there were none.
+     *          Returns <code>null</code> if one widget threw a ParseAgainException
+     */
+    private List<Widget> readWidgetsAllowingRetry(final Element parent_xml)
+    {
+        // Collect the widgets below this parent,
+        // don't add them as children, yet,
+        // because ParseAgainException could rearrange the XML on this level.
+        final List<Widget> widgets = new ArrayList<>();
         for (final Element widget_xml : XMLUtil.getChildElements(parent_xml, XMLTags.WIDGET))
         {
             try
             {
-                final Widget widget = readWidget(widget_xml);
-                children.addChild(widget);
+                widgets.add(readWidget(widget_xml));
+            }
+            catch (ParseAgainException ex)
+            {
+                ex.printStackTrace();
+                return null;
+            }
+            catch (WidgetTypeException ex)
+            {
+                // Mention missing widget only once per reader
+                if (! unknown_widget_type.contains(ex.getType()))
+                {
+                    logger.log(Level.WARNING, ex.getMessage() + ", line " + XMLUtil.getLineInfo(widget_xml));
+                    unknown_widget_type.add(ex.getType());
+                }
+                // Continue with next widget
             }
             catch (final Throwable ex)
             {
-                // Mention missing widget only once per reader
-                final String message = ex.getMessage();
-                if (message != null  &&
-                    (message.startsWith("Unknown widget type") ||
-                     message.startsWith("No suitable widget")))
-                {
-                    if (! unknown_widget_type.contains(message))
-                    {
-                        logger.log(Level.WARNING, message + ", line " + XMLUtil.getLineInfo(widget_xml));
-                        unknown_widget_type.add(message);
-                    }
-                }
-                else
-                    logger.log(Level.WARNING,
-                        "Widget configuration file error, line " + XMLUtil.getLineInfo(widget_xml), ex);
+                logger.log(Level.WARNING,
+                           "Widget configuration file error, line " + XMLUtil.getLineInfo(widget_xml), ex);
                 // Continue with next widget
             }
         }
+        return widgets;
     }
 
     /** Read widget from XML
@@ -186,9 +227,10 @@ public class ModelReader
      *  @param type Widget type ID
      *  @param widget_xml XML with widget configuration
      *  @return Widget
+     *  @throws WidgetTypeException when type has no matching widget
      *  @throws Exception on error
      */
-    private Widget createWidget(final String type, final Element widget_xml) throws Exception
+    private Widget createWidget(final String type, final Element widget_xml) throws WidgetTypeException, Exception
     {
         final Version xml_version = readVersion(widget_xml);
         for (WidgetDescriptor desc : WidgetFactory.getInstance().getAllWidgetDescriptors(type))
@@ -197,7 +239,7 @@ public class ModelReader
             if (widget.getConfigurator(xml_version).configureFromXML(this, widget, widget_xml))
                 return widget;
         }
-        throw new Exception("No suitable widget for " + type);
+        throw new WidgetTypeException(type, "No suitable widget for " + type);
     }
 
     /** @param element Element

@@ -7,13 +7,17 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.actions;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.Messages;
 import org.csstudio.display.builder.editor.undo.SetWidgetPropertyAction;
 import org.csstudio.display.builder.editor.undo.UpdateWidgetOrderAction;
+import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.util.undo.CompoundUndoableAction;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 
 /** Description of an action
@@ -59,6 +63,49 @@ public abstract class ActionDescription
         }
     };
 
+    /** Order widgets by their index in the parent's list of children
+     *  <p>Original list will not be modified
+     *  @param widgets Widgets in any order, because user may have selected them in random order
+     *  @return Widgets sorted by their location in parent
+     */
+    private static List<Widget> orderWidgetsByIndex(final List<Widget> widgets)
+    {
+        final List<Widget> sorted = new ArrayList<>(widgets);
+        sorted.sort((a, b) -> ChildrenProperty.getParentsChildren(a).getValue().indexOf(a) -
+                              ChildrenProperty.getParentsChildren(b).getValue().indexOf(b));
+        return sorted;
+    }
+
+    /** Move widget one step to the back */
+    public static final ActionDescription MOVE_UP =
+        new ActionDescription("icons/up.png", Messages.MoveUp)
+    {
+        @Override
+        public void run(final DisplayEditor editor, final boolean selected)
+        {
+            // When multiple widgets are selected, they are moved 'up'
+            // in their original order:
+            // Move 'b, c' up in [ a, b, c ]
+            // -- move 'b' up -> [ b, a, c ]
+            // -- move 'c' up -> [ b, c, a ]
+            // Doing this in reverse original order would leave the list unchanged.
+            final List<Widget> widgets = orderWidgetsByIndex(editor.getWidgetSelectionHandler().getSelection());
+            if (widgets.isEmpty())
+                return;
+            final CompoundUndoableAction compound = new CompoundUndoableAction(Messages.MoveUp);
+            for (Widget widget : widgets)
+            {
+                final List<Widget> children = ChildrenProperty.getParentsChildren(widget).getValue();
+                int orig = children.indexOf(widget);
+                if (orig > 0)
+                    compound.add(new UpdateWidgetOrderAction(widget, orig, orig-1));
+                else
+                    compound.add(new UpdateWidgetOrderAction(widget, orig, -1));
+            }
+            editor.getUndoableActionManager().execute(compound);
+        }
+    };
+
     /** Move widget to back */
     public static final ActionDescription TO_BACK =
         new ActionDescription("icons/toback.png", Messages.MoveToBack)
@@ -67,9 +114,45 @@ public abstract class ActionDescription
         public void run(final DisplayEditor editor, final boolean selected)
         {
             final List<Widget> widgets = editor.getWidgetSelectionHandler().getSelection();
-            final UndoableActionManager undo = editor.getUndoableActionManager();
+            if (widgets.isEmpty())
+                return;
+            final CompoundUndoableAction compound = new CompoundUndoableAction(Messages.MoveToBack);
             for (Widget widget : widgets)
-                undo.execute(new UpdateWidgetOrderAction(widget, 0));
+                compound.add(new UpdateWidgetOrderAction(widget, 0));
+            editor.getUndoableActionManager().execute(compound);
+        }
+    };
+
+    /** Move widget one step to the front */
+    public static final ActionDescription MOVE_DOWN =
+        new ActionDescription("icons/down.png", Messages.MoveDown)
+    {
+        @Override
+        public void run(final DisplayEditor editor, final boolean selected)
+        {
+            // When multiple widgets are selected, they are moved 'down'
+            // in reverse original order:
+            // Move 'a, b' down in [ a, b, c ]
+            // -- move 'b' down -> [ a, c, b ]
+            // -- move 'a' down -> [ c, a, b ]
+            // Doing this in the original order would leave the list unchanged.
+            List<Widget> widgets = editor.getWidgetSelectionHandler().getSelection();
+            if (widgets.isEmpty())
+                return;
+            widgets = orderWidgetsByIndex(widgets);
+            Collections.reverse(widgets);
+
+            final CompoundUndoableAction compound = new CompoundUndoableAction(Messages.MoveDown);
+            for (Widget widget : widgets)
+            {
+                final List<Widget> children = ChildrenProperty.getParentsChildren(widget).getValue();
+                int orig = children.indexOf(widget);
+                if (orig < children.size()-1)
+                    compound.add(new UpdateWidgetOrderAction(widget, orig, orig+1));
+                else
+                    compound.add(new UpdateWidgetOrderAction(widget, orig, 0));
+            }
+            editor.getUndoableActionManager().execute(compound);
         }
     };
 
@@ -80,10 +163,18 @@ public abstract class ActionDescription
         @Override
         public void run(final DisplayEditor editor, final boolean selected)
         {
-            final List<Widget> widgets = editor.getWidgetSelectionHandler().getSelection();
-            final UndoableActionManager undo = editor.getUndoableActionManager();
+            List<Widget> widgets = editor.getWidgetSelectionHandler().getSelection();
+            if (widgets.isEmpty())
+                return;
+            // Same reasoning as in MOVE_DOWN
+            // Without reversing, widgets would actually end up in front,
+            // but un-doing the operation would them misplace them.
+            widgets = orderWidgetsByIndex(widgets);
+            Collections.reverse(widgets);
+            final CompoundUndoableAction compound = new CompoundUndoableAction(Messages.MoveToFront);
             for (Widget widget : widgets)
-                undo.execute(new UpdateWidgetOrderAction(widget, -1));
+                compound.add(new UpdateWidgetOrderAction(widget, -1));
+            editor.getUndoableActionManager().execute(compound);
         }
     };
 

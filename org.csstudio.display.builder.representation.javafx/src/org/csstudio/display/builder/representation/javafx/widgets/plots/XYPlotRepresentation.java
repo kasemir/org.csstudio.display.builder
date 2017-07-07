@@ -11,11 +11,14 @@ import static org.csstudio.display.builder.representation.ToolkitRepresentation.
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyListener;
+import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.plots.PlotWidgetPointType;
 import org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.AxisWidgetProperty;
@@ -23,10 +26,14 @@ import org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.Tra
 import org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.YAxisWidgetProperty;
 import org.csstudio.display.builder.model.widgets.plots.PlotWidgetTraceType;
 import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget;
+import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget.MarkerProperty;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.widgets.RegionBaseRepresentation;
 import org.csstudio.javafx.rtplot.Axis;
+import org.csstudio.javafx.rtplot.AxisRange;
+import org.csstudio.javafx.rtplot.PlotMarker;
 import org.csstudio.javafx.rtplot.PointType;
+import org.csstudio.javafx.rtplot.RTPlotListener;
 import org.csstudio.javafx.rtplot.RTValuePlot;
 import org.csstudio.javafx.rtplot.Trace;
 import org.csstudio.javafx.rtplot.TraceType;
@@ -48,8 +55,37 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
     private final DirtyFlag dirty_range = new DirtyFlag();
     private final DirtyFlag dirty_config = new DirtyFlag();
 
+    /** Data for one trace: X, Y and optional error array */
+    private class LatestData
+    {
+        final ListNumber x_array, y_array, error;
+
+        public LatestData(final ListNumber x_array, final ListNumber y_array, final ListNumber error)
+        {
+            this.x_array = x_array;
+            this.y_array = y_array;
+            this.error = error;
+        }
+    }
+
+    /** Plot needs a consistent combination of X, Y[, Error]
+     *
+     *  <p>Assume we receive updates X1,Y1, then X2,Y2.
+     *  Updates need to be handled on other thread.
+     *  If posting the values to a thread pool, it might handle XY2 _before_ XY1.
+     *  Caching the most recent value avoids handling old data.
+     */
+    private final AtomicReference<LatestData> latest_data = new AtomicReference<>();
+
+    /** Prevent event loop when this code changes the range,
+     *  and then receives the range-change-event
+     */
+    private volatile boolean changing_range = false;
+
     private final UntypedWidgetPropertyListener range_listener = (WidgetProperty<?> property, Object old_value, Object new_value) ->
     {
+        if (changing_range)
+            return;
         dirty_range.mark();
         toolkit.scheduleUpdate(this);
     };
@@ -62,6 +98,28 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
 
     /** Plot */
     private RTValuePlot plot;
+
+    private volatile boolean changing_marker = false;
+
+    private final RTPlotListener<Double> plot_listener = new RTPlotListener<Double>()
+    {
+        @Override
+        public void changedPlotMarker(final int index)
+        {
+            if (changing_marker)
+                return;
+            final PlotMarker<Double> plot_marker = plot.getMarkers().get(index);
+            final WidgetProperty<Double> model_marker = model_widget.propMarkers().getValue().get(index).value();
+            final double position = plot_marker.getPosition();
+            changing_marker = true;
+            model_marker.setValue(position);
+            // Was property change reverted (Runtime could not write PV, ..)?
+            final double effective = model_marker.getValue();
+            if (effective != position)
+                plot_marker.setPosition(effective);
+            changing_marker = false;
+        }
+    };
 
     /** Handler for one trace of the plot
      *
@@ -140,41 +198,51 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
             plot.requestLayout();
         };
 
+        // PV changed value -> runtime updated X/Y value property -> valueChanged()
         private void valueChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
         {
-            try
+            final ListNumber x_data, y_data, error;
+            final VType y_value = model_trace.traceYValue().getValue();
+
+            if (y_value instanceof VNumberArray)
             {
-                final VType y_value = model_trace.traceYValue().getValue();
-                final ListNumber y_data = (y_value instanceof VNumberArray) ? ((VNumberArray)y_value).getData() : null;
-
                 final VType x_value = model_trace.traceXValue().getValue();
-                final ListNumber x_data = (x_value instanceof VNumberArray) ? ((VNumberArray)x_value).getData() : null;
+                x_data = (x_value instanceof VNumberArray) ? ((VNumberArray)x_value).getData() : null;
 
-                if (y_data == null)
-                {   // Clear data
-                    data.setData(XYVTypeDataProvider.EMPTY, XYVTypeDataProvider.EMPTY, XYVTypeDataProvider.EMPTY);
-                    plot.requestUpdate();
-                    return;
-                }
-
-                trace.setUnits(((VNumberArray)y_value).getUnits());
+                final VNumberArray y_array = (VNumberArray)y_value;
+                trace.setUnits(y_array.getUnits());
+                y_data = y_array.getData();
 
                 final VType error_value = model_trace.traceErrorValue().getValue();
-                final ListNumber error;
                 if (error_value == null)
-                    error = XYVTypeDataProvider.EMPTY;
+                    error = null;
                 else if (error_value instanceof VNumberArray)
                     error = ((VNumberArray)error_value).getData();
                 else
                     error = new ArrayDouble(VTypeUtil.getValueNumber(error_value).doubleValue());
+            }
+            else // Clear all unless there's Y data
+                x_data = y_data = error = XYVTypeDataProvider.EMPTY;
 
-                data.setData(x_data, y_data, error);
+            // Decouple from CAJ's PV thread to avoid deadlock when setData() takes its lock
+            latest_data.set(new LatestData(x_data, y_data, error));
+            ModelThreadPool.getExecutor().submit(() -> updateData());
+        }
+
+        // Update XYPlot data on different thread, not from CAJ callback.
+        // Void to be usable as Callable(..) with Exception on error
+        private Void updateData() throws Exception
+        {
+            // Flurry of N updates will schedule N updateData() calls,
+            // but the first one that actually runs will handle the most
+            // recent data and the rest can then return with nothing else to do.
+            final LatestData latest = latest_data.getAndSet(null);
+            if (latest != null)
+            {
+                data.setData(latest.x_array, latest.y_array, latest.error);
                 plot.requestUpdate();
             }
-            catch (Exception ex)
-            {
-                logger.log(Level.WARNING, "XYGraph data error", ex);
-            }
+            return null;
         }
 
         void dispose()
@@ -205,7 +273,34 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         plot = new RTValuePlot(! toolkit.isEditMode());
         plot.showToolbar(false);
         plot.showCrosshair(false);
+
+        // Create PlotMarkers once. Not allowing adding/removing them at runtime
+        if (! toolkit.isEditMode())
+            for (MarkerProperty marker : model_widget.propMarkers().getValue())
+                createMarker(marker);
+
         return plot;
+    }
+
+    private void createMarker(final MarkerProperty model_marker)
+    {
+        final PlotMarker<Double> plot_marker = plot.addMarker(JFXUtil.convert(model_marker.color().getValue()),
+                                                      model_marker.interactive().getValue(),
+                                                      model_marker.value().getValue());
+
+        // For now _not_ listening to runtime changes of model_marker.interactive()
+
+        // Listen to model_marker.value(), .. and update plot_marker
+        final WidgetPropertyListener<Double> model_marker_listener = (o, old, value) ->
+        {
+            if (changing_marker)
+                return;
+            changing_marker = true;
+            plot_marker.setPosition(model_marker.value().getValue());
+            changing_marker = false;
+            plot.requestUpdate();
+        };
+        model_marker.value().addPropertyListener(model_marker_listener);
     }
 
     @Override
@@ -236,6 +331,8 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
 
         tracesChanged(model_widget.propTraces(), null, model_widget.propTraces().getValue());
         model_widget.propTraces().addPropertyListener(this::tracesChanged);
+
+        plot.addListener(plot_listener);
     }
 
     /** Listen to changed axis properties
@@ -406,14 +503,24 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
 
     private void updateAxisRange(final Axis<Double> plot_axis, final AxisWidgetProperty model_axis)
     {
-        // In autoscale mode, don't update the value range because that would
-        // result in flicker when both we and the autoscaling adjust the range
         if (model_axis.autoscale().getValue())
+        {   // In auto-scale mode, don't update the value range because that would
+            // result in flicker when both we and the auto-scaling adjust the range
             plot_axis.setAutoscale(true);
+        }
         else
-        {
-            plot_axis.setAutoscale(false);
-            plot_axis.setValueRange(model_axis.minimum().getValue(), model_axis.maximum().getValue());
+        {   // No auto-scale requested.
+            if (plot_axis.setAutoscale(false))
+            {   // Autoscale was on.
+                // Turn off, and update model to the last range used by the plot
+                final AxisRange<Double> range = plot_axis.getValueRange();
+                changing_range = true;
+                model_axis.minimum().setValue(range.getLow());
+                model_axis.maximum().setValue(range.getHigh());
+                changing_range = false;
+            }
+            else
+                plot_axis.setValueRange(model_axis.minimum().getValue(), model_axis.maximum().getValue());
         }
     }
 

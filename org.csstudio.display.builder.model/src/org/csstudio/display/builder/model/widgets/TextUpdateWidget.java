@@ -14,6 +14,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFormat;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHorizontalAlignment;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPrecision;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propRotationStep;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propShowUnits;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propTransparent;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propVerticalAlignment;
@@ -37,6 +38,7 @@ import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.FormatOption;
 import org.csstudio.display.builder.model.properties.HorizontalAlignment;
+import org.csstudio.display.builder.model.properties.RotationStep;
 import org.csstudio.display.builder.model.properties.StringWidgetProperty;
 import org.csstudio.display.builder.model.properties.VerticalAlignment;
 import org.csstudio.display.builder.model.properties.WidgetColor;
@@ -89,7 +91,18 @@ public class TextUpdateWidget extends PVWidget
                 final Optional<String> text = XMLUtil.getChildString(xml, "text");
                 if (text.isPresent()  &&  text.get().length() > 0  &&
                     ((MacroizedWidgetProperty<String>) text_widget.propPVName()).getSpecification().isEmpty())
-                    logger.log(Level.WARNING, "Replace with Label: " + text_widget + " has 'text' but no 'pv_name'");
+                {
+                    logger.log(Level.WARNING, "Replacing TextUpdate " + text_widget + " with 'text' but no 'pv_name' with a Label");
+
+                    // Replace the widget type with "label"
+                    final String type = xml.getAttribute("typeId");
+                    if (type != null  &&  type.endsWith("TextUpdate"))
+                    {
+                        xml.setAttribute("typeId", "org.csstudio.opibuilder.widgets.Label");
+                        // XMLUtil.dump(xml);
+                        throw new ParseAgainException();
+                    }
+                }
             }
             return true;
         }
@@ -175,6 +188,7 @@ public class TextUpdateWidget extends PVWidget
     private volatile WidgetProperty<HorizontalAlignment> horizontal_alignment;
     private volatile WidgetProperty<VerticalAlignment> vertical_alignment;
     private volatile WidgetProperty<Boolean> wrap_words;
+    private volatile WidgetProperty<RotationStep> rotation_step;
 
     public TextUpdateWidget()
     {
@@ -201,6 +215,7 @@ public class TextUpdateWidget extends PVWidget
         properties.add(horizontal_alignment = propHorizontalAlignment.createProperty(this, HorizontalAlignment.LEFT));
         properties.add(vertical_alignment = propVerticalAlignment.createProperty(this, VerticalAlignment.TOP));
         properties.add(wrap_words = propWrapWords.createProperty(this, true));
+        properties.add(rotation_step = propRotationStep.createProperty(this, RotationStep.NONE));
     }
 
     /** @return 'foreground_color' property */
@@ -261,5 +276,11 @@ public class TextUpdateWidget extends PVWidget
     public WidgetProperty<Boolean> propWrapWords()
     {
         return wrap_words;
+    }
+
+    /** @return 'rotation_step' property */
+    public WidgetProperty<RotationStep> propRotationStep()
+    {
+        return rotation_step;
     }
 }

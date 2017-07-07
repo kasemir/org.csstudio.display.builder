@@ -90,6 +90,9 @@ public class StringTable extends BorderPane
      */
     private static final List<String> MAGIC_LAST_ROW = Arrays.asList(Messages.MagicLastRow);
 
+    /** Value used to temporarily detach the 'data' from table */
+    private static final ObservableList<List<String>> NO_DATA = FXCollections.observableArrayList();
+
     /** Data shown in the table, includes MAGIC_LAST_ROW */
     private final ObservableList<List<String>> data = FXCollections.observableArrayList();
 
@@ -104,12 +107,14 @@ public class StringTable extends BorderPane
     {
         final TableView<List<String>> table = param.getTableView();
         final int col_index = table.getColumns().indexOf(param.getTableColumn());
-        List<String> value = param.getValue();
+        final List<String> value = param.getValue();
         final String text;
         if (value == MAGIC_LAST_ROW)
             text = col_index == 0 ? MAGIC_LAST_ROW.get(0): "";
-        else
+        else if (col_index < value.size())
             text = value.get(col_index);
+        else
+        	text = "<col " + col_index + "?>";
         return new SimpleStringProperty(text);
     };
 
@@ -249,11 +254,18 @@ public class StringTable extends BorderPane
             public void onChanged(Change<? extends Object> change)
             {
                 change.next();
-                if(change.wasReplaced())
+                if (change.wasReplaced())
                 {
                     // setAll doesn't work, must clear and then set
+                    // System.out.println("Restoring columns to " +
+                    //                    columns.stream().map(c -> c.getText()).collect(Collectors.toList()));
+                    // Change columns while data has been detached
+                    table.setItems(NO_DATA);
                     table.getColumns().clear();
                     table.getColumns().addAll(columns);
+                    // Re-attach data and force update
+                    table.setItems(data);
+                    table.refresh();
                 }
             }
          });
@@ -277,6 +289,15 @@ public class StringTable extends BorderPane
         setData(Arrays.asList(Arrays.asList()));
     }
 
+    /** @param select_rows Select complete rows, or individual cells? */
+    public void setRowSelectionMode(final boolean select_rows)
+    {
+    	if (select_rows)
+            table.getSelectionModel().setCellSelectionEnabled(false);
+    	else
+            table.getSelectionModel().setCellSelectionEnabled(true);
+    }
+
     /** @param listener Listener to notify of changes */
     public void setListener(final StringTableListener listener)
     {
@@ -285,15 +306,17 @@ public class StringTable extends BorderPane
 
     private void fillToolbar()
     {
-        toolbar.getItems().add(createToolbarButton("add_row", Messages.AddRow, event -> addRow()));
-        toolbar.getItems().add(createToolbarButton("remove_row", Messages.RemoveRow, event -> deleteRow()));
-        toolbar.getItems().add(createToolbarButton("row_up", Messages.MoveRowUp, event -> moveRowUp()));
-        toolbar.getItems().add(createToolbarButton("row_down", Messages.MoveRowDown, event -> moveRowDown()));
-        toolbar.getItems().add(createToolbarButton("rename_col", Messages.RenameColumn, event -> renameColumn()));
-        toolbar.getItems().add(createToolbarButton("add_col", Messages.AddColumn, event -> addColumn()));
-        toolbar.getItems().add(createToolbarButton("remove_col", Messages.RemoveColumn, event -> deleteColumn()));
-        toolbar.getItems().add(createToolbarButton("col_left", Messages.MoveColumnLeft, event -> moveColumnLeft()));
-        toolbar.getItems().add(createToolbarButton("col_right", Messages.MoveColumnRight, event -> moveColumnRight()));
+        toolbar.getItems().addAll(
+            createToolbarButton("add_row", Messages.AddRow, event -> addRow()),
+            createToolbarButton("remove_row", Messages.RemoveRow, event -> deleteRow()),
+            createToolbarButton("row_up", Messages.MoveRowUp, event -> moveRowUp()),
+            createToolbarButton("row_down", Messages.MoveRowDown, event -> moveRowDown()),
+            createToolbarButton("rename_col", Messages.RenameColumn, event -> renameColumn()),
+            createToolbarButton("add_col", Messages.AddColumn, event -> addColumn()),
+            createToolbarButton("remove_col", Messages.RemoveColumn, event -> deleteColumn()),
+            createToolbarButton("col_left", Messages.MoveColumnLeft, event -> moveColumnLeft()),
+            createToolbarButton("col_right", Messages.MoveColumnRight, event -> moveColumnRight()));
+        toolbar.layout();
     }
 
     private Button createToolbarButton(final String id, final String tool_tip, final EventHandler<ActionEvent> handler)
@@ -301,8 +324,20 @@ public class StringTable extends BorderPane
         final Button button = new Button();
         try
         {
+            // TODO Icons are not centered inside the button until the
+            // button is once pressed, or at least focused via "tab"
             button.setGraphic(new ImageView(Activator.getIcon(id)));
+
+            // Using the image as a background like this centers the image,
+            // but replaces the complete characteristic button outline with just the icon.
+            // button.setBackground(new Background(new BackgroundImage(new Image(Activator.getIcon(id)),
+            //                      BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
+            //                      BackgroundPosition.CENTER,
+            //                      new BackgroundSize(16, 16, false, false, false, false))));
             button.setTooltip(new Tooltip(tool_tip));
+            // Without defining the button size, the buttons may start out zero-sized
+            // until they're first pressed/tabbed
+            button.setMinSize(35, 25);
         }
         catch (Exception ex)
         {
@@ -310,6 +345,7 @@ public class StringTable extends BorderPane
             button.setText(tool_tip);
         }
         button.setOnAction(handler);
+
         return button;
     }
 
@@ -382,17 +418,26 @@ public class StringTable extends BorderPane
      */
     public void setHeaders(final List<String> headers)
     {
+        // Remove all data
+        table.setItems(NO_DATA);
+
         table.getColumns().clear();
         cell_colors = null;
+
+        // Start over with no data, since table columns changed
         data.clear();
         if (editable)
             data.add(MAGIC_LAST_ROW);
+        table.setItems(data);
+        // Forcing this refresh avoids https://github.com/kasemir/org.csstudio.display.builder/issues/245,
+        // an IndexOutOfBoundsException somewhere in CSS updates that uses the wrong table row count
+        table.refresh();
 
         for (String header : headers)
             createTableColumn(-1, header);
     }
 
-    /** Set (minimum) column width
+    /** Set (minimum and preferred) column width
      *
      *  @param column Column index, 0 .. <code>getHeaders().size()-1</code>
      *  @param width Width
@@ -400,6 +445,7 @@ public class StringTable extends BorderPane
     public void setColumnWidth(final int column, final int width)
     {
         table.getColumns().get(column).setMinWidth(width);
+        table.getColumns().get(column).setPrefWidth(width);
     }
 
     /** Allow editing a column
@@ -425,7 +471,7 @@ public class StringTable extends BorderPane
      *  list (combo box) for selecting one of the options.
      *
      *  @param column Column index, 0 .. <code>getHeaders().size()-1</code>
-     *  @param options
+     *  @param options Options, may be <code>null</code>
      */
     public void setColumnOptions(final int column, final List<String> options)
     {
@@ -805,10 +851,19 @@ public class StringTable extends BorderPane
         cell_colors = null;
         if (column < 0)
             column = table.getColumns().size();
+
+        // Cannot update data and table concurrently, so detach data from table:
+        table.setItems(NO_DATA);
+        // Add new column
         createTableColumn(column, name);
+        // Add empty col. to data
         for (List<String> row : data)
             if (row != MAGIC_LAST_ROW)
                 row.add(column, "");
+        // Show the updated data
+        table.setItems(data);
+        table.refresh();
+
         fireTableChanged();
     }
 
@@ -840,14 +895,31 @@ public class StringTable extends BorderPane
     {
         cell_colors = null;
         int row = table.getSelectionModel().getSelectedIndex();
+
+        // Some table columns have special cell factories to
+        // represent boolean column data as a checkbox etc.
+        // In principle, need to update both the data and the table columns
+        // concurrently because otherwise a checkbox cell would briefly try to
+        // represent non-boolean data, resulting in a long stack trace.
+        // Cannot update data and table concurrently, so detach data from table:
+        table.setItems(NO_DATA);
+
+        // Move table column
         final TableColumn<List<String>, ?> col = table.getColumns().remove(column);
         table.getColumns().add(target, col);
+
+        // Move column in data
         for (List<String> data_row : data)
             if (data_row != MAGIC_LAST_ROW)
             {
                 final String cell = data_row.remove(column);
                 data_row.add(target, cell);
             }
+
+        // Re-attach data to table
+        table.setItems(data);
+
+        // Select the moved cell
         table.getSelectionModel().clearAndSelect(row, table.getColumns().get(target));
         fireTableChanged();
     }
@@ -859,10 +931,16 @@ public class StringTable extends BorderPane
         final int column = getSelectedColumn();
         if (column < 0)
             return;
+        // Detach data from table
+        table.setItems(NO_DATA);
+        // Update table columns
         table.getColumns().remove(column);
+        // Remove that column from data
         for (List<String> row : data)
-            if (row != MAGIC_LAST_ROW)
+            if (row != MAGIC_LAST_ROW  &&  column < row.size())
                 row.remove(column);
+        // Re-attach data to table
+        table.setItems(data);
         fireTableChanged();
     }
 

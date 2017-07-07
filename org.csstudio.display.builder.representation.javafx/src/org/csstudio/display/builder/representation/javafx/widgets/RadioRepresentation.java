@@ -58,6 +58,7 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
     {
         final RadioButton rb = new RadioButton(text);
         rb.setToggleGroup(toggle);
+        rb.setMnemonicParsing(false);
         return rb;
     }
 
@@ -80,6 +81,12 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
 
         //initially populate pane with radio buttons
         contentChanged(null, null, null);
+    }
+
+    @Override
+    protected boolean isFilteringEditModeClicks()
+    {
+        return true;
     }
 
     private void valueChanged(final ObservableValue<? extends Toggle> obs, final Toggle oldval, final Toggle newval)

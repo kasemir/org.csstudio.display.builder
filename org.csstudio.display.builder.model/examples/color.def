@@ -15,7 +15,7 @@ OK = 0, 255, 0
 MINOR = 255, 128, 0
 MAJOR = 255, 0, 0
 INVALID = 255, 0, 255
-DISCONNECTED = 255, 0, 255, 128
+DISCONNECTED = 200, 0, 200, 200
 
 # Default color for text
 Text=0,0,0

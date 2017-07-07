@@ -166,11 +166,11 @@ public class PlotWidgetProperties
 
     // Elements of the 'trace' structure
     private static final WidgetPropertyDescriptor<String> traceX =
-        CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "x_pv", Messages.PlotWidget_XPV);
+        CommonWidgetProperties.newPVNamePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "x_pv", Messages.PlotWidget_XPV);
     private static final WidgetPropertyDescriptor<String> traceY =
-        CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "y_pv", Messages.PlotWidget_YPV);
+        CommonWidgetProperties.newPVNamePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "y_pv", Messages.PlotWidget_YPV);
     private static final WidgetPropertyDescriptor<String> traceErr =
-        CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "err_pv", Messages.PlotWidget_ErrorPV);
+        CommonWidgetProperties.newPVNamePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "err_pv", Messages.PlotWidget_ErrorPV);
     private static final WidgetPropertyDescriptor<Integer> traceYAxis =
         CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "axis", Messages.PlotWidget_YAxis);
     private static final WidgetPropertyDescriptor<WidgetColor> traceColor =
