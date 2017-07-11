@@ -33,12 +33,12 @@ and finally another script can fetch the data and use it in some way.
     <columns>
       <column>
         <name>PV</name>
-        <width>1</width>
+        <width>250</width>
         <editable>true</editable>
       </column>
       <column>
         <name>Value</name>
-        <width>1</width>
+        <width>230</width>
         <editable>true</editable>
       </column>
     </columns>
@@ -86,7 +86,7 @@ In this example, a script updates that PV:</text>
     <columns>
       <column>
         <name>Columns taken from PV</name>
-        <width>1</width>
+        <width>100</width>
         <editable>true</editable>
       </column>
     </columns>
@@ -130,12 +130,12 @@ You can then edit the cells:</text>
     <columns>
       <column>
         <name>Item</name>
-        <width>130</width>
+        <width>170</width>
         <editable>true</editable>
       </column>
       <column>
         <name>Small</name>
-        <width>1</width>
+        <width>100</width>
         <editable>true</editable>
         <options>
           <option>false</option>
@@ -144,7 +144,7 @@ You can then edit the cells:</text>
       </column>
       <column>
         <name>Condition</name>
-        <width>1</width>
+        <width>200</width>
         <editable>true</editable>
         <options>
           <option>Terrific</option>
@@ -184,6 +184,7 @@ widget.setValue(data)]]></text>
         <pv_name>loc://init(1)</pv_name>
       </script>
     </scripts>
+    <row_selection_mode>true</row_selection_mode>
     <selection_pv>loc://table_selection&lt;VTable&gt;</selection_pv>
   </widget>
   <widget type="table" version="2.0.0">
@@ -196,7 +197,7 @@ widget.setValue(data)]]></text>
     <columns>
       <column>
         <name>Selection</name>
-        <width>1</width>
+        <width>100</width>
         <editable>true</editable>
       </column>
     </columns>
@@ -485,5 +486,31 @@ table.setValue(data)
     <x>980</x>
     <y>570</y>
     <width>112</width>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_5</name>
+    <actions>
+      <action type="execute">
+        <script file="EmbeddedPy">
+          <text><![CDATA[from org.csstudio.display.builder.runtime.script import ScriptUtil
+
+# 'widget' is the action button that invoked the script
+# Locate the table widget by name
+table = ScriptUtil.findWidgetByName(widget, "user_table")
+
+# Changing the header does also delete the data!
+headers = table.getHeaders()
+headers[0] = "Gadget"
+table.setHeaders(headers)
+
+]]></text>
+        </script>
+        <description>Change Header</description>
+      </action>
+    </actions>
+    <x>850</x>
+    <y>810</y>
+    <width>152</width>
+    <tooltip>$(actions)</tooltip>
   </widget>
 </display>
