@@ -358,16 +358,43 @@ public class TableWidget extends VisibleWidget
     public void setHeaders(final List<String> headers)
     {
         setValue(Collections.emptyList());
-        columns.setValue(headers.stream()
-                                .map(header -> new ColumnProperty(this, header))
-                                .collect(Collectors.toList()));
+
+        // Create new columns, using the provided names
+        final List<ColumnProperty> old_colunms = columns.getValue();
+        final List<ColumnProperty> new_columns = new ArrayList<>();
+        for (int i=0; i<headers.size(); ++i)
+        {
+            final ColumnProperty col = new ColumnProperty(this, headers.get(i));
+            if (i < old_colunms.size())
+            {
+                // Preserving existing column widths
+                col.width().setValue(old_colunms.get(i).width().getValue());
+                // .. and options
+                col.options().setValue(old_colunms.get(i).options().getValue());
+            }
+            new_columns.add(col);
+        }
+
+        columns.setValue(new_columns);
+    }
+
+    /** Set width of a column
+     *
+     *  <p>Convenience routines for <code>propColumns()</code>
+     *
+     *  @param column Column index, must be 0 .. <code>propColumns().size()-1</code>
+     *  @param options Options to present in combo editor for the cells in that column
+     */
+    public void setColumnWidth(final int column, final int width)
+    {
+        columns.getElement(column).width().setValue(width);
     }
 
     /** Get options for a column's values
      *
-     *  <p>Convenience routines for <code>displayColumns()</code>
+     *  <p>Convenience routines for <code>propColumns()</code>
      *
-     *  @param column Column index, must be 0 .. <code>displayColumns().size()-1</code>
+     *  @param column Column index, must be 0 .. <code>propColumns().size()-1</code>
      *  @return Options that combo editor will present for the cells in that column
      */
     public  List<String> getColumnOptions(final int column)
@@ -383,9 +410,9 @@ public class TableWidget extends VisibleWidget
 
     /** Set options for a column's values
      *
-     *  <p>Convenience routines for <code>displayColumns()</code>
+     *  <p>Convenience routines for <code>propColumns()</code>
      *
-     *  @param column Column index, must be 0 .. <code>displayColumns().size()-1</code>
+     *  @param column Column index, must be 0 .. <code>propColumns().size()-1</code>
      *  @param options Options to present in combo editor for the cells in that column
      */
     public void setColumnOptions(final int column, final List<String> options)
