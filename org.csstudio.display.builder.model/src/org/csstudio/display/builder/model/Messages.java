@@ -62,8 +62,10 @@ public class Messages extends NLS
     public static String Left;
     public static String LineStyle;
     public static String LineStyle_Solid;
-    public static String LineStyle_None;
     public static String LineStyle_Dash;
+    public static String LineStyle_DashDot;
+    public static String LineStyle_DashDotDot;
+    public static String LineStyle_Dot;
     public static String Middle;
     public static String PlotWidget_AutoScale;
     public static String PlotWidget_Color;

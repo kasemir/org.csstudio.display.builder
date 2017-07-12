@@ -264,6 +264,34 @@ public class PVUtil
         return ValueUtil.getTable(getVType(pv));
     }
 
+    /**
+     * Get data from a structured value by name.
+     * <p>As with other structure-related get methods, full and partial names may be used. However, the
+     * name must designate a structured field, rather than a scalar data field. For example, the structure
+     * <pre>
+	 * structure value
+	 * 	  structure Foo
+	 * 		  scalar_t[] a
+	 * 		  structure Bar
+	 * 			  scalar_t[] a
+	 * 			  scalar_t[] x
+     * </pre>
+     * can match "Foo" (which returns data for Foo/a, Bar/a, and x) or "Foo/Bar" (which returns data for Bar/a and x),
+     * but not "Foo/a" or "Bar/x". For those, use {@link getStructureElement(VType,String)}.
+     * Ambiguous names will find the first structure with a matching name.
+     *
+     * @param pv PV
+     * @param name Name of the substructure to get; if blank (empty String, ""), the entire structure is returned
+
+     * @return A List of "rows", where rows are lists of scalar data (Strings or Numbers)
+     * belonging to scalar fields of the matching sub-structure; if there is no matching sub-structure,
+     * the list is empty.
+     */
+    public static List<List<Object>> getStructure(final RuntimePV pv, final String name)
+    {
+    	return ValueUtil.getStructure(getVType(pv), name);
+    }
+
     /** Get a table cell from PV
      *
      *  <p>PV must hold a VTable
@@ -277,5 +305,47 @@ public class PVUtil
     public static Object getTableCell(final RuntimePV pv, final int row, final int column) throws NullPointerException
     {
         return ValueUtil.getTableCell(getVType(pv), row, column);
+    }
+
+	/**
+	* Get a structure element from a PV by field name.
+	* <p>PV should hold a VTable which represents the structure.
+	* <p> For nested structure elements represented
+	* with slash-separated names, full and partial field names are accepted. For instance, a structure "value"
+	* with the definition
+	* <pre>
+	* structure value
+	* 	  structure Foo
+	* 		  scalar_t[] a
+	* 		  structure Bar
+	* 			  scalar_t[] a
+	* 			  scalar_t[] x
+	* </pre>
+	* has the field "x" with full name "Foo/Bar/x", which can be found with "Foo/Bar/x", "Bar/x", or "x".
+	* Ambiguous names (like "a" in the example above) will find the first field with a matching name.
+	*
+	*  @param pv PV
+	*  @param name Structure element name
+	*  @return If the value has an elements with a matching name, a List<String> or List<Number>
+	*  		is returned, depending on the element's data type. If not, and the value is a VTable,
+	*  		an empty list is returned. Otherwise, a List containing one element, a String representation
+	*  		of the value.
+	*/
+    public static List<Object> getStructureElement(final RuntimePV pv, final String name)
+    {
+    	return ValueUtil.getStructureElement(getVType(pv), name);
+    }
+
+    /**
+     * Get an element from a PV structure by field name and array index. If index is valid,
+     * this method is equivalent to getStructureElement(value, name).get(index).
+	*  @param pv PV
+	*  @param name Structure element name
+	*  @param index Element index in range [0, n-1], where n is the length of the structure element
+	*  @return Either String or Number for the cell's value, null if invalid name/index
+     */
+    public static Object getStructureElement(final RuntimePV pv, final String name, final int index)
+    {
+    	return ValueUtil.getStructureElement(getVType(pv), name, index);
     }
 }

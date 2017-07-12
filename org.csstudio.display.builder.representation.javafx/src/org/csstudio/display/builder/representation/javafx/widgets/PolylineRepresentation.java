@@ -15,6 +15,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.PolylineWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
+import javafx.collections.ObservableList;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
@@ -83,6 +84,7 @@ public class PolylineRepresentation extends JFXBaseRepresentation<Group, Polylin
         model_widget.propY().addUntypedPropertyListener(this::displayChanged);
         model_widget.propLineColor().addUntypedPropertyListener(this::displayChanged);
         model_widget.propLineWidth().addUntypedPropertyListener(this::displayChanged);
+        model_widget.propLineStyle().addUntypedPropertyListener(this::displayChanged);
         model_widget.propPoints().addUntypedPropertyListener(this::displayChanged);
         model_widget.propArrows().addUntypedPropertyListener(this::displayChanged);
         model_widget.propArrowLength().addUntypedPropertyListener(this::displayChanged);
@@ -122,7 +124,35 @@ public class PolylineRepresentation extends JFXBaseRepresentation<Group, Polylin
                 for (Node child : children)
                 {
                     if (child instanceof Polyline)
-                        ((Polyline) child).getPoints().setAll(points);
+                    {
+                        final Polyline line = (Polyline) child;
+                        line.getPoints().setAll(points);
+                        final ObservableList<Double> dashes = line.getStrokeDashArray();
+                        // Scale dashes, dots and gaps by line width;
+                        // matches legacy opibuilder resp. Draw2D
+                        switch (model_widget.propLineStyle().getValue())
+                        {
+                        case DASH:
+                            dashes.setAll(3.0*line_width, 1.0*line_width);
+                            break;
+                        case DOT:
+                            dashes.setAll(1.0*line_width, 1.0*line_width);
+                            break;
+                        case DASHDOT:
+                            dashes.setAll(3.0*line_width, 1.0*line_width,
+                                          1.0*line_width, 1.0*line_width);
+                            break;
+                        case DASHDOTDOT:
+                            dashes.setAll(3.0*line_width, 1.0*line_width,
+                                          1.0*line_width, 1.0*line_width,
+                                          1.0*line_width, 1.0*line_width);
+                            break;
+                        case SOLID:
+                        default:
+                            dashes.setAll(/* Nothing for solid line */);
+                            break;
+                        }
+                    }
                     else //child instanceof Arrow
                     {
                         final Arrow arrow = (Arrow)child;
