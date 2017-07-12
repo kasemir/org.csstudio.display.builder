@@ -65,7 +65,7 @@ public class ActionsWidgetProperty extends WidgetProperty<ActionInfos>
     {
         if (value instanceof ActionInfos)
             setValue((ActionInfos) value);
-        if (value instanceof ActionInfo[])
+        else if (value instanceof ActionInfo[])
             setValue(new ActionInfos(Arrays.asList((ActionInfo[]) value)));
         else if ((value instanceof Collection) &&
                 ((Collection<?>)value).isEmpty())
