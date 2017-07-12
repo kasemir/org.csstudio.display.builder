@@ -12,6 +12,7 @@ import static org.junit.Assert.assertThat;
 
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /** JUnit test of JFXUtil
@@ -20,6 +21,7 @@ import org.junit.Test;
 @SuppressWarnings("nls")
 public class JFXUtilTest
 {
+    @Ignore // Maven/Tycho NoClassDefFoundError: org/csstudio/javafx/JFXUtil
     @Test
     public void testRGB()
     {
