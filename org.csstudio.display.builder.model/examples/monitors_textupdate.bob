@@ -290,7 +290,7 @@ while the DMS specialization maps 2 pi to 360 degrees.
     <x>450</x>
     <y>580</y>
     <width>350</width>
-    <height>190</height>
+    <height>160</height>
     <font>
       <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
       </font>
@@ -304,9 +304,9 @@ while the DMS specialization maps 2 pi to 360 degrees.
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update_14</name>
-    <pv_name>loc://number(3.14)</pv_name>
+    <pv_name>loc://Text("Hello there how are you doing?")</pv_name>
     <x>191</x>
-    <y>550</y>
+    <y>770</y>
     <width>109</width>
     <format>1</format>
     <precision>4</precision>
@@ -371,5 +371,55 @@ while the DMS specialization maps 2 pi to 360 degrees.
     <y>91</y>
     <width>186</width>
     <height>28</height>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_21</name>
+    <text>Interactive Behavior:</text>
+    <y>740</y>
+    <width>330</width>
+    <font>
+      <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Text Update_15</name>
+    <pv_name>loc://Text("Hello there how are you doing?")</pv_name>
+    <x>191</x>
+    <y>800</y>
+    <width>69</width>
+    <height>60</height>
+    <format>1</format>
+    <precision>4</precision>
+    <interactive>true</interactive>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_22</name>
+    <text>Not interactive:</text>
+    <y>770</y>
+    <width>111</width>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_23</name>
+    <text>Interactive:</text>
+    <y>800</y>
+    <width>111</width>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_24</name>
+    <text>By default, Text Update widgets simply display the value of a PV.
+They allow no interaction.
+
+When you set the  'interactive' property to true, the widget allows selecting the current value so users and 'copy' it.
+In addition, a scrollbar appears when the text exceeds the widget area.
+</text>
+    <x>450</x>
+    <y>770</y>
+    <width>350</width>
+    <height>160</height>
+    <font>
+      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
+      </font>
+    </font>
   </widget>
 </display>
