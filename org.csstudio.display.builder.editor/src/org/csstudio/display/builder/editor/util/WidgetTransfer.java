@@ -92,7 +92,7 @@ public class WidgetTransfer
     private static Stroke OUTLINE_STROKE = new BasicStroke(2.2F);
 
     //  The extensions listed here MUST BE ALL UPPERCASE.
-    private static List<String> IMAGE_FILE_EXTENSIONS = Arrays.asList("BMP", "GIF", "JPEG", "JPG", "PNG");
+    private static List<String> IMAGE_FILE_EXTENSIONS = Arrays.asList("BMP", "GIF", "JPEG", "JPG", "PNG", "SVG");
     private static List<String> EMBEDDED_FILE_EXTENSIONS = Arrays.asList("BOB", "OPI");
     private static List<String> SUPPORTED_EXTENSIONS = Stream.concat(IMAGE_FILE_EXTENSIONS.stream(), EMBEDDED_FILE_EXTENSIONS.stream()).collect(Collectors.toList());
 
