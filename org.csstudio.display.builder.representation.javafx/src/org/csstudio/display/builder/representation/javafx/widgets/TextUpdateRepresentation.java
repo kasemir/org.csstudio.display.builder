@@ -10,6 +10,7 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.properties.RotationStep;
+import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.util.FormatOptionHandler;
 import org.csstudio.display.builder.model.widgets.PVWidget;
 import org.csstudio.display.builder.model.widgets.TextUpdateWidget;
@@ -18,10 +19,13 @@ import org.diirt.vtype.VType;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Control;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
@@ -30,8 +34,12 @@ import javafx.scene.transform.Translate;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class TextUpdateRepresentation extends RegionBaseRepresentation<Label, TextUpdateWidget>
+public class TextUpdateRepresentation extends RegionBaseRepresentation<Control, TextUpdateWidget>
 {
+    // Based on 'interactive' property when widget is created,
+    // uses either JFX Label (static) or TextArea (interactive).
+    // Common base class is Control.
+
     private final DirtyFlag dirty_style = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
     private volatile String value_text = "<?>";
@@ -47,9 +55,18 @@ public class TextUpdateRepresentation extends RegionBaseRepresentation<Label, Te
 
 
     @Override
-    public Label createJFXNode() throws Exception
+    public Control createJFXNode() throws Exception
     {   // Start out 'disconnected' until first value arrives
         value_text = computeText(null);
+
+        if (model_widget.propInteractive().getValue()  &&  !toolkit.isEditMode())
+        {
+            final TextArea area = new TextArea();
+            area.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+            area.setEditable(false);
+            area.getStyleClass().add("text_entry");
+            return area;
+        }
         return new Label();
     }
 
@@ -154,20 +171,45 @@ public class TextUpdateRepresentation extends RegionBaseRepresentation<Label, Te
                 break;
             }
 
-            Color color = JFXUtil.convert(model_widget.propForegroundColor().getValue());
-            jfx_node.setTextFill(color);
             if (model_widget.propTransparent().getValue())
                 jfx_node.setBackground(null); // No fill
             else
             {
-                color = JFXUtil.convert(model_widget.propBackgroundColor().getValue());
+                final Color color = JFXUtil.convert(model_widget.propBackgroundColor().getValue());
                 jfx_node.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY)));
             }
-            jfx_node.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
-            jfx_node.setAlignment(pos);
-            jfx_node.setWrapText(model_widget.propWrapWords().getValue());
+            if (jfx_node instanceof Label)
+            {
+                final Label label = (Label) jfx_node;
+                Color color = JFXUtil.convert(model_widget.propForegroundColor().getValue());
+                label.setTextFill(color);
+                label.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
+                label.setAlignment(pos);
+                label.setWrapText(model_widget.propWrapWords().getValue());
+            }
+            else
+            {
+                final TextArea area = (TextArea) jfx_node;
+                final StringBuilder style = new StringBuilder(100);
+                style.append("-fx-text-fill:");
+                JFXUtil.appendWebRGB(style, model_widget.propForegroundColor().getValue()).append(";");
+
+                // http://stackoverflow.com/questions/27700006/how-do-you-change-the-background-color-of-a-textfield-without-changing-the-border
+                final WidgetColor back_color = model_widget.propBackgroundColor().getValue();
+                style.append("-fx-control-inner-background: ");
+                JFXUtil.appendWebRGB(style, back_color).append(";");
+                area.setStyle(style.toString());
+                area.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
+                // Alignment (pos) not supported
+                area.setWrapText(model_widget.propWrapWords().getValue());
+            }
         }
         if (dirty_content.checkAndClear())
-            jfx_node.setText(value_text);
+        {
+            if (jfx_node instanceof Label)
+                ((Label)jfx_node).setText(value_text);
+            else
+                ((TextArea)jfx_node).setText(value_text);
+        }
     }
 }
