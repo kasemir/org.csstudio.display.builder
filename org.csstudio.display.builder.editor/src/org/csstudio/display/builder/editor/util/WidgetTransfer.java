@@ -92,7 +92,7 @@ public class WidgetTransfer
     private static Stroke OUTLINE_STROKE = new BasicStroke(2.2F);
 
     //  The extensions listed here MUST BE ALL UPPERCASE.
-    private static List<String> IMAGE_FILE_EXTENSIONS = Arrays.asList("BMP", "GIF", "JPEG", "JPG", "PNG");
+    private static List<String> IMAGE_FILE_EXTENSIONS = Arrays.asList("BMP", "GIF", "JPEG", "JPG", "PNG", "SVG");
     private static List<String> EMBEDDED_FILE_EXTENSIONS = Arrays.asList("BOB", "OPI");
     private static List<String> SUPPORTED_EXTENSIONS = Stream.concat(IMAGE_FILE_EXTENSIONS.stream(), EMBEDDED_FILE_EXTENSIONS.stream()).collect(Collectors.toList());
 
@@ -297,23 +297,27 @@ public class WidgetTransfer
         updates.add(() -> updatePictureWidget(widget));
     }
 
-    /** Update a picture widget's size from image file
-     *  @param widget {@link PictureWidget}
+    /**
+     * Update a picture widget's size from image file
+     *
+     * @param widget {@link PictureWidget}
      */
-    private static void updatePictureWidget(final PictureWidget widget)
-    {
+    private static void updatePictureWidget ( final PictureWidget widget ) {
+
         final String image_file = widget.propFile().getValue();
-        try
-        {
+
+        try {
+
             final String filename = ModelResourceUtil.resolveResource(widget.getTopDisplayModel(), image_file);
-            final BufferedImage image = ImageIO.read(ModelResourceUtil.openResourceStream(filename));
-            widget.propWidth().setValue(image.getWidth());
-            widget.propHeight().setValue(image.getHeight());
-        }
-        catch (Exception ex)
-        {
+            final Image image = new Image(ModelResourceUtil.openResourceStream(filename));
+
+            widget.propWidth().setValue((int) Math.round(image.getWidth()));
+            widget.propHeight().setValue((int) Math.round(image.getHeight()));
+
+        } catch ( Exception ex ) {
             logger.log(Level.WARNING, "Cannot obtain image size for " + image_file, ex);
         }
+
     }
 
     /** @param db                The {@link Dragboard} containing the dragged data.
@@ -341,7 +345,7 @@ public class WidgetTransfer
             final String extension = FilenameUtils.getExtension(filename).toUpperCase();
             if (IMAGE_FILE_EXTENSIONS.contains(extension))
                 imageFileAcceptor(filename, selection_tracker, widgets, updates);
-           else if (EMBEDDED_FILE_EXTENSIONS.contains(extension) )
+            else if (EMBEDDED_FILE_EXTENSIONS.contains(extension) )
                 displayFileAcceptor(filename, selection_tracker, widgets, updates);
         }
     }
