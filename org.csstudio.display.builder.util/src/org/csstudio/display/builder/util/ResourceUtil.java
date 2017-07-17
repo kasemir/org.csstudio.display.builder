@@ -9,6 +9,7 @@ package org.csstudio.display.builder.util;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.cert.X509Certificate;
@@ -18,6 +19,9 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.URIUtil;
 
 /** Helper for handling resources
  *  @author Kay Kasemir
@@ -45,7 +49,12 @@ public class ResourceUtil
             // Handle "platform://.." path during tests in the 'main' directory of a plugin,
             // so "../" leads to the parent of all plugin sources, from which we
             // then locate "specific_plugin/dir/file.png"
-            final String resolved = resource_name.replace("platform:/plugin/", "../");
+            String resolved = resource_name;
+
+            if ( resource_name.contains("platform:/") ) {
+                resolved = URIUtil.toFile(new URI(FileLocator.resolve(new URL(resource_name)).toExternalForm())).getCanonicalPath();
+            }
+
             return new FileInputStream(resolved);
         }
     }

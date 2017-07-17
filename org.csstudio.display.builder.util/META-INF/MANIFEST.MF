@@ -8,3 +8,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: Kay Kasemir - SNS
 Export-Package: org.csstudio.display.builder.util,
  org.csstudio.display.builder.util.undo
+Import-Package: org.eclipse.core.runtime
