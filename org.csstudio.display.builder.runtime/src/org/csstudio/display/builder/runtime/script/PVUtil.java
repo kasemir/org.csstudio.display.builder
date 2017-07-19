@@ -8,17 +8,11 @@
 package org.csstudio.display.builder.runtime.script;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.csstudio.display.builder.runtime.pv.RuntimePV;
 import org.csstudio.java.time.TimestampFormats;
-import org.diirt.util.array.ListDouble;
-import org.diirt.util.array.ListNumber;
 import org.diirt.vtype.Alarm;
 import org.diirt.vtype.AlarmSeverity;
 import org.diirt.vtype.VEnum;
@@ -285,7 +279,7 @@ public class PVUtil
      * can match "Foo" (which returns data for Foo/a, Bar/a, and x) or "Foo/Bar" (which returns data for Bar/a and x),
      * but not "Foo/a" or "Bar/x". For those, use {@link getStructureElement(VType,String)}.
      * Ambiguous names will find the first structure with a matching name.
-     * 
+     *
      * @param pv PV
      * @param name Name of the substructure to get; if blank (empty String, ""), the entire structure is returned
 
@@ -297,7 +291,7 @@ public class PVUtil
     {
     	return ValueUtil.getStructure(getVType(pv), name);
     }
-    
+
     /** Get a table cell from PV
      *
      *  <p>PV must hold a VTable
@@ -312,7 +306,7 @@ public class PVUtil
     {
         return ValueUtil.getTableCell(getVType(pv), row, column);
     }
-    
+
 	/**
 	* Get a structure element from a PV by field name.
 	* <p>PV should hold a VTable which represents the structure.
@@ -341,7 +335,7 @@ public class PVUtil
     {
     	return ValueUtil.getStructureElement(getVType(pv), name);
     }
-    
+
     /**
      * Get an element from a PV structure by field name and array index. If index is valid,
      * this method is equivalent to getStructureElement(value, name).get(index).
@@ -354,5 +348,4 @@ public class PVUtil
     {
     	return ValueUtil.getStructureElement(getVType(pv), name, index);
     }
-
 }

@@ -156,7 +156,7 @@ abstract class PlotCanvasBase extends ImageView
      */
     protected PlotCanvasBase(final boolean active)
     {
-        // 50Hz default throttle
+        // 50ms = 20Hz default throttle
         update_throttle = new RTPlotUpdateThrottle(50, TimeUnit.MILLISECONDS, () ->
         {
             if (need_update.getAndSet(false))
@@ -164,7 +164,10 @@ abstract class PlotCanvasBase extends ImageView
                 in_update = true;
                 final BufferedImage latest = updateImageBuffer();
                 in_update = false;
-                if (latest != null)
+                if (latest == null)
+                    // Update failed, request another
+                    requestUpdate();
+                else
                     plot_image = latest;
             }
             Platform.runLater(redraw_runnable);

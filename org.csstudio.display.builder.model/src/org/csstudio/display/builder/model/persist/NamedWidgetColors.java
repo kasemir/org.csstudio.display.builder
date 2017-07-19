@@ -110,22 +110,35 @@ public class NamedWidgetColors extends ConfigFileParser
     }
 
     @Override
-    protected void parse(final String name, final String value) throws Exception
-    {
-        final StringTokenizer tokenizer = new StringTokenizer(value, ",");
-        try
-        {
-            final int red = Integer.parseInt(tokenizer.nextToken().trim());
-            final int green = Integer.parseInt(tokenizer.nextToken().trim());
-            final int blue = Integer.parseInt(tokenizer.nextToken().trim());
-            final int alpha = tokenizer.hasMoreTokens()
-                            ?  Integer.parseInt(tokenizer.nextToken().trim())
-                            : 255;
-            define(new NamedWidgetColor(name, red, green, blue, alpha));
+    protected void parse ( final String name, final String value ) throws Exception {
+
+        Optional<NamedWidgetColor> optionalColor = getColor(value);
+
+        if ( optionalColor.isPresent() ) {
+
+            NamedWidgetColor nameColor = optionalColor.get();
+
+            define(new NamedWidgetColor(name, nameColor.getRed(), nameColor.getGreen(), nameColor.getBlue(), nameColor.getAlpha()));
+
+        } else {
+
+            final StringTokenizer tokenizer = new StringTokenizer(value, ",");
+
+            try {
+
+                final int red = Integer.parseInt(tokenizer.nextToken().trim());
+                final int green = Integer.parseInt(tokenizer.nextToken().trim());
+                final int blue = Integer.parseInt(tokenizer.nextToken().trim());
+                final int alpha = tokenizer.hasMoreTokens() ? Integer.parseInt(tokenizer.nextToken().trim()) : 255;
+
+                define(new NamedWidgetColor(name, red, green, blue, alpha));
+
+            } catch ( Throwable ex ) {
+                throw new Exception("Cannot parse color '" + name + "' from '" + value + "'", ex);
+            }
+
         }
-        catch (Throwable ex)
-        {
-            throw new Exception("Cannot parse color '" + name + "' from '" + value + "'", ex);
-        }
+
     }
+
 }

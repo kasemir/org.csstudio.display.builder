@@ -62,7 +62,28 @@ public class JFXUtil extends org.csstudio.javafx.JFXUtil
      */
     public static String webRGB(final WidgetColor color)
     {
-        return String.format("#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue());
+        return appendWebRGB(new StringBuilder(), color).toString();
+    }
+
+    /** Convert model color into web-type RGB text
+     *  @param buf StringBuilder where RGB text of the form "#FF8080" is added
+     *  @param color {@link WidgetColor}
+     *  @return {@link StringBuilder}
+     */
+    public static StringBuilder appendWebRGB(final StringBuilder buf, final WidgetColor color)
+    {
+        buf.append('#');
+        addHex(buf, color.getRed());
+        addHex(buf, color.getGreen());
+        addHex(buf, color.getBlue());
+        return buf;
+    }
+
+    private static final char[] hex_chars = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+    private static void addHex(final StringBuilder buf, final int number)
+    {
+        buf.append(hex_chars[number / 16]);
+        buf.append(hex_chars[number % 16]);
     }
 
     /** Convert model color into CSS style string for shading tabs, buttons, etc

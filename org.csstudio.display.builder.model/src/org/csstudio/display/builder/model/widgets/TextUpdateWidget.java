@@ -13,6 +13,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFormat;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHorizontalAlignment;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propInteractive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPrecision;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propRotationStep;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propShowUnits;
@@ -189,6 +190,7 @@ public class TextUpdateWidget extends PVWidget
     private volatile WidgetProperty<VerticalAlignment> vertical_alignment;
     private volatile WidgetProperty<Boolean> wrap_words;
     private volatile WidgetProperty<RotationStep> rotation_step;
+    private volatile WidgetProperty<Boolean> interactive;
 
     public TextUpdateWidget()
     {
@@ -216,6 +218,7 @@ public class TextUpdateWidget extends PVWidget
         properties.add(vertical_alignment = propVerticalAlignment.createProperty(this, VerticalAlignment.TOP));
         properties.add(wrap_words = propWrapWords.createProperty(this, true));
         properties.add(rotation_step = propRotationStep.createProperty(this, RotationStep.NONE));
+        properties.add(interactive = propInteractive.createProperty(this, false));
     }
 
     /** @return 'foreground_color' property */
@@ -282,5 +285,11 @@ public class TextUpdateWidget extends PVWidget
     public WidgetProperty<RotationStep> propRotationStep()
     {
         return rotation_step;
+    }
+
+    /** @return 'interactive' property */
+    public WidgetProperty<Boolean> propInteractive()
+    {
+        return interactive;
     }
 }

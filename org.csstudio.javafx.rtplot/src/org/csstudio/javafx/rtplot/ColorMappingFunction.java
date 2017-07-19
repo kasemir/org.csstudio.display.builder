@@ -36,12 +36,12 @@ public interface ColorMappingFunction
      *  @param red
      *  @param green
      *  @param blue
-     *  @return RGB value
+     *  @return RGB value (including alpha set to fully opaque)
      */
     public static int getRGB(int red, int green, int blue)
     {
-        return 0xFF000000 |
-                ((red   & 0xFF) << 16)  |
+        return 0xFF000000              |
+               ((red   & 0xFF) << 16)  |
                ((green & 0xFF) <<  8)  |
                ((blue  & 0xFF));
     }
