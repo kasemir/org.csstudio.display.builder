@@ -268,13 +268,15 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
                                  model_widget.propHeight().getValue());
         if (dirty_style.checkAndClear())
         {
-            final String color = JFXUtil.webRGB(model_widget.propForegroundColor().getValue());
-            String style = "-fx-text-fill:" + color + ";";
+            final StringBuilder style = new StringBuilder(100);
+            style.append("-fx-text-fill:");
+            JFXUtil.appendWebRGB(style, model_widget.propForegroundColor().getValue()).append(";");
 
             // http://stackoverflow.com/questions/27700006/how-do-you-change-the-background-color-of-a-textfield-without-changing-the-border
             final WidgetColor back_color = active ? active_color : model_widget.propBackgroundColor().getValue();
-            style += "-fx-control-inner-background: " + JFXUtil.webRGB(back_color) + ";";
-            jfx_node.setStyle(style);
+            style.append("-fx-control-inner-background: ");
+            JFXUtil.appendWebRGB(style, back_color).append(";");
+            jfx_node.setStyle(style.toString());
 
             jfx_node.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
 
