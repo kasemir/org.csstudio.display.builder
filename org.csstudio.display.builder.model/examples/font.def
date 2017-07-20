@@ -11,15 +11,22 @@
 
 // Format:
 //
-// Named Font = Family - Style - Size
+//   NamedFont['(' OS ')'] = Family '-' Style '-' Size | '@'PreviouslyDefinedNamedFont
 //
 // Family: Font family name "Liberation Sans", "Liberation Mono", "Liberation Serif"
-// Style : "regular", "bold", "italic", "bold italic"
-// Size  : Font height in pixels
+//  Style: "regular", "bold", "italic", "bold italic"
+//   Size: Font height in pixels
+//     OS: "windows", "linux", "macosx"
 //
 // Leading/trailing spaces around each element are OK, but if the font family
 // is "Liberation Sans", it has to be typed with just that one space between
 // "Liberation" and "Sans"
+//
+// Examples of named fonts
+//
+//   Default      = Liberation Sans - regular - 14
+//   Default Bold = Liberation Sans - bold    - 14
+//   Header 1     = @Default Bold
 //
 // Speaking of "Liberation Sans":
 // The display builder includes the "Liberation" fonts
