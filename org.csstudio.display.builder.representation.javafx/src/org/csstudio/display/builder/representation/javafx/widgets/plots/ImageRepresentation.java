@@ -33,7 +33,6 @@ import org.csstudio.javafx.rtplot.Interpolation;
 import org.csstudio.javafx.rtplot.RTImagePlot;
 import org.csstudio.javafx.rtplot.RTImagePlotListener;
 import org.csstudio.javafx.rtplot.RegionOfInterest;
-import org.diirt.util.array.ArrayByte;
 import org.diirt.util.array.ArrayDouble;
 import org.diirt.util.array.ArrayInt;
 import org.diirt.vtype.VImage;
@@ -294,7 +293,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         else if (value instanceof VImage)
         {
             final VImage image = (VImage) value;
-            image_plot.setValue(image.getWidth(), image.getHeight(), new ArrayByte(image.getData(), true),
+            image_plot.setValue(image.getWidth(), image.getHeight(), image.getData(),
                                 model_widget.propDataUnsigned().getValue());
         }
         else if (value != null)
