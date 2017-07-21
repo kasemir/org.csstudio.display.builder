@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.persist;
 
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -73,43 +74,70 @@ public class NamedWidgetFonts extends ConfigFileParser
     }
 
     @Override
-    protected void parse(String name, final String value) throws Exception
-    {
+    protected void parse ( String name, final String value ) throws Exception {
+
         final String os = getOSName();
         String selector = "";
 
         // Check if name is qualified by OS selector
         final int sep = name.indexOf('(');
-        if (sep > 0)
-        {
-            final int end = name.indexOf(')', sep+1);
-            if (end < 0)
+
+        if ( sep > 0 ) {
+
+            final int end = name.indexOf(')', sep + 1);
+
+            if ( end < 0 ) {
                 throw new Exception("Cannot locate end of OS selector in '" + name + "'");
-            selector = name.substring(sep+1, end);
+            }
+
+            selector = name.substring(sep + 1, end);
             name = name.substring(0, sep);
 
             // Ignore entries that do not match this OS
-            if (! selector.startsWith(os))
+            if ( !selector.startsWith(os) ) {
                 return;
+            }
+
         }
 
-        final StringTokenizer tokenizer = new StringTokenizer(value, "-");
-        try
-        {
-            String family = tokenizer.nextToken().trim();
-            final WidgetFontStyle style = parseStyle(tokenizer.nextToken().trim());
-            final double size = Double.parseDouble(tokenizer.nextToken().trim());
+        String tvalue = value.trim();
 
-            if (family.equalsIgnoreCase("SystemDefault"))
-                family = DEFAULT.getFamily();
+        if ( tvalue.startsWith("@") ) {
 
-            final NamedWidgetFont font = new NamedWidgetFont(name, family, style, size);
-            define(font);
+            Optional<NamedWidgetFont> optionalFont = getFont(tvalue.substring(1).trim());
+
+            if ( optionalFont.isPresent() ) {
+
+                NamedWidgetFont namedFont = optionalFont.get();
+
+                define(new NamedWidgetFont(name, namedFont.getFamily(), namedFont.getStyle(), namedFont.getSize()));
+
+            } else {
+                throw new Exception(MessageFormat.format("Cannot parse font ''{0}'': font not previously defined.", tvalue));
+            }
+
+        } else {
+
+            final StringTokenizer tokenizer = new StringTokenizer(value, "-");
+
+            try {
+
+                String family = tokenizer.nextToken().trim();
+                final WidgetFontStyle style = parseStyle(tokenizer.nextToken().trim());
+                final double size = Double.parseDouble(tokenizer.nextToken().trim());
+
+                if ( family.equalsIgnoreCase("SystemDefault") ) {
+                    family = DEFAULT.getFamily();
+                }
+
+                define(new NamedWidgetFont(name, family, style, size));
+
+            } catch ( Throwable ex ) {
+                throw new Exception(MessageFormat.format("Cannot parse font ''{0}'' from ''{1}''", name, value), ex);
+            }
+
         }
-        catch (Throwable ex)
-        {
-            throw new Exception("Cannot parse font '" + name + "' from '" + value + "'", ex);
-        }
+
     }
 
     /** @param style_text "bold", "italic", "bold italic" as used since legacy opibuilder
