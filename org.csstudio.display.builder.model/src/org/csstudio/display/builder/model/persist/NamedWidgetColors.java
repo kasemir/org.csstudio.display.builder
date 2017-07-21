@@ -116,9 +116,9 @@ public class NamedWidgetColors extends ConfigFileParser
 
         if ( optionalColor.isPresent() ) {
 
-            NamedWidgetColor nameColor = optionalColor.get();
+            NamedWidgetColor namedColor = optionalColor.get();
 
-            define(new NamedWidgetColor(name, nameColor.getRed(), nameColor.getGreen(), nameColor.getBlue(), nameColor.getAlpha()));
+            define(new NamedWidgetColor(name, namedColor.getRed(), namedColor.getGreen(), namedColor.getBlue(), namedColor.getAlpha()));
 
         } else {
 

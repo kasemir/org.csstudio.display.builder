@@ -1,7 +1,7 @@
 # Named colors
 #
 # Format:
-# NameOfColor = red, green, blue [, alpha ]
+#   NameOfColor = red, green, blue [, alpha ] | PreviouslyDefinedNameOfColor
 # with values in 0..255 range.
 #
 # Whenever possible, use named colors in displays
@@ -46,7 +46,7 @@ Header_ForeGround=255,255,255
 # just because you like the look of red.
 # STOP looks similar to red=MAJOR alarm, and is allowed
 # for 'STOP' type of buttons
-STOP = 255,0,0
+STOP = MAJOR
 
 # Attention looks similar to a MINOR alarm.
 # It is meant to draw attention
@@ -62,5 +62,5 @@ Attention = 255,160,0
 # For example, a limit switch indicator could use colors "Off" and "MAJOR":
 # Off when idle, MAJOR when the limit switch was hit and this is an abnormal situation
 # that requires attention.
-On = 0,255,0
+On = OK
 Off = 60,100,60
