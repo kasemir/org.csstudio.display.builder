@@ -250,6 +250,7 @@ public class Messages extends NLS
     public static String WidgetProperties_Orientation;
     public static String WidgetProperties_Points;
     public static String WidgetProperties_Precision;
+    public static String WidgetProperties_PreserveRatio;
     public static String WidgetProperties_PVName;
     public static String WidgetProperties_ResizeBehavior;
     public static String WidgetProperties_Rotation;
@@ -276,6 +277,8 @@ public class Messages extends NLS
     public static String WidgetProperties_Square;
     public static String WidgetProperties_StartFromZero;
     public static String WidgetProperties_StretchToFit;
+    public static String WidgetProperties_Symbol;
+    public static String WidgetProperties_Symbols;
     public static String WidgetProperties_Text;
     public static String WidgetProperties_TextColor;
     public static String WidgetProperties_TextVisible;

@@ -8,9 +8,22 @@
  */
 package org.csstudio.display.builder.model.widgets;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newFilenamePropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
+
+import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.List;
+
+import org.csstudio.display.builder.model.ArrayWidgetProperty;
+import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetDescriptor;
+import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyCategory;
+import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 
 /**
  * @author claudiorosati, European Spallation Source ERIC
@@ -31,6 +44,21 @@ public class SymbolWidget extends PVWidget {
             }
         };
 
+    public static final WidgetPropertyDescriptor<Boolean>                       propPreserveRatio = newBooleanPropertyDescriptor (WidgetPropertyCategory.BEHAVIOR, "preserve_ratio", Messages.WidgetProperties_PreserveRatio);
+    /** 'symbol' property: element for list of 'symbols' property */
+    private static final WidgetPropertyDescriptor<String>                       propSymbol        = newFilenamePropertyDescriptor(WidgetPropertyCategory.WIDGET,   "symbol",         Messages.WidgetProperties_Symbol);
+
+    /** 'items' property: list of items (string properties) for combo box */
+    public static final ArrayWidgetProperty.Descriptor<WidgetProperty<String> > propSymbols       = new ArrayWidgetProperty.Descriptor< WidgetProperty<String> >(
+        WidgetPropertyCategory.WIDGET,
+        "symbols",
+        Messages.WidgetProperties_Symbols, (widget, index) -> propSymbol.createProperty(widget, MessageFormat.format("<symbol-file-{0,number,000}>", index))
+    );
+
+    private volatile WidgetProperty<Boolean>                     enabled;
+    private volatile WidgetProperty<Boolean>                     preserve_ratio;
+    private volatile ArrayWidgetProperty<WidgetProperty<String>> symbols;
+
     /**
      * @param type Widget type.
      * @param default_width Default widget width.
@@ -38,6 +66,30 @@ public class SymbolWidget extends PVWidget {
      */
     public SymbolWidget ( ) {
         super(WIDGET_DESCRIPTOR.getType(), 120, 120);
+    }
+
+    public WidgetProperty<Boolean> propEnabled ( ) {
+        return enabled;
+    }
+
+    public WidgetProperty<Boolean> propPreserveRatio ( ) {
+        return preserve_ratio;
+    }
+
+    public ArrayWidgetProperty<WidgetProperty<String>> propSymbols ( ) {
+        return symbols;
+    }
+
+    @Override
+    protected void defineProperties ( final List<WidgetProperty<?>> properties ) {
+
+        super.defineProperties(properties);
+
+        properties.add(symbols        = propSymbols.createProperty(this, Collections.emptyList()));
+
+        properties.add(enabled        = propEnabled.createProperty(this, true));
+        properties.add(preserve_ratio = propPreserveRatio.createProperty(this, true));
+
     }
 
 }
