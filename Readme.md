@@ -94,6 +94,10 @@ Replace the changes with the HEAD version of the repository.
 
 (These .classfiles add access rules to permit use of javafx.* classes without warnings in the IDE)
 
+When starting CS-Studio with the Display Builder from within the IDE, note that it doesn't seem to be possible
+to switch from an IDE running with GTK 3 to a CS-Studio instance launched with GTK 2.
+So in this case `export SWT_GTK3=0` is necessary for the IDE itself, which will then be able to start
+CS-Studio with Display Builder, also using GTK 2.
 
 ### Entry Points
 
