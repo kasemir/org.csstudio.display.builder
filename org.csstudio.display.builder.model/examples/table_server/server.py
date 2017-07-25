@@ -24,17 +24,7 @@ titles = ['Fred1', 'Fred2', 'Lisa I', 'Larry One', 'Lisa II', 'Harry One', 'Anot
 names = ['Fred', 'Fred', 'Lisa', 'Larry', 'Lisa', 'Larry', 'Fred', 'Lisa']
 ids = {'Fred' : [1, 2, 7], 'Lisa' : [3, 5, 8], 'Larry' : [4, 6]}
 
-# create PVs
-tableValueDict = OrderedDict([('id', [UINT]), ('name', [STRING]), ('title', [STRING])])
-tablePV = PvObject({ 'labels' : [STRING], 'value' : tableValueDict }, "epics:nt/NTTable:1.0")
-tablePV['labels'] = ['ID', 'Name', 'Title']
-namePV = PvString('')
-
-# create server
-server = PvaServer('table', tablePV)
-server.addRecord('name', namePV)
-
-# update value
+# update value (callback)
 def updateValue(pv):
 	name = namePV['value']
 	#print("updating table for name '%s'" % name)
@@ -59,9 +49,15 @@ def updateValue(pv):
 	#print("value = %s" % str(value))
 	tablePV['value'] = value
 
-# create monitor
-channel = Channel('name')
-channel.monitor(updateValue)
+# create PVs
+tableDefDict = OrderedDict([('id', [UINT]), ('name', [STRING]), ('title', [STRING])])
+tablePV = PvObject({ 'labels' : [STRING], 'value' : tableDefDict }, "epics:nt/NTTable:1.0")
+tablePV['labels'] = ['ID', 'Name', 'Title']
+namePV = PvString('')
+
+# create server
+server = PvaServer('table', tablePV)
+server.addRecord('name', namePV, updateValue)
 
 raw_input("\nEnter anything to quit\n")
 
