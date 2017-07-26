@@ -12,7 +12,6 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newFilenamePropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
 
-import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
 
@@ -30,6 +29,8 @@ import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
  * @version 1.0.0 19 Jun 2017
  */
 public class SymbolWidget extends PVWidget {
+
+    private final static String DEFAULT_SYMBOL = "platform:/plugin/org.csstudio.display.builder.model/icons/default_symbol.png"; //$NON-NLS-1$
 
     public static final WidgetDescriptor WIDGET_DESCRIPTOR = new WidgetDescriptor(
             "symbol",
@@ -52,7 +53,7 @@ public class SymbolWidget extends PVWidget {
     public static final ArrayWidgetProperty.Descriptor<WidgetProperty<String> > propSymbols       = new ArrayWidgetProperty.Descriptor< WidgetProperty<String> >(
         WidgetPropertyCategory.WIDGET,
         "symbols",
-        Messages.WidgetProperties_Symbols, (widget, index) -> propSymbol.createProperty(widget, MessageFormat.format("<symbol-file-{0,number,000}>", index))
+        Messages.WidgetProperties_Symbols, (widget, index) -> propSymbol.createProperty(widget, DEFAULT_SYMBOL)
     );
 
     private volatile WidgetProperty<Boolean>                     enabled;
@@ -65,7 +66,7 @@ public class SymbolWidget extends PVWidget {
      * @param default_height Default widget height.
      */
     public SymbolWidget ( ) {
-        super(WIDGET_DESCRIPTOR.getType(), 120, 120);
+        super(WIDGET_DESCRIPTOR.getType(), 100, 100);
     }
 
     public WidgetProperty<Boolean> propEnabled ( ) {

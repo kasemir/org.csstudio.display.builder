@@ -179,13 +179,18 @@ public class SymbolRepresentation extends RegionBaseRepresentation<BorderPane, S
         BorderPane symbol = new BorderPane();
         ImageView imageView = new ImageView();
 
+//        imageView.setImage(voidImage);
         imageView.setPreserveRatio(model_widget.propPreserveRatio().getValue());
         imageView.setSmooth(true);
         imageView.setCache(true);
+//        imageView.setFitWidth(model_widget.propWidth().getValue());
+//        imageView.setFitHeight(model_widget.propHeight().getValue());
         imageView.fitHeightProperty().bind(symbol.prefHeightProperty());
         imageView.fitWidthProperty().bind(symbol.prefWidthProperty());
 
         symbol.setCenter(imageView);
+//        symbol.setPrefWidth(model_widget.propWidth().getValue());
+//        symbol.setPrefHeight(model_widget.propHeight().getValue());
 
         enabled = model_widget.propEnabled().getValue();
 
@@ -220,9 +225,39 @@ public class SymbolRepresentation extends RegionBaseRepresentation<BorderPane, S
 
     }
 
-    private void loadSymbols ( List<WidgetProperty<String>> fileNames ) {
-        // TODO Auto-generated method stub
+    private void loadSymbol ( String fileName ) {
 
+        String imageFileName;
+
+//        try {
+//
+//            String expandedFileName = MacroHandler.replace(model_widget.getMacrosOrProperties(), fileName);
+//
+//            // Resolve new image file relative to the source widget model (not 'top'!)
+//            // Get the display model from the widget tied to this representation
+//            final DisplayModel widgetModel = model_widget.getDisplayModel();
+//
+//            // Resolve the image path using the parent model file path
+//            imageFileName = ModelResourceUtil.resolveResource(widget_model, expanded_path);
+//
+//        } catch ( Exception e ) {
+//
+//            logger.log(Level.WARNING, "Unable to convert \"{0}\" to a Local instance [{1}].", new Object[] { value.toString(), ex.getMessage()});
+//
+//            System.out.println("Failure resolving image path from base path: " + base_path);
+//            e.printStackTrace();
+//            load_failed = true;
+//        }
+
+
+
+
+    }
+
+    private void loadSymbols ( List<WidgetProperty<String>> fileNames ) {
+        if ( fileNames != null ) {
+            fileNames.stream().forEach(f -> loadSymbol(f.getValue()));
+        }
     }
 
     private void contentChanged ( final WidgetProperty<?> property, final Object oldValue, final Object newValue ) {
