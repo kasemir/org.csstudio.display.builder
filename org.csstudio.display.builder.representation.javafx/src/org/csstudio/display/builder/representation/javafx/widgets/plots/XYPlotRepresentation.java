@@ -97,6 +97,42 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
                 plot_marker.setPosition(effective);
             changing_marker = false;
         }
+
+        // When user interactively changes the plot,
+        // update the model.
+        @Override
+        public void changedXAxis(final Axis<Double> x_axis)
+        {
+            updateModelAxis(model_widget.propXAxis(), x_axis);
+        }
+
+        @Override
+        public void changedYAxis(final YAxis<Double> y_axis)
+        {
+            final int index = plot.getYAxes().indexOf(y_axis);
+            if (index >= 0  &&  index < model_widget.propYAxes().size())
+                updateModelAxis(model_widget.propYAxes().getElement(index), y_axis);
+        }
+
+        private void updateModelAxis(final AxisWidgetProperty model_axis, final Axis<Double> plot_axis)
+        {
+            final AxisRange<Double> range = plot_axis.getValueRange();
+            if (changing_range)
+            {
+                logger.log(Level.WARNING, "Ignoring plot axis change for " + model_axis + " because of additional change");
+                return;
+            }
+            changing_range = true;
+            try
+            {
+                model_axis.minimum().setValue(range.getLow());
+                model_axis.maximum().setValue(range.getHigh());
+            }
+            finally
+            {
+                changing_range = false;
+            }
+        }
     };
 
     /** Handler for one trace of the plot
