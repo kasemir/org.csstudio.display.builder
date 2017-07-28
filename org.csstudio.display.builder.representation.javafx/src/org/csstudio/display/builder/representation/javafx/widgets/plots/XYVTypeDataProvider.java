@@ -38,9 +38,12 @@ import org.diirt.util.array.ListNumber;
 @SuppressWarnings("nls")
 public class XYVTypeDataProvider implements PlotDataProvider<Double>
 {
-    public final static ListNumber EMPTY = new ArrayDouble(new double[0], true);
+    public static final ListNumber EMPTY = new ArrayDouble(new double[0], true);
 
-    private final ReadWriteLock lock = new InstrumentedReadWriteLock();
+    /** Sharing the _read_ half of just one lock.
+     *  Never using the _write_ half, since this class is immutable
+     */
+    private static final ReadWriteLock lock = new InstrumentedReadWriteLock();
 
     private final ListNumber x_data, y_data, error_data;
     private final int size;
