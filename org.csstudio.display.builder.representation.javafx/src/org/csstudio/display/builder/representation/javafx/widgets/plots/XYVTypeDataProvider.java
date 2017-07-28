@@ -7,8 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets.plots;
 
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 
@@ -42,33 +40,28 @@ public class XYVTypeDataProvider implements PlotDataProvider<Double>
 {
     public final static ListNumber EMPTY = new ArrayDouble(new double[0], true);
 
-    final private ReadWriteLock lock = new InstrumentedReadWriteLock();
+    private final ReadWriteLock lock = new InstrumentedReadWriteLock();
 
-    private volatile ListNumber x_data, y_data, error_data;
-    private volatile int size = 0;
+    private final ListNumber x_data, y_data, error_data;
+    private final int size;
 
     /** Set the plot's data
      *  @param x_data X data, may be <code>null</code>
      *  @param y_data Y data
      *  @param error_data Error data
-     *  @throws Exception
      */
-    public void setData(final ListNumber x_data, final ListNumber y_data, final ListNumber error_data) throws Exception
+    public XYVTypeDataProvider(final ListNumber x_data, final ListNumber y_data, final ListNumber error_data)
     {
-        if (! lock.writeLock().tryLock(10, TimeUnit.SECONDS))
-            throw new TimeoutException("Cannot lock " + lock);
-        try
-        {
-            // In principle, error_data should have 1 element or same size as X and Y..
-            this.x_data = x_data;
-            this.y_data = y_data;
-            size = x_data == null ? y_data.size() : Math.min(x_data.size(), y_data.size());
-            this.error_data = error_data == null ? EMPTY : error_data;
-        }
-        finally
-        {
-            lock.writeLock().unlock();
-        }
+        // In principle, error_data should have 1 element or same size as X and Y..
+        this.x_data = x_data;
+        this.y_data = y_data;
+        size = x_data == null ? y_data.size() : Math.min(x_data.size(), y_data.size());
+        this.error_data = error_data == null ? EMPTY : error_data;
+    }
+
+    public XYVTypeDataProvider()
+    {
+        this(EMPTY, EMPTY, EMPTY);
     }
 
     @Override
