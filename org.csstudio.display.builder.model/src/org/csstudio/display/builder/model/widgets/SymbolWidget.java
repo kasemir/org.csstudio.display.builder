@@ -30,7 +30,7 @@ import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
  */
 public class SymbolWidget extends PVWidget {
 
-    private final static String DEFAULT_SYMBOL = "platform:/plugin/org.csstudio.display.builder.model/icons/default_symbol.png"; //$NON-NLS-1$
+    public final static String DEFAULT_SYMBOL = "platform:/plugin/org.csstudio.display.builder.model/icons/default_symbol.png"; //$NON-NLS-1$
 
     public static final WidgetDescriptor WIDGET_DESCRIPTOR = new WidgetDescriptor(
             "symbol",
@@ -53,7 +53,9 @@ public class SymbolWidget extends PVWidget {
     public static final ArrayWidgetProperty.Descriptor<WidgetProperty<String> > propSymbols       = new ArrayWidgetProperty.Descriptor< WidgetProperty<String> >(
         WidgetPropertyCategory.WIDGET,
         "symbols",
-        Messages.WidgetProperties_Symbols, (widget, index) -> propSymbol.createProperty(widget, DEFAULT_SYMBOL)
+        Messages.WidgetProperties_Symbols,
+        (widget, index) ->
+        propSymbol.createProperty(widget, DEFAULT_SYMBOL)
     );
 
     private volatile WidgetProperty<Boolean>                     enabled;

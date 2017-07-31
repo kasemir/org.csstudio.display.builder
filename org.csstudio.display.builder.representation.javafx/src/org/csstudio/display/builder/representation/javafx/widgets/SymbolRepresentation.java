@@ -9,16 +9,37 @@
 package org.csstudio.display.builder.representation.javafx.widgets;
 
 
+import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyListener;
+import org.csstudio.display.builder.model.macros.MacroHandler;
+import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.widgets.SymbolWidget;
 import org.csstudio.javafx.Styles;
+import org.diirt.util.array.ListInt;
+import org.diirt.util.array.ListNumber;
+import org.diirt.vtype.VBoolean;
+import org.diirt.vtype.VEnum;
+import org.diirt.vtype.VEnumArray;
+import org.diirt.vtype.VNumber;
+import org.diirt.vtype.VNumberArray;
+import org.diirt.vtype.VString;
 import org.diirt.vtype.VType;
 
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 
@@ -29,12 +50,18 @@ import javafx.scene.layout.BorderPane;
  */
 public class SymbolRepresentation extends RegionBaseRepresentation<BorderPane, SymbolWidget> {
 
-    private final DirtyFlag     dirtyContent  = new DirtyFlag();
-    private final DirtyFlag     dirtyGeometry = new DirtyFlag();
-    private final DirtyFlag     dirtyStyle    = new DirtyFlag();
-    private final DirtyFlag     dirtyValue    = new DirtyFlag();
-    private volatile boolean    enabled       = true;
-    private final AtomicBoolean updatingValue = new AtomicBoolean(false);
+    private static Image defaultSymbol = null;
+
+    private final DirtyFlag                      dirtyContent          = new DirtyFlag();
+    private final DirtyFlag                      dirtyGeometry         = new DirtyFlag();
+    private final DirtyFlag                      dirtyStyle            = new DirtyFlag();
+    private final DirtyFlag                      dirtyValue            = new DirtyFlag();
+    private volatile boolean                     enabled               = true;
+    private int                                  imageIndex            = -1;
+    private final List<Image>                    imagesList            = new ArrayList<>(4);
+    private final Map<String, Image>             imagesMap             = new TreeMap<>();
+    private final WidgetPropertyListener<String> imagePropertyListener = this::imageChanged;
+    private final AtomicBoolean                  updatingValue         = new AtomicBoolean(false);
 
     @Override
     public void updateChanges ( ) {
@@ -107,17 +134,15 @@ public class SymbolRepresentation extends RegionBaseRepresentation<BorderPane, S
 //            }
 //
 //        }
-//
-//        if ( dirtyContent.checkAndClear() ) {
-//
-//            value = FormatOptionHandler.actualPrecision(model_widget.runtimePropValue().getValue(), model_widget.propPrecision().getValue());
-//
-//            if ( !Objects.equals(value, jfx_node.getDecimals()) ) {
-//                jfx_node.setDecimals((int) value);
-//            }
-//
-//        }
-//
+
+        if ( dirtyContent.checkAndClear() ) {
+
+            imageIndex = Math.min(Math.max(imageIndex, 0), imagesList.size() - 1);
+
+            ((ImageView) jfx_node.getCenter()).setImage(( imageIndex >= 0 ) ? imagesList.get(imageIndex) : getDefaultSymbol());
+
+        }
+
 //        if ( dirtyLimits.checkAndClear() ) {
 //            jfx_node.setMaxValue(max);
 //            jfx_node.setMinValue(min);
@@ -142,55 +167,68 @@ public class SymbolRepresentation extends RegionBaseRepresentation<BorderPane, S
 //            }
 //
 //        }
-//
-//        if ( dirtyValue.checkAndClear() && updatingValue.compareAndSet(false, true) ) {
-//            try {
-//
-//                final VType vtype = model_widget.runtimePropValue().getValue();
-//                double newval = VTypeUtil.getValueNumber(vtype).doubleValue();
-//
-//                if ( !Double.isNaN(newval) ) {
-//
-//                    if ( newval < min ) {
-//                        newval = min;
-//                    } else if ( newval > max ) {
-//                        newval = max;
-//                    }
-//
-//                    jfx_node.setValue(newval);
-//
-//                } else {
-////  TODO: CR: do something!!!
-//                }
-//
-//            } finally {
-//                updatingValue.set(false);
-//            }
-//
-//        }
+
+        if ( dirtyValue.checkAndClear() && updatingValue.compareAndSet(false, true) ) {
+            try {
+
+                value = model_widget.runtimePropValue().getValue();
+
+                if ( value != null ) {
+                    if ( value instanceof VBoolean ) {
+                        imageIndex = ((VBoolean) value).getValue() ? 1 : 0;
+                    } else if ( value instanceof VString ) {
+                        try {
+                            imageIndex = Integer.parseInt(((VString) value).getValue());
+                        } catch ( NumberFormatException nfex ) {
+                            logger.log(Level.WARNING, "Failure parsing the string value: {0} [{1}].", new Object[] { ((VString) value).getValue(), nfex.getMessage() });
+                        }
+                    } else if ( value instanceof VNumber ) {
+                        imageIndex = ((VNumber) value).getValue().intValue();
+                    } else if ( value instanceof VEnum ) {
+                        imageIndex = ((VEnum) value).getIndex();
+                    } else if ( value instanceof VNumberArray ) {
+
+                        ListNumber array = ((VNumberArray) value).getData();
+
+                        if ( array.size() > 0 ) {
+                            imageIndex = array.getInt(0);
+                        }
+
+                    } else if ( value instanceof VEnumArray ) {
+
+                        ListInt array = ((VEnumArray) value).getIndexes();
+
+                        if ( array.size() > 0 ) {
+                            imageIndex = array.getInt(0);
+                        }
+                    }
+                }
+
+
+            } finally {
+                updatingValue.set(false);
+            }
+
+        }
 
     }
 
     @Override
     protected BorderPane createJFXNode ( ) throws Exception {
 
-        loadSymbols(model_widget.propSymbols().getValue());
+        updateSymbols(model_widget.propSymbols().getValue());
 
         BorderPane symbol = new BorderPane();
         ImageView imageView = new ImageView();
 
-//        imageView.setImage(voidImage);
+        imageView.setImage(imagesList.isEmpty() ? getDefaultSymbol() : imagesList.get(0));
         imageView.setPreserveRatio(model_widget.propPreserveRatio().getValue());
         imageView.setSmooth(true);
         imageView.setCache(true);
-//        imageView.setFitWidth(model_widget.propWidth().getValue());
-//        imageView.setFitHeight(model_widget.propHeight().getValue());
         imageView.fitHeightProperty().bind(symbol.prefHeightProperty());
         imageView.fitWidthProperty().bind(symbol.prefWidthProperty());
 
         symbol.setCenter(imageView);
-//        symbol.setPrefWidth(model_widget.propWidth().getValue());
-//        symbol.setPrefHeight(model_widget.propHeight().getValue());
 
         enabled = model_widget.propEnabled().getValue();
 
@@ -225,41 +263,6 @@ public class SymbolRepresentation extends RegionBaseRepresentation<BorderPane, S
 
     }
 
-    private void loadSymbol ( String fileName ) {
-
-        String imageFileName;
-
-//        try {
-//
-//            String expandedFileName = MacroHandler.replace(model_widget.getMacrosOrProperties(), fileName);
-//
-//            // Resolve new image file relative to the source widget model (not 'top'!)
-//            // Get the display model from the widget tied to this representation
-//            final DisplayModel widgetModel = model_widget.getDisplayModel();
-//
-//            // Resolve the image path using the parent model file path
-//            imageFileName = ModelResourceUtil.resolveResource(widget_model, expanded_path);
-//
-//        } catch ( Exception e ) {
-//
-//            logger.log(Level.WARNING, "Unable to convert \"{0}\" to a Local instance [{1}].", new Object[] { value.toString(), ex.getMessage()});
-//
-//            System.out.println("Failure resolving image path from base path: " + base_path);
-//            e.printStackTrace();
-//            load_failed = true;
-//        }
-
-
-
-
-    }
-
-    private void loadSymbols ( List<WidgetProperty<String>> fileNames ) {
-        if ( fileNames != null ) {
-            fileNames.stream().forEach(f -> loadSymbol(f.getValue()));
-        }
-    }
-
     private void contentChanged ( final WidgetProperty<?> property, final Object oldValue, final Object newValue ) {
         dirtyContent.mark();
         toolkit.scheduleUpdate(this);
@@ -270,22 +273,126 @@ public class SymbolRepresentation extends RegionBaseRepresentation<BorderPane, S
         toolkit.scheduleUpdate(this);
     }
 
-    private void imagesChanged ( final WidgetProperty<List<WidgetProperty<String>>> property, final List<WidgetProperty<String>> oldValue, final List<WidgetProperty<String>> newValue ) {
+    private Image getDefaultSymbol() {
 
-//  Synch it???
-        loadSymbols(model_widget.propSymbols().getValue());
+        if ( defaultSymbol == null ) {
+            defaultSymbol = loadSymbol(SymbolWidget.DEFAULT_SYMBOL);
+        }
 
+        return defaultSymbol;
 
+    }
 
-        dirtyStyle.mark();
+    private void imageChanged ( final WidgetProperty<String> property, final String oldValue, final String newValue ) {
+
+        updateSymbols(model_widget.propSymbols().getValue());
+
         dirtyContent.mark();
         toolkit.scheduleUpdate(this);
+
+    }
+
+    private void imagesChanged ( final WidgetProperty<List<WidgetProperty<String>>> property, final List<WidgetProperty<String>> oldValue, final List<WidgetProperty<String>> newValue ) {
+
+        updateSymbols(model_widget.propSymbols().getValue());
+
+        if ( oldValue != null ) {
+            oldValue.stream().forEach(p -> p.removePropertyListener(imagePropertyListener));
+        }
+
+        if ( newValue != null ) {
+            newValue.stream().forEach(p -> p.addPropertyListener(imagePropertyListener));
+        }
+
+        dirtyContent.mark();
+        toolkit.scheduleUpdate(this);
+
+    }
+
+    /**
+     * Load the image for the given file name.
+     *
+     * @param fileName The file name of the image to be loaded.
+     * @return The loaded {@link Image}, or {@code null} if no image was loaded.
+     */
+    private Image loadSymbol ( String fileName ) {
+
+        String imageFileName;
+
+        try {
+
+            String expandedFileName = MacroHandler.replace(model_widget.getMacrosOrProperties(), fileName);
+
+            //  Resolve new image file relative to the source widget model (not 'top'!).
+            //  Get the display model from the widget tied to this representation.
+            final DisplayModel widgetModel = model_widget.getDisplayModel();
+
+            // Resolve the image path using the parent model file path.
+            imageFileName = ModelResourceUtil.resolveResource(widgetModel, expandedFileName);
+
+        } catch ( Exception ex ) {
+
+            logger.log(Level.WARNING, "Failure resolving image path: {0} [{1}].", new Object[] { fileName, ex.getMessage() });
+
+            return null;
+
+        }
+
+        try {
+            //  Open the image from the stream created from the resource file.
+            return new Image(ModelResourceUtil.openResourceStream(imageFileName));
+        } catch ( Exception ex ) {
+
+            logger.log(Level.WARNING, "Failure loading image: ({0}) {1} [{2}].", new Object[] { fileName, imageFileName, ex.getMessage() });
+
+            return null;
+
+        }
 
     }
 
     private void styleChanged ( final WidgetProperty<?> property, final Object oldValue, final Object newValue ) {
         dirtyStyle.mark();
         toolkit.scheduleUpdate(this);
+    }
+
+    private void updateSymbols ( List<WidgetProperty<String>> fileNames ) {
+
+        if ( fileNames == null ) {
+            logger.log(Level.WARNING, "Empty list of file names.");
+        } else {
+
+            imagesList.clear();
+
+            fileNames.stream().forEach(f -> {
+
+                String fileName = f.getValue();
+                Image image = imagesMap.get(fileName);
+
+                if ( image == null ) {
+
+                    image = loadSymbol(fileName);
+
+                    if ( image != null ) {
+                        imagesMap.put(fileName, image);
+                    }
+
+                }
+
+                if ( image != null ) {
+                    imagesList.add(image);
+                }
+
+            });
+
+            Set<String> toBeRemoved = imagesMap.keySet().stream().filter(f -> !imagesList.contains(imagesMap.get(f))).collect(Collectors.toSet());
+
+            toBeRemoved.stream().forEach(f -> imagesMap.remove(f));
+
+            imageIndex = Math.min(Math.max(imageIndex, 0), imagesList.size() - 1);
+
+        }
+
     }
 
     private void valueChanged ( final WidgetProperty<? extends VType> property, final VType oldValue, final VType newValue ) {
