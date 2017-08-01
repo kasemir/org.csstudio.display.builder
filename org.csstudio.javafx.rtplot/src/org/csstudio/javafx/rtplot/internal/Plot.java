@@ -54,6 +54,7 @@ import javafx.scene.input.MouseEvent;
  *
  *  @param <XTYPE> Data type used for the {@link PlotDataItem}
  *  @author Kay Kasemir
+ *  @author Amanda Carpenter
  */
 @SuppressWarnings("nls")
 public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
@@ -765,66 +766,68 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
             zoomInOut(current.getX(), current.getY(), ZOOM_FACTOR);
     }
 
+    public static class AxisClickInfo
+    {
+        /** Clicked axis */
+        public final NumericAxis axis;
+
+        /** true if click was on high-value end of axis; else, false */
+        public final boolean isHighEnd;
+
+        /** Dimensions and location of click region */
+        public final Rectangle area;
+
+        public AxisClickInfo(NumericAxis axis, boolean isHighEnd,
+                Rectangle area)
+        {
+            this.axis = axis;
+            this.isHighEnd = isHighEnd;
+            this.area = area;
+        }
+    }
+
+    /** Size of the area used to edit axis limits */
+    private static final int AXIS_LIMIT_BOX_WIDTH = 100, AXIS_LIMIT_BOX_HEIGHT = 30;
+
     /**
      * Check if the mouse double-clicked on the end of an axis, and if mouse_mode is PAN or NONE.
      * If true, return information about the clicked axis; if not, return null.
-     * @author Amanda Carpenter
      * @param event MouseEvent to get info for
-     * @return An Object [3] containing:
-     * <ol>
-     * <li>{@link AxisPart}&lt;Double&gt; axis - clicked axis<\li>
-     * <li>boolean isHighEnd - true if click was on high-value end of axis; else, false<\li>
-     * <li>{@link Rectangle} area - dimensions and location of click region<\li>
-     * </ol>
      */
-    public Object [] axisClickInfo(MouseEvent event)
+    public AxisClickInfo axisClickInfo(MouseEvent event)
     {
-    	//For event.getX(), etc. to work as desired, 'this' must be the source of the MouseEvent
-    	if (!this.equals(event.getSource()))
-    		event = event.copyFor(this, event.getTarget());
         if ((mouse_mode == MouseMode.NONE || mouse_mode == MouseMode.PAN) && event.getClickCount() == 2)
         {
-        	double click_x = event.getX();
-        	double click_y = event.getY();
-        	//Do the upper or lower end regions any y-axes contain the click?
+            // For event.getX(), etc. to work as desired, 'this' must be the source of the MouseEvent
+            if (!this.equals(event.getSource()))
+                event = event.copyFor(this, event.getTarget());
+        	final double click_x = event.getX(),
+        	             click_y = event.getY();
+        	// Do the upper or lower end regions of any y-axis contain the click?
         	for (YAxisImpl<XTYPE> axis : y_axes)
         	{
-        		//Might be unsafe if bounds change between instructions //TODO: verify safety
-        		int x = (int) axis.getBounds().getX();
-        		int w = (int) axis.getBounds().getWidth();
-        		int h = (int) Math.min(axis.getBounds().getHeight()/2, w);
-        		Rectangle upper = new Rectangle(x, (int) axis.getBounds().getY(), w, h);
-        		Rectangle lower = new Rectangle(x, (int) axis.getBounds().getMaxY()-h, w, h);
-        		if (upper.contains(click_x, click_y))
-        		{
-        			Object [] ret = {axis, true, upper};
-        			return ret;
-        		}
-        		else if (lower.contains(click_x, click_y))
-        		{
-        			Object [] ret = {axis, false, lower};
-        			return ret;
-        		}
+        	    final Rectangle bounds = axis.getBounds();
+        	    if (bounds.contains(click_x, click_y))
+        	    {
+        	        final int x = axis.isOnRight() ? bounds.x + bounds.width - AXIS_LIMIT_BOX_WIDTH : bounds.x;
+        	        if (click_y > bounds.y + bounds.height/2)
+                        return new AxisClickInfo(axis, false, new Rectangle(x, bounds.y + bounds.height - AXIS_LIMIT_BOX_HEIGHT, AXIS_LIMIT_BOX_WIDTH, AXIS_LIMIT_BOX_HEIGHT));
+        	        else
+                        return new AxisClickInfo(axis, true, new Rectangle(x, bounds.y, AXIS_LIMIT_BOX_WIDTH, AXIS_LIMIT_BOX_HEIGHT));
+        	    }
     		}
-        	//Do the left-side (lesser) or right-side (greater) end regions of the x-axis contain it?
+        	// Do the left-side (lesser) or right-side (greater) end regions of the x-axis contain it?
         	if (x_axis instanceof NumericAxis)
         	{
-        		NumericAxis axis = (NumericAxis)x_axis;
-	        	int y = (int) axis.getBounds().getY();
-	        	int h = (int) axis.getBounds().getHeight();
-	        	int w = (int) Math.min(axis.getBounds().getWidth()/2, h);
-	        	Rectangle lesser = new Rectangle((int) axis.getBounds().getX(), y, w, h);
-	        	Rectangle greater = new Rectangle((int) axis.getBounds().getMaxX()-w, y, w, h);
-	    		if (lesser.contains(click_x, click_y))
-	    		{
-        			Object [] ret = {axis, false, lesser};
-        			return ret;
-	    		}
-	    		else if (greater.contains(click_x, click_y))
-	    		{
-        			Object [] ret = {axis, true, greater};
-        			return ret;
-	    		}
+        	    final NumericAxis axis = (NumericAxis)x_axis;
+                final Rectangle bounds = axis.getBounds();
+                if (bounds.contains(click_x, click_y))
+                {
+                    if (click_x > bounds.x + bounds.width / 2)
+                        return new AxisClickInfo(axis, true, new Rectangle(bounds.x + bounds.width - AXIS_LIMIT_BOX_WIDTH, bounds.y, AXIS_LIMIT_BOX_WIDTH, AXIS_LIMIT_BOX_HEIGHT));
+                    else
+                        return new AxisClickInfo(axis, false, new Rectangle(bounds.x, bounds.y, AXIS_LIMIT_BOX_WIDTH, AXIS_LIMIT_BOX_HEIGHT));
+                }
         	}
         }
     	return null;
