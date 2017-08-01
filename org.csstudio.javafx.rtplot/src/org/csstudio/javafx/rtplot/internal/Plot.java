@@ -29,6 +29,7 @@ import java.util.logging.Level;
 import org.csstudio.javafx.BufferUtil;
 import org.csstudio.javafx.PlatformInfo;
 import org.csstudio.javafx.rtplot.Annotation;
+import org.csstudio.javafx.rtplot.Axis;
 import org.csstudio.javafx.rtplot.AxisRange;
 import org.csstudio.javafx.rtplot.Messages;
 import org.csstudio.javafx.rtplot.PlotMarker;
@@ -695,7 +696,9 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
             selectPlotMarker())
             return;
         if ((mouse_mode == MouseMode.NONE || mouse_mode == MouseMode.PAN) && clicks == 2)
-        	; //edit axis ranges (let RTPlot handle it)
+        {
+        	// NOP: edit axis ranges (let RTPlot handle it)
+        }
     	else if (mouse_mode == MouseMode.PAN)
         {   // Determine start of 'pan'
             // For affected Y axes, i.e. mouse_y_axis or all,
@@ -732,7 +735,11 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
                 }
             }
             else if (x_axis.getBounds().contains(current.getX(), current.getY()))
+            {
                 mouse_mode = MouseMode.PAN_X;
+                if (x_axis.setAutoscale(false))
+                    fireAutoScaleChange(x_axis);
+            }
         }
         else if (mouse_mode == MouseMode.ZOOM_IN  &&  clicks == 1)
         {   // Determine start of 'rubberband' zoom.
@@ -1153,9 +1160,9 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     }
 
     /** Notify listeners */
-    public void fireAutoScaleChange(final YAxisImpl<XTYPE> axis)
+    public void fireAutoScaleChange(final Axis<?> axis)
     {
-        for (RTPlotListener<XTYPE> listener : listeners)
+        for (RTPlotListener<?> listener : listeners)
             listener.changedAutoScale(axis);
     }
 
