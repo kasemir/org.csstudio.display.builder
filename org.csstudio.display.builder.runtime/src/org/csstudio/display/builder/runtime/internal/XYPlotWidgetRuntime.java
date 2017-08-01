@@ -21,6 +21,7 @@ import java.util.logging.Level;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.util.VTypeUtil;
+import org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.AxisWidgetProperty;
 import org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.TraceWidgetProperty;
 import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget;
 import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget.MarkerProperty;
@@ -45,8 +46,6 @@ import org.diirt.vtype.VType;
 @SuppressWarnings("nls")
 public class XYPlotWidgetRuntime  extends WidgetRuntime<XYPlotWidget>
 {
-    private final List<RuntimeAction> runtime_actions = new ArrayList<>(1);
-
     /** Binds a trace's PV name property to the corresponding value property */
     private class PVBinding implements WidgetPropertyListener<String>
     {
@@ -115,17 +114,18 @@ public class XYPlotWidgetRuntime  extends WidgetRuntime<XYPlotWidget>
     private final Map<WidgetProperty<?>, WidgetPropertyListener<?>> marker_prop_listeners = new ConcurrentHashMap<>();
     private final Map<RuntimePV, RuntimePVListener> marker_pv_listeners = new ConcurrentHashMap<>();
 
-
-    @Override
-    public void initialize(final XYPlotWidget widget)
-    {
-        super.initialize(widget);
-        runtime_actions.add(new ToggleToolbarAction(widget));
-    }
-
     @Override
     public Collection<RuntimeAction> getRuntimeActions()
     {
+        final List<RuntimeAction> runtime_actions = new ArrayList<>(3);
+        runtime_actions.add(new ToggleToolbarAction(widget));
+
+        if (! widget.propXAxis().autoscale().getValue())
+            runtime_actions.add(new AutoscaleAction(widget.propXAxis()));
+        for (AxisWidgetProperty axis : widget.propYAxes().getValue())
+            if (! axis.autoscale().getValue())
+                runtime_actions.add(new AutoscaleAction(axis));
+
         return runtime_actions;
     }
 
