@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="2.0.0">
+  <name>Symbol Widgets</name>
+  <width>980</width>
+  <height>910</height>
+  <actions execute_as_one="true">
+  </actions>
+  <widget type="label" version="2.0.0">
+    <name>Label</name>
+    <class>TITLE</class>
+    <text>Symbol Widgets</text>
+    <x use_class="true">0</x>
+    <y use_class="true">0</y>
+    <width>550</width>
+    <height>31</height>
+    <font use_class="true">
+      <font name="Header 1" family="Source Sans Pro" style="BOLD_ITALIC" size="36.0">
+      </font>
+    </font>
+    <foreground_color use_class="true">
+      <color name="Text" red="25" green="25" blue="25">
+      </color>
+    </foreground_color>
+    <transparent use_class="true">true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_1</name>
+    <text>Meters display numerical values graphically by means of a needle and a scale.</text>
+    <y>50</y>
+    <width>620</width>
+  </widget>
+  <widget type="symbol" version="2.0.0">
+    <name>Symbol</name>
+    <pv_name>loc://boolean:symbol&lt;VDouble&gt;(0)</pv_name>
+    <symbols>
+      <symbol>pic/switch_off.gif</symbol>
+      <symbol>pic/switch_on.gif</symbol>
+    </symbols>
+    <x>20</x>
+    <y>130</y>
+    <width>48</width>
+    <height>35</height>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_6</name>
+    <text>Boolean PV (false ➜ 0, true ➜ 1)</text>
+    <y>90</y>
+    <width>580</width>
+    <font>
+      <font name="Header 2" family="Source Sans Pro" style="BOLD_ITALIC" size="21.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="checkbox" version="2.0.0">
+    <name>CheckBox</name>
+    <pv_name>loc://boolean:symbol</pv_name>
+    <label>ON</label>
+    <x>100</x>
+    <y>137</y>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_7</name>
+    <text>String PV (representing an integer number)</text>
+    <y>190</y>
+    <width>580</width>
+    <font>
+      <font name="Header 2" family="Source Sans Pro" style="BOLD_ITALIC" size="21.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="symbol" version="2.0.0">
+    <name>Symbol_1</name>
+    <pv_name>loc://string:symbol&lt;VString&gt;("0")</pv_name>
+    <symbols>
+      <symbol>pic/ok.png</symbol>
+      <symbol>pic/warning.png</symbol>
+      <symbol>pic/error.png</symbol>
+      <symbol>pic/unconnected.png</symbol>
+    </symbols>
+    <x>20</x>
+    <y>240</y>
+    <width>24</width>
+    <height>24</height>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry</name>
+    <pv_name>loc://string:symbol</pv_name>
+    <x>100</x>
+    <y>242</y>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_8</name>
+    <text>Numeric PV (only the integer part is considered)</text>
+    <y>290</y>
+    <width>580</width>
+    <font>
+      <font name="Header 2" family="Source Sans Pro" style="BOLD_ITALIC" size="21.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="symbol" version="2.0.0">
+    <name>Symbol_2</name>
+    <pv_name>loc://numeric:symbol&lt;VDouble&gt;(0.0)</pv_name>
+    <symbols>
+      <symbol>pic/ok.png</symbol>
+      <symbol>pic/warning.png</symbol>
+      <symbol>pic/error.png</symbol>
+      <symbol>pic/unconnected.png</symbol>
+    </symbols>
+    <x>20</x>
+    <y>340</y>
+    <width>24</width>
+    <height>24</height>
+  </widget>
+  <widget type="spinner" version="2.0.0">
+    <name>Spinner</name>
+    <pv_name>loc://numeric:symbol</pv_name>
+    <x>100</x>
+    <y>342</y>
+    <precision>1</precision>
+    <maximum>3.0</maximum>
+    <limits_from_pv>false</limits_from_pv>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>Combo Box</name>
+    <pv_name>loc://enumeration:symbol&lt;VEnum&gt;</pv_name>
+    <x>100</x>
+    <y>440</y>
+    <width>150</width>
+    <height>24</height>
+    <items>
+      <item>OK</item>
+      <item>WARNING</item>
+      <item>ERROR</item>
+      <item>UNCONNECTED</item>
+    </items>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_9</name>
+    <text>Enumeration PV (the enumeration index is considered)</text>
+    <y>390</y>
+    <width>580</width>
+    <font>
+      <font name="Header 2" family="Source Sans Pro" style="BOLD_ITALIC" size="21.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="symbol" version="2.0.0">
+    <name>Symbol_3</name>
+    <pv_name>loc://enumeration:symbol</pv_name>
+    <symbols>
+      <symbol>pic/ok.png</symbol>
+      <symbol>pic/warning.png</symbol>
+      <symbol>pic/error.png</symbol>
+      <symbol>pic/unconnected.png</symbol>
+    </symbols>
+    <x>20</x>
+    <y>440</y>
+    <width>24</width>
+    <height>24</height>
+  </widget>
+</display>

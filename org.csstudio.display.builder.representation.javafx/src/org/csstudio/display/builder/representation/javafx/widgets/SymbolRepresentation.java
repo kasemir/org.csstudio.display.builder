@@ -169,6 +169,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<BorderPane, S
 //        }
 
         if ( dirtyValue.checkAndClear() && updatingValue.compareAndSet(false, true) ) {
+
             try {
 
                 value = model_widget.runtimePropValue().getValue();
@@ -180,7 +181,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<BorderPane, S
                         try {
                             imageIndex = Integer.parseInt(((VString) value).getValue());
                         } catch ( NumberFormatException nfex ) {
-                            logger.log(Level.WARNING, "Failure parsing the string value: {0} [{1}].", new Object[] { ((VString) value).getValue(), nfex.getMessage() });
+                            logger.log(Level.FINE, "Failure parsing the string value: {0} [{1}].", new Object[] { ((VString) value).getValue(), nfex.getMessage() });
                         }
                     } else if ( value instanceof VNumber ) {
                         imageIndex = ((VNumber) value).getValue().intValue();
@@ -204,10 +205,13 @@ public class SymbolRepresentation extends RegionBaseRepresentation<BorderPane, S
                     }
                 }
 
-
             } finally {
                 updatingValue.set(false);
             }
+
+            imageIndex = Math.min(Math.max(imageIndex, 0), imagesList.size() - 1);
+
+            ((ImageView) jfx_node.getCenter()).setImage(( imageIndex >= 0 ) ? imagesList.get(imageIndex) : getDefaultSymbol());
 
         }
 
