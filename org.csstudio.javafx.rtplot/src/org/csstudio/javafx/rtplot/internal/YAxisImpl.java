@@ -414,7 +414,10 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
         final int mark_width = metrics.getHeight();
         final int x = is_right ? region.x + TICK_LENGTH : region.x + region.width - TICK_LENGTH - mark_width;
         final int y0 = getScreenCoord(tick);
-        final int y = y0  - mark_height/2;
+        int y = y0  - mark_height/2;
+        // Correct location of top label to remain within region
+        if (y < 0)
+            y = 0;
 
         if (floating)
         {
@@ -431,6 +434,7 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
             gc.drawRect(x-BORDER,  y-BORDER, mark_width+2*BORDER, mark_height+2*BORDER);
         }
 
+        // Debug: Outline of text
         // gc.drawRect(x,  y, mark_width, mark_height); // Debug outline of tick label
         GraphicsUtils.drawVerticalText(gc, x, y, mark, !is_right);
     }
