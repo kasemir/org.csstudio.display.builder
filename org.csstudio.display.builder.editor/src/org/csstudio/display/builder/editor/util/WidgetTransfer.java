@@ -215,6 +215,7 @@ public class WidgetTransfer
                     EditorUtil.getExecutor().execute(update);
                 event.setDropCompleted(true);
             }
+            group_handler.hide();
             event.consume();
         });
     }
@@ -277,24 +278,30 @@ public class WidgetTransfer
         return dImage;
     }
 
-    /** @param image_file        The image file used to create and preset a {@link PictureWidget}.
-     *  @param selection_tracker Used to get the grid steps from its model to be used
-     *                           in offsetting multiple widgets.
-     *  @param widgets           The container of the created widgets.
-     *  @param updates           Updates to perform on widgets
+    /**
+     * @param image_file The image file used to create and preset a {@link PictureWidget}.
+     * @param selection_tracker Used to get the grid steps from its model to be
+     *            used in offsetting multiple widgets.
+     * @param widgets The container of the created widgets.
+     * @param updates Updates to perform on widgets
      */
-    private static void imageFileAcceptor(final String image_file, final SelectedWidgetUITracker selection_tracker,
-                                          final List<Widget> widgets, final List<Runnable> updates)
-    {
+    private static void imageFileAcceptor ( final String image_file, final SelectedWidgetUITracker selection_tracker, final List<Widget> widgets, final List<Runnable> updates ) {
+
         logger.log(Level.FINE, "Creating PictureWidget for dropped image {0}", image_file);
+
         final DisplayModel model = selection_tracker.getModel();
         final PictureWidget widget = (PictureWidget) PictureWidget.WIDGET_DESCRIPTOR.createWidget();
+
         widget.propFile().setValue(image_file);
+
         final int index = widgets.size();
+
         widget.propX().setValue(model.propGridStepX().getValue() * index);
         widget.propY().setValue(model.propGridStepY().getValue() * index);
+
         widgets.add(widget);
-        updates.add(() -> updatePictureWidget(widget));
+        updates.add( ( ) -> updatePictureWidget(widget));
+
     }
 
     /**
@@ -320,34 +327,44 @@ public class WidgetTransfer
 
     }
 
-    /** @param db                The {@link Dragboard} containing the dragged data.
-     *  @param selection_tracker Used to get the grid steps from its model to be used
-     *                           in offsetting multiple widgets.
-     *  @param widgets           The container of the created widgets.
-     *  @param updates           Updates to perform on widgets
+    /**
+     * @param db The {@link Dragboard} containing the dragged data.
+     * @param selection_tracker Used to get the grid steps from its model to be
+     *            used in offsetting multiple widgets.
+     * @param widgets The container of the created widgets.
+     * @param updates Updates to perform on widgets
      */
-    private static void installWidgetsFromFiles(final Dragboard db, final SelectedWidgetUITracker selection_tracker,
-                                                final List<Widget> widgets, final List<Runnable> updates)
-    {
+    private static void installWidgetsFromFiles ( final Dragboard db, final SelectedWidgetUITracker selection_tracker, final List<Widget> widgets, final List<Runnable> updates ) {
+
         final List<File> files = db.getFiles();
-        for (int i = 0; i < files.size(); i++)
-        {
+
+        for ( int i = 0; i < files.size(); i++ ) {
+
             String filename = files.get(i).toString();
-            // If running under RCP, try to convert dropped files which are always
-            // absolute file system locations into workspace resource
+
+            // If running under RCP, try to convert dropped files which are
+            // always absolute file system locations into workspace resource
             final String workspace_file = ModelResourceUtil.getWorkspacePath(filename);
-            if (workspace_file != null)
+
+            if ( workspace_file != null ) {
                 filename = workspace_file;
+            }
+
             // Attempt to turn into relative path
             final DisplayModel model = selection_tracker.getModel();
+
             filename = ModelResourceUtil.getRelativePath(model.getUserData(DisplayModel.USER_DATA_INPUT_FILE), filename);
 
             final String extension = FilenameUtils.getExtension(filename).toUpperCase();
-            if (IMAGE_FILE_EXTENSIONS.contains(extension))
+
+            if ( IMAGE_FILE_EXTENSIONS.contains(extension) ) {
                 imageFileAcceptor(filename, selection_tracker, widgets, updates);
-            else if (EMBEDDED_FILE_EXTENSIONS.contains(extension) )
+            } else if ( EMBEDDED_FILE_EXTENSIONS.contains(extension) ) {
                 displayFileAcceptor(filename, selection_tracker, widgets, updates);
+            }
+
         }
+
     }
 
     /** @param event             The {@link DragEvent} containing the dragged data.
