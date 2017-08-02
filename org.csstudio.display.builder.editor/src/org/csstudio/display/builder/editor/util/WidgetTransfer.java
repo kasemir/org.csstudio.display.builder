@@ -215,8 +215,8 @@ public class WidgetTransfer
                     EditorUtil.getExecutor().execute(update);
                 event.setDropCompleted(true);
             }
-            group_handler.hide();
             event.consume();
+            group_handler.hide();
         });
     }
 
@@ -338,31 +338,35 @@ public class WidgetTransfer
 
         final List<File> files = db.getFiles();
 
-        for ( int i = 0; i < files.size(); i++ ) {
+        if ( files.size() > 1 && files.stream().allMatch(f -> IMAGE_FILE_EXTENSIONS.contains(FilenameUtils.getExtension(f.toString()).toUpperCase())) ) {
+            installWidgetsFromImageFiles(db, selection_tracker, widgets, updates);
+        } else {
+            for ( int i = 0; i < files.size(); i++ ) {
 
-            String filename = files.get(i).toString();
+                String filename = files.get(i).toString();
 
-            // If running under RCP, try to convert dropped files which are
-            // always absolute file system locations into workspace resource
-            final String workspace_file = ModelResourceUtil.getWorkspacePath(filename);
+                // If running under RCP, try to convert dropped files which are
+                // always absolute file system locations into workspace resource
+                final String workspace_file = ModelResourceUtil.getWorkspacePath(filename);
 
-            if ( workspace_file != null ) {
-                filename = workspace_file;
+                if ( workspace_file != null ) {
+                    filename = workspace_file;
+                }
+
+                // Attempt to turn into relative path
+                final DisplayModel model = selection_tracker.getModel();
+
+                filename = ModelResourceUtil.getRelativePath(model.getUserData(DisplayModel.USER_DATA_INPUT_FILE), filename);
+
+                final String extension = FilenameUtils.getExtension(filename).toUpperCase();
+
+                if ( IMAGE_FILE_EXTENSIONS.contains(extension) ) {
+                    imageFileAcceptor(filename, selection_tracker, widgets, updates);
+                } else if ( EMBEDDED_FILE_EXTENSIONS.contains(extension) ) {
+                    displayFileAcceptor(filename, selection_tracker, widgets, updates);
+                }
+
             }
-
-            // Attempt to turn into relative path
-            final DisplayModel model = selection_tracker.getModel();
-
-            filename = ModelResourceUtil.getRelativePath(model.getUserData(DisplayModel.USER_DATA_INPUT_FILE), filename);
-
-            final String extension = FilenameUtils.getExtension(filename).toUpperCase();
-
-            if ( IMAGE_FILE_EXTENSIONS.contains(extension) ) {
-                imageFileAcceptor(filename, selection_tracker, widgets, updates);
-            } else if ( EMBEDDED_FILE_EXTENSIONS.contains(extension) ) {
-                displayFileAcceptor(filename, selection_tracker, widgets, updates);
-            }
-
         }
 
     }
@@ -429,6 +433,16 @@ public class WidgetTransfer
                 logger.log(Level.WARNING, "Cannot save image as " + filename, ex);
             }
         });
+    }
+
+    /**
+     * @param db The {@link Dragboard} containing the dragged data.
+     * @param selection_tracker Used to get the grid steps from its model to be
+     *            used in offsetting multiple widgets.
+     * @param widgets The container of the created widgets.
+     * @param updates Updates to perform on widgets
+     */
+    private static void installWidgetsFromImageFiles ( final Dragboard db, final SelectedWidgetUITracker selection_tracker, final List<Widget> widgets, final List<Runnable> updates ) {
     }
 
     /** @param db                The {@link Dragboard} containing the dragged data.
