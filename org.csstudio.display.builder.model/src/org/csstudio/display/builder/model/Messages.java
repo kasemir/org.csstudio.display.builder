@@ -141,6 +141,7 @@ public class Messages extends NLS
     public static String WidgetProperties_Actions;
     public static String WidgetProperties_AngleSize;
     public static String WidgetProperties_AngleStart;
+    public static String WidgetProperties_ArrayIndex;
     public static String WidgetProperties_AutoSize;
     public static String WidgetProperties_Average;
     public static String WidgetProperties_AverageColor;

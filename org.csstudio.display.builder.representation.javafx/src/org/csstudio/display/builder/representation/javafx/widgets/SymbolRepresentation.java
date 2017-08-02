@@ -52,6 +52,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<BorderPane, S
 
     private static Image defaultSymbol = null;
 
+    private int                                  arrayIndex            = 0;
     private final DirtyFlag                      dirtyContent          = new DirtyFlag();
     private final DirtyFlag                      dirtyGeometry         = new DirtyFlag();
     private final DirtyFlag                      dirtyStyle            = new DirtyFlag();
@@ -85,57 +86,13 @@ public class SymbolRepresentation extends RegionBaseRepresentation<BorderPane, S
 
         }
 
-//        if ( dirtyLook.checkAndClear() ) {
-//
-//            value = JFXUtil.convert(model_widget.propBackgroundColor().getValue());
-//
-//            if ( model_widget.propTransparent().getValue() ) {
-//                value = ((Color) value).deriveColor(0, 1, 1, 0);
-//            }
-//
-//            if ( !Objects.equals(value, jfx_node.getBackgroundPaint()) ) {
-//                jfx_node.setBackgroundPaint((Paint) value);
-//            }
-//
-//            value = model_widget.propTitle().getValue();
-//
-//            if ( !Objects.equals(value, jfx_node.getTitle()) ) {
-//                jfx_node.setTitle((String) value);
-//            }
-//
-//            value = JFXUtil.convert(model_widget.propTitleColor().getValue());
-//
-//            if ( !Objects.equals(value, jfx_node.getTitleColor()) ) {
-//                jfx_node.setTitleColor((Color) value);
-//            }
-//
-//            value = model_widget.propUnit().getValue();
-//
-//            if ( !Objects.equals(value, jfx_node.getUnit()) ) {
-//                jfx_node.setUnit((String) value);
-//            }
-//
-//            value = JFXUtil.convert(model_widget.propUnitColor().getValue());
-//
-//            if ( !Objects.equals(value, jfx_node.getUnitColor()) ) {
-//                jfx_node.setUnitColor((Color) value);
-//            }
-//
-//            value = JFXUtil.convert(model_widget.propValueColor().getValue());
-//
-//            if ( !Objects.equals(value, jfx_node.getValueColor()) ) {
-//                jfx_node.setValueColor((Color) value);
-//            }
-//
-//            value = model_widget.propValueVisible().getValue();
-//
-//            if ( !Objects.equals(value, jfx_node.isValueVisible()) ) {
-//                jfx_node.setValueVisible((boolean) value);
-//            }
-//
-//        }
-
         if ( dirtyContent.checkAndClear() ) {
+
+            value = model_widget.propArrayIndex().getValue();
+
+            if ( !Objects.equals(value, arrayIndex) ) {
+                arrayIndex = Math.max(0, (int) value);
+            }
 
             imageIndex = Math.min(Math.max(imageIndex, 0), imagesList.size() - 1);
 
@@ -143,30 +100,25 @@ public class SymbolRepresentation extends RegionBaseRepresentation<BorderPane, S
 
         }
 
-//        if ( dirtyLimits.checkAndClear() ) {
-//            jfx_node.setMaxValue(max);
-//            jfx_node.setMinValue(min);
-//            jfx_node.setSectionsVisible(areZonesVisible());
-//            jfx_node.setSections(createZones());
-//        }
-//
-//        if ( dirtyUnit.checkAndClear() ) {
-//            jfx_node.setUnit(unit.get());
-//        }
-//
-//        if ( dirtyStyle.checkAndClear() ) {
-//
-//            value = model_widget.propEnabled().getValue();
-//
-//            if ( !Objects.equals(value, enabled) ) {
-//
-//                enabled = (boolean) value;
-//
-//                Styles.update(jfx_node, Styles.NOT_ENABLED, !enabled);
-//
-//            }
-//
-//        }
+        if ( dirtyStyle.checkAndClear() ) {
+
+            value = model_widget.propPreserveRatio().getValue();
+
+            if ( !Objects.equals(value, ((ImageView) jfx_node.getCenter()).isPreserveRatio()) ) {
+                ((ImageView) jfx_node.getCenter()).setPreserveRatio((boolean) value);
+            }
+
+            value = model_widget.propEnabled().getValue();
+
+            if ( !Objects.equals(value, enabled) ) {
+
+                enabled = (boolean) value;
+
+                Styles.update(jfx_node, Styles.NOT_ENABLED, !enabled);
+
+            }
+
+        }
 
         if ( dirtyValue.checkAndClear() && updatingValue.compareAndSet(false, true) ) {
 
@@ -192,7 +144,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<BorderPane, S
                         ListNumber array = ((VNumberArray) value).getData();
 
                         if ( array.size() > 0 ) {
-                            imageIndex = array.getInt(0);
+                            imageIndex = array.getInt(Math.min(arrayIndex, array.size() - 1));
                         }
 
                     } else if ( value instanceof VEnumArray ) {
@@ -200,8 +152,9 @@ public class SymbolRepresentation extends RegionBaseRepresentation<BorderPane, S
                         ListInt array = ((VEnumArray) value).getIndexes();
 
                         if ( array.size() > 0 ) {
-                            imageIndex = array.getInt(0);
+                            imageIndex = array.getInt(Math.min(arrayIndex, array.size() - 1));
                         }
+
                     }
                 }
 
@@ -256,6 +209,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<BorderPane, S
         model_widget.propWidth().addUntypedPropertyListener(this::geometryChanged);
         model_widget.propHeight().addUntypedPropertyListener(this::geometryChanged);
 
+        model_widget.propArrayIndex().addUntypedPropertyListener(this::contentChanged);
         model_widget.propEnabled().addUntypedPropertyListener(this::styleChanged);
         model_widget.propPreserveRatio().addUntypedPropertyListener(this::styleChanged);
 

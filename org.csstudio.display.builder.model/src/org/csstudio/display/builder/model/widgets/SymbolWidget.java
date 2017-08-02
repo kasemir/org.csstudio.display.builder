@@ -10,6 +10,7 @@ package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newFilenamePropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newIntegerPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
 
 import java.util.Collections;
@@ -45,7 +46,9 @@ public class SymbolWidget extends PVWidget {
             }
         };
 
+    public static final WidgetPropertyDescriptor<Integer>                       propArrayIndex    = newIntegerPropertyDescriptor (WidgetPropertyCategory.BEHAVIOR, "array_index",    Messages.WidgetProperties_ArrayIndex, 0, Integer.MAX_VALUE);
     public static final WidgetPropertyDescriptor<Boolean>                       propPreserveRatio = newBooleanPropertyDescriptor (WidgetPropertyCategory.BEHAVIOR, "preserve_ratio", Messages.WidgetProperties_PreserveRatio);
+
     /** 'symbol' property: element for list of 'symbols' property */
     private static final WidgetPropertyDescriptor<String>                       propSymbol        = newFilenamePropertyDescriptor(WidgetPropertyCategory.WIDGET,   "symbol",         Messages.WidgetProperties_Symbol);
 
@@ -58,6 +61,7 @@ public class SymbolWidget extends PVWidget {
         propSymbol.createProperty(widget, DEFAULT_SYMBOL)
     );
 
+    private volatile WidgetProperty<Integer>                     array_index;
     private volatile WidgetProperty<Boolean>                     enabled;
     private volatile WidgetProperty<Boolean>                     preserve_ratio;
     private volatile ArrayWidgetProperty<WidgetProperty<String>> symbols;
@@ -69,6 +73,10 @@ public class SymbolWidget extends PVWidget {
      */
     public SymbolWidget ( ) {
         super(WIDGET_DESCRIPTOR.getType(), 100, 100);
+    }
+
+    public WidgetProperty<Integer> propArrayIndex ( ) {
+        return array_index;
     }
 
     public WidgetProperty<Boolean> propEnabled ( ) {
@@ -90,6 +98,7 @@ public class SymbolWidget extends PVWidget {
 
         properties.add(symbols        = propSymbols.createProperty(this, Collections.emptyList()));
 
+        properties.add(array_index    = propArrayIndex.createProperty(this, 0));
         properties.add(enabled        = propEnabled.createProperty(this, true));
         properties.add(preserve_ratio = propPreserveRatio.createProperty(this, true));
 

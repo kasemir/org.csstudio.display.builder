@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <display version="2.0.0">
   <name>Symbol Widgets</name>
-  <width>980</width>
-  <height>910</height>
+  <width>660</width>
+  <height>630</height>
   <actions execute_as_one="true">
   </actions>
   <widget type="label" version="2.0.0">
@@ -53,7 +53,7 @@
   </widget>
   <widget type="checkbox" version="2.0.0">
     <name>CheckBox</name>
-    <pv_name>loc://boolean:symbol</pv_name>
+    <pv_name>loc://boolean:symbol&lt;VDouble&gt;(0)</pv_name>
     <label>ON</label>
     <x>100</x>
     <y>137</y>
@@ -84,13 +84,13 @@
   </widget>
   <widget type="textentry" version="3.0.0">
     <name>Text Entry</name>
-    <pv_name>loc://string:symbol</pv_name>
+    <pv_name>loc://string:symbol&lt;VString&gt;("0")</pv_name>
     <x>100</x>
     <y>242</y>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_8</name>
-    <text>Numeric PV (only the integer part is considered)</text>
+    <text>Numeric PV (only the integer part is used)</text>
     <y>290</y>
     <width>580</width>
     <font>
@@ -114,7 +114,7 @@
   </widget>
   <widget type="spinner" version="2.0.0">
     <name>Spinner</name>
-    <pv_name>loc://numeric:symbol</pv_name>
+    <pv_name>loc://numeric:symbol&lt;VDouble&gt;(0.0)</pv_name>
     <x>100</x>
     <y>342</y>
     <precision>1</precision>
@@ -123,7 +123,7 @@
   </widget>
   <widget type="combo" version="2.0.0">
     <name>Combo Box</name>
-    <pv_name>loc://enumeration:symbol&lt;VEnum&gt;</pv_name>
+    <pv_name>loc://enumeration:symbol&lt;VEnum&gt;(0, "ON", "WARNING", "ERROR", "UNCONNECTED"))</pv_name>
     <x>100</x>
     <y>440</y>
     <width>150</width>
@@ -137,7 +137,7 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_9</name>
-    <text>Enumeration PV (the enumeration index is considered)</text>
+    <text>Enumeration PV (the enumeration index is used)</text>
     <y>390</y>
     <width>580</width>
     <font>
@@ -147,7 +147,7 @@
   </widget>
   <widget type="symbol" version="2.0.0">
     <name>Symbol_3</name>
-    <pv_name>loc://enumeration:symbol</pv_name>
+    <pv_name>loc://enumeration:symbol&lt;VEnum&gt;(0, "ON", "WARNING", "ERROR", "UNCONNECTED"))</pv_name>
     <symbols>
       <symbol>pic/ok.png</symbol>
       <symbol>pic/warning.png</symbol>
@@ -158,5 +158,147 @@
     <y>440</y>
     <width>24</width>
     <height>24</height>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Rectangle</name>
+    <x>290</x>
+    <y>780</y>
+    <width>1</width>
+    <height>1</height>
+  </widget>
+  <widget type="symbol" version="2.0.0">
+    <name>Symbol_4</name>
+    <pv_name>sim://noiseWaveform(0, 4, 1)</pv_name>
+    <symbols>
+      <symbol>pic/ok.png</symbol>
+      <symbol>pic/warning.png</symbol>
+      <symbol>pic/error.png</symbol>
+      <symbol>pic/unconnected.png</symbol>
+    </symbols>
+    <x>20</x>
+    <y>550</y>
+    <width>24</width>
+    <height>24</height>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_10</name>
+    <text>Numeric array PV (the Array Index is used to select the array element)</text>
+    <y>500</y>
+    <width>630</width>
+    <font>
+      <font name="Header 2" family="Source Sans Pro" style="BOLD_ITALIC" size="21.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="symbol" version="2.0.0">
+    <name>Symbol_5</name>
+    <pv_name>sim://noiseWaveform(0, 4, 1)</pv_name>
+    <symbols>
+      <symbol>pic/ok.png</symbol>
+      <symbol>pic/warning.png</symbol>
+      <symbol>pic/error.png</symbol>
+      <symbol>pic/unconnected.png</symbol>
+    </symbols>
+    <x>58</x>
+    <y>550</y>
+    <width>24</width>
+    <height>24</height>
+    <array_index>1</array_index>
+  </widget>
+  <widget type="symbol" version="2.0.0">
+    <name>Symbol_6</name>
+    <pv_name>sim://noiseWaveform(0, 4, 1)</pv_name>
+    <symbols>
+      <symbol>pic/ok.png</symbol>
+      <symbol>pic/warning.png</symbol>
+      <symbol>pic/error.png</symbol>
+      <symbol>pic/unconnected.png</symbol>
+    </symbols>
+    <x>100</x>
+    <y>550</y>
+    <width>24</width>
+    <height>24</height>
+    <array_index>2</array_index>
+  </widget>
+  <widget type="symbol" version="2.0.0">
+    <name>Symbol_7</name>
+    <pv_name>sim://noiseWaveform(0, 4, 1)</pv_name>
+    <symbols>
+      <symbol>pic/ok.png</symbol>
+      <symbol>pic/warning.png</symbol>
+      <symbol>pic/error.png</symbol>
+      <symbol>pic/unconnected.png</symbol>
+    </symbols>
+    <x>140</x>
+    <y>550</y>
+    <width>24</width>
+    <height>24</height>
+    <array_index>3</array_index>
+  </widget>
+  <widget type="symbol" version="2.0.0">
+    <name>Symbol_8</name>
+    <pv_name>sim://noiseWaveform(0, 4, 1)</pv_name>
+    <symbols>
+      <symbol>pic/ok.png</symbol>
+      <symbol>pic/warning.png</symbol>
+      <symbol>pic/error.png</symbol>
+      <symbol>pic/unconnected.png</symbol>
+    </symbols>
+    <x>180</x>
+    <y>550</y>
+    <width>24</width>
+    <height>24</height>
+    <array_index>4</array_index>
+  </widget>
+  <widget type="symbol" version="2.0.0">
+    <name>Symbol_9</name>
+    <pv_name>sim://noiseWaveform(0, 4, 1)</pv_name>
+    <symbols>
+      <symbol>pic/ok.png</symbol>
+      <symbol>pic/warning.png</symbol>
+      <symbol>pic/error.png</symbol>
+      <symbol>pic/unconnected.png</symbol>
+    </symbols>
+    <x>220</x>
+    <y>550</y>
+    <width>24</width>
+    <height>24</height>
+    <array_index>5</array_index>
+  </widget>
+  <widget type="symbol" version="2.0.0">
+    <name>Symbol_10</name>
+    <pv_name>sim://noiseWaveform(0, 4, 1)</pv_name>
+    <symbols>
+      <symbol>pic/ok.png</symbol>
+      <symbol>pic/warning.png</symbol>
+      <symbol>pic/error.png</symbol>
+      <symbol>pic/unconnected.png</symbol>
+    </symbols>
+    <x>260</x>
+    <y>550</y>
+    <width>24</width>
+    <height>24</height>
+    <array_index>6</array_index>
+  </widget>
+  <widget type="symbol" version="2.0.0">
+    <name>Symbol_11</name>
+    <pv_name>sim://noiseWaveform(0, 4, 1)</pv_name>
+    <symbols>
+      <symbol>pic/ok.png</symbol>
+      <symbol>pic/warning.png</symbol>
+      <symbol>pic/error.png</symbol>
+      <symbol>pic/unconnected.png</symbol>
+    </symbols>
+    <x>300</x>
+    <y>550</y>
+    <width>24</width>
+    <height>24</height>
+    <array_index>7</array_index>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_11</name>
+    <text>Similarly, an array of enumerations can be used.</text>
+    <y>600</y>
+    <width>630</width>
   </widget>
 </display>
