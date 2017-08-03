@@ -92,7 +92,7 @@ public class ModelBasedPlot
             }
 
             @Override
-            public void changedAutoScale(final YAxis<Instant> y_axis)
+            public void changedAutoScale(final Axis<?> y_axis)
             {
                 final int index = plot.getYAxes().indexOf(y_axis);
                 listener.ifPresent(l -> l.autoScaleChanged(index, y_axis.isAutoscale()));

@@ -113,7 +113,7 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
     		center.getChildren().add(axisLimitsField);
         }
     }
-    
+
     private TextField constructAxisLimitsField()
     {
     	final TextField field = new TextField();
@@ -124,11 +124,11 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
     		if (!newval) hideAxisLimitsField();
     	});
     	field.setVisible(false);
-    	field.setManaged(false); //false because we manage layout, not the Parent    	
+    	field.setManaged(false); //false because we manage layout, not the Parent
     	return field;
     }
-    
-	private void showAxisLimitsField(NumericAxis axis, boolean isHigh, Rectangle area)
+
+	private void showAxisLimitsField(final NumericAxis axis, final boolean isHigh, final Rectangle area)
     {
 		axisLimitsField.setOnKeyPressed((KeyEvent event)->
 		{
@@ -147,30 +147,31 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
 				hideAxisLimitsField();
 			}
 		});
-		
+
 		String tip = isHigh ? axis.getValueRange().getHigh().toString() :
 			axis.getValueRange().getLow().toString();
     	axisLimitsField.setText(tip);
-    	axisLimitsField.setTooltip(new Tooltip(tip));
+    	axisLimitsField.setTooltip(new Tooltip("Original value: " + tip));
 		axisLimitsField.setVisible(true);
 		axisLimitsField.relocate(area.getX(), area.getY());
 		axisLimitsField.resize(area.getWidth(), area.getHeight());
 		axisLimitsField.requestFocus();
 		axisLimitsField.layout(); //force text to appear in field
 	}
-	
-	protected void changeAxisLimit(NumericAxis axis, boolean isHigh, Double value)
+
+	protected void changeAxisLimit(final NumericAxis axis, final boolean isHigh, final Double value)
 	{
 		AxisRange<Double> old_range = axis.getValueRange();
 		AxisRange<Double> new_range = isHigh ? new AxisRange<>(old_range.getLow(), value) :
 			new AxisRange<>(value, old_range.getHigh());
+		final boolean was_auto = axis.isAutoscale();
 		if (axis instanceof YAxisImpl<?>) //Y axis?
 		{
 			@SuppressWarnings("unchecked")
 			YAxisImpl<XTYPE> y_axis = (YAxisImpl<XTYPE>)axis;
 			getUndoableActionManager().execute(new ChangeAxisRanges<>(plot, Messages.Set_Axis_Range,
 					Arrays.asList(y_axis), Arrays.asList(old_range), Arrays.asList(new_range),
-					Arrays.asList(y_axis.isAutoscale())));
+					Arrays.asList(was_auto)));
 			plot.fireYAxisChange(y_axis);
 		}
 		else //X axis
@@ -179,23 +180,23 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
 			Plot<Double> x_plot = (Plot<Double>)plot; //safe to cast, because 'axis' is a NumericAxis
 				//(an AxisPart<Double>), and an x-axis has the same type parameter as its Plot
 			getUndoableActionManager().execute(new ChangeAxisRanges<>(x_plot, Messages.Set_Axis_Range,
-					axis, old_range, new_range));
+					axis, old_range, new_range, was_auto, false));
 			plot.fireXAxisChange();
 		}
 	}
-	
+
     private void hideAxisLimitsField()
     {
 		axisLimitsField.setVisible(false);
     }
-    
-    private void mouseClicked(MouseEvent event)
+
+    private void mouseClicked(final MouseEvent event)
     {
-    	Object [] info = plot.axisClickInfo(event); 
+        final Plot.AxisClickInfo info = plot.axisClickInfo(event);
     	if (info != null)
-    		showAxisLimitsField((NumericAxis)info[0], (boolean)info[1], (Rectangle)info[2]);
+    		showAxisLimitsField(info.axis, info.isHighEnd, info.area);
     }
-    
+
     /** onKeyPressed */
     private void keyPressed(final KeyEvent event)
     {

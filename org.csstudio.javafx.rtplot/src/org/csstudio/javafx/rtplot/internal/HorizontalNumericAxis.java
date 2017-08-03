@@ -136,7 +136,10 @@ public class HorizontalNumericAxis extends NumericAxis
         final String mark = floating ? ticks.formatDetailed(tick) : ticks.format(tick);
         gc.setFont(scale_font);
         final Rectangle metrics = GraphicsUtils.measureText(gc, mark);
-        final int tx = x - metrics.width/2;
+        int tx = x - metrics.width/2;
+        // Correct location of rightmost label to remain within region
+        if (tx + metrics.width > region.x + region.width)
+            tx = region.x + region.width - metrics.width;
 
         if (floating)
         {
@@ -148,6 +151,8 @@ public class HorizontalNumericAxis extends NumericAxis
             gc.drawRect(tx-BORDER, region.y + TICK_LENGTH-BORDER, metrics.width+2*BORDER, metrics.height+2*BORDER);
         }
 
+        // Debug: Outline of text
+        // gc.drawRect(tx, region.y + TICK_LENGTH, metrics.width, metrics.height);
         gc.drawString(mark, tx, region.y + metrics.y + TICK_LENGTH);
     }
 }
