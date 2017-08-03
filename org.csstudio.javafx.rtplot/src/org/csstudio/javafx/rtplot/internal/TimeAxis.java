@@ -185,7 +185,10 @@ public class TimeAxis extends AxisPart<Instant>
         final String mark = floating ? ticks.formatDetailed(tick) : ticks.format(tick);
         gc.setFont(scale_font);
         final Rectangle metrics = GraphicsUtils.measureText(gc, mark);
-        final int tx = x - metrics.width/2;
+        int tx = x - metrics.width/2;
+        // Correct location of rightmost label to remain within region
+        if (tx + metrics.width > region.x + region.width)
+            tx = region.x + region.width - metrics.width;
 
         if (floating)
         {
@@ -196,7 +199,9 @@ public class TimeAxis extends AxisPart<Instant>
             gc.setColor(orig_fill);
             gc.drawRect(tx-BORDER, region.y + TICK_LENGTH-BORDER, metrics.width+2*BORDER, metrics.height+2*BORDER);
         }
-        // gc.drawRect(tx, y, metrics.width, metrics.height);
+
+        // Debug: Outline of text
+        // gc.drawRect(tx, region.y + TICK_LENGTH, metrics.width, metrics.height);
         GraphicsUtils.drawMultilineText(gc, tx, region.y + TICK_LENGTH + metrics.y, mark);
     }
 }

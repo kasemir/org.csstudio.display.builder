@@ -114,6 +114,28 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
                 updateModelAxis(model_widget.propYAxes().getElement(index), y_axis);
         }
 
+        /** Invoked when auto scale is enabled or disabled by user interaction */
+        @Override
+        public void changedAutoScale(Axis<?> axis)
+        {
+            changing_range = true;
+            try
+            {
+                if (axis == plot.getXAxis())
+                    model_widget.propXAxis().autoscale().setValue(axis.isAutoscale());
+                else
+                {
+                    final int index = plot.getYAxes().indexOf(axis);
+                    if (index >= 0  &&  index < model_widget.propYAxes().size())
+                        model_widget.propYAxes().getElement(index).autoscale().setValue(axis.isAutoscale());
+                }
+            }
+            finally
+            {
+                changing_range = false;
+            }
+        }
+
         private void updateModelAxis(final AxisWidgetProperty model_axis, final Axis<Double> plot_axis)
         {
             final AxisRange<Double> range = plot_axis.getValueRange();
