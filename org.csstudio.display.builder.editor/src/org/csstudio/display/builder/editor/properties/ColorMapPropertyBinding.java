@@ -17,6 +17,7 @@ import org.csstudio.display.builder.model.properties.ColorMap;
 import org.csstudio.display.builder.model.properties.ColorMapWidgetProperty;
 import org.csstudio.display.builder.representation.javafx.ColorMapDialog;
 import org.csstudio.display.builder.representation.javafx.Messages;
+import org.csstudio.display.builder.representation.javafx.ModalityHack;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.DialogHelper;
 
@@ -43,6 +44,7 @@ public class ColorMapPropertyBinding
     {
         final ColorMapDialog dialog = new ColorMapDialog(widget_property.getValue());
         DialogHelper.positionDialog(dialog, DialogHelper.getContainer(jfx_node), -200, -200);
+        ModalityHack.forDialog(dialog);
         final Optional<ColorMap> result = dialog.showAndWait();
         if (result.isPresent())
         {

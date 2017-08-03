@@ -15,6 +15,7 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
+import org.csstudio.display.builder.representation.javafx.ModalityHack;
 import org.csstudio.display.builder.representation.javafx.WidgetColorDialog;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.DialogHelper;
@@ -39,6 +40,7 @@ public class WidgetColorPropertyBinding
     {
         final WidgetColorDialog dialog = new WidgetColorDialog(widget_property.getValue());
         DialogHelper.positionDialog(dialog, DialogHelper.getContainer(jfx_node), -200, -200);
+        ModalityHack.forDialog(dialog);
         final Optional<WidgetColor> result = dialog.showAndWait();
         if (result.isPresent())
         {
