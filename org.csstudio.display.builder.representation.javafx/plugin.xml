@@ -136,6 +136,10 @@
             type="textentry">
       </representation>
       <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.TextSymbolRepresentation"
+            type="text-symbol">
+      </representation>
+      <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.TextUpdateRepresentation"
             type="textupdate">
       </representation>
