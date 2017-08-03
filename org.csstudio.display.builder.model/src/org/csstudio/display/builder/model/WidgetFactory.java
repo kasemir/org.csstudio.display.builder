@@ -50,6 +50,7 @@ import org.csstudio.display.builder.model.widgets.RectangleWidget;
 import org.csstudio.display.builder.model.widgets.ScaledSliderWidget;
 import org.csstudio.display.builder.model.widgets.ScrollBarWidget;
 import org.csstudio.display.builder.model.widgets.SpinnerWidget;
+import org.csstudio.display.builder.model.widgets.SymbolWidget;
 import org.csstudio.display.builder.model.widgets.TableWidget;
 import org.csstudio.display.builder.model.widgets.TabsWidget;
 import org.csstudio.display.builder.model.widgets.TankWidget;
@@ -166,6 +167,7 @@ public class WidgetFactory
         addWidgetType(ScaledSliderWidget.WIDGET_DESCRIPTOR);
         addWidgetType(ScrollBarWidget.WIDGET_DESCRIPTOR);
         addWidgetType(SpinnerWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(SymbolWidget.WIDGET_DESCRIPTOR);
         addWidgetType(TableWidget.WIDGET_DESCRIPTOR);
         addWidgetType(TabsWidget.WIDGET_DESCRIPTOR);
         addWidgetType(TankWidget.WIDGET_DESCRIPTOR);
