@@ -57,8 +57,7 @@ public class SymbolWidget extends PVWidget {
         WidgetPropertyCategory.WIDGET,
         "symbols",
         Messages.WidgetProperties_Symbols,
-        (widget, index) ->
-        propSymbol.createProperty(widget, DEFAULT_SYMBOL)
+        (widget, index) -> propSymbol.createProperty(widget, DEFAULT_SYMBOL)
     );
 
     private volatile WidgetProperty<Integer>                     array_index;
@@ -73,6 +72,10 @@ public class SymbolWidget extends PVWidget {
      */
     public SymbolWidget ( ) {
         super(WIDGET_DESCRIPTOR.getType(), 100, 100);
+    }
+
+    public void addSymbol( String fileName ) {
+        symbols.addElement(propSymbol.createProperty(this, fileName));
     }
 
     public WidgetProperty<Integer> propArrayIndex ( ) {

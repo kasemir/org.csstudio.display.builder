@@ -2,7 +2,7 @@
 <display version="2.0.0">
   <name>Symbol Widgets</name>
   <width>660</width>
-  <height>630</height>
+  <height>720</height>
   <actions execute_as_one="true">
   </actions>
   <widget type="label" version="2.0.0">
@@ -299,6 +299,22 @@
     <name>Label_11</name>
     <text>Similarly, an array of enumerations can be used.</text>
     <y>600</y>
+    <width>630</width>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_12</name>
+    <text>Drag &amp; Drop support</text>
+    <y>650</y>
+    <width>630</width>
+    <font>
+      <font name="Header 2" family="Source Sans Pro" style="BOLD_ITALIC" size="21.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_13</name>
+    <text>Multiple images can be dropped into the editor to create a Symbol widget based on those files.</text>
+    <y>690</y>
     <width>630</width>
   </widget>
 </display>
