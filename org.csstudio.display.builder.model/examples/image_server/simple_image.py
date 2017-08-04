@@ -55,7 +55,7 @@ def setImage(image, array, typecode=None):
         typecode = pvtype_to_typecode[typecode]
 
     value_field = typecode_to_name[typecode] + 'Value'
-    value = [str(x) for x in array] if typecode is 'b' else list(array)
+    value = [chr(x & 0xFF) for x in array] if typecode is 'b' else list(array)
 
     image['value'] = {value_field : value}
 
