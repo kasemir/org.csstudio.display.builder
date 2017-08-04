@@ -28,6 +28,7 @@ import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.widgets.SymbolWidget;
+import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.javafx.Styles;
 import org.diirt.util.array.ListInt;
 import org.diirt.util.array.ListNumber;
@@ -39,9 +40,13 @@ import org.diirt.vtype.VNumberArray;
 import org.diirt.vtype.VString;
 import org.diirt.vtype.VType;
 
+import javafx.geometry.Insets;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.CornerRadii;
 
 
 /**
@@ -118,6 +123,12 @@ public class SymbolRepresentation extends RegionBaseRepresentation<BorderPane, S
 
             }
 
+            if ( model_widget.propTransparent().getValue() ) {
+                jfx_node.setBackground(null);
+            } else {
+                jfx_node.setBackground(new Background(new BackgroundFill(JFXUtil.convert(model_widget.propBackgroundColor().getValue()), CornerRadii.EMPTY, Insets.EMPTY)));
+            }
+
         }
 
         if ( dirtyValue.checkAndClear() && updatingValue.compareAndSet(false, true) ) {
@@ -187,6 +198,12 @@ public class SymbolRepresentation extends RegionBaseRepresentation<BorderPane, S
 
         symbol.setCenter(imageView);
 
+        if ( model_widget.propTransparent().getValue() ) {
+            symbol.setBackground(null);
+        } else {
+            symbol.setBackground(new Background(new BackgroundFill(JFXUtil.convert(model_widget.propBackgroundColor().getValue()), CornerRadii.EMPTY, Insets.EMPTY)));
+        }
+
         enabled = model_widget.propEnabled().getValue();
 
         Styles.update(symbol, Styles.NOT_ENABLED, !enabled);
@@ -200,7 +217,9 @@ public class SymbolRepresentation extends RegionBaseRepresentation<BorderPane, S
 
         super.registerListeners();
 
+        model_widget.propArrayIndex().addUntypedPropertyListener(this::contentChanged);
         model_widget.propPVName().addPropertyListener(this::contentChanged);
+
         model_widget.propSymbols().addPropertyListener(this::imagesChanged);
 
         model_widget.propVisible().addUntypedPropertyListener(this::geometryChanged);
@@ -209,9 +228,10 @@ public class SymbolRepresentation extends RegionBaseRepresentation<BorderPane, S
         model_widget.propWidth().addUntypedPropertyListener(this::geometryChanged);
         model_widget.propHeight().addUntypedPropertyListener(this::geometryChanged);
 
-        model_widget.propArrayIndex().addUntypedPropertyListener(this::contentChanged);
+        model_widget.propBackgroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.propEnabled().addUntypedPropertyListener(this::styleChanged);
         model_widget.propPreserveRatio().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propTransparent().addUntypedPropertyListener(this::styleChanged);
 
         if ( toolkit.isEditMode() ) {
             dirtyValue.checkAndClear();

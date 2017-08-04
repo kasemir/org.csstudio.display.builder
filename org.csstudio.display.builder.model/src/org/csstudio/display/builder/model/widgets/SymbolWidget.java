@@ -11,7 +11,9 @@ package org.csstudio.display.builder.model.widgets;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newFilenamePropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newIntegerPropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propTransparent;
 
 import java.util.Collections;
 import java.util.List;
@@ -20,10 +22,17 @@ import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
+import org.csstudio.display.builder.model.WidgetConfigurator;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.persist.ModelReader;
+import org.csstudio.display.builder.model.persist.NamedWidgetColors;
+import org.csstudio.display.builder.model.persist.WidgetColorService;
+import org.csstudio.display.builder.model.properties.WidgetColor;
+import org.osgi.framework.Version;
+import org.w3c.dom.Element;
 
 /**
  * @author claudiorosati, European Spallation Source ERIC
@@ -61,9 +70,11 @@ public class SymbolWidget extends PVWidget {
     );
 
     private volatile WidgetProperty<Integer>                     array_index;
+    private volatile WidgetProperty<WidgetColor>                 background;
     private volatile WidgetProperty<Boolean>                     enabled;
     private volatile WidgetProperty<Boolean>                     preserve_ratio;
     private volatile ArrayWidgetProperty<WidgetProperty<String>> symbols;
+    private volatile WidgetProperty<Boolean>                     transparent;
 
     /**
      * @param type Widget type.
@@ -78,8 +89,17 @@ public class SymbolWidget extends PVWidget {
         symbols.addElement(propSymbol.createProperty(this, fileName));
     }
 
+    @Override
+    public WidgetConfigurator getConfigurator ( final Version persistedVersion ) throws Exception {
+        return new SymbolConfigurator(persistedVersion);
+    }
+
     public WidgetProperty<Integer> propArrayIndex ( ) {
         return array_index;
+    }
+
+    public WidgetProperty<WidgetColor> propBackgroundColor ( ) {
+        return background;
     }
 
     public WidgetProperty<Boolean> propEnabled ( ) {
@@ -94,6 +114,10 @@ public class SymbolWidget extends PVWidget {
         return symbols;
     }
 
+    public WidgetProperty<Boolean> propTransparent ( ) {
+        return transparent;
+    }
+
     @Override
     protected void defineProperties ( final List<WidgetProperty<?>> properties ) {
 
@@ -101,9 +125,51 @@ public class SymbolWidget extends PVWidget {
 
         properties.add(symbols        = propSymbols.createProperty(this, Collections.emptyList()));
 
+        properties.add(background     = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
+        properties.add(transparent    = propTransparent.createProperty(this, true));
+
         properties.add(array_index    = propArrayIndex.createProperty(this, 0));
         properties.add(enabled        = propEnabled.createProperty(this, true));
         properties.add(preserve_ratio = propPreserveRatio.createProperty(this, true));
+
+    }
+
+    /**
+     * Custom configurator to read legacy *.opi files.
+     */
+    protected static class SymbolConfigurator extends WidgetConfigurator {
+
+        public SymbolConfigurator ( Version xmlVersion ) {
+            super(xmlVersion);
+        }
+
+        @Override
+        public boolean configureFromXML ( final ModelReader reader, final Widget widget, final Element xml ) throws Exception {
+
+//            if ( !super.configureFromXML(reader, widget, xml) ) {
+//                return false;
+//            }
+//
+//            if ( xml_version.getMajor() < 2 ) {
+//
+//                SymbolWidget symbol = (SymbolWidget) widget;
+//
+//                XMLUtil.getChildColor(xml, "color_hi").ifPresent(c -> symbol.propColorHigh().setValue(c));
+//                XMLUtil.getChildColor(xml, "color_lo").ifPresent(c -> symbol.propColorLow().setValue(c));
+//                XMLUtil.getChildColor(xml, "foreground_color").ifPresent(c -> symbol.propValueColor().setValue(c));
+//                XMLUtil.getChildDouble(xml, "level_hi").ifPresent(v -> symbol.propLevelHigh().setValue(v));
+//                XMLUtil.getChildDouble(xml, "level_lo").ifPresent(v -> symbol.propLevelLow().setValue(v));
+//                XMLUtil.getChildBoolean(xml, "show_hi").ifPresent(s -> symbol.propShowHigh().setValue(s));
+//                XMLUtil.getChildBoolean(xml, "show_lo").ifPresent(s -> symbol.propShowLow().setValue(s));
+//
+//                //  BOY meters are always opaque.
+//                symbol.propTransparent().setValue(false);
+//
+//            }
+
+            return true;
+
+        }
 
     }
 
