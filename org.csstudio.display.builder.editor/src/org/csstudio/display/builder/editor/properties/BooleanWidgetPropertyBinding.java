@@ -120,9 +120,10 @@ public class BooleanWidgetPropertyBinding
     {
         final String value = jfx_node.getValue();
         undo.execute(new SetMacroizedWidgetPropertyAction(widget_property, value));
+        final String path = widget_property.getPath();
         for (Widget w : other)
         {
-            final BooleanWidgetProperty other_prop = (BooleanWidgetProperty) w.getProperty(widget_property.getName());
+            final BooleanWidgetProperty other_prop = (BooleanWidgetProperty) w.getProperty(path);
             undo.execute(new SetMacroizedWidgetPropertyAction(other_prop, value));
         }
         updating = false;

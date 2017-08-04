@@ -46,9 +46,10 @@ public class MacrosPropertyBinding
         if (result.isPresent())
         {
             undo.execute(new SetWidgetPropertyAction<Macros>(widget_property, result.get()));
+            final String path = widget_property.getPath();
             for (Widget w : other)
             {
-                final MacrosWidgetProperty other_prop = (MacrosWidgetProperty) w.getProperty(widget_property.getName());
+                final MacrosWidgetProperty other_prop = (MacrosWidgetProperty) w.getProperty(path);
                 undo.execute(new SetWidgetPropertyAction<Macros>(other_prop, result.get()));
             }
         }

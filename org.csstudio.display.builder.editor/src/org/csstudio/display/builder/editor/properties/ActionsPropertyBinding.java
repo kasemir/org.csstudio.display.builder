@@ -49,9 +49,10 @@ public class ActionsPropertyBinding
         if (result.isPresent())
         {
             undo.execute(new SetWidgetPropertyAction<ActionInfos>(widget_property, result.get()));
+            final String path = widget_property.getPath();
             for (Widget w : other)
             {
-                final ActionsWidgetProperty other_prop = (ActionsWidgetProperty) w.getProperty(widget_property.getName());
+                final ActionsWidgetProperty other_prop = (ActionsWidgetProperty) w.getProperty(path);
                 undo.execute(new SetWidgetPropertyAction<ActionInfos>(other_prop, result.get()));
             }
         }
