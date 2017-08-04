@@ -199,6 +199,7 @@ public class Messages extends NLS
     public static String WidgetProperties_HourTickMarkColor;
     public static String WidgetProperties_HourTickMarkVisible;
     public static String WidgetProperties_Increment;
+    public static String WidgetProperties_InitialIndex;
     public static String WidgetProperties_Insets;
     public static String WidgetProperties_Interactive;
     public static String WidgetProperties_Interpolation;
@@ -268,6 +269,7 @@ public class Messages extends NLS
     public static String WidgetProperties_ShadowsEnabled;
     public static String WidgetProperties_ShowHigh;
     public static String WidgetProperties_ShowHiHi;
+    public static String WidgetProperties_ShowIndex;
     public static String WidgetProperties_ShowLED;
     public static String WidgetProperties_ShowLow;
     public static String WidgetProperties_ShowLoLo;
