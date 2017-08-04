@@ -79,7 +79,7 @@ def setImage(image, array, typecode=None):
     value_field = typecode_to_name[typecode] + 'Value'
     bytesize = calcsize(str(len(array))+typecode)
         #happily, the typecodes for array.array and struct.calcsize match
-    value = [str(x) for x in array] if typecode is 'b' else list(array)
+    value = [chr(x & 0xFF) for x in array] if typecode is 'b' else list(array)
 
     image['value'] = {value_field : value}
     image['uncompressedSize'] = bytesize
