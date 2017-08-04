@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.rcp.Plugin;
+import org.csstudio.display.builder.representation.javafx.ModalityHack;
 import org.csstudio.display.builder.representation.javafx.WidgetInfoDialog;
 import org.csstudio.display.builder.runtime.WidgetRuntime;
 import org.csstudio.display.builder.runtime.pv.RuntimePV;
@@ -34,6 +35,7 @@ public class WidgetInfoAction extends Action
         this.widget = widget;
     }
 
+
     @Override
     public void runWithEvent(final Event event)
     {
@@ -49,5 +51,6 @@ public class WidgetInfoAction extends Action
             dialog.setY(mouse.y);
         }
         dialog.show();
+        ModalityHack.forDialog(dialog);
     }
 }
