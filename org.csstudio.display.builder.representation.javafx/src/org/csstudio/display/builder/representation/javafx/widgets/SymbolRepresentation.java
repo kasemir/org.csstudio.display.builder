@@ -317,7 +317,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
 
                 indexLabelBackground = new Circle(16.0, Color.BLACK.deriveColor(0.0, 0.0, 0.0, 0.75));
 
-                indexLabelBackground.setStroke(Color.WHITE.deriveColor(0.0, 1.0, 1.0, 0.75));
+                indexLabelBackground.setStroke(Color.LIGHTGRAY.deriveColor(0.0, 1.0, 1.0, 0.75));
                 indexLabelBackground.setVisible(model_widget.propShowIndex().getValue());
 
             circlePane.setCenter(indexLabelBackground);

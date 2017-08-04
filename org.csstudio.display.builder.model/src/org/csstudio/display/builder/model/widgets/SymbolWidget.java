@@ -237,8 +237,10 @@ public class SymbolWidget extends PVWidget {
                         });
                         break;
                     case "org.csstudio.opibuilder.widgets.symbol.bool.BoolMonitorWidget":
+//  TBD
                         break;
                     case "org.csstudio.opibuilder.widgets.symbol.multistate.MultistateMonitorWidget":
+//  TBD
                         break;
                 }
 
