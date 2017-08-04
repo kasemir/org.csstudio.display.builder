@@ -159,18 +159,19 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
 		axisLimitsField.layout(); //force text to appear in field
 	}
 
-	protected void changeAxisLimit(NumericAxis axis, boolean isHigh, Double value)
+	protected void changeAxisLimit(final NumericAxis axis, final boolean isHigh, final Double value)
 	{
 		AxisRange<Double> old_range = axis.getValueRange();
 		AxisRange<Double> new_range = isHigh ? new AxisRange<>(old_range.getLow(), value) :
 			new AxisRange<>(value, old_range.getHigh());
+		final boolean was_auto = axis.isAutoscale();
 		if (axis instanceof YAxisImpl<?>) //Y axis?
 		{
 			@SuppressWarnings("unchecked")
 			YAxisImpl<XTYPE> y_axis = (YAxisImpl<XTYPE>)axis;
 			getUndoableActionManager().execute(new ChangeAxisRanges<>(plot, Messages.Set_Axis_Range,
 					Arrays.asList(y_axis), Arrays.asList(old_range), Arrays.asList(new_range),
-					Arrays.asList(y_axis.isAutoscale())));
+					Arrays.asList(was_auto)));
 			plot.fireYAxisChange(y_axis);
 		}
 		else //X axis
@@ -179,7 +180,7 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
 			Plot<Double> x_plot = (Plot<Double>)plot; //safe to cast, because 'axis' is a NumericAxis
 				//(an AxisPart<Double>), and an x-axis has the same type parameter as its Plot
 			getUndoableActionManager().execute(new ChangeAxisRanges<>(x_plot, Messages.Set_Axis_Range,
-					axis, old_range, new_range));
+					axis, old_range, new_range, was_auto, false));
 			plot.fireXAxisChange();
 		}
 	}

@@ -24,6 +24,7 @@ public class ChangeAxisRanges<XTYPE extends Comparable<XTYPE>> extends UndoableA
 {
     final private Plot<XTYPE> plot;
     final private Axis<XTYPE> x_axis;
+    final private boolean original_x_autoscale, x_autoscale;
     final private AxisRange<XTYPE> original_x_range, new_x_range;
     final private List<YAxisImpl<XTYPE>> yaxes;
     final private List<AxisRange<Double>> original_yranges, new_yranges;
@@ -46,6 +47,8 @@ public class ChangeAxisRanges<XTYPE extends Comparable<XTYPE>> extends UndoableA
             final Axis<XTYPE> x_axis,
             final AxisRange<XTYPE> original_x_range,
             final AxisRange<XTYPE> new_x_range,
+            final boolean original_x_autoscale,
+            final boolean x_autoscale,
             final List<YAxisImpl<XTYPE>> y_axes,
             final List<AxisRange<Double>> original_y_ranges,
             final List<AxisRange<Double>> new_y_ranges,
@@ -57,6 +60,8 @@ public class ChangeAxisRanges<XTYPE extends Comparable<XTYPE>> extends UndoableA
         this.x_axis = x_axis;
         this.original_x_range = original_x_range;
         this.new_x_range = new_x_range;
+        this.original_x_autoscale = original_x_autoscale;
+        this.x_autoscale = x_autoscale;
         this.yaxes = y_axes;
         this.original_yranges = original_y_ranges;
         this.new_yranges = new_y_ranges;
@@ -89,12 +94,14 @@ public class ChangeAxisRanges<XTYPE extends Comparable<XTYPE>> extends UndoableA
             final Axis<XTYPE> x_axis,
             final AxisRange<XTYPE> original_x_range,
             final AxisRange<XTYPE> new_x_range,
+            final boolean original_x_autoscale,
+            final boolean x_autoscale,
             final List<YAxisImpl<XTYPE>> y_axes,
             final List<AxisRange<Double>> original_y_ranges,
             final List<AxisRange<Double>> new_y_ranges,
             final List<Boolean> original_autoscale)
     {
-        this(plot, name, x_axis, original_x_range, new_x_range,
+        this(plot, name, x_axis, original_x_range, new_x_range, original_x_autoscale, x_autoscale,
              y_axes, original_y_ranges, new_y_ranges,
              original_autoscale,
              original_autoscale == null
@@ -113,9 +120,12 @@ public class ChangeAxisRanges<XTYPE extends Comparable<XTYPE>> extends UndoableA
     public ChangeAxisRanges(final Plot<XTYPE> plot, final String name,
             final Axis<XTYPE> x_axis,
             final AxisRange<XTYPE> original_x_range,
-            final AxisRange<XTYPE> new_x_range)
+            final AxisRange<XTYPE> new_x_range,
+            final boolean original_x_autoscale,
+            final boolean x_autoscale
+            )
     {
-        this(plot, name, x_axis, original_x_range, new_x_range, null, null, null, null);
+        this(plot, name, x_axis, original_x_range, new_x_range, original_x_autoscale, x_autoscale, null, null, null, null);
     }
 
     /** Y axes change
@@ -132,7 +142,7 @@ public class ChangeAxisRanges<XTYPE extends Comparable<XTYPE>> extends UndoableA
             final List<AxisRange<Double>> new_y_ranges,
             final List<Boolean> original_autoscale)
     {
-        this(plot, name, null, null, null, y_axes, original_y_ranges, new_y_ranges, original_autoscale);
+        this(plot, name, null, null, null, false, false, y_axes, original_y_ranges, new_y_ranges, original_autoscale);
     }
 
 
@@ -140,7 +150,7 @@ public class ChangeAxisRanges<XTYPE extends Comparable<XTYPE>> extends UndoableA
     public void run()
     {
         if (x_axis != null)
-            setXRange(new_x_range);
+            setXRange(new_x_range, x_autoscale);
         if (yaxes != null)
             setRange(new_yranges, new_autoscale);
     }
@@ -149,19 +159,17 @@ public class ChangeAxisRanges<XTYPE extends Comparable<XTYPE>> extends UndoableA
     public void undo()
     {
         if (x_axis != null)
-            setXRange(original_x_range);
+            setXRange(original_x_range, original_x_autoscale);
         if (yaxes != null)
             setRange(original_yranges, original_autoscale);
     }
 
-    private void setXRange(AxisRange<XTYPE> range)
+    private void setXRange(final AxisRange<XTYPE> range, final boolean auto)
     {
+        if (x_axis.setAutoscale(auto))
+            plot.fireAutoScaleChange(x_axis);
         if (x_axis.setValueRange(range.getLow(), range.getHigh()))
-        {
-            if (x_axis.isAutoscale())
-                x_axis.setAutoscale(false);
             plot.fireXAxisChange();
-        }
     }
 
     private void setRange(final List<AxisRange<Double>> ranges,
