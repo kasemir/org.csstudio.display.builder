@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.WidgetProperty;
@@ -40,6 +41,7 @@ import org.diirt.vtype.VNumberArray;
 import org.diirt.vtype.VString;
 import org.diirt.vtype.VType;
 
+import javafx.geometry.Dimension2D;
 import javafx.geometry.Insets;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -58,6 +60,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<BorderPane, S
     private static Image defaultSymbol = null;
 
     private int                                  arrayIndex            = 0;
+    private volatile boolean                     autoSize              = false;
     private final DirtyFlag                      dirtyContent          = new DirtyFlag();
     private final DirtyFlag                      dirtyGeometry         = new DirtyFlag();
     private final DirtyFlag                      dirtyStyle            = new DirtyFlag();
@@ -67,7 +70,45 @@ public class SymbolRepresentation extends RegionBaseRepresentation<BorderPane, S
     private final List<Image>                    imagesList            = new ArrayList<>(4);
     private final Map<String, Image>             imagesMap             = new TreeMap<>();
     private final WidgetPropertyListener<String> imagePropertyListener = this::imageChanged;
+    private Dimension2D                          maxSize               = new Dimension2D(0, 0);
     private final AtomicBoolean                  updatingValue         = new AtomicBoolean(false);
+
+    /**
+     * Compute the maximum width and height of the given {@code widget} based on
+     * the its set of symbol images.
+     *
+     * @param widget The {@link SymbolWidget} whose size must be computed.
+     * @return A not {@code null} maximum dimension of the given {@code widget}.
+     */
+    public static Dimension2D computeMaximumSize ( final SymbolWidget widget ) {
+
+        MutablePair<Double, Double> maxSize = MutablePair.of(0.0, 0.0);
+
+        widget.propSymbols().getValue().stream().forEach(s -> {
+
+            final String imageFile = s.getValue();
+
+            try {
+
+                final String filename = ModelResourceUtil.resolveResource(widget.getTopDisplayModel(), imageFile);
+                final Image image = new Image(ModelResourceUtil.openResourceStream(filename));
+
+                if ( maxSize.getLeft() < image.getWidth() ) {
+                    maxSize.setLeft(image.getWidth());
+                }
+                if ( maxSize.getRight() < image.getHeight() ) {
+                    maxSize.setRight(image.getHeight());
+                }
+
+            } catch ( Exception ex ) {
+                logger.log(Level.WARNING, "Cannot obtain image size for " + imageFile, ex);
+            }
+
+        });
+
+        return new Dimension2D(maxSize.getLeft(), maxSize.getRight());
+
+    }
 
     @Override
     public void updateChanges ( ) {
@@ -82,6 +123,17 @@ public class SymbolRepresentation extends RegionBaseRepresentation<BorderPane, S
 
             if ( !Objects.equals(value, jfx_node.isVisible()) ) {
                 jfx_node.setVisible((boolean) value);
+            }
+
+            value = model_widget.propAutoSize().getValue();
+
+            if ( !Objects.equals(value, autoSize) ) {
+                autoSize = (boolean) value;
+            }
+
+            if ( autoSize ) {
+                model_widget.propWidth().setValue((int) Math.round(maxSize.getWidth()));
+                model_widget.propHeight().setValue((int) Math.round(maxSize.getHeight()));
             }
 
             jfx_node.setLayoutX(model_widget.propX().getValue());
@@ -186,6 +238,13 @@ public class SymbolRepresentation extends RegionBaseRepresentation<BorderPane, S
 
         updateSymbols(model_widget.propSymbols().getValue());
 
+        autoSize = model_widget.propAutoSize().getValue();
+
+        if ( autoSize ) {
+            model_widget.propWidth().setValue((int) Math.round(maxSize.getWidth()));
+            model_widget.propHeight().setValue((int) Math.round(maxSize.getHeight()));
+        }
+
         BorderPane symbol = new BorderPane();
         ImageView imageView = new ImageView();
 
@@ -197,6 +256,8 @@ public class SymbolRepresentation extends RegionBaseRepresentation<BorderPane, S
         imageView.fitWidthProperty().bind(symbol.prefWidthProperty());
 
         symbol.setCenter(imageView);
+        symbol.setPrefWidth(model_widget.propWidth().getValue());
+        symbol.setPrefHeight(model_widget.propHeight().getValue());
 
         if ( model_widget.propTransparent().getValue() ) {
             symbol.setBackground(null);
@@ -222,6 +283,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<BorderPane, S
 
         model_widget.propSymbols().addPropertyListener(this::imagesChanged);
 
+        model_widget.propAutoSize().addUntypedPropertyListener(this::geometryChanged);
         model_widget.propVisible().addUntypedPropertyListener(this::geometryChanged);
         model_widget.propX().addUntypedPropertyListener(this::geometryChanged);
         model_widget.propY().addUntypedPropertyListener(this::geometryChanged);
@@ -368,6 +430,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<BorderPane, S
             toBeRemoved.stream().forEach(f -> imagesMap.remove(f));
 
             imageIndex = Math.min(Math.max(imageIndex, 0), imagesList.size() - 1);
+            maxSize = computeMaximumSize(model_widget);
 
         }
 

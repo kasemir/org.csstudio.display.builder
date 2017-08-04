@@ -56,6 +56,7 @@ public class SymbolWidget extends PVWidget {
         };
 
     public static final WidgetPropertyDescriptor<Integer>                       propArrayIndex    = newIntegerPropertyDescriptor (WidgetPropertyCategory.BEHAVIOR, "array_index",    Messages.WidgetProperties_ArrayIndex, 0, Integer.MAX_VALUE);
+    public static final WidgetPropertyDescriptor<Boolean>                       propAutoSize      = newBooleanPropertyDescriptor (WidgetPropertyCategory.BEHAVIOR, "auto_size",      Messages.WidgetProperties_AutoSize);
     public static final WidgetPropertyDescriptor<Boolean>                       propPreserveRatio = newBooleanPropertyDescriptor (WidgetPropertyCategory.BEHAVIOR, "preserve_ratio", Messages.WidgetProperties_PreserveRatio);
 
     /** 'symbol' property: element for list of 'symbols' property */
@@ -69,6 +70,7 @@ public class SymbolWidget extends PVWidget {
         (widget, index) -> propSymbol.createProperty(widget, DEFAULT_SYMBOL)
     );
 
+    private volatile WidgetProperty<Boolean>                     auto_size;
     private volatile WidgetProperty<Integer>                     array_index;
     private volatile WidgetProperty<WidgetColor>                 background;
     private volatile WidgetProperty<Boolean>                     enabled;
@@ -96,6 +98,10 @@ public class SymbolWidget extends PVWidget {
 
     public WidgetProperty<Integer> propArrayIndex ( ) {
         return array_index;
+    }
+
+    public WidgetProperty<Boolean> propAutoSize ( ) {
+        return auto_size;
     }
 
     public WidgetProperty<WidgetColor> propBackgroundColor ( ) {
@@ -129,6 +135,7 @@ public class SymbolWidget extends PVWidget {
         properties.add(transparent    = propTransparent.createProperty(this, true));
 
         properties.add(array_index    = propArrayIndex.createProperty(this, 0));
+        properties.add(auto_size      = propAutoSize.createProperty(this, false));
         properties.add(enabled        = propEnabled.createProperty(this, true));
         properties.add(preserve_ratio = propPreserveRatio.createProperty(this, true));
 
