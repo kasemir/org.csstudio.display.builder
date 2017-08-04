@@ -309,6 +309,9 @@
          <alternates
                type="org.csstudio.opibuilder.widgets.scaledslider">
          </alternates>
+         <alternates
+               type="org.csstudio.opibuilder.widgets.knob">
+         </alternates>
       </widget>
       <widget
             category="CONTROL"
