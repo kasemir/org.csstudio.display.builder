@@ -11,6 +11,7 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 
 import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -22,9 +23,12 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.MutablePair;
+import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
+import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.widgets.SymbolWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
@@ -134,6 +138,41 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
         });
 
         return new Dimension2D(maxSize.getLeft(), maxSize.getRight());
+
+    }
+
+    public static String resolveImageFile ( SymbolWidget widget, String imageFileName ) {
+
+        try {
+
+            String expandedFileName = MacroHandler.replace(widget.getMacrosOrProperties(), imageFileName);
+
+            //  Resolve new image file relative to the source widget model (not 'top'!).
+            //  Get the display model from the widget tied to this representation.
+            final DisplayModel widgetModel = widget.getDisplayModel();
+
+            // Resolve the image path using the parent model file path.
+            return ModelResourceUtil.resolveResource(widgetModel, expandedFileName);
+
+        } catch ( Exception ex ) {
+
+            logger.log(Level.WARNING, "Failure resolving image path: {0} [{1}].", new Object[] { imageFileName, ex.getMessage() });
+
+            return null;
+
+        }
+
+    }
+
+    private static boolean resourceExists ( String fileName ) {
+
+        try {
+            ModelResourceUtil.openResourceStream(fileName);
+        } catch ( Exception ex ) {
+            return false;
+        }
+
+        return true;
 
     }
 
@@ -280,7 +319,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
     @Override
     protected AnchorPane createJFXNode ( ) throws Exception {
 
-        updateSymbols(model_widget.propSymbols().getValue());
+        updateSymbols();
 
         autoSize = model_widget.propAutoSize().getValue();
 
@@ -412,7 +451,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
 
     private void imageChanged ( final WidgetProperty<String> property, final String oldValue, final String newValue ) {
 
-        updateSymbols(model_widget.propSymbols().getValue());
+        updateSymbols();
 
         dirtyContent.mark();
         toolkit.scheduleUpdate(this);
@@ -421,7 +460,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
 
     private void imagesChanged ( final WidgetProperty<List<WidgetProperty<String>>> property, final List<WidgetProperty<String>> oldValue, final List<WidgetProperty<String>> newValue ) {
 
-        updateSymbols(model_widget.propSymbols().getValue());
+        updateSymbols();
 
         if ( oldValue != null ) {
             oldValue.stream().forEach(p -> p.removePropertyListener(imagePropertyListener));
@@ -449,7 +488,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
      */
     private Image loadSymbol ( String fileName ) {
 
-        String imageFileName = SymbolWidget.resolveImageFile(model_widget, fileName);
+        String imageFileName = resolveImageFile(model_widget, fileName);
         Image image = null;
 
         if ( imageFileName != null ) {
@@ -463,7 +502,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
 
         if ( image == null ) {
 
-            imageFileName = SymbolWidget.resolveImageFile(model_widget, SymbolWidget.DEFAULT_SYMBOL);
+            imageFileName = resolveImageFile(model_widget, SymbolWidget.DEFAULT_SYMBOL);
 
             try {
                 //  Open the image from the stream created from the resource file.
@@ -484,7 +523,103 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
         toolkit.scheduleUpdate(this);
     }
 
-    private void updateSymbols ( List<WidgetProperty<String>> fileNames ) {
+    /**
+     * Fix the file names imported from BOY.
+     */
+    private void updateImportedSymbols ( ) {
+
+        try {
+
+            ArrayWidgetProperty<WidgetProperty<String>> propSymbols = model_widget.propSymbols();
+            List<String> fileNames = new ArrayList<>(2);
+
+            switch ( model_widget.getImportedFrom() ) {
+                case "org.csstudio.opibuilder.widgets.ImageBoolIndicator":
+                    return;
+                case "org.csstudio.opibuilder.widgets.symbol.bool.BoolMonitorWidget": {
+
+                        String imageFileName = propSymbols.getElement(0).getValue();
+                        int dotIndex = imageFileName.lastIndexOf('.');
+                        String onImageFileName = imageFileName.substring(0, dotIndex) + " On" + imageFileName.substring(dotIndex);
+                        String offImageFileName = imageFileName.substring(0, dotIndex) + " Off" + imageFileName.substring(dotIndex);
+
+                        if ( resourceExists(resolveImageFile(model_widget, onImageFileName)) ) {
+                            fileNames.add(onImageFileName);
+                        } else {
+                            fileNames.add(imageFileName);
+                        }
+
+                        if ( resourceExists(resolveImageFile(model_widget, offImageFileName)) ) {
+                            fileNames.add(offImageFileName);
+                        } else {
+                            fileNames.add(imageFileName);
+                        }
+
+                    }
+                    break;
+                case "org.csstudio.opibuilder.widgets.symbol.multistate.MultistateMonitorWidget": {
+
+                        String imageFileName = propSymbols.getElement(0).getValue();
+                        int dotIndex = imageFileName.lastIndexOf('.');
+                        int spaceIndex = imageFileName.lastIndexOf(' ');
+
+                        try {
+                            model_widget.propInitialIndex().setValue(Integer.parseInt(imageFileName.substring(1 + spaceIndex, dotIndex)));
+                        } catch ( NumberFormatException nfex ) {
+                            logger.log(Level.WARNING, "Imported image file doesn't contain state value [{0}].", imageFileName);
+                        }
+
+                        int index = 0;
+
+                        while ( true ) {
+
+                            String nthImageFileName = MessageFormat.format(
+                                "{0} {1,number,#########0}{2}",
+                                imageFileName.substring(0, spaceIndex),
+                                index,
+                                imageFileName.substring(dotIndex)
+                            );
+
+                            if ( resourceExists(resolveImageFile(model_widget, nthImageFileName)) ) {
+                                fileNames.add(nthImageFileName);
+                            } else {
+                                break;
+                            }
+
+                            index++;
+
+                        }
+
+                    }
+                    break;
+                default:
+                    logger.log(Level.WARNING, "Invalid imported type [{0}].", model_widget.getImportedFrom());
+                    return;
+            }
+
+
+            for ( int i = 0; i < fileNames.size(); i++ ) {
+                if ( i < propSymbols.size() ) {
+                    propSymbols.getElement(i).setValue(fileNames.get(i));
+                } else {
+                    model_widget.addSymbol(fileNames.get(i));
+                }
+            }
+
+        } finally {
+            model_widget.clearImportedFrom();
+        }
+
+    }
+
+    private void updateSymbols ( ) {
+
+        ArrayWidgetProperty<WidgetProperty<String>> propSymbols = model_widget.propSymbols();
+        List<WidgetProperty<String>> fileNames = propSymbols.getValue();
+
+        if ( model_widget.getImportedFrom() != null ) {
+            updateImportedSymbols();
+        }
 
         if ( fileNames == null ) {
             logger.log(Level.WARNING, "Empty list of file names.");

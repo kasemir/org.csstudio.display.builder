@@ -9,7 +9,6 @@
 package org.csstudio.display.builder.model.widgets;
 
 
-import static org.csstudio.display.builder.model.ModelPlugin.logger;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newFilenamePropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newIntegerPropertyDescriptor;
@@ -20,10 +19,8 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
-import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
@@ -32,13 +29,11 @@ import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
-import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.WidgetColor;
-import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.osgi.framework.Version;
 import org.w3c.dom.Element;
 
@@ -90,29 +85,7 @@ public class SymbolWidget extends PVWidget {
     private volatile WidgetProperty<Boolean>                     show_index;
     private volatile ArrayWidgetProperty<WidgetProperty<String>> symbols;
     private volatile WidgetProperty<Boolean>                     transparent;
-
-    public static String resolveImageFile ( SymbolWidget widget, String imageFileName ) {
-
-        try {
-
-            String expandedFileName = MacroHandler.replace(widget.getMacrosOrProperties(), imageFileName);
-
-            //  Resolve new image file relative to the source widget model (not 'top'!).
-            //  Get the display model from the widget tied to this representation.
-            final DisplayModel widgetModel = widget.getDisplayModel();
-
-            // Resolve the image path using the parent model file path.
-            return ModelResourceUtil.resolveResource(widgetModel, expandedFileName);
-
-        } catch ( Exception ex ) {
-
-            logger.log(Level.WARNING, "Failure resolving image path: {0} [{1}].", new Object[] { imageFileName, ex.getMessage() });
-
-            return null;
-
-        }
-
-    }
+    private volatile String                                      importedFrom = null;
 
     /**
      * @param type Widget type.
@@ -127,9 +100,17 @@ public class SymbolWidget extends PVWidget {
         symbols.addElement(propSymbol.createProperty(this, fileName));
     }
 
+    public void clearImportedFrom ( ) {
+        importedFrom = null;
+    }
+
     @Override
     public WidgetConfigurator getConfigurator ( final Version persistedVersion ) throws Exception {
         return new SymbolConfigurator(persistedVersion);
+    }
+
+    public String getImportedFrom ( ) {
+        return importedFrom;
     }
 
     public WidgetProperty<Integer> propArrayIndex ( ) {
@@ -206,45 +187,21 @@ public class SymbolWidget extends PVWidget {
             if ( xml_version.getMajor() < 2 ) {
 
                 SymbolWidget symbol = (SymbolWidget) widget;
-                String typeId = xml.getAttribute("typeId");
+                ArrayWidgetProperty<WidgetProperty<String>> propSymbols = symbol.propSymbols();
                 List<String> fileNames = new ArrayList<>(2);
 
-                switch ( typeId ) {
+                symbol.importedFrom = xml.getAttribute("typeId");
+
+                switch ( symbol.importedFrom ) {
                     case "org.csstudio.opibuilder.widgets.ImageBoolIndicator":
-                        XMLUtil.getChildString(xml, "off_image").ifPresent(f -> {
-
-                            String imageFileName = resolveImageFile(symbol, f);
-
-                            if ( resourceExists(imageFileName) ) {
-                                fileNames.add(f);
-                            } else {
-                                logger.log(Level.WARNING, "OFF image file {0} does not exits [{1}].", new Object[] { f, imageFileName });
-                                fileNames.add(DEFAULT_SYMBOL);
-                            }
-
-                        });
-                        XMLUtil.getChildString(xml, "on_image").ifPresent(f -> {
-
-                            String imageFileName = resolveImageFile(symbol, f);
-
-                            if ( resourceExists(imageFileName) ) {
-                                fileNames.add(f);
-                            } else {
-                                logger.log(Level.WARNING, "ON image file {0} does not exits [{1}].", new Object[] { f, imageFileName });
-                                fileNames.add(DEFAULT_SYMBOL);
-                            }
-
-                        });
+                        XMLUtil.getChildString(xml, "off_image").ifPresent(f -> fileNames.add(f));
+                        XMLUtil.getChildString(xml, "on_image").ifPresent(f -> fileNames.add(f));
                         break;
                     case "org.csstudio.opibuilder.widgets.symbol.bool.BoolMonitorWidget":
-//  TBD
-                        break;
                     case "org.csstudio.opibuilder.widgets.symbol.multistate.MultistateMonitorWidget":
-//  TBD
+                        XMLUtil.getChildString(xml, "image_file").ifPresent(f -> fileNames.add(f));
                         break;
                 }
-
-                ArrayWidgetProperty<WidgetProperty<String>> propSymbols = symbol.propSymbols();
 
                 for ( int i = 0; i < fileNames.size(); i++ ) {
                     if ( i < propSymbols.size() ) {
@@ -256,18 +213,6 @@ public class SymbolWidget extends PVWidget {
 
                 XMLUtil.getChildBoolean(xml, "stretch_to_fit").ifPresent(stf -> symbol.propPreserveRatio().setValue(!stf));
 
-            }
-
-            return true;
-
-        }
-
-        private boolean resourceExists ( String fileName ) {
-
-            try {
-                ModelResourceUtil.openResourceStream(fileName);
-            } catch ( Exception ex ) {
-                return false;
             }
 
             return true;
