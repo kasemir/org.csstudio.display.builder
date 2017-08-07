@@ -132,11 +132,10 @@ public class ParentHandler
                 if (widget instanceof GroupWidget)
                     child_prop = ((GroupWidget) widget).runtimeChildren();
                 else if (widget instanceof TabsWidget)
-                {    // Check children of _selected_ Tab
+                {   // Check children of _selected_ Tab
                     final TabsWidget tabwid = (TabsWidget) widget;
                     final int selected = tabwid.propActiveTab().getValue();
                     child_prop = tabwid.propTabs().getValue().get(selected).children();
-
                 }
                 else if (widget instanceof ArrayWidget)
                 {
