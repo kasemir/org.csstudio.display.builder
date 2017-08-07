@@ -401,6 +401,14 @@
       </widget>
       <widget
             category="MONITOR"
+            class="org.csstudio.display.builder.model.widgets.TextSymbolWidget"
+            description="%TextSymbolWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/text-symbol.png"
+            name="%TextSymbolWidget_Name"
+            type="text-symbol">
+      </widget>
+      <widget
+            category="MONITOR"
             class="org.csstudio.display.builder.model.widgets.TextUpdateWidget"
             description="%TextUpdateWidget_Description"
             icon="platform:/plugin/org.csstudio.display.builder.model/icons/textupdate.png"

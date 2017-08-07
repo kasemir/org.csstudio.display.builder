@@ -8,8 +8,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: Kay Kasemir - SNS
 Require-Bundle: org.eclipse.osgi,
  org.eclipse.core.runtime,
- org.apache.commons.io;bundle-version="2.5.0",
- org.apache.commons.lang3;bundle-version="3.5.0",
  org.diirt.util,
  org.diirt.vtype,
  org.csstudio.javafx,

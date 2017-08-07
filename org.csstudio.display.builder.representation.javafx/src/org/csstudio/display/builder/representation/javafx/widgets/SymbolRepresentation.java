@@ -22,7 +22,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.tuple.MutablePair;
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.DisplayModel;
@@ -113,7 +112,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
      */
     public static Dimension2D computeMaximumSize ( final SymbolWidget widget ) {
 
-        MutablePair<Double, Double> maxSize = MutablePair.of(0.0, 0.0);
+        Double[] max_size = new Double[] { 0.0, 0.0 };
 
         widget.propSymbols().getValue().stream().forEach(s -> {
 
@@ -124,11 +123,11 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
                 final String filename = ModelResourceUtil.resolveResource(widget.getTopDisplayModel(), imageFile);
                 final Image image = new Image(ModelResourceUtil.openResourceStream(filename));
 
-                if ( maxSize.getLeft() < image.getWidth() ) {
-                    maxSize.setLeft(image.getWidth());
+                if ( max_size[0] < image.getWidth() ) {
+                    max_size[0] = image.getWidth();
                 }
-                if ( maxSize.getRight() < image.getHeight() ) {
-                    maxSize.setRight(image.getHeight());
+                if ( max_size[1] < image.getHeight() ) {
+                    max_size[1] = image.getHeight();
                 }
 
             } catch ( Exception ex ) {
@@ -137,7 +136,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
 
         });
 
-        return new Dimension2D(maxSize.getLeft(), maxSize.getRight());
+        return new Dimension2D(max_size[0], max_size[1]);
 
     }
 

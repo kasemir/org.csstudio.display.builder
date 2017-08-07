@@ -55,6 +55,7 @@ import org.csstudio.display.builder.model.widgets.TableWidget;
 import org.csstudio.display.builder.model.widgets.TabsWidget;
 import org.csstudio.display.builder.model.widgets.TankWidget;
 import org.csstudio.display.builder.model.widgets.TextEntryWidget;
+import org.csstudio.display.builder.model.widgets.TextSymbolWidget;
 import org.csstudio.display.builder.model.widgets.TextUpdateWidget;
 import org.csstudio.display.builder.model.widgets.ThermometerWidget;
 import org.csstudio.display.builder.model.widgets.WebBrowserWidget;
@@ -172,6 +173,7 @@ public class WidgetFactory
         addWidgetType(TabsWidget.WIDGET_DESCRIPTOR);
         addWidgetType(TankWidget.WIDGET_DESCRIPTOR);
         addWidgetType(TextEntryWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(TextSymbolWidget.WIDGET_DESCRIPTOR);
         addWidgetType(TextUpdateWidget.WIDGET_DESCRIPTOR);
         addWidgetType(ThermometerWidget.WIDGET_DESCRIPTOR);
         addWidgetType(WebBrowserWidget.WIDGET_DESCRIPTOR);

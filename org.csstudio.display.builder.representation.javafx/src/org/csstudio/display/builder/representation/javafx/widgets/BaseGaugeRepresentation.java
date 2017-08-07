@@ -14,7 +14,6 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.commons.lang3.StringUtils;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.FormatOptionHandler;
@@ -478,7 +477,7 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         }
 
 
-        if ( StringUtils.compare(unit.get(), newUnit) != 0 ) {
+        if ( ! Objects.equals(unit.get(), newUnit)) {
             unit.set(newUnit);
             somethingChanged = true;
         }
