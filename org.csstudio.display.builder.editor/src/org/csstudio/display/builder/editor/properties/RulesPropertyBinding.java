@@ -52,9 +52,10 @@ extends WidgetPropertyBinding<Button, RulesWidgetProperty>
         if (result.isPresent())
         {
             undo.execute(new SetWidgetPropertyAction<List<RuleInfo>>(widget_property, result.get()));
+            final String path = widget_property.getPath();
             for (Widget w : other)
             {
-                final RulesWidgetProperty other_prop = (RulesWidgetProperty) w.getProperty(widget_property.getName());
+                final RulesWidgetProperty other_prop = (RulesWidgetProperty) w.getProperty(path);
                 undo.execute(new SetWidgetPropertyAction<List<RuleInfo>>(other_prop, result.get()));
             }
         }
