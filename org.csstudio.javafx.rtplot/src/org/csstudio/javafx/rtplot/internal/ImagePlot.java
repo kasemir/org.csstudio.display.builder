@@ -24,6 +24,7 @@ import java.util.logging.Level;
 
 import org.csstudio.javafx.BufferUtil;
 import org.csstudio.javafx.ChildCare;
+import org.csstudio.javafx.DoubleBuffer;
 import org.csstudio.javafx.PlatformInfo;
 import org.csstudio.javafx.Tracker;
 import org.csstudio.javafx.rtplot.Axis;
@@ -108,9 +109,9 @@ public class ImagePlot extends PlotCanvasBase
 
     /** Is 'image_data' meant to be treated as 'unsigned'? */
     private volatile boolean unsigned_data = false;
-    
+
     /** Color map: use ColorMap or RGB pixels? */
-    private volatile VImageType vimage_type = VImageType.TYPE_MONO; //TODO: should use a purpose-made enum instead of VImageType? (i.e. MappingType {function, rgb1, rgb2, rgb3})
+    private volatile VImageType vimage_type = VImageType.TYPE_MONO;
 
     /** Regions of interest */
     private final List<RegionOfInterest> rois = new CopyOnWriteArrayList<>();
@@ -398,7 +399,7 @@ public class ImagePlot extends PlotCanvasBase
     {
         return Byte.toUnsignedInt(iter.nextByte());
     }
-    
+
     private static int getUShortForRGB(final IteratorNumber iter)
     {
         return Short.toUnsignedInt(iter.nextShort());
@@ -408,7 +409,7 @@ public class ImagePlot extends PlotCanvasBase
     {
         return iter.nextInt();
     }
-    
+
     private static int getByteForRGB(final IteratorNumber iter)
     {
         return Byte.toUnsignedInt((byte)(iter.nextByte()+Byte.MIN_VALUE));
@@ -423,7 +424,10 @@ public class ImagePlot extends PlotCanvasBase
     {
         return iter.nextInt()+Integer.MIN_VALUE;
     }
-    
+
+    /** Buffers used to create the next image buffer */
+    private final DoubleBuffer buffers = new DoubleBuffer();
+
     /** Draw all components into image buffer */
     @Override
     protected BufferedImage updateImageBuffer()
@@ -440,7 +444,7 @@ public class ImagePlot extends PlotCanvasBase
         if (area_copy.width <= 0  ||  area_copy.height <= 0)
             return null;
 
-        final BufferUtil buffer = BufferUtil.getBufferedImage(area_copy.width, area_copy.height);
+        final BufferUtil buffer = buffers.getBufferedImage(area_copy.width, area_copy.height);
         if (buffer == null)
             return null;
         final BufferedImage image = buffer.getImage();
@@ -530,7 +534,7 @@ public class ImagePlot extends PlotCanvasBase
 	                else
 	                    logger.log(Level.WARNING, "Cannot handle unsigned data of type " + numbers.getClass().getName());
 	            }
-	
+
 	            if (autoscale)
 	            {   // Compute min..max before layout of color bar
 	                final IteratorNumber iter = numbers.iterator();
@@ -638,8 +642,6 @@ public class ImagePlot extends PlotCanvasBase
         for (RegionOfInterest roi : rois)
             drawROI(gc, roi);
 
-        gc.dispose();
-
         return image;
     }
 
@@ -729,6 +731,8 @@ public class ImagePlot extends PlotCanvasBase
 
     // private static long runs = 0, avg_nano = 0;
 
+    // TODO Use DoubleBuffer data_buffers to avoid allocating new BufferedImage in draw*() methods
+
     /** @param data_width
      *  @param data_height
      *  @param numbers
@@ -782,7 +786,7 @@ public class ImagePlot extends PlotCanvasBase
         final IteratorNumber iter = numbers.iterator();
         int idx = 0;
         final double span = max - min;
-        
+
         for (int y=0; y<data_height; ++y)
             for (int x=0; x<data_width; ++x)
             {
@@ -805,7 +809,7 @@ public class ImagePlot extends PlotCanvasBase
 
         return image;
     }
-    
+
     /** @param data_width
      *  @param data_height
      *  @param numbers
@@ -876,7 +880,7 @@ public class ImagePlot extends PlotCanvasBase
 	        	for (int i = 0; i < data_height*data_width; ++i)
 	            	data[i] = next_rgbs[0].applyAsInt(iter) | next_rgbs[1].applyAsInt(iter) | next_rgbs[2].applyAsInt(iter);
         }
-        
+
         return image;
     }
 
@@ -1093,7 +1097,7 @@ public class ImagePlot extends PlotCanvasBase
         }
     	return null;
     }
-    
+
     /** Update information about the image location under the mouse pointer
      *  @param mouse_x
      *  @param mouse_y

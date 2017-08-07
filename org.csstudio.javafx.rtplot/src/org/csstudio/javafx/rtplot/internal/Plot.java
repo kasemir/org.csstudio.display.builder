@@ -27,6 +27,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 
 import org.csstudio.javafx.BufferUtil;
+import org.csstudio.javafx.DoubleBuffer;
 import org.csstudio.javafx.PlatformInfo;
 import org.csstudio.javafx.rtplot.Annotation;
 import org.csstudio.javafx.rtplot.Axis;
@@ -538,6 +539,9 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         plot_area.setBounds(total_left_axes_width-1, title_height, plot_width+1, y_axis_height);
     }
 
+    /** Buffers used to create the next image buffer */
+    private final DoubleBuffer buffers = new DoubleBuffer();
+
     /** Draw all components into image buffer */
     @Override
     protected BufferedImage updateImageBuffer()
@@ -548,7 +552,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
 
         plot_processor.autoscale();
 
-        final BufferUtil buffer = BufferUtil.getBufferedImage(area_copy.width, area_copy.height);
+        final BufferUtil buffer = buffers.getBufferedImage(area_copy.width, area_copy.height);
         if (buffer == null)
             return null;
         final BufferedImage image = buffer.getImage();
@@ -595,8 +599,6 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         // Annotations use label font
         for (AnnotationImpl<XTYPE> annotation : annotations)
             annotation.paint(gc, x_axis, y_axes.get(annotation.getTrace().getYAxis()));
-
-        gc.dispose();
 
         return image;
     }
