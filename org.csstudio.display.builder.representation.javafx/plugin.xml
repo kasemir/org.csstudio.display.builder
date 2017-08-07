@@ -116,6 +116,10 @@
             type="spinner">
       </representation>
       <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.SymbolRepresentation"
+            type="symbol">
+      </representation>
+      <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.TableRepresentation"
             type="table">
       </representation>

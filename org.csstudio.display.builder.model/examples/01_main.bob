@@ -290,6 +290,21 @@
     <height>26</height>
     <tooltip>$(actions)</tooltip>
   </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_32</name>
+    <actions>
+      <action type="open_display">
+        <file>monitors_symbols.bob</file>
+        <target>replace</target>
+        <description>Symbols</description>
+      </action>
+    </actions>
+    <x>330</x>
+    <y>320</y>
+    <width>120</width>
+    <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
   <widget type="label" version="2.0.0">
     <name>Controls</name>
     <text>Controls</text>
