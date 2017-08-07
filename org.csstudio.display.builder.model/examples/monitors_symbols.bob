@@ -123,7 +123,7 @@
   </widget>
   <widget type="combo" version="2.0.0">
     <name>Combo Box</name>
-    <pv_name>loc://enumeration:symbol&lt;VEnum&gt;(0, "ON", "WARNING", "ERROR", "UNCONNECTED"))</pv_name>
+    <pv_name>loc://enumeration:symbol&lt;VEnum&gt;(0, "ON", "WARNING", "ERROR", "DISCONNECTED"))</pv_name>
     <x>100</x>
     <y>440</y>
     <width>150</width>
@@ -132,7 +132,7 @@
       <item>OK</item>
       <item>WARNING</item>
       <item>ERROR</item>
-      <item>UNCONNECTED</item>
+      <item>DISCONNECTED</item>
     </items>
   </widget>
   <widget type="label" version="2.0.0">
@@ -147,7 +147,7 @@
   </widget>
   <widget type="symbol" version="2.0.0">
     <name>Symbol_3</name>
-    <pv_name>loc://enumeration:symbol&lt;VEnum&gt;(0, "ON", "WARNING", "ERROR", "UNCONNECTED"))</pv_name>
+    <pv_name>loc://enumeration:symbol&lt;VEnum&gt;(0, "ON", "WARNING", "ERROR", "DISCONNECTED"))</pv_name>
     <symbols>
       <symbol>pic/ok.png</symbol>
       <symbol>pic/warning.png</symbol>
@@ -365,7 +365,7 @@
   </widget>
   <widget type="text-symbol" version="2.0.0">
     <name>Text Symbol_3</name>
-    <pv_name>loc://enumeration:symbol&lt;VEnum&gt;(0, "ON", "WARNING", "ERROR", "UNCONNECTED"))</pv_name>
+    <pv_name>loc://enumeration:symbol&lt;VEnum&gt;(0, "ON", "WARNING", "ERROR", "DISCONNECTED"))</pv_name>
     <symbols>
       <symbol>♠</symbol>
       <symbol>♣</symbol>
@@ -554,7 +554,7 @@
       <symbol>ON</symbol>
       <symbol>WARNING</symbol>
       <symbol>ERROR</symbol>
-      <symbol>UNCONNECTED</symbol>
+      <symbol>DISCONNECTED</symbol>
     </symbols>
     <x>382</x>
     <y>235</y>
@@ -572,7 +572,7 @@
       <symbol>ON</symbol>
       <symbol>WARNING</symbol>
       <symbol>ERROR</symbol>
-      <symbol>UNCONNECTED</symbol>
+      <symbol>DISCONNECTED</symbol>
     </symbols>
     <x>382</x>
     <y>335</y>
@@ -585,12 +585,12 @@
   </widget>
   <widget type="text-symbol" version="2.0.0">
     <name>Text Symbol_8</name>
-    <pv_name>loc://enumeration:symbol&lt;VEnum&gt;(0, "ON", "WARNING", "ERROR", "UNCONNECTED"))</pv_name>
+    <pv_name>loc://enumeration:symbol&lt;VEnum&gt;(0, "ON", "WARNING", "ERROR", "DISCONNECTED"))</pv_name>
     <symbols>
       <symbol>ON</symbol>
       <symbol>WARNING</symbol>
       <symbol>ERROR</symbol>
-      <symbol>UNCONNECTED</symbol>
+      <symbol>DISCONNECTED</symbol>
     </symbols>
     <x>382</x>
     <y>435</y>
