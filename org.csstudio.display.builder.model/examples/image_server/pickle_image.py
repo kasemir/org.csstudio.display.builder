@@ -31,14 +31,17 @@ class ColorAction(argparse.Action):
                 __call__(self, parser, namespace, values[1:], '-' + c)
         else:
             colors_dict = namespace.colors
-            color = 'n' if option_string is None else self.option_strings[0][1]
+            color_seq = 'rgb' if option_string is None or self.option_strings[0][1] is 'n' \
+                            else self.option_strings[0][1]
             for name in values:
                 if name not in namespace.colors[None]:
                     namespace.colors[None].append(name)
                 if not name in namespace.colors:
-                    namespace.colors[name] = color
-                elif not color in namespace.colors[name]:
-                    namespace.colors[name] = namespace.colors[name] + color
+                    namespace.colors[name] = color_seq
+                else:
+                    for color in color_seq:
+                        if not color in namespace.colors[name]:
+                            namespace.colors[name] = namespace.colors[name] + color
 parser.add_argument('png', nargs='*', action=ColorAction, help='PNG images to be pickled (all available color channels)')
 for i, color in enumerate(colors):
     parser.add_argument('-' + color[0], '--' + color, nargs='+', dest="colors", metavar="PNG",
@@ -46,7 +49,7 @@ for i, color in enumerate(colors):
 parser.add_argument('-n', '--none', '--any', nargs='+', dest="colors", metavar="PNG",
         action=ColorAction, help="Select none/any/all color channels")
 parser.add_argument('-c', '--colors', nargs='+', dest="colors", action=ColorAction, metavar="PNG",
-                help='Select specified color channels (r=red, g=green, b=blue, a=alpha, n=none/any/all)')
+        help='Select specified color channels (r=red, g=green, b=blue, a=alpha, n=none/any/all)')
 
 args = parser.parse_args()
 
@@ -65,7 +68,7 @@ for filename in args.colors.get(None, ()):
             for i, color in enumerate(('.red', '.green', '.blue', '.alpha')):
                 if i >= z: break
                 colors = args.colors.get(filename, '')
-                if 'n' in colors or color[1] in colors:
+                if color[1] in colors:
                     name = filename + color if len(args.colors[filename]) > 1 or 'n' in colors else filename
                     pickle.dump((x, y, data[i::3], name), pkl)
                     print("Pickled %s channel for image %s as %s" % (color[1:], filename, name))
