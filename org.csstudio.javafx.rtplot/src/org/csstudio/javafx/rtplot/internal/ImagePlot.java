@@ -731,7 +731,8 @@ public class ImagePlot extends PlotCanvasBase
 
     // private static long runs = 0, avg_nano = 0;
 
-    // TODO Use DoubleBuffer data_buffers to avoid allocating new BufferedImage in draw*() methods
+    /** Buffers used for the data (to be merged/scaled into the complete image) */
+    private final DoubleBuffer data_buffers = new DoubleBuffer();
 
     /** @param data_width
      *  @param data_height
@@ -742,9 +743,9 @@ public class ImagePlot extends PlotCanvasBase
      *  @param color_mapping
      *  @return {@link BufferedImage}, sized to match data
      */
-    private static BufferedImage drawData(final int data_width, final int data_height, final ListNumber numbers,
-                                          final ToDoubleFunction<IteratorNumber> next_sample_func,
-                                          double min, double max, final ColorMappingFunction color_mapping)
+    private BufferedImage drawData(final int data_width, final int data_height, final ListNumber numbers,
+                                   final ToDoubleFunction<IteratorNumber> next_sample_func,
+                                   double min, double max, final ColorMappingFunction color_mapping)
     {
         // final long start = System.nanoTime();
 
@@ -755,18 +756,18 @@ public class ImagePlot extends PlotCanvasBase
             return null;
         }
 
-        // NOT using BufferUtil because the Graphics2D are only used for error message.
-        // Other image access is directly to raster buffer.
-        final BufferedImage image = new BufferedImage(data_width, data_height, BufferedImage.TYPE_INT_ARGB);
+        final BufferUtil buffer = data_buffers.getBufferedImage(data_width, data_height);
+        if (buffer == null)
+            return null;
+        final BufferedImage image = buffer.getImage();
         if (numbers.size() < data_width * data_height)
         {
             final String message = "Image sized " + data_width + " x " + data_height +
                                    " received only " + numbers.size() + " data samples";
             logger.log(Level.WARNING, message);
-            final Graphics2D gc = image.createGraphics();
+            final Graphics2D gc = buffer.getGraphics();
             gc.setColor(Color.RED);
             gc.drawString(message, 0, 10);
-            gc.dispose();
             return image;
         }
         if (!  (min < max))  // Implies min and max being finite, not-NaN
@@ -817,8 +818,8 @@ public class ImagePlot extends PlotCanvasBase
      *  @param type RGB type (RGB1, RGB2, or RGB3)
      *  @return {@link BufferedImage}, sized to match data
      */
-    private static BufferedImage drawDataRGB(final int data_width, final int data_height, final ListNumber numbers,
-                                          final ToIntFunction<IteratorNumber> next_rgbs [], final VImageType type)
+    private BufferedImage drawDataRGB(final int data_width, final int data_height, final ListNumber numbers,
+                                      final ToIntFunction<IteratorNumber> next_rgbs [], final VImageType type)
     {
         if (data_width <= 0  ||  data_height <= 0)
         {
@@ -827,18 +828,18 @@ public class ImagePlot extends PlotCanvasBase
             return null;
         }
 
-        // NOT using BufferUtil because the Graphics2D are only used for error message.
-        // Other image access is directly to raster buffer.
-        final BufferedImage image = new BufferedImage(data_width, data_height, BufferedImage.TYPE_INT_RGB);
+        final BufferUtil buffer = data_buffers.getBufferedImage(data_width, data_height);
+        if (buffer == null)
+            return null;
+        final BufferedImage image = buffer.getImage();
         if (numbers.size() < data_width * data_height * 3)
         {
             final String message = "RGB image sized " + data_width + " x " + data_height +
                                    " received only " + numbers.size() + " data samples";
             logger.log(Level.WARNING, message);
-            final Graphics2D gc = image.createGraphics();
+            final Graphics2D gc = buffer.getGraphics();
             gc.setColor(Color.RED);
             gc.drawString(message, 0, 10);
-            gc.dispose();
             return image;
         }
 
