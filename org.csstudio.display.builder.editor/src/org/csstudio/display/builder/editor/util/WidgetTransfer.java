@@ -36,7 +36,6 @@ import javax.swing.text.rtf.RTFEditorKit;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.MutablePair;
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.EditorUtil;
 import org.csstudio.display.builder.editor.Messages;
@@ -59,9 +58,11 @@ import org.csstudio.display.builder.model.widgets.PictureWidget;
 import org.csstudio.display.builder.model.widgets.SymbolWidget;
 import org.csstudio.display.builder.model.widgets.WebBrowserWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.SymbolRepresentation;
 import org.eclipse.osgi.util.NLS;
 
 import javafx.embed.swing.SwingFXUtils;
+import javafx.geometry.Dimension2D;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.control.ChoiceDialog;
@@ -1003,32 +1004,11 @@ public class WidgetTransfer {
      */
     private static void updateSymbolWidgetSize ( final SymbolWidget widget ) {
 
-        MutablePair<Double, Double> maxSize = MutablePair.of(0.0, 0.0);
+        Dimension2D maxSize = SymbolRepresentation.computeMaximumSize(widget);
 
-        widget.propSymbols().getValue().stream().forEach(s -> {
-
-            final String imageFile = s.getValue();
-
-            try {
-
-                final String filename = ModelResourceUtil.resolveResource(widget.getTopDisplayModel(), imageFile);
-                final Image image = new Image(ModelResourceUtil.openResourceStream(filename));
-
-                if ( maxSize.getLeft() < image.getWidth() ) {
-                    maxSize.setLeft(image.getWidth());
-                }
-                if ( maxSize.getRight() < image.getHeight() ) {
-                    maxSize.setRight(image.getHeight());
-                }
-
-            } catch ( Exception ex ) {
-                logger.log(Level.WARNING, "Cannot obtain image size for " + imageFile, ex);
-            }
-
-        });
-
-        widget.propWidth().setValue((int) Math.round(maxSize.getLeft()));
-        widget.propHeight().setValue((int) Math.round(maxSize.getRight()));
+        widget.propWidth().setValue((int) Math.round(maxSize.getWidth()));
+        widget.propHeight().setValue((int) Math.round(maxSize.getHeight()));
+        widget.propAutoSize().setValue(true);
 
     }
 

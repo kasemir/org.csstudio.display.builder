@@ -343,10 +343,13 @@
             name="%SymbolWidget_Name"
             type="symbol">
          <alternates
-               type="org.csstudio.opibuilder.widgets.symbol.bool.BoolControlWidget">
+               type="org.csstudio.opibuilder.widgets.ImageBoolIndicator">
          </alternates>
          <alternates
-               type="org.csstudio.opibuilder.widgets.symbol.multistate.MultistateControlWidget">
+               type="org.csstudio.opibuilder.widgets.symbol.bool.BoolMonitorWidget">
+         </alternates>
+         <alternates
+               type="org.csstudio.opibuilder.widgets.symbol.multistate.MultistateMonitorWidget">
          </alternates>
       </widget>
       <widget
