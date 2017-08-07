@@ -46,9 +46,10 @@ public class WidgetFontPropertyBinding
         if (result.isPresent())
         {
             undo.execute(new SetWidgetPropertyAction<WidgetFont>(widget_property, result.get()));
+            final String path = widget_property.getPath();
             for (Widget w : other)
             {
-                final FontWidgetProperty other_prop = (FontWidgetProperty) w.getProperty(widget_property.getName());
+                final FontWidgetProperty other_prop = (FontWidgetProperty) w.getProperty(path);
                 undo.execute(new SetWidgetPropertyAction<WidgetFont>(other_prop, result.get()));
             }
         }

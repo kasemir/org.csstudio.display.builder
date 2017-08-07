@@ -105,9 +105,10 @@ public class EnumWidgetPropertyBinding
 
         final Object value = (ordinal >= 0) ? ordinal : entered;
         undo.execute(new SetWidgetEnumPropertyAction(widget_property, value));
+        final String path = widget_property.getPath();
         for (Widget w : other)
         {
-            final EnumWidgetProperty<?> other_prop = (EnumWidgetProperty<?>) w.getProperty(widget_property.getName());
+            final EnumWidgetProperty<?> other_prop = (EnumWidgetProperty<?>) w.getProperty(path);
             undo.execute(new SetWidgetEnumPropertyAction(other_prop, value));
         }
         updating = false;

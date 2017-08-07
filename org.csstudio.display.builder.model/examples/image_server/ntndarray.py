@@ -97,14 +97,13 @@ def setCodec(image, codec):
     image['codec'] = dict(init_codec, **codec)
 
 #note: accepts an iterable of dictionaries, not a dictionary
-def setAttribute(image, attribute):
-    new_a = [dict(init_attribute, **a) for a in attribute]
-    #image['attribute'] = new_a[0]
+#def setAttribute(image, attribute):
+    #image['attribute'] = [dict(init_attribute, **a) for a in attribute]
 
 # setters for Color Mode attribute
-#def setColorMode(image, value): #TODO: figure this out!
-#    #todo: either replace or add a 'ColorMode' attribute from image['attribute']
-#    setAttribute(image, ({'name': 'ColorMode', 'value' : value, 'description': 'Color mode'},))
+#def setColorMode(image, value):
+    #todo: either replace or add a 'ColorMode' attribute from image['attribute']
+#    setAttribute(image, ({'name': 'ColorMode', 'value' : ({'value' : value},), 'description': 'Color mode'},))
 
 #def setMonoColor(image):
 #    setColorMode(image, 0)
@@ -116,7 +115,7 @@ def setAttribute(image, attribute):
 def createImage(uniqueId, data, sizes, typecode=None, offsets=repeat(0), binnings=repeat(1), reverses=repeat(False), codec = {}, attribute=[{}]):
     image = PvObject(ntndarray, {'uniqueId' : uniqueId},'epics:nt/NTNDArray:1.0')
     setCodec(image, codec)
-    setAttribute(image, attribute)
+    #setAttribute(image, attribute)
     setImage(image, data, typecode)
     setDimensions(image, sizes, offsets, binnings, reverses)
     
@@ -124,4 +123,5 @@ def createImage(uniqueId, data, sizes, typecode=None, offsets=repeat(0), binning
 
 if __name__ == "__main__":
     image = createImage(0, [1,2,3], (3,), BYTE)
+    setColorMode(image, 0)
 

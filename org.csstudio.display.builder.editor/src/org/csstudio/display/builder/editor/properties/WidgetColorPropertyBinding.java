@@ -45,9 +45,10 @@ public class WidgetColorPropertyBinding
         if (result.isPresent())
         {
             undo.execute(new SetWidgetPropertyAction<WidgetColor>(widget_property, result.get()));
+            final String path = widget_property.getPath();
             for (Widget w : other)
             {
-                final ColorWidgetProperty other_prop = (ColorWidgetProperty) w.getProperty(widget_property.getName());
+                final ColorWidgetProperty other_prop = (ColorWidgetProperty) w.getProperty(path);
                 undo.execute(new SetWidgetPropertyAction<WidgetColor>(other_prop, result.get()));
             }
         }

@@ -118,6 +118,70 @@ public abstract class WidgetProperty<T extends Object> extends PropertyChangeHan
         return descriptor.getName();
     }
 
+    /** Get full path to property
+     *
+     *  <p>A widget property 'visible' might be the basic
+     *  widget's 'visible' property, or the 'visible' property
+     *  of an element in a structure within an array,
+     *  like ImageWidget's 'color_bar.visible'.
+     *
+     *  <p>The path is seldom needed, so properties do not
+     *  carry a 'parent' reference for fast determination
+     *  of the path.
+     *  Instead, the path is determined at runtime by
+     *  searching down from the top-level widget properties.
+     */
+    public String getPath()
+    {
+        final StringBuilder buf = new StringBuilder();
+        for (WidgetProperty<?> prop : widget.getProperties())
+            if (locateProperty(buf, prop, false))
+                break;
+        if (buf.length() <= 0)
+            logger.log(Level.WARNING, "Cannot determine path to " + getName() + " for " + widget);
+        return buf.toString();
+    }
+
+    /** Recursively build path to property
+     *  @param buf Buffer where path is assembled
+     *  @param property Property to locate
+     *  @param in_array Is recursion level within an array?
+     *  @return Recursively growing path to property
+     */
+    private boolean locateProperty(final StringBuilder buf, final WidgetProperty<?> property, final boolean in_array)
+    {
+        if (property == this)
+        {
+            buf.append(getName());
+            return true;
+        }
+        if (property instanceof ArrayWidgetProperty<?>)
+        {
+            final ArrayWidgetProperty<?> array = (ArrayWidgetProperty<?>) property;
+            for (int i=0; i<array.size(); ++i)
+                if (locateProperty(buf, array.getElement(i), true))
+                {
+                    buf.insert(0, array.getName() + "[" + i + "]");
+                    return true;
+                }
+        }
+        else if (property instanceof StructuredWidgetProperty)
+        {
+            final StructuredWidgetProperty struct = (StructuredWidgetProperty) property;
+            for (int i=0; i<struct.size(); ++i)
+                if (locateProperty(buf, struct.getElement(i), false))
+                {
+                    buf.insert(0, '.');
+                    // In an array, we omit the structure name.
+                    // "traces[1].name" instead of "traces[1].trace.name"
+                    if (! in_array)
+                        buf.insert(0, struct.getName());
+                    return true;
+                }
+        }
+        return false;
+    }
+
     /** @return Human-readable description of the property */
     public String getDescription()
     {

@@ -378,7 +378,7 @@ public class PropertyPanelSection extends GridPane
         final Label label = new Label(property.getDescription());
         label.setMaxWidth(Double.MAX_VALUE);
         label.setMinWidth(100);
-        final String tooltip = property.getDescription() + " (" + property.getName() + ")";
+        final String tooltip = property.getDescription() + " (" + property.getPath() + ")";
         label.setTooltip(new Tooltip(tooltip));
         // setGridLinesVisible(true); // For debugging the layout
 
