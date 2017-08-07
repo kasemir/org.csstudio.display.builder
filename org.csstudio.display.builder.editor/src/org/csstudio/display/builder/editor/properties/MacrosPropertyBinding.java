@@ -16,6 +16,7 @@ import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.MacrosWidgetProperty;
 import org.csstudio.display.builder.representation.javafx.MacrosDialog;
+import org.csstudio.display.builder.representation.javafx.ModalityHack;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.DialogHelper;
 
@@ -40,13 +41,15 @@ public class MacrosPropertyBinding
     {
         final MacrosDialog dialog = new MacrosDialog(widget_property.getValue());
         DialogHelper.positionDialog(dialog, DialogHelper.getContainer(jfx_node), -200, -300);
+        ModalityHack.forDialog(dialog);
         final Optional<Macros> result = dialog.showAndWait();
         if (result.isPresent())
         {
             undo.execute(new SetWidgetPropertyAction<Macros>(widget_property, result.get()));
+            final String path = widget_property.getPath();
             for (Widget w : other)
             {
-                final MacrosWidgetProperty other_prop = (MacrosWidgetProperty) w.getProperty(widget_property.getName());
+                final MacrosWidgetProperty other_prop = (MacrosWidgetProperty) w.getProperty(path);
                 undo.execute(new SetWidgetPropertyAction<Macros>(other_prop, result.get()));
             }
         }

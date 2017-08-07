@@ -57,7 +57,8 @@ public class ScaledSliderWidget extends WritablePVWidget
             "Scaled Slider",
             "platform:/plugin/org.csstudio.display.builder.model/icons/scaled_slider.gif",
             "A scaled slider that can read/write a numeric PV",
-            Arrays.asList("org.csstudio.opibuilder.widgets.scaledslider"))
+            Arrays.asList("org.csstudio.opibuilder.widgets.scaledslider",
+                          "org.csstudio.opibuilder.widgets.knob"))
     {
         @Override
         public Widget createWidget()
@@ -171,6 +172,13 @@ public class ScaledSliderWidget extends WritablePVWidget
                 final Element element = XMLUtil.getChildElement(xml, "scale_font");
                 if (element != null)
                     slider.font.readFromXML(model_reader, element);
+
+                // Is this a legacy 'Knob'?
+                if (xml.getAttribute("typeId").equals("org.csstudio.opibuilder.widgets.knob"))
+                {
+                    // Guess orientation based on width : height ratio
+                    slider.propHorizontal().setValue(slider.propWidth().getValue() >= slider.propHeight().getValue());
+                }
             }
             return true;
         }

@@ -17,6 +17,7 @@ import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.ScriptsWidgetProperty;
 import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
+import org.csstudio.display.builder.representation.javafx.ModalityHack;
 import org.csstudio.display.builder.representation.javafx.ScriptsDialog;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.DialogHelper;
@@ -46,13 +47,15 @@ public class ScriptsPropertyBinding
     {
         final ScriptsDialog dialog = new ScriptsDialog(widget_property.getWidget(), widget_property.getValue(), menu);
         DialogHelper.positionDialog(dialog, DialogHelper.getContainer(jfx_node), -200, -200);
+        ModalityHack.forDialog(dialog);
         final Optional<List<ScriptInfo>> result = dialog.showAndWait();
         if (result.isPresent())
         {
             undo.execute(new SetWidgetPropertyAction<List<ScriptInfo>>(widget_property, result.get()));
+            final String path = widget_property.getPath();
             for (Widget w : other)
             {
-                final ScriptsWidgetProperty other_prop = (ScriptsWidgetProperty) w.getProperty(widget_property.getName());
+                final ScriptsWidgetProperty other_prop = (ScriptsWidgetProperty) w.getProperty(path);
                 undo.execute(new SetWidgetPropertyAction<List<ScriptInfo>>(other_prop, result.get()));
             }
         }

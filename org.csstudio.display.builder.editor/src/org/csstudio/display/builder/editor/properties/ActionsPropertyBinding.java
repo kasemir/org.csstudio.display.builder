@@ -17,6 +17,7 @@ import org.csstudio.display.builder.model.properties.ActionInfos;
 import org.csstudio.display.builder.model.properties.ActionsWidgetProperty;
 import org.csstudio.display.builder.representation.javafx.ActionsDialog;
 import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
+import org.csstudio.display.builder.representation.javafx.ModalityHack;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.DialogHelper;
 
@@ -43,14 +44,15 @@ public class ActionsPropertyBinding
     {
         final ActionsDialog dialog = new ActionsDialog(widget_property.getWidget(), widget_property.getValue(), menu);
         DialogHelper.positionDialog(dialog, DialogHelper.getContainer(jfx_node), -200, -200);
-
+        ModalityHack.forDialog(dialog);
         final Optional<ActionInfos> result = dialog.showAndWait();
         if (result.isPresent())
         {
             undo.execute(new SetWidgetPropertyAction<ActionInfos>(widget_property, result.get()));
+            final String path = widget_property.getPath();
             for (Widget w : other)
             {
-                final ActionsWidgetProperty other_prop = (ActionsWidgetProperty) w.getProperty(widget_property.getName());
+                final ActionsWidgetProperty other_prop = (ActionsWidgetProperty) w.getProperty(path);
                 undo.execute(new SetWidgetPropertyAction<ActionInfos>(other_prop, result.get()));
             }
         }

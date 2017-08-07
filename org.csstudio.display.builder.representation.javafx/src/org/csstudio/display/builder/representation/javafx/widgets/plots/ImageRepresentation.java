@@ -33,10 +33,10 @@ import org.csstudio.javafx.rtplot.Interpolation;
 import org.csstudio.javafx.rtplot.RTImagePlot;
 import org.csstudio.javafx.rtplot.RTImagePlotListener;
 import org.csstudio.javafx.rtplot.RegionOfInterest;
-import org.diirt.util.array.ArrayByte;
 import org.diirt.util.array.ArrayDouble;
 import org.diirt.util.array.ArrayInt;
 import org.diirt.vtype.VImage;
+import org.diirt.vtype.VImageType;
 import org.diirt.vtype.VNumberArray;
 import org.diirt.vtype.VType;
 import org.diirt.vtype.ValueFactory;
@@ -290,12 +290,25 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
             image_plot.setValue(model_widget.propDataWidth().getValue(),
                                 model_widget.propDataHeight().getValue(),
                                 ((VNumberArray) value).getData(),
-                                model_widget.propDataUnsigned().getValue());
+                                model_widget.propDataUnsigned().getValue(),
+                                VImageType.TYPE_MONO);
         else if (value instanceof VImage)
         {
             final VImage image = (VImage) value;
-            image_plot.setValue(image.getWidth(), image.getHeight(), new ArrayByte(image.getData(), true),
-                                model_widget.propDataUnsigned().getValue());
+            boolean isUnsigned;
+            switch (image.getDataType())
+            {
+	            case pvUByte:
+	            case pvUShort:
+	            case pvUInt:
+	            case pvULong:
+	            	isUnsigned = true;
+	            	break;
+            	default:
+            		isUnsigned = false;
+            }
+            image_plot.setValue(image.getWidth(), image.getHeight(), image.getData(),
+                                isUnsigned, image.getVImageType());
         }
         else if (value != null)
             logger.log(Level.WARNING, "Cannot draw image from {0}", value);

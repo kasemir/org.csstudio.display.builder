@@ -21,6 +21,7 @@ import org.csstudio.javafx.rtplot.internal.YAxisImpl;
 import org.csstudio.javafx.rtplot.internal.undo.ChangeImageZoom;
 import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 import org.diirt.util.array.ListNumber;
+import org.diirt.vtype.VImageType;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -400,9 +401,9 @@ public class RTImagePlot extends BorderPane
      *              proceeding along the row, then to next rows
      *  @param unsigned Is the data meant to be treated as 'unsigned'
      */
-    public void setValue(final int width, final int height, final ListNumber data, final boolean unsigned)
+    public void setValue(final int width, final int height, final ListNumber data, final boolean unsigned, final VImageType type)
     {
-        plot.setValue(width, height, data, unsigned);
+        plot.setValue(width, height, data, unsigned, type);
     }
 
     /** Should be invoked when plot no longer used to release resources */

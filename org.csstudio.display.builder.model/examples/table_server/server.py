@@ -18,27 +18,19 @@
 
 from pvaccess import PvObject, PvString, STRING, UINT, PvaServer, Channel
 from collections import OrderedDict
+from copy import copy
 
 # table values
 titles = ['Fred1', 'Fred2', 'Lisa I', 'Larry One', 'Lisa II', 'Harry One', 'Another Fred', 'Lisa III']
 names = ['Fred', 'Fred', 'Lisa', 'Larry', 'Lisa', 'Larry', 'Fred', 'Lisa']
 ids = {'Fred' : [1, 2, 7], 'Lisa' : [3, 5, 8], 'Larry' : [4, 6]}
 
-# create PVs
-tableValueDict = OrderedDict([('id', [UINT]), ('name', [STRING]), ('title', [STRING])])
-tablePV = PvObject({ 'labels' : [STRING], 'value' : tableValueDict }, "epics:nt/NTTable:1.0")
-tablePV['labels'] = ['ID', 'Name', 'Title']
-namePV = PvString('')
-
-# create server
-server = PvaServer('table', tablePV)
-server.addRecord('name', namePV)
-
-# update value
+# update value (callback)
 def updateValue(pv):
-	name = namePV['value']
+	name = pv['value']
 	#print("updating table for name '%s'" % name)
-	value = tablePV['value']
+	newPV = PvObject(tableStructDict, copy(tablePV.get()), "epics:nt/NTTable:1.0")
+	value = newPV['value']
 	if name is '':
 		value['id'] = []
 		value['name'] = names
@@ -57,11 +49,19 @@ def updateValue(pv):
 		value['name'] = [None]
 		value['title'] = [None]
 	#print("value = %s" % str(value))
-	tablePV['value'] = value
+	newPV['value'] = value
+	server.update('table', newPV)
 
-# create monitor
-channel = Channel('name')
-channel.monitor(updateValue)
+# create PVs
+tableStructDict = {'labels' : [STRING],
+                    'value' : OrderedDict([('id', [UINT]), ('name', [STRING]), ('title', [STRING])])}
+tablePV = PvObject(tableStructDict, "epics:nt/NTTable:1.0")
+tablePV['labels'] = ['ID', 'Name', 'Title']
+namePV = PvString('')
+
+# create server
+server = PvaServer('table', tablePV)
+server.addRecord('name', namePV, updateValue)
 
 raw_input("\nEnter anything to quit\n")
 

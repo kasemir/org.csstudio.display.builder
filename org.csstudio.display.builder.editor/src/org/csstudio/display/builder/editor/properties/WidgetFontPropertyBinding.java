@@ -15,6 +15,7 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.FontWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetFont;
+import org.csstudio.display.builder.representation.javafx.ModalityHack;
 import org.csstudio.display.builder.representation.javafx.WidgetFontDialog;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.DialogHelper;
@@ -40,13 +41,15 @@ public class WidgetFontPropertyBinding
     {
         final WidgetFontDialog dialog = new WidgetFontDialog(widget_property.getValue());
         DialogHelper.positionDialog(dialog, DialogHelper.getContainer(jfx_node), -200, -200);
+        ModalityHack.forDialog(dialog);
         final Optional<WidgetFont> result = dialog.showAndWait();
         if (result.isPresent())
         {
             undo.execute(new SetWidgetPropertyAction<WidgetFont>(widget_property, result.get()));
+            final String path = widget_property.getPath();
             for (Widget w : other)
             {
-                final FontWidgetProperty other_prop = (FontWidgetProperty) w.getProperty(widget_property.getName());
+                final FontWidgetProperty other_prop = (FontWidgetProperty) w.getProperty(path);
                 undo.execute(new SetWidgetPropertyAction<WidgetFont>(other_prop, result.get()));
             }
         }

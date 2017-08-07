@@ -55,28 +55,6 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
     private final DirtyFlag dirty_range = new DirtyFlag();
     private final DirtyFlag dirty_config = new DirtyFlag();
 
-    /** Data for one trace: X, Y and optional error array */
-    private class LatestData
-    {
-        final ListNumber x_array, y_array, error;
-
-        public LatestData(final ListNumber x_array, final ListNumber y_array, final ListNumber error)
-        {
-            this.x_array = x_array;
-            this.y_array = y_array;
-            this.error = error;
-        }
-    }
-
-    /** Plot needs a consistent combination of X, Y[, Error]
-     *
-     *  <p>Assume we receive updates X1,Y1, then X2,Y2.
-     *  Updates need to be handled on other thread.
-     *  If posting the values to a thread pool, it might handle XY2 _before_ XY1.
-     *  Caching the most recent value avoids handling old data.
-     */
-    private final AtomicReference<LatestData> latest_data = new AtomicReference<>();
-
     /** Prevent event loop when this code changes the range,
      *  and then receives the range-change-event
      */
@@ -119,6 +97,64 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
                 plot_marker.setPosition(effective);
             changing_marker = false;
         }
+
+        // When user interactively changes the plot,
+        // update the model.
+        @Override
+        public void changedXAxis(final Axis<Double> x_axis)
+        {
+            updateModelAxis(model_widget.propXAxis(), x_axis);
+        }
+
+        @Override
+        public void changedYAxis(final YAxis<Double> y_axis)
+        {
+            final int index = plot.getYAxes().indexOf(y_axis);
+            if (index >= 0  &&  index < model_widget.propYAxes().size())
+                updateModelAxis(model_widget.propYAxes().getElement(index), y_axis);
+        }
+
+        /** Invoked when auto scale is enabled or disabled by user interaction */
+        @Override
+        public void changedAutoScale(Axis<?> axis)
+        {
+            changing_range = true;
+            try
+            {
+                if (axis == plot.getXAxis())
+                    model_widget.propXAxis().autoscale().setValue(axis.isAutoscale());
+                else
+                {
+                    final int index = plot.getYAxes().indexOf(axis);
+                    if (index >= 0  &&  index < model_widget.propYAxes().size())
+                        model_widget.propYAxes().getElement(index).autoscale().setValue(axis.isAutoscale());
+                }
+            }
+            finally
+            {
+                changing_range = false;
+            }
+        }
+
+        private void updateModelAxis(final AxisWidgetProperty model_axis, final Axis<Double> plot_axis)
+        {
+            final AxisRange<Double> range = plot_axis.getValueRange();
+            if (changing_range)
+            {
+                logger.log(Level.WARNING, "Ignoring plot axis change for " + model_axis + " because of additional change");
+                return;
+            }
+            changing_range = true;
+            try
+            {
+                model_axis.minimum().setValue(range.getLow());
+                model_axis.maximum().setValue(range.getHigh());
+            }
+            finally
+            {
+                changing_range = false;
+            }
+        }
     };
 
     /** Handler for one trace of the plot
@@ -129,16 +165,24 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
     private class TraceHandler
     {
         private final TraceWidgetProperty model_trace;
-        private final XYVTypeDataProvider data = new XYVTypeDataProvider();
         private final UntypedWidgetPropertyListener trace_listener = this::traceChanged,
                                                     value_listener = this::valueChanged;
         private final Trace<Double> trace;
+
+        /** Plot needs a consistent combination of X, Y[, Error]
+         *
+         *  <p>Assume we receive updates X1, Y1, then a little later X2 and finally Y2.
+         *  Updates need to be handled on other thread.
+         *  If posting the values to a thread pool, it might handle X2, Y2 _before_ XY1.
+         *  Caching the most recent value avoids handling old data.
+         */
+        private final AtomicReference<XYVTypeDataProvider> latest_data = new AtomicReference<>();
 
         TraceHandler(final TraceWidgetProperty model_trace)
         {
             this.model_trace = model_trace;
 
-            trace = plot.addTrace(model_trace.traceName().getValue(), "", data,
+            trace = plot.addTrace(model_trace.traceName().getValue(), "", new XYVTypeDataProvider(),
                                   JFXUtil.convert(model_trace.traceColor().getValue()),
                                   map(model_trace.traceType().getValue()),
                                   model_trace.traceWidth().getValue(),
@@ -224,8 +268,8 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
             else // Clear all unless there's Y data
                 x_data = y_data = error = XYVTypeDataProvider.EMPTY;
 
-            // Decouple from CAJ's PV thread to avoid deadlock when setData() takes its lock
-            latest_data.set(new LatestData(x_data, y_data, error));
+            // Decouple from CAJ's PV thread
+            latest_data.set(new XYVTypeDataProvider(x_data, y_data, error));
             ModelThreadPool.getExecutor().submit(() -> updateData());
         }
 
@@ -233,13 +277,13 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         // Void to be usable as Callable(..) with Exception on error
         private Void updateData() throws Exception
         {
-            // Flurry of N updates will schedule N updateData() calls,
-            // but the first one that actually runs will handle the most
+            // Flurry of N updates will schedule N updateData() calls.
+            // The first one that actually runs will handle the most
             // recent data and the rest can then return with nothing else to do.
-            final LatestData latest = latest_data.getAndSet(null);
+            final XYVTypeDataProvider latest = latest_data.getAndSet(null);
             if (latest != null)
             {
-                data.setData(latest.x_array, latest.y_array, latest.error);
+                trace.updateData(latest);
                 plot.requestUpdate();
             }
             return null;

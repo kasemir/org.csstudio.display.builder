@@ -22,7 +22,7 @@ public interface RTPlotListener<XTYPE extends Comparable<XTYPE>>
     default public void changedYAxis(YAxis<XTYPE> y_axis) {};
 
     /** Invoked when auto scale is enabled or disabled by user interaction */
-    default public void changedAutoScale(YAxis<XTYPE> y_axis) {};
+    default public void changedAutoScale(Axis<?> axis) {};
 
     /** Invoked when a PlotMarker has been moved
      *  @param index Index 0, .. of the {@link PlotMarker}

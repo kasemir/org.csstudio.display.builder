@@ -54,6 +54,9 @@ public interface Trace<XTYPE extends Comparable<XTYPE>>
         return NLS.bind(Messages.NameUnitsFmt, getName(), units);
     }
 
+    /** @param data New data provider */
+    public void updateData(PlotDataProvider<XTYPE> data);
+
     /** @return {@link PlotDataProvider} */
     public PlotDataProvider<XTYPE> getData();
 

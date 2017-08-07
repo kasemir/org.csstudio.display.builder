@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.ToDoubleFunction;
+import java.util.function.ToIntFunction;
 import java.util.logging.Level;
 
 import org.csstudio.javafx.BufferUtil;
@@ -40,6 +41,7 @@ import org.diirt.util.array.ArrayInt;
 import org.diirt.util.array.ArrayShort;
 import org.diirt.util.array.IteratorNumber;
 import org.diirt.util.array.ListNumber;
+import org.diirt.vtype.VImageType;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Point2D;
@@ -106,6 +108,9 @@ public class ImagePlot extends PlotCanvasBase
 
     /** Is 'image_data' meant to be treated as 'unsigned'? */
     private volatile boolean unsigned_data = false;
+    
+    /** Color map: use ColorMap or RGB pixels? */
+    private volatile VImageType vimage_type = VImageType.TYPE_MONO; //TODO: should use a purpose-made enum instead of VImageType? (i.e. MappingType {function, rgb1, rgb2, rgb3})
 
     /** Regions of interest */
     private final List<RegionOfInterest> rois = new CopyOnWriteArrayList<>();
@@ -325,9 +330,14 @@ public class ImagePlot extends PlotCanvasBase
      */
     public void setValue(final int width, final int height, final ListNumber data, final boolean unsigned)
     {
+    	setValue(width, height, data, unsigned, VImageType.TYPE_MONO);
+    }
+    public void setValue(final int width, final int height, final ListNumber data, final boolean unsigned, VImageType type)
+    {
         data_width = width;
         data_height = height;
         image_data = data;
+        vimage_type = type;
         unsigned_data = unsigned;
         requestUpdate();
     }
@@ -383,6 +393,37 @@ public class ImagePlot extends PlotCanvasBase
         return Integer.toUnsignedLong(iter.nextInt());
     }
 
+    // Functionals for RGB
+    private static int getUByteForRGB(final IteratorNumber iter)
+    {
+        return Byte.toUnsignedInt(iter.nextByte());
+    }
+    
+    private static int getUShortForRGB(final IteratorNumber iter)
+    {
+        return Short.toUnsignedInt(iter.nextShort());
+    }
+
+    private static int getUIntForRGB(final IteratorNumber iter)
+    {
+        return iter.nextInt();
+    }
+    
+    private static int getByteForRGB(final IteratorNumber iter)
+    {
+        return Byte.toUnsignedInt((byte)(iter.nextByte()+Byte.MIN_VALUE));
+    }
+
+    private static int getShortForRGB(final IteratorNumber iter)
+    {
+        return Short.toUnsignedInt((short)(iter.nextShort()+Short.MIN_VALUE));
+    }
+
+    private static int getIntForRGB(final IteratorNumber iter)
+    {
+        return iter.nextInt()+Integer.MIN_VALUE;
+    }
+    
     /** Draw all components into image buffer */
     @Override
     protected BufferedImage updateImageBuffer()
@@ -417,39 +458,96 @@ public class ImagePlot extends PlotCanvasBase
         final ListNumber numbers = this.image_data;
         final boolean unsigned = this.unsigned_data;
         double min = this.min, max = this.max;
+        final VImageType type = this.vimage_type;
         final ColorMappingFunction color_mapping = this.color_mapping;
 
         ToDoubleFunction<IteratorNumber> next_sample_func = IteratorNumber::nextDouble;
+    	boolean isRGB = type == VImageType.TYPE_RGB1 || type == VImageType.TYPE_RGB2 || type == VImageType.TYPE_RGB3;
+    	@SuppressWarnings("unchecked")
+		final ToIntFunction<IteratorNumber> next_rgb [] = new ToIntFunction [3];
         if (numbers != null)
         {
-            if (unsigned)
+            if (isRGB)
             {
-                if (numbers instanceof ArrayShort)
-                    next_sample_func = ImagePlot::getUnsignedShort;
-                else if (numbers instanceof ArrayByte)
-                    next_sample_func = ImagePlot::getUnsignedByte;
-                else if (numbers instanceof ArrayInt)
-                    next_sample_func = ImagePlot::getUnsignedInt;
-                else
-                    logger.log(Level.WARNING, "Cannot handle unsigned data of type " + numbers.getClass().getName());
+        		if (numbers instanceof ArrayShort)
+        		{
+        			if (unsigned)
+        			{
+            			next_rgb[0] = (iter) -> getUShortForRGB(iter) << 8 & 0xFF0000;
+            			next_rgb[1] = (iter) -> getUShortForRGB(iter) & 0xFF00;
+            			next_rgb[2] = (iter) -> getUShortForRGB(iter) >>> 8;
+        			}
+    				else
+    				{
+            			next_rgb[0] = (iter) -> getShortForRGB(iter) << 8 & 0xFF0000;
+            			next_rgb[1] = (iter) -> getShortForRGB(iter) & 0xFF00;
+            			next_rgb[2] = (iter) -> getShortForRGB(iter) >>> 8;
+    				}
+        		}
+        		if (numbers instanceof ArrayInt)
+        		{
+        			if (unsigned)
+        			{
+            			next_rgb[0] = (iter) -> getUIntForRGB(iter) >>> 8 & 0xFF0000;
+            			next_rgb[1] = (iter) -> getUIntForRGB(iter) >>> 16 & 0xFF00;
+            			next_rgb[2] = (iter) -> getUIntForRGB(iter) >>> 24;
+        			}
+    				else
+    				{
+            			next_rgb[0] = (iter) -> getIntForRGB(iter) >>> 8 & 0xFF0000;
+            			next_rgb[1] = (iter) -> getIntForRGB(iter) >>> 16 & 0xFF00;
+            			next_rgb[2] = (iter) -> getIntForRGB(iter) >>> 24;
+    				}
+        		}
+        		else
+        		{
+            		if (!(numbers instanceof ArrayByte))
+            			logger.log(Level.WARNING, "Cannot handle rgb1 image data of type " + numbers.getClass().getName());
+        			if (unsigned)
+        			{
+            			next_rgb[0] = (iter) -> getUByteForRGB(iter) << 16;
+            			next_rgb[1] = (iter) -> getUByteForRGB(iter) << 8;
+            			next_rgb[2] = (iter) -> getUByteForRGB(iter);
+        			}
+    				else
+    				{
+            			next_rgb[0] = (iter) -> getByteForRGB(iter) << 16;
+            			next_rgb[1] = (iter) -> getByteForRGB(iter) << 8;
+            			next_rgb[2] = (iter) -> getByteForRGB(iter);
+    				}
+        		}
             }
-
-            if (autoscale)
-            {   // Compute min..max before layout of color bar
-                final IteratorNumber iter = numbers.iterator();
-                min = Double.MAX_VALUE;
-                max = Double.NEGATIVE_INFINITY;
-                while (iter.hasNext())
-                {
-                    final double sample = next_sample_func.applyAsDouble(iter);
-                    if (sample > max)
-                        max = sample;
-                    if (sample < min)
-                        min = sample;
-                }
-                logger.log(Level.FINE, "Autoscale range {0} .. {1}", new Object[] { min, max });
+            else //is not RGB
+            {
+	            if (unsigned)
+	            {
+	                if (numbers instanceof ArrayShort)
+	                    next_sample_func = ImagePlot::getUnsignedShort;
+	                else if (numbers instanceof ArrayByte)
+	                    next_sample_func = ImagePlot::getUnsignedByte;
+	                else if (numbers instanceof ArrayInt)
+	                    next_sample_func = ImagePlot::getUnsignedInt;
+	                else
+	                    logger.log(Level.WARNING, "Cannot handle unsigned data of type " + numbers.getClass().getName());
+	            }
+	
+	            if (autoscale)
+	            {   // Compute min..max before layout of color bar
+	                final IteratorNumber iter = numbers.iterator();
+	                min = Double.MAX_VALUE;
+	                max = Double.NEGATIVE_INFINITY;
+	                while (iter.hasNext())
+	                {
+	                    final double sample = next_sample_func.applyAsDouble(iter);
+	                    if (sample > max)
+	                        max = sample;
+	                    if (sample < min)
+	                        min = sample;
+	                }
+	                logger.log(Level.FINE, "Autoscale range {0} .. {1}", new Object[] { min, max });
+	            }
+	            colorbar_axis.setValueRange(min, max);
             }
-            colorbar_axis.setValueRange(min, max);
         }
 
         if (need_layout.getAndSet(false))
@@ -469,7 +567,9 @@ public class ImagePlot extends PlotCanvasBase
         if (numbers != null)
         {
             // Paint the image
-            final BufferedImage unscaled = drawData(data_width, data_height, numbers, next_sample_func, min, max, color_mapping);
+            final BufferedImage unscaled = !isRGB ?
+            		drawData(data_width, data_height, numbers, next_sample_func, min, max, color_mapping) :
+        			drawDataRGB(data_width, data_height, numbers, next_rgb, type);
             if (unscaled != null)
             {
                 // Transform from full axis range into data range,
@@ -682,6 +782,7 @@ public class ImagePlot extends PlotCanvasBase
         final IteratorNumber iter = numbers.iterator();
         int idx = 0;
         final double span = max - min;
+        
         for (int y=0; y<data_height; ++y)
             for (int x=0; x<data_width; ++x)
             {
@@ -702,6 +803,80 @@ public class ImagePlot extends PlotCanvasBase
         //    System.out.println(avg_nano/1e6 + " ms");
         // }
 
+        return image;
+    }
+    
+    /** @param data_width
+     *  @param data_height
+     *  @param numbers
+     *  @param next_rgbs
+     *  @param type RGB type (RGB1, RGB2, or RGB3)
+     *  @return {@link BufferedImage}, sized to match data
+     */
+    private static BufferedImage drawDataRGB(final int data_width, final int data_height, final ListNumber numbers,
+                                          final ToIntFunction<IteratorNumber> next_rgbs [], final VImageType type)
+    {
+        if (data_width <= 0  ||  data_height <= 0)
+        {
+            // With invalid size, cannot create a BufferedImage, not even for the error message
+            logger.log(Level.WARNING, "Cannot draw image sized {0} x {1}", new Object[] { data_width, data_height });
+            return null;
+        }
+
+        // NOT using BufferUtil because the Graphics2D are only used for error message.
+        // Other image access is directly to raster buffer.
+        final BufferedImage image = new BufferedImage(data_width, data_height, BufferedImage.TYPE_INT_RGB);
+        if (numbers.size() < data_width * data_height * 3)
+        {
+            final String message = "RGB image sized " + data_width + " x " + data_height +
+                                   " received only " + numbers.size() + " data samples";
+            logger.log(Level.WARNING, message);
+            final Graphics2D gc = image.createGraphics();
+            gc.setColor(Color.RED);
+            gc.drawString(message, 0, 10);
+            gc.dispose();
+            return image;
+        }
+
+        // Using direct access to 'int' pixels in data buffer for speed. See other drawData() for details.
+        final int[] data = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+        final IteratorNumber iter = numbers.iterator();
+
+        switch(type)
+        {
+	        case TYPE_RGB2:
+	        	for (int y_times_width = 0; y_times_width < data_height*data_width; y_times_width += data_width)
+	        	{
+	        		//red
+        			for (int x = 0; x < data_width; ++x)
+        				data[y_times_width + x] = next_rgbs[0].applyAsInt(iter);;
+        			//green
+        			for (int x = 0; x < data_width; ++x)
+        				data[y_times_width + x] |= next_rgbs[1].applyAsInt(iter);
+        			//blue
+        			for (int x = 0; x < data_width; ++x)
+        				data[y_times_width + x] |= next_rgbs[2].applyAsInt(iter);
+	        	}
+	        	break;
+	        case TYPE_RGB3:
+	        	//red
+        		for (int i = 0; i < data_height*data_width; ++i)
+        			data[i] = next_rgbs[0].applyAsInt(iter);
+        		//green
+        		for (int i = 0; i < data_height*data_width; ++i)
+        			data[i] |= next_rgbs[1].applyAsInt(iter);
+    			//blue
+        		for (int i = 0; i < data_height*data_width; ++i)
+        			data[i] |= next_rgbs[2].applyAsInt(iter);
+	        	break;
+        	default:
+        		throw new IllegalArgumentException("Image type must be an RGB type");
+        		//no "break;"
+	        case TYPE_RGB1:
+	        	for (int i = 0; i < data_height*data_width; ++i)
+	            	data[i] = next_rgbs[0].applyAsInt(iter) | next_rgbs[1].applyAsInt(iter) | next_rgbs[2].applyAsInt(iter);
+        }
+        
         return image;
     }
 

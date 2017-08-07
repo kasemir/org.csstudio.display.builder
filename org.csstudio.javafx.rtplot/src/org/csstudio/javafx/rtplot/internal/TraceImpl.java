@@ -26,7 +26,7 @@ import javafx.scene.paint.Color;
 @SuppressWarnings("nls")
 public class TraceImpl<XTYPE extends Comparable<XTYPE>> implements Trace<XTYPE>
 {
-    final private PlotDataProvider<XTYPE> data;
+    private volatile PlotDataProvider<XTYPE> data;
 
     private volatile boolean visible = true;
 
@@ -108,6 +108,13 @@ public class TraceImpl<XTYPE extends Comparable<XTYPE>> implements Trace<XTYPE>
     public void setUnits(final String units)
     {
         this.units = units == null ? "" : units;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void updateData(final PlotDataProvider<XTYPE> data)
+    {
+        this.data = data;
     }
 
     /** {@inheritDoc} */

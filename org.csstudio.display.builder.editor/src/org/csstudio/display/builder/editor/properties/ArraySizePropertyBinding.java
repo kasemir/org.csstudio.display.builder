@@ -50,12 +50,13 @@ public class ArraySizePropertyBinding extends WidgetPropertyBinding<Spinner<Inte
         final int desired = jfx_node.getValue();
 
         // Grow/shrink array via undo-able actions
+        final String path = widget_property.getPath();
         while (widget_property.size() < desired)
         {
             undo.add(new AddArrayElementAction<>(widget_property, widget_property.addElement()));
             for (Widget w : other)
             {
-                final ArrayWidgetProperty other_prop = (ArrayWidgetProperty) w.getProperty(widget_property.getName());
+                final ArrayWidgetProperty other_prop = (ArrayWidgetProperty) w.getProperty(path);
                 undo.add(new AddArrayElementAction<>(other_prop, other_prop.addElement()));
             }
         }
@@ -64,7 +65,7 @@ public class ArraySizePropertyBinding extends WidgetPropertyBinding<Spinner<Inte
             undo.execute(new RemoveArrayElementAction<>(widget_property));
             for (Widget w : other)
             {
-                final ArrayWidgetProperty other_prop = (ArrayWidgetProperty) w.getProperty(widget_property.getName());
+                final ArrayWidgetProperty other_prop = (ArrayWidgetProperty) w.getProperty(path);
                 undo.add(new RemoveArrayElementAction<>(other_prop));
             }
         }

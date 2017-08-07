@@ -17,6 +17,7 @@ import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.RulesWidgetProperty;
 import org.csstudio.display.builder.model.rules.RuleInfo;
 import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
+import org.csstudio.display.builder.representation.javafx.ModalityHack;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.DialogHelper;
 import org.eclipse.osgi.util.NLS;
@@ -44,15 +45,17 @@ extends WidgetPropertyBinding<Button, RulesWidgetProperty>
     {
         final RulesDialog dialog = new RulesDialog(undo, widget_property.getValue(), widget_property.getWidget(), menu);
         DialogHelper.positionDialog(dialog, DialogHelper.getContainer(jfx_node), -200, -200);
+        ModalityHack.forDialog(dialog);
         //ScenicView.show(dialog.getDialogPane());
         final Optional<List<RuleInfo>> result = dialog.showAndWait();
 
         if (result.isPresent())
         {
             undo.execute(new SetWidgetPropertyAction<List<RuleInfo>>(widget_property, result.get()));
+            final String path = widget_property.getPath();
             for (Widget w : other)
             {
-                final RulesWidgetProperty other_prop = (RulesWidgetProperty) w.getProperty(widget_property.getName());
+                final RulesWidgetProperty other_prop = (RulesWidgetProperty) w.getProperty(path);
                 undo.execute(new SetWidgetPropertyAction<List<RuleInfo>>(other_prop, result.get()));
             }
         }

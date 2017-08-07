@@ -16,8 +16,10 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.Points;
 import org.csstudio.display.builder.model.properties.PointsWidgetProperty;
+import org.csstudio.display.builder.representation.javafx.ModalityHack;
 import org.csstudio.display.builder.representation.javafx.PointsDialog;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
+import org.csstudio.javafx.DialogHelper;
 import org.eclipse.osgi.util.NLS;
 
 import javafx.event.ActionEvent;
@@ -39,13 +41,16 @@ public class PointsPropertyBinding
     private EventHandler<ActionEvent> actionHandler = event ->
     {
         final PointsDialog dialog = new PointsDialog(widget_property.getValue());
+        DialogHelper.positionDialog(dialog, DialogHelper.getContainer(jfx_node), -200, -200);
+        ModalityHack.forDialog(dialog);
         final Optional<Points> result = dialog.showAndWait();
         if (result.isPresent())
         {
             undo.execute(new SetWidgetPointsAction(widget_property, result.get()));
+            final String path = widget_property.getPath();
             for (Widget w : other)
             {
-                final PointsWidgetProperty other_prop = (PointsWidgetProperty) w.getProperty(widget_property.getName());
+                final PointsWidgetProperty other_prop = (PointsWidgetProperty) w.getProperty(path);
                 undo.execute(new SetWidgetPointsAction(other_prop, result.get()));
             }
         }
