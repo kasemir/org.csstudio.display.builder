@@ -8,7 +8,7 @@
   <widget type="label" version="2.0.0">
     <name>Label</name>
     <class>TITLE</class>
-    <text>Symbol Widgets</text>
+    <text>Symbol &amp; Text Symbol Widgets</text>
     <x use_class="true">0</x>
     <y use_class="true">0</y>
     <width>550</width>
@@ -25,7 +25,7 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_1</name>
-    <text>Meters display numerical values graphically by means of a needle and a scale.</text>
+    <text>Symbols display an image, a glyph or a text depending on the value of their PVs.</text>
     <y>50</y>
     <width>620</width>
   </widget>
@@ -316,5 +316,289 @@
     <text>Multiple images can be dropped into the editor to create a Symbol widget based on those files.</text>
     <y>690</y>
     <width>630</width>
+  </widget>
+  <widget type="text-symbol" version="2.0.0">
+    <name>Text Symbol</name>
+    <pv_name>loc://boolean:symbol&lt;VDouble&gt;(0)</pv_name>
+    <symbols>
+      <symbol>☺</symbol>
+      <symbol>☻</symbol>
+    </symbols>
+    <x>350</x>
+    <y>130</y>
+    <font>
+      <font name="Header 2" family="Source Sans Pro" style="BOLD_ITALIC" size="21.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="text-symbol" version="2.0.0">
+    <name>Text Symbol_1</name>
+    <pv_name>loc://string:symbol&lt;VString&gt;("0")</pv_name>
+    <symbols>
+      <symbol>♠</symbol>
+      <symbol>♣</symbol>
+      <symbol>♥</symbol>
+      <symbol>♦</symbol>
+    </symbols>
+    <x>350</x>
+    <y>235</y>
+    <font>
+      <font name="Header 2" family="Source Sans Pro" style="BOLD_ITALIC" size="21.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="text-symbol" version="2.0.0">
+    <name>Text Symbol_2</name>
+    <pv_name>loc://numeric:symbol&lt;VDouble&gt;(0.0)</pv_name>
+    <symbols>
+      <symbol>♠</symbol>
+      <symbol>♣</symbol>
+      <symbol>♥</symbol>
+      <symbol>♦</symbol>
+    </symbols>
+    <x>350</x>
+    <y>335</y>
+    <font>
+      <font name="Header 2" family="Source Sans Pro" style="BOLD_ITALIC" size="21.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="text-symbol" version="2.0.0">
+    <name>Text Symbol_3</name>
+    <pv_name>loc://enumeration:symbol&lt;VEnum&gt;(0, "ON", "WARNING", "ERROR", "UNCONNECTED"))</pv_name>
+    <symbols>
+      <symbol>♠</symbol>
+      <symbol>♣</symbol>
+      <symbol>♥</symbol>
+      <symbol>♦</symbol>
+    </symbols>
+    <x>350</x>
+    <y>435</y>
+    <font>
+      <font name="Header 2" family="Source Sans Pro" style="BOLD_ITALIC" size="21.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="text-symbol" version="2.0.0">
+    <name>sim://noiseWaveform(0, 4, 1)</name>
+    <pv_name>sim://noiseWaveform(0, 4, 1)</pv_name>
+    <symbols>
+      <symbol>♠</symbol>
+      <symbol>♣</symbol>
+      <symbol>♥</symbol>
+      <symbol>♦</symbol>
+    </symbols>
+    <x>350</x>
+    <y>545</y>
+    <font>
+      <font name="Header 2" family="Source Sans Pro" style="BOLD_ITALIC" size="21.0">
+      </font>
+    </font>
+    <array_index>8</array_index>
+  </widget>
+  <widget type="text-symbol" version="2.0.0">
+    <name>sim://noiseWaveform(0, 4, 1)_1</name>
+    <pv_name>sim://noiseWaveform(0, 4, 1)</pv_name>
+    <symbols>
+      <symbol>♠</symbol>
+      <symbol>♣</symbol>
+      <symbol>♥</symbol>
+      <symbol>♦</symbol>
+    </symbols>
+    <x>382</x>
+    <y>545</y>
+    <font>
+      <font name="Header 2" family="Source Sans Pro" style="BOLD_ITALIC" size="21.0">
+      </font>
+    </font>
+    <foreground_color>
+      <color name="DISCONNECTED" red="135" green="29" blue="100">
+      </color>
+    </foreground_color>
+    <array_index>9</array_index>
+  </widget>
+  <widget type="text-symbol" version="2.0.0">
+    <name>sim://noiseWaveform(0, 4, 1)_2</name>
+    <pv_name>sim://noiseWaveform(0, 4, 1)</pv_name>
+    <symbols>
+      <symbol>♠</symbol>
+      <symbol>♣</symbol>
+      <symbol>♥</symbol>
+      <symbol>♦</symbol>
+    </symbols>
+    <x>414</x>
+    <y>545</y>
+    <font>
+      <font name="Header 2" family="Source Sans Pro" style="BOLD_ITALIC" size="21.0">
+      </font>
+    </font>
+    <array_index>10</array_index>
+  </widget>
+  <widget type="text-symbol" version="2.0.0">
+    <name>sim://noiseWaveform(0, 4, 1)_3</name>
+    <pv_name>sim://noiseWaveform(0, 4, 1)</pv_name>
+    <symbols>
+      <symbol>♠</symbol>
+      <symbol>♣</symbol>
+      <symbol>♥</symbol>
+      <symbol>♦</symbol>
+    </symbols>
+    <x>446</x>
+    <y>545</y>
+    <font>
+      <font name="Header 2" family="Source Sans Pro" style="BOLD_ITALIC" size="21.0">
+      </font>
+    </font>
+    <foreground_color>
+      <color name="MAJOR" red="252" green="13" blue="27">
+      </color>
+    </foreground_color>
+    <array_index>11</array_index>
+  </widget>
+  <widget type="text-symbol" version="2.0.0">
+    <name>sim://noiseWaveform(0, 4, 1)_4</name>
+    <pv_name>sim://noiseWaveform(0, 4, 1)</pv_name>
+    <symbols>
+      <symbol>♠</symbol>
+      <symbol>♣</symbol>
+      <symbol>♥</symbol>
+      <symbol>♦</symbol>
+    </symbols>
+    <x>478</x>
+    <y>545</y>
+    <font>
+      <font name="Header 2" family="Source Sans Pro" style="BOLD_ITALIC" size="21.0">
+      </font>
+    </font>
+    <foreground_color>
+      <color name="MINOR" red="252" green="242" blue="17">
+      </color>
+    </foreground_color>
+    <array_index>12</array_index>
+  </widget>
+  <widget type="text-symbol" version="2.0.0">
+    <name>sim://noiseWaveform(0, 4, 1)_5</name>
+    <pv_name>sim://noiseWaveform(0, 4, 1)</pv_name>
+    <symbols>
+      <symbol>♠</symbol>
+      <symbol>♣</symbol>
+      <symbol>♥</symbol>
+      <symbol>♦</symbol>
+    </symbols>
+    <x>510</x>
+    <y>545</y>
+    <font>
+      <font name="Header 2" family="Source Sans Pro" style="BOLD_ITALIC" size="21.0">
+      </font>
+    </font>
+    <array_index>13</array_index>
+  </widget>
+  <widget type="text-symbol" version="2.0.0">
+    <name>sim://noiseWaveform(0, 4, 1)_6</name>
+    <pv_name>sim://noiseWaveform(0, 4, 1)</pv_name>
+    <symbols>
+      <symbol>♠</symbol>
+      <symbol>♣</symbol>
+      <symbol>♥</symbol>
+      <symbol>♦</symbol>
+    </symbols>
+    <x>542</x>
+    <y>545</y>
+    <font>
+      <font name="Header 2" family="Source Sans Pro" style="BOLD_ITALIC" size="21.0">
+      </font>
+    </font>
+    <foreground_color>
+      <color name="OK" red="61" green="216" blue="61">
+      </color>
+    </foreground_color>
+    <array_index>14</array_index>
+  </widget>
+  <widget type="text-symbol" version="2.0.0">
+    <name>sim://noiseWaveform(0, 4, 1)_7</name>
+    <pv_name>sim://noiseWaveform(0, 4, 1)</pv_name>
+    <symbols>
+      <symbol>♠</symbol>
+      <symbol>♣</symbol>
+      <symbol>♥</symbol>
+      <symbol>♦</symbol>
+    </symbols>
+    <x>574</x>
+    <y>545</y>
+    <font>
+      <font name="Header 2" family="Source Sans Pro" style="BOLD_ITALIC" size="21.0">
+      </font>
+    </font>
+    <array_index>15</array_index>
+  </widget>
+  <widget type="text-symbol" version="2.0.0">
+    <name>Text Symbol_5</name>
+    <pv_name>loc://boolean:symbol&lt;VDouble&gt;(0)</pv_name>
+    <symbols>
+      <symbol>OFF</symbol>
+      <symbol>ON</symbol>
+    </symbols>
+    <x>382</x>
+    <y>130</y>
+    <width>168</width>
+    <font>
+      <font name="Header 2" family="Source Sans Pro" style="BOLD_ITALIC" size="21.0">
+      </font>
+    </font>
+    <horizontal_alignment>0</horizontal_alignment>
+  </widget>
+  <widget type="text-symbol" version="2.0.0">
+    <name>Text Symbol_6</name>
+    <pv_name>loc://string:symbol&lt;VString&gt;("0")</pv_name>
+    <symbols>
+      <symbol>ON</symbol>
+      <symbol>WARNING</symbol>
+      <symbol>ERROR</symbol>
+      <symbol>UNCONNECTED</symbol>
+    </symbols>
+    <x>382</x>
+    <y>235</y>
+    <width>168</width>
+    <font>
+      <font name="Header 2" family="Source Sans Pro" style="BOLD_ITALIC" size="21.0">
+      </font>
+    </font>
+    <horizontal_alignment>0</horizontal_alignment>
+  </widget>
+  <widget type="text-symbol" version="2.0.0">
+    <name>Text Symbol_7</name>
+    <pv_name>loc://numeric:symbol&lt;VDouble&gt;(0.0)</pv_name>
+    <symbols>
+      <symbol>ON</symbol>
+      <symbol>WARNING</symbol>
+      <symbol>ERROR</symbol>
+      <symbol>UNCONNECTED</symbol>
+    </symbols>
+    <x>382</x>
+    <y>335</y>
+    <width>168</width>
+    <font>
+      <font name="Header 2" family="Source Sans Pro" style="BOLD_ITALIC" size="21.0">
+      </font>
+    </font>
+    <horizontal_alignment>0</horizontal_alignment>
+  </widget>
+  <widget type="text-symbol" version="2.0.0">
+    <name>Text Symbol_8</name>
+    <pv_name>loc://enumeration:symbol&lt;VEnum&gt;(0, "ON", "WARNING", "ERROR", "UNCONNECTED"))</pv_name>
+    <symbols>
+      <symbol>ON</symbol>
+      <symbol>WARNING</symbol>
+      <symbol>ERROR</symbol>
+      <symbol>UNCONNECTED</symbol>
+    </symbols>
+    <x>382</x>
+    <y>435</y>
+    <width>168</width>
+    <font>
+      <font name="Header 2" family="Source Sans Pro" style="BOLD_ITALIC" size="21.0">
+      </font>
+    </font>
+    <horizontal_alignment>0</horizontal_alignment>
   </widget>
 </display>

@@ -64,6 +64,7 @@ import org.csstudio.display.builder.model.widgets.TableWidget;
 import org.csstudio.display.builder.model.widgets.TabsWidget;
 import org.csstudio.display.builder.model.widgets.TankWidget;
 import org.csstudio.display.builder.model.widgets.TextEntryWidget;
+import org.csstudio.display.builder.model.widgets.TextSymbolWidget;
 import org.csstudio.display.builder.model.widgets.TextUpdateWidget;
 import org.csstudio.display.builder.model.widgets.ThermometerWidget;
 import org.csstudio.display.builder.model.widgets.WebBrowserWidget;
@@ -106,6 +107,7 @@ import org.csstudio.display.builder.representation.javafx.widgets.TableRepresent
 import org.csstudio.display.builder.representation.javafx.widgets.TabsRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TankRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TextEntryRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.TextSymbolRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TextUpdateRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.ThermometerRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.WebBrowserRepresentation;
@@ -279,6 +281,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         factories.put(TabsWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new TabsRepresentation());
         factories.put(TankWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new TankRepresentation());
         factories.put(TextEntryWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new TextEntryRepresentation());
+        factories.put(TextSymbolWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new TextSymbolRepresentation());
         factories.put(TextUpdateWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new TextUpdateRepresentation());
         factories.put(ThermometerWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new ThermometerRepresentation());
         factories.put(WebBrowserWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new WebBrowserRepresentation());
