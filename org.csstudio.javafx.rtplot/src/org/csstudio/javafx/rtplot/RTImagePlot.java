@@ -83,7 +83,7 @@ public class RTImagePlot extends BorderPane
     		center.getChildren().add(axisLimitsField);
         }
     }
-    
+
     private TextField constructAxisLimitsField()
     {
     	final TextField field = new TextField();
@@ -94,10 +94,10 @@ public class RTImagePlot extends BorderPane
     		if (!newval) hideAxisLimitsField();
     	});
     	field.setVisible(false);
-    	field.setManaged(false); //false because we manage layout, not the Parent    	
+    	field.setManaged(false); //false because we manage layout, not the Parent
     	return field;
     }
-    
+
 	private void showAxisLimitsField(AxisPart<Double> axis, boolean isHigh, Rectangle area)
     {
 		axisLimitsField.setOnKeyPressed((KeyEvent event)->
@@ -117,7 +117,7 @@ public class RTImagePlot extends BorderPane
 				hideAxisLimitsField();
 			}
 		});
-		
+
 		String tip = isHigh ? axis.getValueRange().getHigh().toString() :
 			axis.getValueRange().getLow().toString();
     	axisLimitsField.setText(tip);
@@ -128,7 +128,7 @@ public class RTImagePlot extends BorderPane
 		axisLimitsField.requestFocus();
 		axisLimitsField.layout(); //force text to appear in field
 	}
-	
+
 	protected void changeAxisLimit(AxisPart<Double> axis, boolean isHigh, Double value)
 	{
 		AxisRange<Double> old_range = axis.getValueRange();
@@ -145,7 +145,7 @@ public class RTImagePlot extends BorderPane
 					axis, old_range, new_range, null, null, null));
 		}
 	}
-	
+
     private void hideAxisLimitsField()
     {
 		axisLimitsField.setVisible(false);
@@ -175,11 +175,11 @@ public class RTImagePlot extends BorderPane
             toolbar.selectMouseMode(MouseMode.NONE);
         event.consume();
     }
-    
+
     @SuppressWarnings("unchecked")
 	private void mouseClicked(MouseEvent event)
     {
-    	Object [] info = plot.axisClickInfo(event); 
+    	Object [] info = plot.axisClickInfo(event);
     	if (info != null)
     		showAxisLimitsField((AxisPart<Double>)info[0], (boolean)info[1], (Rectangle)info[2]);
     }
@@ -253,9 +253,15 @@ public class RTImagePlot extends BorderPane
     }
 
     /** @param autoscale  Auto-scale the color mapping? */
-    public void setAutoscale(boolean autoscale)
+    public void setAutoscale(final boolean autoscale)
     {
         plot.setAutoscale(autoscale);
+    }
+
+    /** @param logscale  Use log scale for color mapping? */
+    public void setLogscale(final boolean logscale)
+    {
+        plot.setLogscale(logscale);
     }
 
     /** @return X axis */

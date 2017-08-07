@@ -37,6 +37,7 @@ import org.csstudio.javafx.rtplot.RegionOfInterest;
 import org.csstudio.javafx.rtplot.internal.undo.ChangeImageZoom;
 import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 import org.csstudio.javafx.rtplot.internal.util.LinearScreenTransform;
+import org.csstudio.javafx.rtplot.internal.util.Log10;
 import org.diirt.util.array.ArrayByte;
 import org.diirt.util.array.ArrayInt;
 import org.diirt.util.array.ArrayShort;
@@ -141,6 +142,9 @@ public class ImagePlot extends PlotCanvasBase
         y_axis = new YAxisImpl<>("Y", plot_part_listener);
         colorbar_axis =  new YAxisImpl<>("", plot_part_listener);
 
+//        colorbar_axis.setLogarithmic(true);
+
+
         x_axis.setValueRange(min_x, max_x);
         y_axis.setValueRange(min_y, max_y);
 
@@ -177,6 +181,13 @@ public class ImagePlot extends PlotCanvasBase
     public void setAutoscale(final boolean autoscale)
     {
         this.autoscale = autoscale;
+        requestUpdate();
+    }
+
+    /** @param logscale Use log scale for color mapping? */
+    public void setLogscale(final boolean logscale)
+    {
+        colorbar_axis.setLogarithmic(logscale);
         requestUpdate();
     }
 
@@ -550,10 +561,13 @@ public class ImagePlot extends PlotCanvasBase
 	                }
 	                logger.log(Level.FINE, "Autoscale range {0} .. {1}", new Object[] { min, max });
 	            }
-	            colorbar_axis.setValueRange(min, max);
             }
         }
 
+        // If log, min needs to be 1
+        if (colorbar_axis.isLogarithmic()  &&  min < 1.0)
+            min = 1;
+        colorbar_axis.setValueRange(min, max);
         if (need_layout.getAndSet(false))
             computeLayout(gc, area_copy, min, max);
 
@@ -786,20 +800,39 @@ public class ImagePlot extends PlotCanvasBase
         final int[] data = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
         final IteratorNumber iter = numbers.iterator();
         int idx = 0;
-        final double span = max - min;
 
-        for (int y=0; y<data_height; ++y)
-            for (int x=0; x<data_width; ++x)
-            {
-                final double sample = next_sample_func.applyAsDouble(iter);
-                double scaled = (sample - min) / span;
-                if (scaled < 0.0)
-                    scaled = 0;
-                else if (scaled > 1.0)
-                    scaled = 1.0;
-                data[idx++] = color_mapping.getRGB(scaled);
-            }
-
+        if (colorbar_axis.isLogarithmic())
+        {
+            final double lmin = Log10.log10(min),
+                         lmax = Log10.log10(max),
+                         span = lmax - lmin;
+            for (int y=0; y<data_height; ++y)
+                for (int x=0; x<data_width; ++x)
+                {
+                    final double sample = Log10.log10(next_sample_func.applyAsDouble(iter));
+                    double scaled = (sample - lmin) / span;
+                    if (scaled < 0.0)
+                        scaled = 0;
+                    else if (scaled > 1.0)
+                        scaled = 1.0;
+                    data[idx++] = color_mapping.getRGB(scaled);
+                }
+        }
+        else
+        {
+            final double span = max - min;
+            for (int y=0; y<data_height; ++y)
+                for (int x=0; x<data_width; ++x)
+                {
+                    final double sample = next_sample_func.applyAsDouble(iter);
+                    double scaled = (sample - min) / span;
+                    if (scaled < 0.0)
+                        scaled = 0;
+                    else if (scaled > 1.0)
+                        scaled = 1.0;
+                    data[idx++] = color_mapping.getRGB(scaled);
+                }
+        }
         // final long nano = System.nanoTime() - start;
         // avg_nano = (avg_nano*3 + nano)/4;
         // if (++runs > 100)

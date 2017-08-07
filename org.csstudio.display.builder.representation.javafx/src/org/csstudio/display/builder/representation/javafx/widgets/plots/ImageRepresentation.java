@@ -209,6 +209,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         model_widget.propToolbar().addUntypedPropertyListener(this::coloringChanged);
         model_widget.propDataColormap().addUntypedPropertyListener(this::coloringChanged);
         model_widget.propDataAutoscale().addUntypedPropertyListener(this::coloringChanged);
+        model_widget.propDataLogscale().addUntypedPropertyListener(this::coloringChanged);
         model_widget.propDataMinimum().addUntypedPropertyListener(this::coloringChanged);
         model_widget.propDataMaximum().addUntypedPropertyListener(this::coloringChanged);
 
@@ -253,6 +254,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
             return ColorMappingFunction.getRGB(color.getRed(), color.getGreen(), color.getBlue());
         });
         image_plot.setAutoscale(model_widget.propDataAutoscale().getValue());
+        image_plot.setLogscale(model_widget.propDataLogscale().getValue());
         image_plot.setValueRange(model_widget.propDataMinimum().getValue(),
                                  model_widget.propDataMaximum().getValue());
     }
