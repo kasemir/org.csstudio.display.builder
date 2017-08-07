@@ -595,6 +595,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
                 trace_painter.paint(gc, plot_area.getBounds(), x_transform, y_axis, trace);
 
         drawPlotMarkers(gc);
+        gc.setClip(null);
 
         // Annotations use label font
         for (AnnotationImpl<XTYPE> annotation : annotations)
