@@ -349,6 +349,7 @@ public class ImageWidget extends PVWidget
     private volatile WidgetProperty<InterpolationType> data_interpolation;
     private volatile WidgetProperty<Boolean> data_unsigned;
     private volatile WidgetProperty<Boolean> data_autoscale;
+    private volatile WidgetProperty<Boolean> data_logscale;
     private volatile WidgetProperty<Double> data_minimum, data_maximum;
     private volatile WidgetProperty<String> cursor_info_pv, cursor_x_pv, cursor_y_pv;
     private volatile WidgetProperty<VType> cursor_info;
@@ -376,6 +377,7 @@ public class ImageWidget extends PVWidget
         properties.add(data_interpolation = interpolationType.createProperty(this, InterpolationType.AUTOMATIC));
         properties.add(data_unsigned = propDataUnsigned.createProperty(this, false));
         properties.add(data_autoscale = PlotWidgetProperties.propAutoscale.createProperty(this, true));
+        properties.add(data_logscale = PlotWidgetProperties.propLogscale.createProperty(this, false));
         properties.add(data_minimum = propMinimum.createProperty(this, 0.0));
         properties.add(data_maximum = propMaximum.createProperty(this, 255.0));
         properties.add(cursor_info_pv = propCursorInfoPV.createProperty(this, ""));
@@ -458,6 +460,12 @@ public class ImageWidget extends PVWidget
     public WidgetProperty<Boolean> propDataAutoscale()
     {
         return data_autoscale;
+    }
+
+    /** @return 'logscale' property */
+    public WidgetProperty<Boolean> propDataLogscale()
+    {
+        return data_logscale;
     }
 
     /** @return 'minimum' property */

@@ -58,7 +58,7 @@ public class PlotWidgetProperties
     public static final WidgetPropertyDescriptor<Boolean> propAutoscale =
         CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "autoscale", Messages.PlotWidget_AutoScale);
 
-    private static final WidgetPropertyDescriptor<Boolean> propLogscale =
+    public static final WidgetPropertyDescriptor<Boolean> propLogscale =
         CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "log_scale", Messages.PlotWidget_LogScale);
 
     public static final WidgetPropertyDescriptor<WidgetFont> propScaleFont =
