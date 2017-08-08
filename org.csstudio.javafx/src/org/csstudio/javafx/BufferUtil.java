@@ -94,4 +94,9 @@ public class BufferUtil
     {
         return gc;
     }
+
+    public void dispose()
+    {
+        gc.dispose();
+    }
 }
