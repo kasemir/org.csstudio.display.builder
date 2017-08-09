@@ -267,26 +267,13 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
         gc.setFont(scale_font);
         final FontMetrics metrics = gc.getFontMetrics();
 
-        // Measure first tick
-        double tick = ticks.getStart();
-        String mark = ticks.format(tick);
-        int low = metrics.stringWidth(mark);
-        // System.out.println("Initial tick: " + mark + " (" + low + ")");
+        final List<MajorTick<Double>> major_ticks = ticks.getMajorTicks();
+        if (major_ticks.isEmpty())
+            return super.getPixelGaps(gc);
 
-        // Get last tick
-        final double low_value = range.getLow();
-        final double high_value = range.getHigh();
-        final boolean normal = low_value <= high_value;
-        double last = tick;
-        while ((normal ? tick <= high_value : tick >= high_value)  &&  Double.isFinite(tick))
-        {
-            last = tick;
-            tick = ticks.getNext(tick);
-        }
-        // Measure last tick
-        mark = ticks.format(last);
-        final int high = metrics.stringWidth(mark);
-        // System.out.println("Final tick: " + mark + " (" + high + ")");
+        // Measure first and last tick
+        final int low = metrics.stringWidth(major_ticks.get(0).getLabel());
+        final int high = metrics.stringWidth(major_ticks.get(major_ticks.size()-1).getLabel());
 
         return new int[] { low / 2, high / 2 };
     }
@@ -324,28 +311,10 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
         gc.drawLine(line_x, region.y, line_x, region.y + region.height-1);
         computeTicks(gc);
 
-        final double low_value = range.getLow();
-        final double high_value = range.getHigh();
-        final boolean normal = low_value <= high_value;
-        final int minor_ticks = ticks.getMinorTickCount();
-        double tick = ticks.getStart();
-        double prev = ticks.getPrevious(tick);
-        for (/**/;
-                (normal ? tick <= high_value : tick >= high_value)  &&  Double.isFinite(tick);
-                tick = ticks.getNext(tick))
+        // Major tick marks (skipping those outside visible region)
+        for (MajorTick<Double> tick : ticks.getMajorTicks())
         {
-            // Minor ticks?
-            for (int i=1; i<minor_ticks; ++i)
-            {
-                final double minor = prev + ((tick - prev)*i)/minor_ticks;
-                if (normal ? minor < low_value : minor > low_value)
-                    continue;
-                final int y = getScreenCoord(minor);
-                gc.drawLine(minor_x, y, line_x, y);
-            }
-
-            // Major tick marks (skipping those outside visible region)
-            final int y = getScreenCoord(tick);
+            final int y = getScreenCoord(tick.getValue());
             if (y >= region.y  &&  y <= region.y + region.height)
             {
                 gc.setStroke(TICK_STROKE);
@@ -360,20 +329,16 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
                 gc.setStroke(old_width);
 
                 // Tick Label
-                drawTickLabel(gc, tick, false);
+                drawTickLabel(gc, y, tick.getLabel());
             }
-            prev = tick;
         }
-        // Minor ticks after last major tick?
-        if (Double.isFinite(tick))
-            for (int i=1; i<minor_ticks; ++i)
-            {
-                final double minor = prev + ((tick - prev)*i)/minor_ticks;
-                if (normal ? minor > high_value : minor < high_value)
-                    break;
-                final int y = getScreenCoord(minor);
-                gc.drawLine(minor_x, y, line_x, y);
-            }
+
+        // Minor tick marks
+        for (MinorTick<Double> tick : ticks.getMinorTicks())
+        {
+            final int y = getScreenCoord(tick.getValue());
+            gc.drawLine(minor_x, y, line_x, y);
+        }
 
         gc.setColor(old_fg);
         gc.setBackground(old_bg);
@@ -400,6 +365,24 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
             gc.setColor(old_fg);
             ++i;
         }
+    }
+
+    private void drawTickLabel(final Graphics2D gc, final int screen_y, final String mark)
+    {
+        final Rectangle region = getBounds();
+        gc.setFont(scale_font);
+        final FontMetrics metrics = gc.getFontMetrics();
+        final int mark_height = metrics.stringWidth(mark);
+        final int mark_width = metrics.getHeight();
+        final int x = is_right ? region.x + TICK_LENGTH : region.x + region.width - TICK_LENGTH - mark_width;
+        int y = screen_y  - mark_height/2;
+        // Correct location of top label to remain within region
+        if (y < 0)
+            y = 0;
+
+        // Debug: Outline of text
+        // gc.drawRect(x,  y, mark_width, mark_height); // Debug outline of tick label
+        GraphicsUtils.drawVerticalText(gc, x, y, mark, !is_right);
     }
 
     /** {@inheritDoc} */

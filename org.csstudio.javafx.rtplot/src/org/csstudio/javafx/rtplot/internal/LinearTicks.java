@@ -127,54 +127,49 @@ public class LinearTicks extends Ticks<Double>
         {
         	start = Math.ceil(low / distance) * distance;
 
-            // Compute major tick marks
-        	for (double value = start; value < high; value += distance)
-        	    major_ticks.add(new MajorTick<Double>(value, num_fmt.format(value)));
+        	// Set prev to one before the start
+        	// and loop until high + distance
+        	// to get minor marks before and after the major tick mark range
+        	double prev = start - distance;
+        	for (double value = start; value < high + distance; value += distance)
+        	{
+        	    // Compute major tick marks
+        	    if (value < high)
+        	        major_ticks.add(new MajorTick<Double>(value, num_fmt.format(value)));
 
-            // Fill major tick marks with minor ticks
-            double prev = start - distance;
-            for (MajorTick<Double> tick : major_ticks)
-            {
-                double next = tick.getValue();
-                for (int i=1; i<(minor-1); ++i)
-                {
-                    final double min_val = prev + ((next - prev)*i)/(minor-1);
-                    if (min_val <= low || min_val >= high)
-                        continue;
-                    minor_ticks.add(new MinorTick<Double>(min_val));
-                }
-                prev = next;
-            }
-
-            // TODO minors after last major
+        	    // Fill major tick marks with minor ticks
+        	    for (int i=1; i<minor; ++i)
+        	    {
+        	        final double min_val = prev + ((value - prev)*i)/minor;
+        	        if (min_val <= low || min_val >= high)
+        	            continue;
+        	        minor_ticks.add(new MinorTick<Double>(min_val));
+        	    }
+        	    prev = value;
+        	}
         }
         else
         {
         	distance = -distance;
         	start = Math.floor(low / distance) * distance;
 
-            // Compute major tick marks
-            for (double value = start; value > high; value += distance)
-                major_ticks.add(new MajorTick<Double>(value, num_fmt.format(value)));
-
-            // Fill major tick marks with minor ticks
             double prev = start - distance;
-            for (MajorTick<Double> tick : major_ticks)
+            for (double value = start; value > high + distance; value += distance)
             {
-                double next = tick.getValue();
-                System.out.println("Minor between " + prev + " and " + next);
-                for (int i=1; i<(minor-1); ++i)
+                // Compute major tick marks
+                if (value > high)
+                    major_ticks.add(new MajorTick<Double>(value, num_fmt.format(value)));
+
+                // Fill major tick marks with minor ticks
+                for (int i=1; i<minor; ++i)
                 {
-                    final double min_val = prev + ((next - prev)*i)/(minor-1);
-                    System.out.println(min_val);
+                    final double min_val = prev + ((value - prev)*i)/minor;
                     if (min_val >= low || min_val <= high)
                         continue;
                     minor_ticks.add(new MinorTick<Double>(min_val));
                 }
-                prev = next;
+                prev = value;
             }
-
-            // TODO minors after last major
         }
 
         this.major_ticks = major_ticks;

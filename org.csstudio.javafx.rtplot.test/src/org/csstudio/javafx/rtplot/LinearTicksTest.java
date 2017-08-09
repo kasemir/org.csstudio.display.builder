@@ -49,16 +49,15 @@ public class LinearTicksTest extends TicksTestBase
     public void testNormalTicks()
     {
         final LinearTicks ticks = new LinearTicks();
-        double start = 1.0,  end = 10000.0;
+        double start = 1.0,  end = 100.0;
         ticks.compute(start, end, gc, buf.getWidth());
 
         System.out.println("Ticks for " + start + " .. " + end + ":");
         final String text = ticks2text(ticks.getMajorTicks(), ticks.getMinorTicks());
         System.out.println(text);
 
-        assertThat(text, equalTo("500.0 1000.0 1500.0 '2000' 2500.0 3000.0 3500.0 '4000' 4500.0 5000.0 5500.0 '6000' 6500.0 7000.0 7500.0 '8000' "));
+        assertThat(text, equalTo("2.0 4.0 6.0 8.0 '10' 12.0 14.0 16.0 18.0 '20' 22.0 24.0 26.0 28.0 '30' 32.0 34.0 36.0 38.0 '40' 42.0 44.0 46.0 48.0 '50' 52.0 54.0 56.0 58.0 '60' 62.0 64.0 66.0 68.0 '70' 72.0 74.0 76.0 78.0 '80' 82.0 84.0 86.0 88.0 '90' 92.0 94.0 96.0 98.0 "));
     }
-
 
     @Test
     public void testReverseTicks()
@@ -71,7 +70,6 @@ public class LinearTicksTest extends TicksTestBase
         final String text = ticks2text(ticks.getMajorTicks(), ticks.getMinorTicks());
         System.out.println(text);
 
-        assertThat(text, equalTo("'10000' 9500.0 9000.0 8500.0 '8000' 7500.0 7000.0 6500.0 '6000' 5500.0 5000.0 4500.0 '4000' 3500.0 3000.0 2500.0 '2000' "));
+        assertThat(text, equalTo("'10000' 9600.0 9200.0 8800.0 8400.0 '8000' 7600.0 7200.0 6800.0 6400.0 '6000' 5600.0 5200.0 4800.0 4400.0 '4000' 3600.0 3200.0 2800.0 2400.0 '2000' 1600.0 1200.0 800.0 400.0 "));
     }
-
 }
