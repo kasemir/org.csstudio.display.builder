@@ -13,6 +13,8 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 
 import org.csstudio.javafx.rtplot.internal.util.Log10;
@@ -24,7 +26,7 @@ import org.csstudio.javafx.rtplot.internal.util.Log10;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class LinearTicks implements Ticks<Double>
+public class LinearTicks extends Ticks<Double>
 {
     /** First tick mark value. */
     protected double start = 0.0;
@@ -116,14 +118,67 @@ public class LinearTicks implements Ticks<Double>
         if (distance == 0.0)
             throw new Error("Broken tickmark computation");
 
+        final List<MajorTick<Double>> major_ticks = new ArrayList<>();
+        final List<MinorTick<Double>> minor_ticks = new ArrayList<>();
+
         // Start at 'low' adjusted to a multiple of the tick distance
+        final int minor = 5;
         if (normal)
+        {
         	start = Math.ceil(low / distance) * distance;
+
+            // Compute major tick marks
+        	for (double value = start; value < high; value += distance)
+        	    major_ticks.add(new MajorTick<Double>(value, num_fmt.format(value)));
+
+            // Fill major tick marks with minor ticks
+            double prev = start - distance;
+            for (MajorTick<Double> tick : major_ticks)
+            {
+                double next = tick.getValue();
+                for (int i=1; i<(minor-1); ++i)
+                {
+                    final double min_val = prev + ((next - prev)*i)/(minor-1);
+                    if (min_val <= low || min_val >= high)
+                        continue;
+                    minor_ticks.add(new MinorTick<Double>(min_val));
+                }
+                prev = next;
+            }
+
+            // TODO minors after last major
+        }
         else
         {
         	distance = -distance;
         	start = Math.floor(low / distance) * distance;
+
+            // Compute major tick marks
+            for (double value = start; value > high; value += distance)
+                major_ticks.add(new MajorTick<Double>(value, num_fmt.format(value)));
+
+            // Fill major tick marks with minor ticks
+            double prev = start - distance;
+            for (MajorTick<Double> tick : major_ticks)
+            {
+                double next = tick.getValue();
+                System.out.println("Minor between " + prev + " and " + next);
+                for (int i=1; i<(minor-1); ++i)
+                {
+                    final double min_val = prev + ((next - prev)*i)/(minor-1);
+                    System.out.println(min_val);
+                    if (min_val >= low || min_val <= high)
+                        continue;
+                    minor_ticks.add(new MinorTick<Double>(min_val));
+                }
+                prev = next;
+            }
+
+            // TODO minors after last major
         }
+
+        this.major_ticks = major_ticks;
+        this.minor_ticks = minor_ticks;
     }
 
     /** @param number A number
@@ -234,7 +289,7 @@ public class LinearTicks implements Ticks<Double>
 
     /** {@inheritDoc} */
     @Override
-    public int getMinorTicks()
+    public int getMinorTickCount()
     {
         return 5;
     }

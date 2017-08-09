@@ -31,7 +31,7 @@ import org.csstudio.javafx.rtplot.internal.util.TemporalRounding;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class TimeTicks implements Ticks<Instant>
+public class TimeTicks extends Ticks<Instant>
 {
     /** How many percent of the available space should be used for labels? */
     protected static final int FILL_PERCENTAGE = 75;
@@ -231,7 +231,7 @@ public class TimeTicks implements Ticks<Instant>
 
     /** {@inheritDoc} */
     @Override
-    public int getMinorTicks()
+    public int getMinorTickCount()
     {
         return config.minor_ticks;
     }

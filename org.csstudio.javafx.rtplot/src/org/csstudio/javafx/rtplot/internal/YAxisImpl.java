@@ -327,7 +327,7 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
         final double low_value = range.getLow();
         final double high_value = range.getHigh();
         final boolean normal = low_value <= high_value;
-        final int minor_ticks = ticks.getMinorTicks();
+        final int minor_ticks = ticks.getMinorTickCount();
         double tick = ticks.getStart();
         double prev = ticks.getPrevious(tick);
         for (/**/;

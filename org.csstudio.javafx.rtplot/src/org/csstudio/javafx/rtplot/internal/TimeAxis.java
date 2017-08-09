@@ -120,7 +120,7 @@ public class TimeAxis extends AxisPart<Instant>
 
         // Axis and Tick marks
         computeTicks(gc);
-        final int minor_ticks = ticks.getMinorTicks();
+        final int minor_ticks = ticks.getMinorTickCount();
         Instant tick = ticks.getStart();
         int x = getScreenCoord(tick);
         int prev_x = getScreenCoord(ticks.getPrevious(tick));

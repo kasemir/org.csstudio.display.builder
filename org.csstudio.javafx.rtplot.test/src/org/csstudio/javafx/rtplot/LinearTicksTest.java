@@ -16,8 +16,9 @@ import org.junit.Test;
 /** JUnit test
  *  @author Kay Kasemir
  */
-public class LinearTicksTest
+public class LinearTicksTest extends TicksTestBase
 {
+    @Override
     @Test
     public void testPrecision()
     {
@@ -27,6 +28,7 @@ public class LinearTicksTest
         assertThat(LinearTicks.determinePrecision(2e-6), equalTo(7));
     }
 
+    @Override
     @Test
     public void testNiceDistance()
     {
@@ -42,4 +44,34 @@ public class LinearTicksTest
             assertThat(LinearTicks.selectNiceStep(1.5*order_of_magnitude), equalTo(2.0*order_of_magnitude));
         }
     }
+
+    @Test
+    public void testNormalTicks()
+    {
+        final LinearTicks ticks = new LinearTicks();
+        double start = 1.0,  end = 10000.0;
+        ticks.compute(start, end, gc, buf.getWidth());
+
+        System.out.println("Ticks for " + start + " .. " + end + ":");
+        final String text = ticks2text(ticks.getMajorTicks(), ticks.getMinorTicks());
+        System.out.println(text);
+
+        assertThat(text, equalTo("500.0 1000.0 1500.0 '2000' 2500.0 3000.0 3500.0 '4000' 4500.0 5000.0 5500.0 '6000' 6500.0 7000.0 7500.0 '8000' "));
+    }
+
+
+    @Test
+    public void testReverseTicks()
+    {
+        final LinearTicks ticks = new LinearTicks();
+        double start = 10000.0,  end = 1.0;
+        ticks.compute(start, end, gc, buf.getWidth());
+
+        System.out.println("Ticks for " + start + " .. " + end + ":");
+        final String text = ticks2text(ticks.getMajorTicks(), ticks.getMinorTicks());
+        System.out.println(text);
+
+        assertThat(text, equalTo("'10000' 9500.0 9000.0 8500.0 '8000' 7500.0 7000.0 6500.0 '6000' 5500.0 5000.0 4500.0 '4000' 3500.0 3000.0 2500.0 '2000' "));
+    }
+
 }
