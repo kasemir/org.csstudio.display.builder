@@ -263,38 +263,6 @@ public class LinearTicks extends Ticks<Double>
 
     /** {@inheritDoc} */
     @Override
-    public Double getStart()
-    {
-        return start;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public Double getPrevious(final Double tick)
-    {
-        if (distance == 0.0)
-            throw new Error("Broken tickmark computation");
-        return tick - distance;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public Double getNext(final Double tick)
-    {
-        if (distance == 0.0)
-            throw new Error("Broken tickmark computation");
-        return tick + distance;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public int getMinorTickCount()
-    {
-        return 5;
-    }
-
-    /** {@inheritDoc} */
-    @Override
     public String format(final Double num)
     {
         if (num.isNaN())

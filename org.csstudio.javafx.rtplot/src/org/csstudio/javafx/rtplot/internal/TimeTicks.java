@@ -218,16 +218,7 @@ public class TimeTicks extends Ticks<Instant>
         this.minor_ticks = minor_ticks;
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public Instant getStart()
-    {
-        return start;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public Instant getPrevious(final Instant tick)
+    private Instant getPrevious(final Instant tick)
     {
         if (config.distance instanceof Period)
         {   // Date-based distance must be computed in local time,
@@ -240,9 +231,7 @@ public class TimeTicks extends Ticks<Instant>
             return tick.minus(config.distance);
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public Instant getNext(final Instant tick)
+    private Instant getNext(final Instant tick)
     {
         if (config.distance instanceof Period)
         {   // Date-based distance must be computed in local time,
@@ -253,13 +242,6 @@ public class TimeTicks extends Ticks<Instant>
         }
         else // Plain Duration, can be computed on Instant
             return tick.plus(config.distance);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public int getMinorTickCount()
-    {
-        return config.minor_ticks;
     }
 
     /** {@inheritDoc} */

@@ -55,24 +55,7 @@ public abstract class Ticks<XTYPE>
         return minor_ticks;
     }
 
-    /** @return Returns the value of the start tick. */
-    @Deprecated // TODO Deprecate all but use of the MinorTicks & MajorTicks
-    public abstract XTYPE getStart();
-
-    /** @return Returns the previous tick, before a given tick mark. */
-    @Deprecated // TODO Deprecate all but use of the MinorTicks & MajorTicks
-    public abstract XTYPE getPrevious(XTYPE tick);
-
-    /** @return Returns the next tick, following a given tick mark. */
-    @Deprecated // TODO Deprecate all but use of the MinorTicks & MajorTicks
-    public abstract XTYPE getNext(XTYPE tick);
-
-    /** @return Number of minor tick marks */
-    @Deprecated // TODO Deprecate all but use of the MinorTicks & MajorTicks
-    public abstract int getMinorTickCount();
-
     /** @return Returns the tick formatted as text. */
-    @Deprecated // TODO Deprecate all but use of the MinorTicks & MajorTicks
     public abstract String format(XTYPE tick);
 
     /** @return Returns the tick formatted as text, using the next higher detail format. */

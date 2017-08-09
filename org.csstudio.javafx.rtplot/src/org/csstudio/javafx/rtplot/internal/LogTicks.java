@@ -26,9 +26,6 @@ import org.csstudio.javafx.rtplot.internal.util.Log10;
 @SuppressWarnings("nls")
 public class LogTicks extends LinearTicks
 {
-
-    private int minor = 2;
-
     // 'start' is the first tick mark as in LinearTicks
     // 'distance' is used as in LinearTicks when positive.
     // A negative 'distance' is used when it refers to the exponent
@@ -75,6 +72,7 @@ public class LogTicks extends LinearTicks
         final int label_width = Math.max(metrics.stringWidth(low_label), metrics.stringWidth(high_label));
         final int num_that_fits = Math.max(1,  screen_width/label_width*FILL_PERCENTAGE/100);
 
+        int minor = 2;
         if (high_exp <= low_exp)
         {   // Are numbers are within the same order of magnitude,
             // i.e. same exponent xeN = 2e4, 4e4, 6e4
@@ -87,7 +85,6 @@ public class LogTicks extends LinearTicks
                 throw new Error("Broken tickmark computation");
 
             precision = determinePrecision(low_mantissa) + 1;
-            minor = 2;
             num_fmt = createExponentialFormat(precision);
             detailed_num_fmt = createExponentialFormat(precision+1);
 
@@ -166,41 +163,34 @@ public class LogTicks extends LinearTicks
         }
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public Double getPrevious(final Double tick)
-    {
-        final double prev = distance < 0
-            ? tick / Log10.pow10(-distance)  // distance refers to exponent of value
-            : tick - distance;               // distance refers to plain value
+//    /** {@inheritDoc} */
+//    @Override
+//    public Double getPrevious(final Double tick)
+//    {
+//        final double prev = distance < 0
+//            ? tick / Log10.pow10(-distance)  // distance refers to exponent of value
+//            : tick - distance;               // distance refers to plain value
+//
+//        // Rounding errors can result in a situation where
+//        // we don't make any progress...
+//        if (prev >= tick)
+//            return tick - 1;
+//        return prev;
+//    }
 
-        // Rounding errors can result in a situation where
-        // we don't make any progress...
-        if (prev >= tick)
-            return tick - 1;
-        return prev;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public Double getNext(final Double tick)
-    {
-        // distance refers to exponent
-        final double next = distance < 0
-            ? tick * Log10.pow10(-distance)  // distance refers to exponent of value
-            : tick + distance;               // distance refers to plain value
-
-        // Rounding errors can result in a situation where
-        // we don't make any progress...
-        if (next <= tick)
-            return tick + 1;
-        return next;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public int getMinorTickCount()
-    {
-        return minor;
-    }
+//    /** {@inheritDoc} */
+//    @Override
+//    public Double getNext(final Double tick)
+//    {
+//        // distance refers to exponent
+//        final double next = distance < 0
+//            ? tick * Log10.pow10(-distance)  // distance refers to exponent of value
+//            : tick + distance;               // distance refers to plain value
+//
+//        // Rounding errors can result in a situation where
+//        // we don't make any progress...
+//        if (next <= tick)
+//            return tick + 1;
+//        return next;
+//    }
 }

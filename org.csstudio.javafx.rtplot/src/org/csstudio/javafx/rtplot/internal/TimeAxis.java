@@ -138,7 +138,7 @@ public class TimeAxis extends AxisPart<Instant>
             gc.setStroke(old_width);
 
             // Tick Label
-            drawTickLabel(gc, x, tick.getLabel());
+            drawTickLabel(gc, x, tick.getLabel(), false);
         }
 
         for (MinorTick<Instant> tick : ticks.getMinorTicks())
@@ -160,28 +160,9 @@ public class TimeAxis extends AxisPart<Instant>
         gc.setColor(old_fg);
     }
 
-    public void drawTickLabel(final Graphics2D gc, final int x, final String mark)
+    private void drawTickLabel(final Graphics2D gc, final int x, final String mark, final boolean floating)
     {
         final Rectangle region = getBounds();
-        gc.setFont(scale_font);
-        final Rectangle metrics = GraphicsUtils.measureText(gc, mark);
-        int tx = x - metrics.width/2;
-        // Correct location of rightmost label to remain within region
-        if (tx + metrics.width > region.x + region.width)
-            tx = region.x + region.width - metrics.width;
-
-        // Debug: Outline of text
-        // gc.drawRect(tx, region.y + TICK_LENGTH, metrics.width, metrics.height);
-        GraphicsUtils.drawMultilineText(gc, tx, region.y + TICK_LENGTH + metrics.y, mark);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void drawTickLabel(final Graphics2D gc, final Instant tick, final boolean floating)
-    {
-        final Rectangle region = getBounds();
-        final int x = getScreenCoord(tick);
-        final String mark = floating ? ticks.formatDetailed(tick) : ticks.format(tick);
         gc.setFont(scale_font);
         final Rectangle metrics = GraphicsUtils.measureText(gc, mark);
         int tx = x - metrics.width/2;
@@ -202,5 +183,14 @@ public class TimeAxis extends AxisPart<Instant>
         // Debug: Outline of text
         // gc.drawRect(tx, region.y + TICK_LENGTH, metrics.width, metrics.height);
         GraphicsUtils.drawMultilineText(gc, tx, region.y + TICK_LENGTH + metrics.y, mark);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void drawTickLabel(final Graphics2D gc, final Instant tick)
+    {
+        final int x = getScreenCoord(tick);
+        final String mark = ticks.formatDetailed(tick);
+        drawTickLabel(gc, x, mark, true);
     }
 }

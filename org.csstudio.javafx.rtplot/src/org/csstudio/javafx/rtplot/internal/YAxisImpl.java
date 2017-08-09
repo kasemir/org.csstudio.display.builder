@@ -327,7 +327,7 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
             gc.setStroke(old_width);
 
             // Tick Label
-            drawTickLabel(gc, y, tick.getLabel());
+            drawTickLabel(gc, y, tick.getLabel(), false);
         }
 
         // Minor tick marks
@@ -364,7 +364,7 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
         }
     }
 
-    private void drawTickLabel(final Graphics2D gc, final int screen_y, final String mark)
+    private void drawTickLabel(final Graphics2D gc, final int screen_y, final String mark, final boolean floating)
     {
         final Rectangle region = getBounds();
         gc.setFont(scale_font);
@@ -377,34 +377,12 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
         if (y < 0)
             y = 0;
 
-        // Debug: Outline of text
-        // gc.drawRect(x,  y, mark_width, mark_height); // Debug outline of tick label
-        GraphicsUtils.drawVerticalText(gc, x, y, mark, !is_right);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void drawTickLabel(final Graphics2D gc, final Double tick, final boolean floating)
-    {
-        final Rectangle region = getBounds();
-        final String mark = floating ? ticks.formatDetailed(tick) : ticks.format(tick);
-        gc.setFont(scale_font);
-        final FontMetrics metrics = gc.getFontMetrics();
-        final int mark_height = metrics.stringWidth(mark);
-        final int mark_width = metrics.getHeight();
-        final int x = is_right ? region.x + TICK_LENGTH : region.x + region.width - TICK_LENGTH - mark_width;
-        final int y0 = getScreenCoord(tick);
-        int y = y0  - mark_height/2;
-        // Correct location of top label to remain within region
-        if (y < 0)
-            y = 0;
-
         if (floating)
         {
             if (is_right)
-                gc.drawLine(x - TICK_LENGTH, y0, x, y0);
+                gc.drawLine(x - TICK_LENGTH, screen_y, x, screen_y);
             else
-                gc.drawLine(x + mark_width, y0, x + mark_width + TICK_LENGTH, y0);
+                gc.drawLine(x + mark_width, screen_y, x + mark_width + TICK_LENGTH, screen_y);
 
             // Box around label
             final Color orig_fill = gc.getColor();
@@ -417,5 +395,15 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
         // Debug: Outline of text
         // gc.drawRect(x,  y, mark_width, mark_height); // Debug outline of tick label
         GraphicsUtils.drawVerticalText(gc, x, y, mark, !is_right);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void drawTickLabel(final Graphics2D gc, final Double tick)
+    {
+        final int y0 = getScreenCoord(tick);
+        final String mark = ticks.formatDetailed(tick);
+
+        drawTickLabel(gc, y0, mark, true);
     }
 }

@@ -369,14 +369,12 @@ public abstract class AxisPart<T extends Comparable<T>> extends PlotPart impleme
      */
     abstract public void paint(final Graphics2D gc, final Rectangle plot_bounds);
 
-    /** Draw a tick label, used both to paint the normal axis labels
-     *  and for special, cursor-related tick locations.
+    /** Draw a floating tick label for cursor-related tick locations.
      *
      *  @param gc GC to use
      *  @param tick Location of the tick
-     *  @param floating Draw in 'floating' mode above ordinary tick labels?
      */
-    abstract public void drawTickLabel(final Graphics2D gc, final T tick, final boolean floating);
+    abstract public void drawTickLabel(final Graphics2D gc, final T tick);
 
 	@Override
     public String toString()
