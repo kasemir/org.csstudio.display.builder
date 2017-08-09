@@ -19,6 +19,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAmount;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 
 import org.csstudio.javafx.rtplot.internal.util.TemporalRounding;
@@ -190,6 +192,30 @@ public class TimeTicks extends Ticks<Instant>
 
         logger.log(Level.FINE, "Compute time ticks for {0}, {1} pixels: Tick distance {2}",
                                new Object[] { range, screen_width, config.distance });
+
+        final List<MajorTick<Instant>> major_ticks = new ArrayList<>();
+        final List<MinorTick<Instant>> minor_ticks = new ArrayList<>();
+
+        long prev_ms = getPrevious(start).toEpochMilli();
+        final Instant end = getNext(high);
+        for (Instant value = start;  value.isBefore(end);  value = getNext(value))
+        {
+            if (value.isAfter(low)  &&  value.isBefore(high))
+                major_ticks.add(new MajorTick<Instant>(value, format(value)));
+
+            final long ms = value.toEpochMilli();
+            for (int i=1; i<config.minor_ticks; ++i)
+            {
+                final long min_ms = prev_ms + ((ms - prev_ms)*i)/config.minor_ticks;
+                final Instant min_val = Instant.ofEpochMilli(min_ms);
+                if (min_val.isAfter(low)  &&  min_val.isBefore(high))
+                    minor_ticks.add(new MinorTick<Instant>(min_val));
+            }
+            prev_ms = ms;
+        }
+
+        this.major_ticks = major_ticks;
+        this.minor_ticks = minor_ticks;
     }
 
     /** {@inheritDoc} */

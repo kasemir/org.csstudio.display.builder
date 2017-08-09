@@ -311,26 +311,23 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
         gc.drawLine(line_x, region.y, line_x, region.y + region.height-1);
         computeTicks(gc);
 
-        // Major tick marks (skipping those outside visible region)
+        // Major tick marks
         for (MajorTick<Double> tick : ticks.getMajorTicks())
         {
             final int y = getScreenCoord(tick.getValue());
-            if (y >= region.y  &&  y <= region.y + region.height)
-            {
-                gc.setStroke(TICK_STROKE);
-                gc.drawLine(line_x, y, tick_x, y);
+            gc.setStroke(TICK_STROKE);
+            gc.drawLine(line_x, y, tick_x, y);
 
-                // Grid line
-                if (show_grid)
-                {
-                    gc.setStroke(new BasicStroke(1, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 1, new float[] { 5 }, 0));
-                    gc.drawLine(plot_bounds.x, y, plot_bounds.x + plot_bounds.width-1, y);
-                }
-                gc.setStroke(old_width);
-
-                // Tick Label
-                drawTickLabel(gc, y, tick.getLabel());
+            // Grid line
+            if (show_grid)
+            {   // Dashed line
+                gc.setStroke(new BasicStroke(1, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 1, new float[] { 5 }, 0));
+                gc.drawLine(plot_bounds.x, y, plot_bounds.x + plot_bounds.width-1, y);
             }
+            gc.setStroke(old_width);
+
+            // Tick Label
+            drawTickLabel(gc, y, tick.getLabel());
         }
 
         // Minor tick marks

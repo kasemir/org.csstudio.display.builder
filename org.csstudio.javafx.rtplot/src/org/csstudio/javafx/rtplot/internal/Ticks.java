@@ -19,8 +19,8 @@ import org.csstudio.javafx.rtplot.data.PlotDataItem;
  */
 public abstract class Ticks<XTYPE>
 {
-    protected volatile List<MajorTick<Double>> major_ticks = Collections.emptyList();
-    protected volatile List<MinorTick<Double>> minor_ticks = Collections.emptyList();
+    protected volatile List<MajorTick<XTYPE>> major_ticks = Collections.emptyList();
+    protected volatile List<MinorTick<XTYPE>> minor_ticks = Collections.emptyList();
 
     /** How many percent of the available space should be used for labels? */
     final public static int FILL_PERCENTAGE = 60;
@@ -44,13 +44,13 @@ public abstract class Ticks<XTYPE>
     public abstract void compute(XTYPE low, XTYPE high, Graphics2D gc, int screen_width);
 
     /** @return Major tick marks */
-    public final List<MajorTick<Double>> getMajorTicks()
+    public final List<MajorTick<XTYPE>> getMajorTicks()
     {
         return major_ticks;
     }
 
     /** @return Minor tick marks */
-    public final List<MinorTick<Double>> getMinorTicks()
+    public final List<MinorTick<XTYPE>> getMinorTicks()
     {
         return minor_ticks;
     }

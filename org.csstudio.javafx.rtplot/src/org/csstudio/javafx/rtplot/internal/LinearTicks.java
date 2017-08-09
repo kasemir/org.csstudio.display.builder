@@ -121,6 +121,10 @@ public class LinearTicks extends Ticks<Double>
         final List<MajorTick<Double>> major_ticks = new ArrayList<>();
         final List<MinorTick<Double>> minor_ticks = new ArrayList<>();
 
+        // TODO Update num_fmt based on distance
+        // It' possible that a very wide axis for 0 .. 10 ended up with precision 0,
+        // but now it has major ticks for 0, 0.5, 1, 1.5, .. and really needs precision 1
+
         // Start at 'low' adjusted to a multiple of the tick distance
         final int minor = 5;
         if (normal)
@@ -134,7 +138,7 @@ public class LinearTicks extends Ticks<Double>
         	for (double value = start; value < high + distance; value += distance)
         	{
         	    // Compute major tick marks
-        	    if (value < high)
+        	    if (value > low  &&  value < high)
         	        major_ticks.add(new MajorTick<Double>(value, num_fmt.format(value)));
 
         	    // Fill major tick marks with minor ticks
@@ -157,7 +161,7 @@ public class LinearTicks extends Ticks<Double>
             for (double value = start; value > high + distance; value += distance)
             {
                 // Compute major tick marks
-                if (value > high)
+                if (value < low  &&  value > high)
                     major_ticks.add(new MajorTick<Double>(value, num_fmt.format(value)));
 
                 // Fill major tick marks with minor ticks
