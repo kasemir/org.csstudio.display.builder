@@ -15,6 +15,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
 import org.csstudio.javafx.rtplot.internal.util.Log10;
@@ -244,21 +245,26 @@ public class LinearTicks extends Ticks<Double>
         return fmt;
     }
 
+    private final static ConcurrentHashMap<Integer, NumberFormat> exponential_formats = new ConcurrentHashMap<>();
+
     /** Create exponential format
      *  @param mantissa_precision
      *  @return NumberFormat
      */
-    protected static NumberFormat createExponentialFormat(final int mantissa_precision)
+    protected static NumberFormat createExponentialFormat(final Integer mantissa_precision)
     {
-        // DecimalFormat needs pattern for exponential notation,
-        // there are no factory or configuration methods
-        final StringBuilder pattern = new StringBuilder("0");
-        if (mantissa_precision > 0)
-            pattern.append('.');
-        for (int i=0; i<mantissa_precision; ++i)
-            pattern.append('0');
-        pattern.append("E0");
-        return new DecimalFormat(pattern.toString());
+        return exponential_formats.computeIfAbsent(mantissa_precision, prec ->
+        {
+            // DecimalFormat needs pattern for exponential notation,
+            // there are no factory or configuration methods
+            final StringBuilder pattern = new StringBuilder("0");
+            if (prec > 0)
+                pattern.append('.');
+            for (int i=0; i<prec; ++i)
+                pattern.append('0');
+            pattern.append("E0");
+            return new DecimalFormat(pattern.toString());
+        });
     }
 
     /** {@inheritDoc} */
