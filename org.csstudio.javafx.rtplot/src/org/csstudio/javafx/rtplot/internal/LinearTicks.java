@@ -29,13 +29,13 @@ import org.csstudio.javafx.rtplot.internal.util.Log10;
 public class LinearTicks extends Ticks<Double>
 {
     /** First tick mark value. */
-    protected double start = 0.0;
+    private double start = 0.0;
 
     /** Distance between tick marks. */
-    protected double distance = 1.0;
+    private double distance = 1.0;
 
     /** Precision used for printing tick labels .*/
-    protected int precision = 1;
+    private int precision = 1;
 
     /** Format helper for the number. */
     protected NumberFormat num_fmt = createDecimalFormat(1);
@@ -44,7 +44,7 @@ public class LinearTicks extends Ticks<Double>
     protected NumberFormat detailed_num_fmt = createDecimalFormat(2);
 
     /** Threshold for order-of-magnitude to use exponential notation */
-    protected long exponential_threshold = 5;
+    private long exponential_threshold = 5;
 
     /** @param order_of_magnitude If value range exceeds this threshold, use exponential notation */
     public void setExponentialThreshold(long order_of_magnitude)
@@ -290,12 +290,10 @@ public class LinearTicks extends Ticks<Double>
         return detailed_num_fmt.format(num);
     }
 
-
     /** @return Debug representation */
     @Override
     public String toString()
     {
-        return String.format("Ticks start=%g, distance=%g, precision=%d",
-                             start, distance, precision);
+        return "Ticks: " + getMajorTicks();
     }
 }

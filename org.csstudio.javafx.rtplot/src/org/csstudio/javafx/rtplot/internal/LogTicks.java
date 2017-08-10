@@ -36,9 +36,6 @@ public class LogTicks extends LinearTicks
         detailed_num_fmt = createExponentialFormat(3);
     }
 
-
-
-
     /** {@inheritDoc} */
     @Override
     public void compute(final Double low, final Double high, final Graphics2D gc, final int screen_width)
@@ -73,9 +70,12 @@ public class LogTicks extends LinearTicks
         final int num_that_fits = Math.max(1,  screen_width/label_width*FILL_PERCENTAGE/100);
 
         int minor = 2;
+        int precision;
         if (high_exp <= low_exp)
         {   // Are numbers are within the same order of magnitude,
             // i.e. same exponent xeN = 2e4, 4e4, 6e4
+
+            System.out.println("Same order of exp: " + low_exp + " .. " + high_exp);
 
             // Determine distance in terms of mantissa, relative to lower end of range
             final double high_mantissa = high / low_power;
@@ -89,15 +89,19 @@ public class LogTicks extends LinearTicks
             detailed_num_fmt = createExponentialFormat(precision+1);
 
             // Start at 'low' adjusted to a multiple of the tick distance
-            start = Math.ceil(low_mantissa / dist) * dist;
-            start = start * low_power;
-
-            distance = dist * low_power;
+//            start = Math.ceil(low_mantissa / dist) * dist;
+//            start = start * low_power;
+//
+//            distance = dist * low_power;
         }
         else
         {   // Range covers different orders of magnitude,
-            // example 1eN = 1e-5, 1e0, 1e10
+            // example 1eN = 1e-5, 1e0, 1e10, ..
+            // Distance refers to exponent of value.
             double dist = (high_exp - low_exp) / num_that_fits;
+
+            System.out.println("Different order of exp: " + low_exp + " .. " + high_exp);
+
 
             // Round up to the precision used to display values
             dist = selectNiceStep(dist);
@@ -115,82 +119,41 @@ public class LogTicks extends LinearTicks
             else
             {
                 precision = determinePrecision(low_mantissa);
-                minor = 2;
+                minor = 10;
             }
             num_fmt = createExponentialFormat(precision);
             detailed_num_fmt = createExponentialFormat(precision+1);
 
-            start = Log10.pow10(Math.ceil(Log10.log10(low) / dist) * dist);
-
-            // distance refers to exponent of value
-            distance = -dist; // negative to indicate that distance refers to exponent
+            final double start = Log10.pow10(Math.ceil(Log10.log10(low) / dist) * dist);
 
             // Compute major tick marks
             final double step_factor = Log10.pow10(dist);
             double value = start;
-            while (value <= high)
-            {
-                major_ticks.add(new MajorTick<Double>(value, num_fmt.format(value)));
-
-                final double next = value * step_factor;
-
-                // Rounding errors can result in a situation where
-                // we don't make any progress...
-                if (next <= value)
-                    break;
-                value = next;
-            }
-
-            // Fill major tick marks with minor ticks
             double prev = start / step_factor;
-            for (MajorTick<Double> tick : major_ticks)
+            while (value <= high*step_factor)
             {
-                double next = tick.getValue();
+                if (value >= low  &&  value <= high)
+                    major_ticks.add(new MajorTick<Double>(value, num_fmt.format(value)));
+
+                // Fill major tick marks with minor ticks
                 for (int i=1; i<(minor-1); ++i)
                 {
-                    final double min_val = prev + ((next - prev)*i)/(minor-1);
+                    final double min_val = prev + ((value - prev)*i)/(minor-1);
                     if (min_val <= low || min_val >= high)
                         continue;
                     minor_ticks.add(new MinorTick<Double>(min_val));
                 }
-                prev = next;
+                prev = value;
+
+                value *= step_factor;
+                // Rounding errors can result in a situation where
+                // we don't make any progress...
+                if (value <= prev)
+                    break;
             }
-
-            // TODO minors after last major
-
-            this.major_ticks = major_ticks;
-            this.minor_ticks = minor_ticks;
         }
+
+        this.major_ticks = major_ticks;
+        this.minor_ticks = minor_ticks;
     }
-
-//    /** {@inheritDoc} */
-//    @Override
-//    public Double getPrevious(final Double tick)
-//    {
-//        final double prev = distance < 0
-//            ? tick / Log10.pow10(-distance)  // distance refers to exponent of value
-//            : tick - distance;               // distance refers to plain value
-//
-//        // Rounding errors can result in a situation where
-//        // we don't make any progress...
-//        if (prev >= tick)
-//            return tick - 1;
-//        return prev;
-//    }
-
-//    /** {@inheritDoc} */
-//    @Override
-//    public Double getNext(final Double tick)
-//    {
-//        // distance refers to exponent
-//        final double next = distance < 0
-//            ? tick * Log10.pow10(-distance)  // distance refers to exponent of value
-//            : tick + distance;               // distance refers to plain value
-//
-//        // Rounding errors can result in a situation where
-//        // we don't make any progress...
-//        if (next <= tick)
-//            return tick + 1;
-//        return next;
-//    }
 }
