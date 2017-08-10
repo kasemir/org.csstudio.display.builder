@@ -72,6 +72,7 @@ public class HorizontalNumericAxis extends NumericAxis
         computeTicks(gc);
 
         // Major tick marks
+        Rectangle avoid = null;
         for (MajorTick<Double> tick : ticks.getMajorTicks())
         {
             final int x = getScreenCoord(tick.getValue());
@@ -87,7 +88,7 @@ public class HorizontalNumericAxis extends NumericAxis
             gc.setStroke(old_width);
 
             // Tick Label
-            drawTickLabel(gc, x, tick.getLabel(), false);
+            avoid = drawTickLabel(gc, x, tick.getLabel(), false, avoid);
         }
 
         // Minor tick marks
@@ -107,7 +108,14 @@ public class HorizontalNumericAxis extends NumericAxis
         gc.setColor(old_fg);
     }
 
-    private void drawTickLabel(final Graphics2D gc, final int x, final String mark, final boolean floating)
+    /** @param gc
+     *  @param screen_y Screen location of label along the axis
+     *  @param mark Label text
+     *  @param floating Add 'floating' box?
+     *  @param avoid Outline of previous label to avoid
+     *  @return Outline of this label or the last one if skipping this label
+     */
+    private Rectangle drawTickLabel(final Graphics2D gc, final int x, final String mark, final boolean floating, final Rectangle avoid)
     {
         final Rectangle region = getBounds();
         gc.setFont(scale_font);
@@ -117,19 +125,23 @@ public class HorizontalNumericAxis extends NumericAxis
         if (tx + metrics.width > region.x + region.width)
             tx = region.x + region.width - metrics.width;
 
+        final Rectangle outline = new Rectangle(tx-BORDER, region.y + TICK_LENGTH-BORDER, metrics.width+2*BORDER, metrics.height+2*BORDER);
         if (floating)
         {
             gc.drawLine(x, region.y, x, region.y + TICK_LENGTH);
             final Color orig_fill = gc.getColor();
             gc.setColor(java.awt.Color.WHITE);
-            gc.fillRect(tx-BORDER, region.y + TICK_LENGTH-BORDER, metrics.width+2*BORDER, metrics.height+2*BORDER);
+            gc.fillRect(outline.x, outline.y, outline.width, outline.height);
             gc.setColor(orig_fill);
-            gc.drawRect(tx-BORDER, region.y + TICK_LENGTH-BORDER, metrics.width+2*BORDER, metrics.height+2*BORDER);
+            gc.drawRect(outline.x, outline.y, outline.width, outline.height);
         }
 
+        if (avoid != null  &&  outline.intersects(avoid))
+            return avoid;
         // Debug: Outline of text
         // gc.drawRect(tx, region.y + TICK_LENGTH, metrics.width, metrics.height);
         gc.drawString(mark, tx, region.y + metrics.y + TICK_LENGTH);
+        return outline;
     }
 
     /** {@inheritDoc} */
@@ -138,6 +150,6 @@ public class HorizontalNumericAxis extends NumericAxis
     {
         final int x = getScreenCoord(tick);
         final String mark = ticks.formatDetailed(tick);
-        drawTickLabel(gc, x, mark, true);
+        drawTickLabel(gc, x, mark, true, null);
     }
 }

@@ -312,6 +312,7 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
         computeTicks(gc);
 
         // Major tick marks
+        Rectangle avoid = null;
         for (MajorTick<Double> tick : ticks.getMajorTicks())
         {
             final int y = getScreenCoord(tick.getValue());
@@ -327,7 +328,7 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
             gc.setStroke(old_width);
 
             // Tick Label
-            drawTickLabel(gc, y, tick.getLabel(), false);
+            avoid = drawTickLabel(gc, y, tick.getLabel(), false, avoid);
         }
 
         // Minor tick marks
@@ -351,6 +352,7 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
         final Color old_fg = gc.getColor();
         label_provider.start();
         int i = 0;
+
         while (label_provider.hasNext()  &&  i < label_x.size())
         {   // Draw labels at pre-computed locations
             if (i > 0)
@@ -364,7 +366,14 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
         }
     }
 
-    private void drawTickLabel(final Graphics2D gc, final int screen_y, final String mark, final boolean floating)
+    /** @param gc
+     *  @param screen_y Screen location of label along the axis
+     *  @param mark Label text
+     *  @param floating Add 'floating' box?
+     *  @param avoid Outline of previous label to avoid
+     *  @return Outline of this label or the last one if skipping this label
+     */
+    private Rectangle drawTickLabel(final Graphics2D gc, final int screen_y, final String mark, final boolean floating, final Rectangle avoid)
     {
         final Rectangle region = getBounds();
         gc.setFont(scale_font);
@@ -377,6 +386,7 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
         if (y < 0)
             y = 0;
 
+        final Rectangle outline = new Rectangle(x-BORDER,  y-BORDER, mark_width+2*BORDER, mark_height+2*BORDER);
         if (floating)
         {
             if (is_right)
@@ -387,14 +397,17 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
             // Box around label
             final Color orig_fill = gc.getColor();
             gc.setColor(java.awt.Color.WHITE);
-            gc.fillRect(x-BORDER,  y-BORDER, mark_width+2*BORDER, mark_height+2*BORDER);
+            gc.fillRect(outline.x, outline.y, outline.width, outline.height);
             gc.setColor(orig_fill);
-            gc.drawRect(x-BORDER,  y-BORDER, mark_width+2*BORDER, mark_height+2*BORDER);
+            gc.drawRect(outline.x, outline.y, outline.width, outline.height);
         }
 
+        if (avoid != null  &&  outline.intersects(avoid))
+            return avoid;
         // Debug: Outline of text
         // gc.drawRect(x,  y, mark_width, mark_height); // Debug outline of tick label
         GraphicsUtils.drawVerticalText(gc, x, y, mark, !is_right);
+        return outline;
     }
 
     /** {@inheritDoc} */
@@ -404,6 +417,6 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
         final int y0 = getScreenCoord(tick);
         final String mark = ticks.formatDetailed(tick);
 
-        drawTickLabel(gc, y0, mark, true);
+        drawTickLabel(gc, y0, mark, true, null);
     }
 }
