@@ -19,6 +19,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAmount;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 
 import org.csstudio.javafx.rtplot.internal.util.TemporalRounding;
@@ -31,7 +33,7 @@ import org.csstudio.javafx.rtplot.internal.util.TemporalRounding;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class TimeTicks implements Ticks<Instant>
+public class TimeTicks extends Ticks<Instant>
 {
     /** How many percent of the available space should be used for labels? */
     protected static final int FILL_PERCENTAGE = 75;
@@ -190,18 +192,42 @@ public class TimeTicks implements Ticks<Instant>
 
         logger.log(Level.FINE, "Compute time ticks for {0}, {1} pixels: Tick distance {2}",
                                new Object[] { range, screen_width, config.distance });
+
+        final List<MajorTick<Instant>> major_ticks = new ArrayList<>();
+        final List<MinorTick<Instant>> minor_ticks = new ArrayList<>();
+
+        long prev_ms = getPrevious(start).toEpochMilli();
+        final Instant end = getNext(high);
+        for (Instant value = start;  value.isBefore(end);  value = getNext(value))
+        {
+            if (value.isAfter(low)  &&  value.isBefore(high))
+                major_ticks.add(new MajorTick<Instant>(value, format(value)));
+
+            final long ms = value.toEpochMilli();
+            for (int i=1; i<config.minor_ticks; ++i)
+            {
+                final long min_ms = prev_ms + ((ms - prev_ms)*i)/config.minor_ticks;
+                final Instant min_val = Instant.ofEpochMilli(min_ms);
+                if (min_val.isAfter(low)  &&  min_val.isBefore(high))
+                    minor_ticks.add(new MinorTick<Instant>(min_val));
+            }
+            prev_ms = ms;
+        }
+
+        if (major_ticks.size() < 2)
+        {   // If the best-laid plans of mice and men fail
+            // and we end up with just one or no tick,
+            // add the low and high markers.
+            // Use full format for the low marker.
+            final ZonedDateTime local = ZonedDateTime.ofInstant(low, ZoneId.systemDefault());
+            major_ticks.add(0, new MajorTick<Instant>(low, config.start_formatter.format(local)));
+            major_ticks.add(new MajorTick<Instant>(high, format(high)));
+        }
+        this.major_ticks = major_ticks;
+        this.minor_ticks = minor_ticks;
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public Instant getStart()
-    {
-        return start;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public Instant getPrevious(final Instant tick)
+    private Instant getPrevious(final Instant tick)
     {
         if (config.distance instanceof Period)
         {   // Date-based distance must be computed in local time,
@@ -214,9 +240,7 @@ public class TimeTicks implements Ticks<Instant>
             return tick.minus(config.distance);
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public Instant getNext(final Instant tick)
+    private Instant getNext(final Instant tick)
     {
         if (config.distance instanceof Period)
         {   // Date-based distance must be computed in local time,
@@ -227,13 +251,6 @@ public class TimeTicks implements Ticks<Instant>
         }
         else // Plain Duration, can be computed on Instant
             return tick.plus(config.distance);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public int getMinorTicks()
-    {
-        return config.minor_ticks;
     }
 
     /** {@inheritDoc} */

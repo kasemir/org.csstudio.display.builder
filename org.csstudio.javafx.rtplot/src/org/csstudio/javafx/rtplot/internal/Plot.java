@@ -653,9 +653,9 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
             gc.drawLine(plot_bounds.x, (int)current.getY(), plot_bounds.x + plot_bounds.width, (int)current.getY());
             gc.drawLine((int)current.getX(), plot_bounds.y, (int)current.getX(), plot_bounds.y + plot_bounds.height);
             // Corresponding axis ticks
-            x_axis.drawTickLabel(gc, x_axis.getValue((int)current.getX()), true);
+            x_axis.drawTickLabel(gc, x_axis.getValue((int)current.getX()));
             for (YAxisImpl<XTYPE> axis : y_axes)
-                axis.drawTickLabel(gc, axis.getValue((int)current.getY()), true);
+                axis.drawTickLabel(gc, axis.getValue((int)current.getY()));
             // Trace markers
             final List<CursorMarker> safe_markers = cursor_markers;
             if (safe_markers != null)
