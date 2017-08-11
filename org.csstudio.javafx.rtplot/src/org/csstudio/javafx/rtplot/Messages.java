@@ -38,6 +38,7 @@ public class Messages extends NLS
     public static String Pan_X;
     public static String Pan_Y;
     public static String Plain_Pointer;
+    public static String PlotOptions;
     public static String PointType_Circles;
     public static String PointType_Diamonds;
     public static String PointType_Squares;
