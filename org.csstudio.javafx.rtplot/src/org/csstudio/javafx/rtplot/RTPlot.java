@@ -204,14 +204,14 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
      *
      *  <p>Dialog is non-modal and sets to <code>null</code> when closed
      */
-    private PlotConfigDialog config_dialog = null;
+    private PlotConfigDialog<XTYPE> config_dialog = null;
 
     /** Show the configuration dialog or bring existing dialog to front */
     public void showConfigurationDialog()
     {
         if (config_dialog == null)
         {
-            config_dialog = new PlotConfigDialog(this);
+            config_dialog = new PlotConfigDialog<>(this);
             config_dialog.setOnHiding(evt ->  config_dialog = null);
             DialogHelper.positionDialog(config_dialog, this, 30 - (int) getWidth()/2, 30 - (int) getHeight()/2);
             config_dialog.show();
