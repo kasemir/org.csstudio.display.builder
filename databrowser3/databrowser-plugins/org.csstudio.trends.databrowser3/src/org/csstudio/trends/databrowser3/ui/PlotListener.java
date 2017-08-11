@@ -73,4 +73,12 @@ public interface PlotListener
 
     /** Auto scale modified by user interaction with plot */
     public void autoScaleChanged(int index, boolean autoScale);
+
+    /** Grid modified by user interaction with plot
+     *  @param index Index of Y axis, -1 for X axis
+     */
+    public void gridChanged(int index, boolean show_grid);
+
+    /** Log mode modified by user interaction with plot */
+    public void logarithmicChanged(int index, boolean use_log);
 }

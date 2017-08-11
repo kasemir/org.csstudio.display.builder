@@ -7,8 +7,10 @@
  *******************************************************************************/
 package org.csstudio.javafx.rtplot.internal;
 
+import org.csstudio.javafx.rtplot.Activator;
 import org.csstudio.javafx.rtplot.Axis;
 import org.csstudio.javafx.rtplot.RTPlot;
+import org.csstudio.javafx.rtplot.YAxis;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -18,6 +20,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -26,17 +29,25 @@ import javafx.stage.Modality;
 /** Dialog for runtime changes to a plot
  *  @author Kay Kasemir
  */
-public class PlotConfigDialog extends Dialog<Void>
+public class PlotConfigDialog<XTYPE extends Comparable<XTYPE>>  extends Dialog<Void>
 {
-    private final RTPlot<?> plot;
+    private final RTPlot<XTYPE> plot;
 
-    public PlotConfigDialog(final RTPlot<?> plot)
+    public PlotConfigDialog(final RTPlot<XTYPE> plot)
     {
         this.plot = plot;
 
         initModality(Modality.NONE);
         setTitle("Configure");
         setHeaderText("Change plot settings");
+        try
+        {
+            setGraphic(new ImageView(Activator.getIcon("configure")));
+        }
+        catch (Exception ex)
+        {
+            // Ignore
+        }
 
         getDialogPane().setContent(createContent());
         getDialogPane().getButtonTypes().addAll(ButtonType.CLOSE);
@@ -72,21 +83,22 @@ public class PlotConfigDialog extends Dialog<Void>
 
         row = addAxisContent(layout, row, plot.getXAxis());
 
-        label = new Label("Plot");
-        label.setFont(section_font);
-        layout.add(label, 0, ++row);
-
-        final CheckBox legend = new CheckBox("legend");
-        legend.setSelected(plot.isLegendVisible());
-        legend.setOnAction(event ->   plot.showLegend(legend.isSelected()) );
-        layout.add(legend, 2, ++row);
+//        label = new Label("Plot");
+//        label.setFont(section_font);
+//        layout.add(label, 0, ++row);
+//
+//        final CheckBox legend = new CheckBox("legend");
+//        legend.setSelected(plot.isLegendVisible());
+//        legend.setOnAction(event ->   plot.showLegend(legend.isSelected()) );
+//        layout.add(legend, 2, ++row);
 
         return layout;
     }
 
     private int addAxisContent(final GridPane layout, int row, final Axis<?> axis)
     {
-        layout.add(new Label('"' + axis.getName() + '"'), 0, row);
+        if (! axis.getName().trim().isEmpty())
+            layout.add(new Label('"' + axis.getName() + '"'), 0, row);
 
         // Don't support auto-scale for time axis
         // because code that updates the time axis
@@ -106,9 +118,23 @@ public class PlotConfigDialog extends Dialog<Void>
             final TextField end = new TextField(axis.getValueRange().getHigh().toString());
             layout.add(end,  2, row++);
 
+            @SuppressWarnings("unchecked")
             final EventHandler<ActionEvent> update_range = event ->
             {
-                num_axis.setValueRange(Double.parseDouble(start.getText()), Double.parseDouble(end.getText()));
+                try
+                {
+                    num_axis.setValueRange(Double.parseDouble(start.getText()), Double.parseDouble(end.getText()));
+                }
+                catch (NumberFormatException ex)
+                {
+                    start.setText(axis.getValueRange().getLow().toString());
+                    end.setText(axis.getValueRange().getHigh().toString());
+                    return;
+                }
+                if (axis instanceof YAxisImpl)
+                    plot.getPlot().fireYAxisChange((YAxisImpl<XTYPE>)axis);
+                else if (axis instanceof HorizontalNumericAxis)
+                    plot.getPlot().fireXAxisChange();
             };
             start.setOnAction(update_range);
             end.setOnAction(update_range);
@@ -125,13 +151,21 @@ public class PlotConfigDialog extends Dialog<Void>
                 axis.setAutoscale(autoscale.isSelected());
                 start.setDisable(autoscale.isSelected());
                 end.setDisable(autoscale.isSelected());
+                plot.getPlot().fireAutoScaleChange(axis);
             });
             layout.add(autoscale, 2, row++);
 
-            final CheckBox logscale = new CheckBox("log scale");
-            logscale.setSelected(num_axis.isLogarithmic());
-            logscale.setOnAction(event -> num_axis.setLogarithmic(logscale.isSelected()));
-            layout.add(logscale, 2, row++);
+            if (axis instanceof YAxis)
+            {
+                final CheckBox logscale = new CheckBox("log scale");
+                logscale.setSelected(num_axis.isLogarithmic());
+                logscale.setOnAction(event ->
+                {
+                    num_axis.setLogarithmic(logscale.isSelected());
+                    plot.getPlot().fireLogarithmicChange((YAxis<?>)num_axis);
+                });
+                layout.add(logscale, 2, row++);
+            }
         }
 
         final CheckBox grid = new CheckBox("grid");
@@ -139,6 +173,7 @@ public class PlotConfigDialog extends Dialog<Void>
         grid.setOnAction(event ->
         {
             axis.setGridVisible(grid.isSelected());
+            plot.getPlot().fireGridChange(axis);
         });
         layout.add(grid, 2, row++);
 

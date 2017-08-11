@@ -1182,6 +1182,20 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     }
 
     /** Notify listeners */
+    public void fireGridChange(final Axis<?> axis)
+    {
+        for (RTPlotListener<?> listener : listeners)
+            listener.changedGrid(axis);
+    }
+
+    /** Notify listeners */
+    public void fireLogarithmicChange(final YAxis<?> axis)
+    {
+        for (RTPlotListener<?> listener : listeners)
+            listener.changedLogarithmic(axis);
+    }
+
+    /** Notify listeners */
     private void firePlotMarkersChanged(final int marker_index)
     {
         for (RTPlotListener<XTYPE> listener : listeners)

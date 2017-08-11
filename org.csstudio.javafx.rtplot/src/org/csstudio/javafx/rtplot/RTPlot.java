@@ -206,6 +206,7 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
      */
     private PlotConfigDialog config_dialog = null;
 
+    /** Show the configuration dialog or bring existing dialog to front */
     public void showConfigurationDialog()
     {
         if (config_dialog == null)
@@ -220,7 +221,6 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
             final Stage stage = (Stage) config_dialog.getDialogPane().getContent().getScene().getWindow();
             stage.toFront();
         }
-        // TODO ModalityHack?
     }
 
     /** onKeyPressed */

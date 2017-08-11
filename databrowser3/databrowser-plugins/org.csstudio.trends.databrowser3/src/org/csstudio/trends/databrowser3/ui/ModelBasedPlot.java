@@ -99,6 +99,22 @@ public class ModelBasedPlot
             }
 
             @Override
+            public void changedGrid(final Axis<?> axis)
+            {
+                final int index = axis == plot.getXAxis()
+                                ? -1
+                                : plot.getYAxes().indexOf(axis);
+                listener.ifPresent(l -> l.gridChanged(index, axis.isGridVisible()));
+            }
+
+            @Override
+            public void changedLogarithmic(final YAxis<?> axis)
+            {
+                final int index = plot.getYAxes().indexOf(axis);
+                listener.ifPresent(l -> l.logarithmicChanged(index, axis.isLogarithmic()));
+            }
+
+            @Override
             public void changedAnnotations()
             {
                 final List<AnnotationInfo> annotations = new ArrayList<>();
