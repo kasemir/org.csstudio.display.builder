@@ -214,6 +214,15 @@ public class TimeTicks extends Ticks<Instant>
             prev_ms = ms;
         }
 
+        if (major_ticks.size() < 2)
+        {   // If the best-laid plans of mice and men fail
+            // and we end up with just one or no tick,
+            // add the low and high markers.
+            // Use full format for the low marker.
+            final ZonedDateTime local = ZonedDateTime.ofInstant(low, ZoneId.systemDefault());
+            major_ticks.add(0, new MajorTick<Instant>(low, config.start_formatter.format(local)));
+            major_ticks.add(new MajorTick<Instant>(high, format(high)));
+        }
         this.major_ticks = major_ticks;
         this.minor_ticks = minor_ticks;
     }
