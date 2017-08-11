@@ -53,10 +53,23 @@ public class LinearTicksTest extends TicksTestBase
         ticks.compute(start, end, gc, buf.getWidth());
 
         System.out.println("Ticks for " + start + " .. " + end + ":");
-        final String text = ticks2text(ticks.getMajorTicks(), ticks.getMinorTicks());
+        String text = ticks2text(ticks);
         System.out.println(text);
+        assertThat(text, equalTo("2 4 6 8 '10' 12 14 16 18 '20' 22 24 26 28 '30' 32 34 36 38 '40' 42 44 46 48 '50' 52 54 56 58 '60' 62 64 66 68 '70' 72 74 76 78 '80' 82 84 86 88 '90' 92 94 96 98 "));
 
-        assertThat(text, equalTo("2.0 4.0 6.0 8.0 '10' 12.0 14.0 16.0 18.0 '20' 22.0 24.0 26.0 28.0 '30' 32.0 34.0 36.0 38.0 '40' 42.0 44.0 46.0 48.0 '50' 52.0 54.0 56.0 58.0 '60' 62.0 64.0 66.0 68.0 '70' 72.0 74.0 76.0 78.0 '80' 82.0 84.0 86.0 88.0 '90' 92.0 94.0 96.0 98.0 "));
+        start = -0.6;  end = +0.6;
+        ticks.compute(start, end, gc, buf.getWidth());
+        System.out.println("Ticks for " + start + " .. " + end + ":");
+        text = ticks2text(ticks);
+        System.out.println(text);
+        assertThat(text, equalTo("-0.6 -0.5 -0.5 -0.4 '-0.4' -0.4 -0.3 -0.3 -0.2 '-0.2' -0.2 -0.1 -0.1 -0.0 '0.0' 0.0 0.1 0.1 0.2 '0.2' 0.2 0.3 0.3 0.4 '0.4' 0.4 0.5 0.5 0.6 "));
+
+        start = -100.0;  end = 20000.0;
+        ticks.compute(start, end, gc, buf.getWidth());
+        System.out.println("Ticks for " + start + " .. " + end + ":");
+        text = ticks2text(ticks);
+        System.out.println(text);
+        assertThat(text, equalTo("'0' 1000 2000 3000 4000 '5000' 6000 7000 8000 9000 '10000' 11000 12000 13000 14000 '15000' 16000 17000 18000 19000 "));
     }
 
     @Test
@@ -65,11 +78,9 @@ public class LinearTicksTest extends TicksTestBase
         final LinearTicks ticks = new LinearTicks();
         double start = 10000.0,  end = 1.0;
         ticks.compute(start, end, gc, buf.getWidth());
-
         System.out.println("Ticks for " + start + " .. " + end + ":");
-        final String text = ticks2text(ticks.getMajorTicks(), ticks.getMinorTicks());
+        final String text = ticks2text(ticks);
         System.out.println(text);
-
-        assertThat(text, equalTo("'10000' 9600.0 9200.0 8800.0 8400.0 '8000' 7600.0 7200.0 6800.0 6400.0 '6000' 5600.0 5200.0 4800.0 4400.0 '4000' 3600.0 3200.0 2800.0 2400.0 '2000' 1600.0 1200.0 800.0 400.0 "));
+        assertThat(text, equalTo("9600 9200 8800 8400 '8000' 7600 7200 6800 6400 '6000' 5600 5200 4800 4400 '4000' 3600 3200 2800 2400 '2000' 1600 1200 800 400 "));
     }
 }

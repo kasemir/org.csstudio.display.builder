@@ -18,6 +18,7 @@ import java.util.List;
 import org.csstudio.javafx.rtplot.internal.LinearTicks;
 import org.csstudio.javafx.rtplot.internal.MajorTick;
 import org.csstudio.javafx.rtplot.internal.MinorTick;
+import org.csstudio.javafx.rtplot.internal.Ticks;
 import org.junit.After;
 import org.junit.Test;
 
@@ -36,15 +37,15 @@ public class TicksTestBase
     }
 
     /** Helper for displaying ticks as text
-     *  @param major_ticks
-     *  @param minor_ticks
+     *  @param ticks
      *  @return
      */
-    public String ticks2text(final List<MajorTick<Double>> major_ticks,
-                             final List<MinorTick<Double>> minor_ticks)
+    public String ticks2text(final Ticks<Double> ticks)
     {
         final StringBuilder buf = new StringBuilder();
 
+        final List<MajorTick<Double>> major_ticks = ticks.getMajorTicks();
+        final List<MinorTick<Double>> minor_ticks = ticks.getMinorTicks();
         final Iterator<MajorTick<Double>> maj = major_ticks.iterator();
         final Iterator<MinorTick<Double>> min = minor_ticks.iterator();
 
@@ -69,7 +70,7 @@ public class TicksTestBase
                     }
                     else
                     {
-                        buf.append(minor.getValue()).append(" ");
+                        buf.append(ticks.format(minor.getValue())).append(" ");
                         minor = min.hasNext() ? min.next() : null;
                     }
                 }
@@ -80,7 +81,7 @@ public class TicksTestBase
                 }
                 else if (minor != null)
                 {
-                    buf.append(minor.getValue()).append(" ");
+                    buf.append(ticks.format(minor.getValue())).append(" ");
                     minor = min.hasNext() ? min.next() : null;
                 }
                 else

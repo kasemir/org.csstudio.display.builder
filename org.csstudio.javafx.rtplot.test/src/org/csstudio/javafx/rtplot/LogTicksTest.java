@@ -24,13 +24,31 @@ public class LogTicksTest extends TicksTestBase
     public void testLogTicks()
     {
         final LogTicks ticks = new LogTicks();
+
+        // 'Normal' log scale with majors at 1E0, 1E1, 1E2, ..
         double start = 1.0,  end = 10000.0;
         ticks.compute(start, end, gc, buf.getWidth());
-
         System.out.println("Ticks for " + start + " .. " + end + ":");
-        final String text = ticks2text(ticks.getMajorTicks(), ticks.getMinorTicks());
+        String text = ticks2text(ticks);
         System.out.println(text);
+        assertThat(text, equalTo("'1E0' 2E0 3E0 4E0 5E0 6E0 7E0 8E0 9E0 '1E1' 1E1 2E1 3E1 4E1 5E1 6E1 7E1 8E1 9E1 '1E2' 1E2 2E2 3E2 4E2 5E2 6E2 7E2 8E2 9E2 '1E3' 1E3 2E3 3E3 4E3 5E3 6E3 7E3 8E3 9E3 '1E4' "));
 
-        assertThat(text, equalTo("'1E0' 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 '1E1' 20.0 30.0 40.0 50.0 60.0 70.0 80.0 90.0 '1E2' 200.0 300.0 400.0 500.0 600.0 700.0 800.0 900.0 '1E3' 2000.0 3000.0 4000.0 5000.0 6000.0 7000.0 8000.0 9000.0 '1E4' "));
+        // Wider log scale with majors at 1E0, 1E2, 1E4, ..
+        start = 1.0;  end = 1e8;
+        ticks.compute(start, end, gc, buf.getWidth());
+        System.out.println("Ticks for " + start + " .. " + end + ":");
+        text = ticks2text(ticks);
+        System.out.println(text);
+        assertThat(text, equalTo("'1E0' 1E1 2E1 3E1 4E1 5E1 6E1 7E1 8E1 9E1 '1E2' 1E3 2E3 3E3 4E3 5E3 6E3 7E3 8E3 9E3 '1E4' 1E5 2E5 3E5 4E5 5E5 6E5 7E5 8E5 9E5 '1E6' 1E7 2E7 3E7 4E7 5E7 6E7 7E7 8E7 9E7 '1E8' "));
+
+        // Log scale with same exponents for all ticks
+        start = 1001.0;  end = 1234.0;
+        ticks.compute(start, end, gc, buf.getWidth());
+        System.out.println("Ticks for " + start + " .. " + end + ":");
+        text = ticks2text(ticks);
+        System.out.println(text);
+        // Needs to show significant detail in mantissa
+        assertThat(text, equalTo("'1.001E3' '1.059E3' '1.118E3' '1.176E3' '1.234E3' "));
+
     }
 }
