@@ -7,27 +7,27 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime.internal;
 
-import org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.AxisWidgetProperty;
+import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget;
 import org.csstudio.display.builder.runtime.RuntimeAction;
 
-/** RuntimeAction to enable autoscale on an axis
+/** RuntimeAction to trigger the configuration dialog of the XYPlot
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-class AutoscaleAction extends RuntimeAction
+class ConfigurePlotAction extends RuntimeAction
 {
-    private final AxisWidgetProperty axis;
+    private final XYPlotWidget plot;
 
-    public AutoscaleAction(final AxisWidgetProperty axis)
+    public ConfigurePlotAction(XYPlotWidget plot)
     {
-        super("Autoscale " + axis.title().getValue(),
-              "platform:/plugin/org.csstudio.javafx.rtplot/icons/stagger.png");
-        this.axis = axis;
+        super("Configure Plot",
+              "platform:/plugin/org.csstudio.javafx.rtplot/icons/configure.png");
+        this.plot = plot;
     }
 
     @Override
     public void run()
     {
-        axis.autoscale().setValue(true);
+        plot.runtimePropConfigure().trigger();
     }
 }

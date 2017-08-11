@@ -20,12 +20,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
+import org.csstudio.javafx.DialogHelper;
 import org.csstudio.javafx.rtplot.data.PlotDataItem;
 import org.csstudio.javafx.rtplot.data.PlotDataProvider;
 import org.csstudio.javafx.rtplot.internal.AnnotationImpl;
 import org.csstudio.javafx.rtplot.internal.MouseMode;
 import org.csstudio.javafx.rtplot.internal.NumericAxis;
 import org.csstudio.javafx.rtplot.internal.Plot;
+import org.csstudio.javafx.rtplot.internal.PlotConfigDialog;
 import org.csstudio.javafx.rtplot.internal.ToolbarHandler;
 import org.csstudio.javafx.rtplot.internal.TraceImpl;
 import org.csstudio.javafx.rtplot.internal.YAxisImpl;
@@ -47,6 +49,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.stage.Stage;
 
 /** Real-time plot
  *
@@ -197,6 +200,29 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
     		showAxisLimitsField(info.axis, info.isHighEnd, info.area);
     }
 
+    /** Configuration dialog
+     *
+     *  <p>Dialog is non-modal and sets to <code>null</code> when closed
+     */
+    private PlotConfigDialog<XTYPE> config_dialog = null;
+
+    /** Show the configuration dialog or bring existing dialog to front */
+    public void showConfigurationDialog()
+    {
+        if (config_dialog == null)
+        {
+            config_dialog = new PlotConfigDialog<>(this);
+            config_dialog.setOnHiding(evt ->  config_dialog = null);
+            DialogHelper.positionDialog(config_dialog, this, 30 - (int) getWidth()/2, 30 - (int) getHeight()/2);
+            config_dialog.show();
+        }
+        else
+        {   // Raise existing dialog
+            final Stage stage = (Stage) config_dialog.getDialogPane().getContent().getScene().getWindow();
+            stage.toFront();
+        }
+    }
+
     /** onKeyPressed */
     private void keyPressed(final KeyEvent event)
     {
@@ -206,6 +232,8 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
             plot.getUndoableActionManager().undoLast();
         else if (event.getCode() == KeyCode.Y)
             plot.getUndoableActionManager().redoLast();
+        else if (event.getCode() == KeyCode.O)
+            showConfigurationDialog();
         else if (event.getCode() == KeyCode.T)
             showToolbar(! isToolbarVisible());
         else if (event.getCode() == KeyCode.C)

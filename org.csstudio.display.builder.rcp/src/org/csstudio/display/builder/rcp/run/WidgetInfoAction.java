@@ -31,7 +31,8 @@ public class WidgetInfoAction extends Action
 
     public WidgetInfoAction(final Widget widget)
     {
-        super(widget.getName(), AbstractUIPlugin.imageDescriptorFromPlugin(Plugin.ID, "icons/information.png"));
+        super("'" + widget.getName() + "' Information",
+              AbstractUIPlugin.imageDescriptorFromPlugin(Plugin.ID, "icons/information.png"));
         this.widget = widget;
     }
 
