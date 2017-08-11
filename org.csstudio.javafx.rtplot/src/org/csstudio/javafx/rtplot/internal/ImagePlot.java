@@ -34,6 +34,7 @@ import org.csstudio.javafx.rtplot.Interpolation;
 import org.csstudio.javafx.rtplot.Messages;
 import org.csstudio.javafx.rtplot.RTImagePlotListener;
 import org.csstudio.javafx.rtplot.RegionOfInterest;
+import org.csstudio.javafx.rtplot.data.ValueRange;
 import org.csstudio.javafx.rtplot.internal.undo.ChangeImageZoom;
 import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 import org.csstudio.javafx.rtplot.internal.util.LinearScreenTransform;
@@ -177,6 +178,12 @@ public class ImagePlot extends PlotCanvasBase
         requestUpdate();
     }
 
+    /** @return Auto-scale the color mapping? */
+    public boolean isAutoscale()
+    {
+        return autoscale;
+    }
+
     /** @param autoscale  Auto-scale the color mapping? */
     public void setAutoscale(final boolean autoscale)
     {
@@ -184,11 +191,25 @@ public class ImagePlot extends PlotCanvasBase
         requestUpdate();
     }
 
+    /** @return Use log scale for color mapping? */
+    public boolean isLogscale()
+    {
+        return colorbar_axis.isLogarithmic();
+    }
+
     /** @param logscale Use log scale for color mapping? */
     public void setLogscale(final boolean logscale)
     {
         colorbar_axis.setLogarithmic(logscale);
         requestUpdate();
+    }
+
+    /** Get color mapping value range
+      * @return {@link ValueRange}
+     */
+    public ValueRange getValueRange()
+    {
+        return new ValueRange(min, max);
     }
 
     /** Set color mapping value range
@@ -240,6 +261,12 @@ public class ImagePlot extends PlotCanvasBase
     public Axis<Double> getYAxis()
     {
         return y_axis;
+    }
+
+    /** @return Show color map? */
+    public boolean isShowingColorMap()
+    {
+        return show_colormap;
     }
 
     /** @param show Show color map? */
