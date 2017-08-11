@@ -29,14 +29,11 @@ import org.csstudio.javafx.rtplot.internal.util.Log10;
 @SuppressWarnings("nls")
 public class LinearTicks extends Ticks<Double>
 {
-    /** First tick mark value. */
-    private double start = 0.0;
-
-    /** Distance between tick marks. */
-    private double distance = 1.0;
-
-    /** Precision used for printing tick labels .*/
-    private int precision = 1;
+    /** Numbers smaller than this are considered "0"
+     *
+     *  <p>Avoids labels "-0.0" or "0.0000000001" for "0"
+     */
+    protected double zero_threshold = 0.000001;
 
     /** Format helper for the number. */
     protected NumberFormat num_fmt = createDecimalFormat(1);
@@ -88,12 +85,14 @@ public class LinearTicks extends Ticks<Double>
 
         final long order_of_magnitude = Math.round(Log10.log10(range));
 
-        // Determine precision for displaying numbers in this range.
+        // Determine initial precision for displaying numbers in this range.
         // Precision must be set to format test entries, which
         // are then used to compute ticks.
-        if (Math.abs(order_of_magnitude) > exponential_threshold)
+        final boolean use_exp_notation = order_of_magnitude > exponential_threshold;
+        int precision;
+        if (use_exp_notation)
         {
-            precision = 2;
+            precision = 3;
             num_fmt = createExponentialFormat(precision);
             detailed_num_fmt = createExponentialFormat(precision + 1);
         }
@@ -115,22 +114,34 @@ public class LinearTicks extends Ticks<Double>
         final double min_distance = range / num_that_fits;
 
         // Round up to the precision used to display values
-        distance = selectNiceStep(min_distance);
+        double distance = selectNiceStep(min_distance);
         if (distance == 0.0)
             throw new Error("Broken tickmark computation");
 
+        // System.out.println("Range " + low + " - " + high + ", dist " + distance + ", prec. " + precision);
+
+        // Update num_fmt based on distance between major tick labels.
+        // For example, an axis with range 0 .. 10 would ordinarily use precision 0
+        // and axis markers like 0, 2, 4, 6, 8, 10.
+        // If the screen width is very large, it can however end with markers for
+        // 0, 0.5, 1. 1.0, 1.5, .. and then needs precision 1.
+        if (! use_exp_notation)
+        {   // Update precision based on `distance`
+            precision = determinePrecision(distance) - 1;
+            num_fmt = createDecimalFormat(precision);
+            detailed_num_fmt = createDecimalFormat(precision + 1);
+        }
+
+        zero_threshold = Math.abs(distance/100000);
+
         final List<MajorTick<Double>> major_ticks = new ArrayList<>();
         final List<MinorTick<Double>> minor_ticks = new ArrayList<>();
-
-        // TODO Update num_fmt based on distance
-        // It' possible that a very wide axis for 0 .. 10 ended up with precision 0,
-        // but now it has major ticks for 0, 0.5, 1, 1.5, .. and really needs precision 1
 
         // Start at 'low' adjusted to a multiple of the tick distance
         final int minor = 5;
         if (normal)
         {
-        	start = Math.ceil(low / distance) * distance;
+            double start = Math.ceil(low / distance) * distance;
 
         	// Set prev to one before the start
         	// and loop until high + distance
@@ -140,7 +151,7 @@ public class LinearTicks extends Ticks<Double>
         	{
         	    // Compute major tick marks
         	    if (value > low  &&  value < high)
-        	        major_ticks.add(new MajorTick<Double>(value, num_fmt.format(value)));
+        	        major_ticks.add(new MajorTick<Double>(value, format(value)));
 
         	    // Fill major tick marks with minor ticks
         	    for (int i=1; i<minor; ++i)
@@ -156,14 +167,14 @@ public class LinearTicks extends Ticks<Double>
         else
         {
         	distance = -distance;
-        	start = Math.floor(low / distance) * distance;
+        	double start = Math.floor(low / distance) * distance;
 
             double prev = start - distance;
             for (double value = start; value > high + distance; value += distance)
             {
                 // Compute major tick marks
                 if (value < low  &&  value > high)
-                    major_ticks.add(new MajorTick<Double>(value, num_fmt.format(value)));
+                    major_ticks.add(new MajorTick<Double>(value, format(value)));
 
                 // Fill major tick marks with minor ticks
                 for (int i=1; i<minor; ++i)
@@ -277,7 +288,7 @@ public class LinearTicks extends Ticks<Double>
             return "Inf";
         // Patch numbers that are "very close to zero"
         // to avoid "-0.00" or "0.0e-22"
-        if (Math.abs(num) < Math.abs(distance/100000))
+        if (Math.abs(num) < zero_threshold)
             return num_fmt.format(0.0);
         return num_fmt.format(num);
     }

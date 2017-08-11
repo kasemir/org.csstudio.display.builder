@@ -100,10 +100,11 @@ public class LogTicks extends LinearTicks
         final double major_factor = Log10.pow10(exp_dist);
         double value = start;
         double prev = start / major_factor;
+        zero_threshold = start - prev;
         while (value <= high*major_factor)
         {
             if (value >= low  &&  value <= high)
-                major_ticks.add(new MajorTick<Double>(value, num_fmt.format(value)));
+                major_ticks.add(new MajorTick<Double>(value, format(value)));
 
             if (minor_count > 0)
             {   // Fill major tick marks with minor ticks
