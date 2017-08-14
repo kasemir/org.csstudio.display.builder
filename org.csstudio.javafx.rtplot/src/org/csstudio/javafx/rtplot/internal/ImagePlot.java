@@ -229,6 +229,12 @@ public class ImagePlot extends PlotCanvasBase
         requestUpdate();
     }
 
+    /** @return {@link ColorMappingFunction} */
+    public ColorMappingFunction getColorMapping()
+    {
+        return color_mapping;
+    }
+
     /** Set axis range for 'full' image
      *  @param min_x
      *  @param max_x
