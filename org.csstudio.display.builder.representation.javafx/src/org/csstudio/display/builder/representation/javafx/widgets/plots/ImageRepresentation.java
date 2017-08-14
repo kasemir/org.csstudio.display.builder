@@ -208,16 +208,18 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         model_widget.propDataInterpolation().addUntypedPropertyListener(this::coloringChanged);
         model_widget.propToolbar().addUntypedPropertyListener(this::coloringChanged);
         model_widget.propDataColormap().addUntypedPropertyListener(this::coloringChanged);
-        model_widget.propDataAutoscale().addUntypedPropertyListener(this::coloringChanged);
-        model_widget.propDataLogscale().addUntypedPropertyListener(this::coloringChanged);
-        model_widget.propDataMinimum().addUntypedPropertyListener(this::coloringChanged);
-        model_widget.propDataMaximum().addUntypedPropertyListener(this::coloringChanged);
+        model_widget.propDataAutoscale().addUntypedPropertyListener(this::rangeChanged);
+        model_widget.propDataLogscale().addUntypedPropertyListener(this::rangeChanged);
+        model_widget.propDataMinimum().addUntypedPropertyListener(this::rangeChanged);
+        model_widget.propDataMaximum().addUntypedPropertyListener(this::rangeChanged);
 
         model_widget.propDataWidth().addUntypedPropertyListener(this::contentChanged);
         model_widget.propDataHeight().addUntypedPropertyListener(this::contentChanged);
         model_widget.runtimePropValue().addUntypedPropertyListener(this::contentChanged);
 
         model_widget.runtimePropCrosshair().addPropertyListener(this::crosshairChanged);
+
+        model_widget.runtimePropConfigure().addPropertyListener((p, o, n) -> image_plot.showConfigurationDialog() );
 
         image_plot.setListener(plot_listener);
 
@@ -253,11 +255,19 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
             final WidgetColor color = colormap.getColor(value);
             return ColorMappingFunction.getRGB(color.getRed(), color.getGreen(), color.getBlue());
         });
+        System.out.println("ImageRepresentation.coloringChanged()");
+    }
+
+    /** Changes that affect the coloring of the image but not the zoom, size */
+    private void rangeChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    {
+        System.out.println("ImageRepresentation.rangeChanged()");
         image_plot.setAutoscale(model_widget.propDataAutoscale().getValue());
         image_plot.setLogscale(model_widget.propDataLogscale().getValue());
         image_plot.setValueRange(model_widget.propDataMinimum().getValue(),
                                  model_widget.propDataMaximum().getValue());
     }
+
 
     /** Changes that affect size of the data, resulting in a reset of the image's zoom & pan,
      *  or other operations that should be rare at runtime

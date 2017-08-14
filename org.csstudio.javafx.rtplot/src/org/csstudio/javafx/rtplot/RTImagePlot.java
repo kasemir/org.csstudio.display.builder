@@ -290,6 +290,7 @@ public class RTImagePlot extends BorderPane
     /** @param autoscale  Auto-scale the color mapping? */
     public void setAutoscale(final boolean autoscale)
     {
+        System.out.println("Auto " + autoscale);
         plot.setAutoscale(autoscale);
     }
 
