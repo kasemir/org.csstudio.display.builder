@@ -55,9 +55,9 @@ public class ColorMapWidgetProperty extends WidgetProperty<ColorMap>
     @Override
     public void writeToXML(final ModelWriter model_writer, final XMLStreamWriter writer) throws Exception
     {
-        if (value instanceof ColorMap.Predefined)
+        if (value instanceof PredefinedColorMaps.Predefined)
         {
-            final ColorMap.Predefined map = (ColorMap.Predefined) value;
+            final PredefinedColorMaps.Predefined map = (PredefinedColorMaps.Predefined) value;
             writer.writeStartElement(XMLTags.NAME);
             writer.writeCharacters(map.getName());
             writer.writeEndElement();
@@ -92,22 +92,22 @@ public class ColorMapWidgetProperty extends WidgetProperty<ColorMap>
                 switch (legacy_map)
                 {
                 case 1: // GrayScale
-                    setValue(ColorMap.GRAY);
+                    setValue(PredefinedColorMaps.GRAY);
                     break;
                 case 2: // JET
-                    setValue(ColorMap.JET);
+                    setValue(PredefinedColorMaps.JET);
                     break;
                 case 3: // ColorSpectrum
-                    setValue(ColorMap.SPECTRUM);
+                    setValue(PredefinedColorMaps.SPECTRUM);
                     break;
                 case 4: // Hot
-                    setValue(ColorMap.HOT);
+                    setValue(PredefinedColorMaps.HOT);
                     break;
                 case 5: // Cool
-                    setValue(ColorMap.COOL);
+                    setValue(PredefinedColorMaps.COOL);
                     break;
                 case 6: // Shaded
-                    setValue(ColorMap.SHADED);
+                    setValue(PredefinedColorMaps.SHADED);
                     break;
                 default:
                     logger.log(Level.WARNING, "Unknown legacy color map index " + legacy_map + " for color map of " + getWidget());
@@ -136,12 +136,13 @@ public class ColorMapWidgetProperty extends WidgetProperty<ColorMap>
         final Optional<String> name = XMLUtil.getChildString(property_xml, XMLTags.NAME);
         if (name.isPresent())
         {
-            for (ColorMap.Predefined map : ColorMap.PREDEFINED)
+            for (PredefinedColorMaps.Predefined map : PredefinedColorMaps.PREDEFINED)
                 if (map.getName().equals(name.get()))
                 {
                     setValue(map);
                     return;
                 }
+            logger.log(Level.WARNING, "Undefined color map '" + name.get() + "' for " + getWidget());
         }
 
         if (entries <= 0)

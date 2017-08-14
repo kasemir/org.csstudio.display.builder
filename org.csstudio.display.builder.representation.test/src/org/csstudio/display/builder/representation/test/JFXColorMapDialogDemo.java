@@ -7,7 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.test;
 
-import org.csstudio.display.builder.model.properties.ColorMap;
+import org.csstudio.display.builder.model.properties.PredefinedColorMaps;
 import org.csstudio.display.builder.representation.javafx.ColorMapDialog;
 
 import javafx.application.Application;
@@ -26,7 +26,7 @@ public class JFXColorMapDialogDemo  extends Application
     @Override
     public void start(final Stage stage)
     {
-        final ColorMapDialog dialog = new ColorMapDialog(ColorMap.VIRIDIS);
+        final ColorMapDialog dialog = new ColorMapDialog(PredefinedColorMaps.VIRIDIS);
         System.out.println(dialog.showAndWait());
     }
 }

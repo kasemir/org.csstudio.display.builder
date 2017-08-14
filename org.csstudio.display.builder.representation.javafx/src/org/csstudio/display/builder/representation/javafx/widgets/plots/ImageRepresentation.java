@@ -19,7 +19,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.properties.ColorMap;
-import org.csstudio.display.builder.model.properties.WidgetColor;
+import org.csstudio.display.builder.model.properties.PredefinedColorMaps;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget;
@@ -297,14 +297,10 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         final ColorMap colormap = model_widget.propDataColormap().getValue();
 
         final ColorMappingFunction map_function;
-        if (colormap instanceof ColorMap.Predefined)
-            map_function = NamedColorMappings.getMapping(((ColorMap.Predefined) colormap).getName());
+        if (colormap instanceof PredefinedColorMaps.Predefined)
+            map_function = NamedColorMappings.getMapping(((PredefinedColorMaps.Predefined)colormap).getName());
         else
-            map_function = value ->
-            {
-                final WidgetColor color = colormap.getColor(value);
-                return ColorMappingFunction.getRGB(color.getRed(), color.getGreen(), color.getBlue());
-            };
+            map_function = value ->  ColorMappingFunction.getRGB(colormap.getColor(value));
         image_plot.setColorMapping(map_function);
     }
 

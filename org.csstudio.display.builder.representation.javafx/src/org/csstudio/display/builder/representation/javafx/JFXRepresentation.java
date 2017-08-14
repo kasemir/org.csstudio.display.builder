@@ -30,7 +30,7 @@ import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
-import org.csstudio.display.builder.model.properties.ColorMap;
+import org.csstudio.display.builder.model.properties.PredefinedColorMaps;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
 import org.csstudio.display.builder.model.widgets.ArcWidget;
@@ -248,12 +248,8 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
 
         if (! initialized_colormaps)
         {
-            for (ColorMap.Predefined map : ColorMap.PREDEFINED)
-                NamedColorMappings.add(new NamedColorMapping(map.getName(), intensity ->
-                {
-                    final WidgetColor color = map.getColor(intensity);
-                    return ColorMappingFunction.getRGB(color.getRed(), color.getGreen(), color.getBlue());
-                }));
+            for (PredefinedColorMaps.Predefined map : PredefinedColorMaps.PREDEFINED)
+                NamedColorMappings.add(new NamedColorMapping(map.getName(), intensity  ->  ColorMappingFunction.getRGB(map.getColor(intensity))));
             initialized_colormaps = true;
         }
     }
