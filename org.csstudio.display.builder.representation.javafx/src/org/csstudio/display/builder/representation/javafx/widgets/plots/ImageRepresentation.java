@@ -57,7 +57,9 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
     /** Actual plotting delegated to {@link RTImagePlot} */
     private RTImagePlot image_plot;
 
-    private volatile boolean changing_roi = false;
+    private volatile boolean changing_roi = false,
+                             changing_range = false,
+                             changing_axis_range = false;
 
     private final static List<String> cursor_info_names = Arrays.asList("X", "Y", "Value", "xi", "yi");
     private final static List<Class<?>> cursor_info_types = Arrays.asList(Double.TYPE, Double.TYPE, Double.TYPE, Integer.TYPE, Integer.TYPE);
@@ -93,6 +95,49 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
             widget_roi.width_value().setValue(region.getWidth());
             widget_roi.height_value().setValue(region.getHeight());
             changing_roi =  false;
+        }
+
+        @Override
+        public void changedXAxis(double low, double high)
+        {
+            changing_axis_range = true;
+            model_widget.propXAxis().minimum().setValue(low);
+            model_widget.propXAxis().maximum().setValue(high);
+            changing_axis_range = false;
+        }
+
+        @Override
+        public void changedYAxis(double low, double high)
+        {
+            changing_axis_range = true;
+            model_widget.propYAxis().minimum().setValue(low);
+            model_widget.propYAxis().maximum().setValue(high);
+            changing_axis_range = false;
+        }
+
+        @Override
+        public void changedAutoScale(final boolean autoscale)
+        {
+            changing_range = true;
+            model_widget.propDataAutoscale().setValue(autoscale);
+            changing_range = false;
+        }
+
+        @Override
+        public void changedLogarithmic(final boolean logscale)
+        {
+            changing_range = true;
+            model_widget.propDataLogscale().setValue(logscale);
+            changing_range = false;
+        }
+
+        @Override
+        public void changedValueRange(final double minimum, final double maximum)
+        {
+            changing_range = true;
+            model_widget.propDataMinimum().setValue(minimum);
+            model_widget.propDataMaximum().setValue(maximum);
+            changing_range = false;
         }
     };
 
@@ -197,6 +242,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         model_widget.propWidth().addUntypedPropertyListener(this::positionChanged);
         model_widget.propHeight().addUntypedPropertyListener(this::positionChanged);
 
+        model_widget.propToolbar().addUntypedPropertyListener(this::configChanged);
         model_widget.propBackground().addUntypedPropertyListener(this::configChanged);
         model_widget.propColorbar().visible().addUntypedPropertyListener(this::configChanged);
         model_widget.propColorbar().barSize().addUntypedPropertyListener(this::configChanged);
@@ -206,18 +252,19 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         addAxisListener(model_widget.propYAxis());
 
         model_widget.propDataInterpolation().addUntypedPropertyListener(this::coloringChanged);
-        model_widget.propToolbar().addUntypedPropertyListener(this::coloringChanged);
         model_widget.propDataColormap().addUntypedPropertyListener(this::coloringChanged);
-        model_widget.propDataAutoscale().addUntypedPropertyListener(this::coloringChanged);
-        model_widget.propDataLogscale().addUntypedPropertyListener(this::coloringChanged);
-        model_widget.propDataMinimum().addUntypedPropertyListener(this::coloringChanged);
-        model_widget.propDataMaximum().addUntypedPropertyListener(this::coloringChanged);
+        model_widget.propDataAutoscale().addUntypedPropertyListener(this::rangeChanged);
+        model_widget.propDataLogscale().addUntypedPropertyListener(this::rangeChanged);
+        model_widget.propDataMinimum().addUntypedPropertyListener(this::rangeChanged);
+        model_widget.propDataMaximum().addUntypedPropertyListener(this::rangeChanged);
 
         model_widget.propDataWidth().addUntypedPropertyListener(this::contentChanged);
         model_widget.propDataHeight().addUntypedPropertyListener(this::contentChanged);
         model_widget.runtimePropValue().addUntypedPropertyListener(this::contentChanged);
 
         model_widget.runtimePropCrosshair().addPropertyListener(this::crosshairChanged);
+
+        model_widget.runtimePropConfigure().addPropertyListener((p, o, n) -> image_plot.showConfigurationDialog() );
 
         image_plot.setListener(plot_listener);
 
@@ -245,7 +292,6 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
     /** Changes that affect the coloring of the image but not the zoom, size */
     private void coloringChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        image_plot.showToolbar(model_widget.propToolbar().getValue());
         image_plot.setInterpolation(Interpolation.values()[model_widget.propDataInterpolation().getValue().ordinal()]);
         final ColorMap colormap = model_widget.propDataColormap().getValue();
         image_plot.setColorMapping(value ->
@@ -253,6 +299,13 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
             final WidgetColor color = colormap.getColor(value);
             return ColorMappingFunction.getRGB(color.getRed(), color.getGreen(), color.getBlue());
         });
+    }
+
+    /** Changes that affect the coloring of the image but not the zoom, size */
+    private void rangeChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    {
+        if (changing_range)
+            return;
         image_plot.setAutoscale(model_widget.propDataAutoscale().getValue());
         image_plot.setLogscale(model_widget.propDataLogscale().getValue());
         image_plot.setValueRange(model_widget.propDataMinimum().getValue(),
@@ -264,17 +317,22 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
      */
     private void configChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
+        image_plot.showToolbar(model_widget.propToolbar().getValue());
         image_plot.setBackground(JFXUtil.convert(model_widget.propBackground().getValue()));
         image_plot.showColorMap(model_widget.propColorbar().visible().getValue());
         image_plot.setColorMapSize(model_widget.propColorbar().barSize().getValue());
         image_plot.setColorMapFont(JFXUtil.convert(model_widget.propColorbar().scaleFont().getValue()));
         image_plot.showCrosshair(model_widget.propCursorCrosshair().getValue());
-        image_plot.setAxisRange(model_widget.propXAxis().minimum().getValue(),
-                                model_widget.propXAxis().maximum().getValue(),
-                                model_widget.propYAxis().minimum().getValue(),
-                                model_widget.propYAxis().maximum().getValue());
-        axisChanged(model_widget.propXAxis(), image_plot.getXAxis());
-        axisChanged(model_widget.propYAxis(), image_plot.getYAxis());
+
+        if (! changing_axis_range)
+        {
+            image_plot.setAxisRange(model_widget.propXAxis().minimum().getValue(),
+                                    model_widget.propXAxis().maximum().getValue(),
+                                    model_widget.propYAxis().minimum().getValue(),
+                                    model_widget.propYAxis().maximum().getValue());
+            axisChanged(model_widget.propXAxis(), image_plot.getXAxis());
+            axisChanged(model_widget.propYAxis(), image_plot.getYAxis());
+        }
     }
 
     private void axisChanged(final AxisWidgetProperty property, final Axis<Double> axis)

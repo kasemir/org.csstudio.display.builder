@@ -12,9 +12,9 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propInteractive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropConfigure;
 import static org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.propToolbar;
 
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -109,10 +109,6 @@ public class XYPlotWidget extends VisibleWidget
         new ArrayWidgetProperty.Descriptor<>(WidgetPropertyCategory.MISC, "marker", "Markers",
                                              (widget, index) -> new MarkerProperty(widget, "Marker " + index),
                                              0);
-
-    private static final WidgetPropertyDescriptor<Instant> runtimePropConfigure =
-        CommonWidgetProperties.newRuntimeEvent("configure", "Configure");
-
 
     /** Legacy properties that have already triggered a warning */
     private final CopyOnWriteArraySet<String> warnings_once = new CopyOnWriteArraySet<>();

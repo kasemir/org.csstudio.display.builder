@@ -250,6 +250,9 @@ public class CommonWidgetProperties
         };
     }
 
+    public static final WidgetPropertyDescriptor<Instant> runtimePropConfigure =
+        CommonWidgetProperties.newRuntimeEvent("configure", "Configure");
+
     // All properties are described by
     // Category and property name
 

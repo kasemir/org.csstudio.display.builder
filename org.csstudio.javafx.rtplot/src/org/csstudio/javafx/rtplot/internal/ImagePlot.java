@@ -34,6 +34,7 @@ import org.csstudio.javafx.rtplot.Interpolation;
 import org.csstudio.javafx.rtplot.Messages;
 import org.csstudio.javafx.rtplot.RTImagePlotListener;
 import org.csstudio.javafx.rtplot.RegionOfInterest;
+import org.csstudio.javafx.rtplot.data.ValueRange;
 import org.csstudio.javafx.rtplot.internal.undo.ChangeImageZoom;
 import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 import org.csstudio.javafx.rtplot.internal.util.LinearScreenTransform;
@@ -142,9 +143,6 @@ public class ImagePlot extends PlotCanvasBase
         y_axis = new YAxisImpl<>("Y", plot_part_listener);
         colorbar_axis =  new YAxisImpl<>("", plot_part_listener);
 
-//        colorbar_axis.setLogarithmic(true);
-
-
         x_axis.setValueRange(min_x, max_x);
         y_axis.setValueRange(min_y, max_y);
 
@@ -161,6 +159,8 @@ public class ImagePlot extends PlotCanvasBase
     /** @param plot_listener Plot listener */
     public void setListener(final RTImagePlotListener plot_listener)
     {
+        if (this.plot_listener != null)
+            throw new IllegalStateException("Listener already set");
         this.plot_listener = plot_listener;
     }
 
@@ -177,6 +177,12 @@ public class ImagePlot extends PlotCanvasBase
         requestUpdate();
     }
 
+    /** @return Auto-scale the color mapping? */
+    public boolean isAutoscale()
+    {
+        return autoscale;
+    }
+
     /** @param autoscale  Auto-scale the color mapping? */
     public void setAutoscale(final boolean autoscale)
     {
@@ -184,11 +190,25 @@ public class ImagePlot extends PlotCanvasBase
         requestUpdate();
     }
 
+    /** @return Use log scale for color mapping? */
+    public boolean isLogscale()
+    {
+        return colorbar_axis.isLogarithmic();
+    }
+
     /** @param logscale Use log scale for color mapping? */
     public void setLogscale(final boolean logscale)
     {
         colorbar_axis.setLogarithmic(logscale);
         requestUpdate();
+    }
+
+    /** Get color mapping value range
+      * @return {@link ValueRange}
+     */
+    public ValueRange getValueRange()
+    {
+        return new ValueRange(min, max);
     }
 
     /** Set color mapping value range
@@ -240,6 +260,12 @@ public class ImagePlot extends PlotCanvasBase
     public Axis<Double> getYAxis()
     {
         return y_axis;
+    }
+
+    /** @return Show color map? */
+    public boolean isShowingColorMap()
+    {
+        return show_colormap;
     }
 
     /** @param show Show color map? */
@@ -1377,5 +1403,38 @@ public class ImagePlot extends PlotCanvasBase
             return new AxisRange<Double>(Math.max(min, low), Math.min(max, high));
         else
             return new AxisRange<Double>(Math.min(min, low), Math.max(max, high));
+    }
+
+    void fireChangedAxisRange(final Axis<Double> axis)
+    {
+        final RTImagePlotListener listener = plot_listener;
+        if (listener == null)
+            return;
+        final AxisRange<Double> range = axis.getValueRange();
+        if (axis == x_axis)
+            listener.changedXAxis(range.getLow(), range.getHigh());
+        else
+            listener.changedYAxis(range.getLow(), range.getHigh());
+    }
+
+    void fireChangedAutoScale()
+    {
+        final RTImagePlotListener listener = plot_listener;
+        if (listener != null)
+            listener.changedAutoScale(autoscale);
+    }
+
+    void fireChangedLogarithmic()
+    {
+        final RTImagePlotListener listener = plot_listener;
+        if (listener != null)
+            listener.changedLogarithmic(isLogscale());
+    }
+
+    void fireChangedValueRange()
+    {
+        final RTImagePlotListener listener = plot_listener;
+        if (listener != null)
+            listener.changedValueRange(min, max);
     }
 }
