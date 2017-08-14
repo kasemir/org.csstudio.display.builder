@@ -19,7 +19,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.properties.ColorMap;
-import org.csstudio.display.builder.model.properties.WidgetColor;
+import org.csstudio.display.builder.model.properties.PredefinedColorMaps;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget;
@@ -30,6 +30,7 @@ import org.csstudio.display.builder.representation.javafx.widgets.RegionBaseRepr
 import org.csstudio.javafx.rtplot.Axis;
 import org.csstudio.javafx.rtplot.ColorMappingFunction;
 import org.csstudio.javafx.rtplot.Interpolation;
+import org.csstudio.javafx.rtplot.NamedColorMappings;
 import org.csstudio.javafx.rtplot.RTImagePlot;
 import org.csstudio.javafx.rtplot.RTImagePlotListener;
 import org.csstudio.javafx.rtplot.RegionOfInterest;
@@ -294,11 +295,13 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
     {
         image_plot.setInterpolation(Interpolation.values()[model_widget.propDataInterpolation().getValue().ordinal()]);
         final ColorMap colormap = model_widget.propDataColormap().getValue();
-        image_plot.setColorMapping(value ->
-        {
-            final WidgetColor color = colormap.getColor(value);
-            return ColorMappingFunction.getRGB(color.getRed(), color.getGreen(), color.getBlue());
-        });
+
+        final ColorMappingFunction map_function;
+        if (colormap instanceof PredefinedColorMaps.Predefined)
+            map_function = NamedColorMappings.getMapping(((PredefinedColorMaps.Predefined)colormap).getName());
+        else
+            map_function = value ->  ColorMappingFunction.getRGB(colormap.getColor(value));
+        image_plot.setColorMapping(map_function);
     }
 
     /** Changes that affect the coloring of the image but not the zoom, size */

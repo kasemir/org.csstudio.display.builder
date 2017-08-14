@@ -9,6 +9,9 @@ package org.csstudio.javafx.rtplot.internal;
 
 import org.csstudio.javafx.rtplot.Activator;
 import org.csstudio.javafx.rtplot.Axis;
+import org.csstudio.javafx.rtplot.ColorMappingFunction;
+import org.csstudio.javafx.rtplot.NamedColorMapping;
+import org.csstudio.javafx.rtplot.NamedColorMappings;
 import org.csstudio.javafx.rtplot.RTImagePlot;
 import org.csstudio.javafx.rtplot.data.ValueRange;
 
@@ -17,6 +20,7 @@ import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -68,11 +72,35 @@ public class ImageConfigDialog  extends Dialog<Void>
         // Row to use for the next elements
         int row = 0;
 
+
         Label label = new Label("Value Range");
         final Font font = label.getFont();
         final Font section_font = Font.font(font.getFamily(), FontWeight.BOLD, font.getSize());
         label.setFont(section_font);
         layout.add(label, 0, ++row);
+
+        // Only show the color mapping selector when it's currently a named mapping.
+        // Suppress when widget has a custom color map.
+        final ColorMappingFunction selected_mapping = plot.internalGetImagePlot().getColorMapping();
+        if (selected_mapping instanceof NamedColorMapping)
+        {
+            label = new Label("Mapping");
+            layout.add(label, 1, row);
+
+            final ComboBox<String> mappings = new ComboBox<>();
+            mappings.setEditable(false);
+            mappings.setMaxWidth(Double.MAX_VALUE);
+            for (NamedColorMapping mapping : NamedColorMappings.getMappings())
+                mappings.getItems().add(mapping.getName());
+            mappings.setValue( ((NamedColorMapping)selected_mapping).getName());
+            mappings.setOnAction(event ->
+            {
+                final NamedColorMapping mapping = NamedColorMappings.getMapping(mappings.getValue());
+                plot.setColorMapping(mapping);
+            });
+
+            layout.add(mappings, 2, row++);
+        }
 
         label = new Label("Minimum");
         layout.add(label, 1, row);
