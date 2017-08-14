@@ -36,7 +36,6 @@ import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
@@ -267,14 +266,8 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
         plot.removeListener(listener);
     }
 
-    /** @return Control for the plot, to attach context menu */
-    public Plot<XTYPE> getPlot()
-    {
-        return plot;
-    }
-
-    /** @return Control for the plot, to attach context menu */
-    public Node getPlotNode()
+    /** Not public API, for internal use only */
+    public Plot<XTYPE> internalGetPlot()
     {
         return plot;
     }

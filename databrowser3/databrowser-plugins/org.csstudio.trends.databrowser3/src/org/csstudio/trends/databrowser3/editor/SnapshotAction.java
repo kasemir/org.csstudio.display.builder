@@ -62,7 +62,7 @@ public class SnapshotAction extends Action
         final Screenshot screenshot;
         try
         {
-            screenshot = new Screenshot(plot.getPlotNode());
+            screenshot = new Screenshot(plot.internalGetPlot());
         }
         catch (Exception ex)
         {

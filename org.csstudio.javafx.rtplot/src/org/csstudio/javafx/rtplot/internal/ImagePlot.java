@@ -143,9 +143,6 @@ public class ImagePlot extends PlotCanvasBase
         y_axis = new YAxisImpl<>("Y", plot_part_listener);
         colorbar_axis =  new YAxisImpl<>("", plot_part_listener);
 
-//        colorbar_axis.setLogarithmic(true);
-
-
         x_axis.setValueRange(min_x, max_x);
         y_axis.setValueRange(min_y, max_y);
 
@@ -162,6 +159,8 @@ public class ImagePlot extends PlotCanvasBase
     /** @param plot_listener Plot listener */
     public void setListener(final RTImagePlotListener plot_listener)
     {
+        if (this.plot_listener != null)
+            throw new IllegalStateException("Listener already set");
         this.plot_listener = plot_listener;
     }
 
@@ -1404,5 +1403,38 @@ public class ImagePlot extends PlotCanvasBase
             return new AxisRange<Double>(Math.max(min, low), Math.min(max, high));
         else
             return new AxisRange<Double>(Math.min(min, low), Math.max(max, high));
+    }
+
+    void fireChangedAxisRange(final Axis<Double> axis)
+    {
+        final RTImagePlotListener listener = plot_listener;
+        if (listener == null)
+            return;
+        final AxisRange<Double> range = axis.getValueRange();
+        if (axis == x_axis)
+            listener.changedXAxis(range.getLow(), range.getHigh());
+        else
+            listener.changedYAxis(range.getLow(), range.getHigh());
+    }
+
+    void fireChangedAutoScale()
+    {
+        final RTImagePlotListener listener = plot_listener;
+        if (listener != null)
+            listener.changedAutoScale(autoscale);
+    }
+
+    void fireChangedLogarithmic()
+    {
+        final RTImagePlotListener listener = plot_listener;
+        if (listener != null)
+            listener.changedLogarithmic(isLogscale());
+    }
+
+    void fireChangedValueRange()
+    {
+        final RTImagePlotListener listener = plot_listener;
+        if (listener != null)
+            listener.changedValueRange(min, max);
     }
 }

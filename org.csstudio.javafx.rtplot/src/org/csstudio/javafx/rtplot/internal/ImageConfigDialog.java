@@ -91,12 +91,13 @@ public class ImageConfigDialog  extends Dialog<Void>
             {
                 plot.setValueRange(Double.parseDouble(min.getText().trim()),
                                    Double.parseDouble(max.getText().trim()));
+                plot.internalGetImagePlot().fireChangedValueRange();
             }
             catch (NumberFormatException ex)
             {
                 final ValueRange range = plot.getValueRange();
                 min.setText(Double.toString(range.getLow()));
-                max.setText(Double.toString(range.getLow()));
+                max.setText(Double.toString(range.getHigh()));
             }
         };
         min.setOnAction(update_range);
@@ -111,6 +112,7 @@ public class ImageConfigDialog  extends Dialog<Void>
             plot.setAutoscale(autoscale.isSelected());
             min.setDisable(autoscale.isSelected());
             max.setDisable(autoscale.isSelected());
+            plot.internalGetImagePlot().fireChangedAutoScale();
         });
         layout.add(autoscale, 2, ++row);
 
@@ -121,7 +123,11 @@ public class ImageConfigDialog  extends Dialog<Void>
 
         final CheckBox logscale = new CheckBox("log scale");
         logscale.setSelected(plot.isLogscale());
-        logscale.setOnAction(event -> plot.setLogscale(logscale.isSelected()));
+        logscale.setOnAction(event ->
+        {
+            plot.setLogscale(logscale.isSelected());
+            plot.internalGetImagePlot().fireChangedLogarithmic();
+        });
         layout.add(logscale, 2, ++row);
 
         label = new Label("Horizontal Axis");
@@ -157,6 +163,7 @@ public class ImageConfigDialog  extends Dialog<Void>
             try
             {
                 axis.setValueRange(Double.parseDouble(start.getText()), Double.parseDouble(end.getText()));
+                plot.internalGetImagePlot().fireChangedAxisRange(axis);
             }
             catch (NumberFormatException ex)
             {

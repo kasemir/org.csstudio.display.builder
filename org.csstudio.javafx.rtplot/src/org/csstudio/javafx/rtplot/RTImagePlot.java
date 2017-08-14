@@ -219,6 +219,12 @@ public class RTImagePlot extends BorderPane
         plot.setListener(plot_listener);
     }
 
+    /** Not meant to be public API, for internal use only */
+    public ImagePlot internalGetImagePlot()
+    {
+        return plot;
+    }
+
     /** @return <code>true</code> if toolbar is visible */
     public boolean isToolbarVisible()
     {
@@ -290,7 +296,6 @@ public class RTImagePlot extends BorderPane
     /** @param autoscale  Auto-scale the color mapping? */
     public void setAutoscale(final boolean autoscale)
     {
-        System.out.println("Auto " + autoscale);
         plot.setAutoscale(autoscale);
     }
 

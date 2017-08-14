@@ -132,9 +132,9 @@ public class PlotConfigDialog<XTYPE extends Comparable<XTYPE>>  extends Dialog<V
                     return;
                 }
                 if (axis instanceof YAxisImpl)
-                    plot.getPlot().fireYAxisChange((YAxisImpl<XTYPE>)axis);
+                    plot.internalGetPlot().fireYAxisChange((YAxisImpl<XTYPE>)axis);
                 else if (axis instanceof HorizontalNumericAxis)
-                    plot.getPlot().fireXAxisChange();
+                    plot.internalGetPlot().fireXAxisChange();
             };
             start.setOnAction(update_range);
             end.setOnAction(update_range);
@@ -151,7 +151,7 @@ public class PlotConfigDialog<XTYPE extends Comparable<XTYPE>>  extends Dialog<V
                 axis.setAutoscale(autoscale.isSelected());
                 start.setDisable(autoscale.isSelected());
                 end.setDisable(autoscale.isSelected());
-                plot.getPlot().fireAutoScaleChange(axis);
+                plot.internalGetPlot().fireAutoScaleChange(axis);
             });
             layout.add(autoscale, 2, row++);
 
@@ -162,7 +162,7 @@ public class PlotConfigDialog<XTYPE extends Comparable<XTYPE>>  extends Dialog<V
                 logscale.setOnAction(event ->
                 {
                     num_axis.setLogarithmic(logscale.isSelected());
-                    plot.getPlot().fireLogarithmicChange((YAxis<?>)num_axis);
+                    plot.internalGetPlot().fireLogarithmicChange((YAxis<?>)num_axis);
                 });
                 layout.add(logscale, 2, row++);
             }
@@ -173,7 +173,7 @@ public class PlotConfigDialog<XTYPE extends Comparable<XTYPE>>  extends Dialog<V
         grid.setOnAction(event ->
         {
             axis.setGridVisible(grid.isSelected());
-            plot.getPlot().fireGridChange(axis);
+            plot.internalGetPlot().fireGridChange(axis);
         });
         layout.add(grid, 2, row++);
 
