@@ -43,7 +43,7 @@ public class TempScreenshot
         final Screenshot screenshot;
         try
         {
-            screenshot = new Screenshot(graph.internalGetPlot());
+            screenshot = graph.getScreenshot();
         }
         catch (Exception ex)
         {

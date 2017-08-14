@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.DialogHelper;
+import org.csstudio.javafx.Screenshot;
 import org.csstudio.javafx.rtplot.data.PlotDataItem;
 import org.csstudio.javafx.rtplot.data.PlotDataProvider;
 import org.csstudio.javafx.rtplot.internal.AnnotationImpl;
@@ -270,6 +271,14 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
     public Plot<XTYPE> internalGetPlot()
     {
         return plot;
+    }
+
+    /** @return Screenshot
+     *  @throws Exception on error
+     */
+    public Screenshot getScreenshot() throws Exception
+    {
+        return new Screenshot(plot);
     }
 
     /** @param color Background color */

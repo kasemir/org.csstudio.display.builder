@@ -13,4 +13,5 @@ Require-Bundle: org.eclipse.osgi,
 Bundle-Vendor: Kay Kasemir - SNS
 Export-Package: org.csstudio.javafx.rtplot,
  org.csstudio.javafx.rtplot.data,
+ org.csstudio.javafx.rtplot.internal,
  org.csstudio.javafx.rtplot.util
