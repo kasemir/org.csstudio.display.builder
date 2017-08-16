@@ -76,7 +76,7 @@ public class IntegerWidgetProperty extends MacroizedWidgetProperty<Integer>
             catch (final NumberFormatException ex2)
             {
                 throw new Exception("Integer property '" + getName() +
-                                    "' has invalid value " + text);
+                                    "' has invalid value text '" + text + "'");
             }
         }
     }

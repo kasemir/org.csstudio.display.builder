@@ -70,7 +70,7 @@ public class DoubleWidgetProperty extends MacroizedWidgetProperty<Double>
         catch (final NumberFormatException ex)
         {
             throw new Exception("Double property '" + getName() +
-                                "' has invalid value " + text, ex);
+                                "' has invalid value text '" + text + "'", ex);
         }
     }
 

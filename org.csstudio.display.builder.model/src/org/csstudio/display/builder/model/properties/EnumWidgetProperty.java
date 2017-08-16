@@ -100,7 +100,7 @@ public class EnumWidgetProperty<E extends Enum<E>> extends MacroizedWidgetProper
         }
         catch (NumberFormatException ex)
         {
-            throw new Exception("Enum property '" + getName() + "' expects ordinal but received " + text);
+            throw new Exception("Enum property '" + getName() + "' expects ordinal but received '" + text + "'");
         }
         return getValueByOrdinal(ordinal);
     }

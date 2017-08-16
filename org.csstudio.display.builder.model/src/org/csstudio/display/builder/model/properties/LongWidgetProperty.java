@@ -97,7 +97,7 @@ public class LongWidgetProperty extends MacroizedWidgetProperty<Long> {
             try {
                 return Double.valueOf(text).longValue();
             } catch ( final NumberFormatException ex2 ) {
-                throw new Exception("Long property '" + getName() + "' has invalid value: " + text);
+                throw new Exception("Long property '" + getName() + "' has invalid value text '" + text + "'");
             }
         }
     }
