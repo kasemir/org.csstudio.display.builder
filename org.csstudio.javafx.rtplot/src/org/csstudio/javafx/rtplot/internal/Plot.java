@@ -490,7 +490,11 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         int plot_width = bounds.width;
 
         final List<YAxisImpl<XTYPE>> save_copy = new ArrayList<>(y_axes);
-        // TODO: Call axis.getPixelGaps(gc), determine max space needed above & below all axes,
+
+        // Could call axis.getPixelGaps(gc), determine max space needed above & below all axes,
+        // but for now the top & right label is shifted to stay within the region,
+        // and the bottom & left labels are almost always OK to reach beyond their axis region.
+
         // First, lay out 'left' axes in reverse order to get "2, 1, 0" on the left of the plot.
         for (YAxisImpl<XTYPE> axis : save_copy)
             if (! axis.isOnRight())
