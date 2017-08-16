@@ -847,6 +847,17 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     {
         final Point2D current = new Point2D(e.getX(), e.getY());
         mouse_current = Optional.of(current);
+
+        // While zooming, when mouse is quickly dragged outside the widget
+        // and then released, the 'mouseUp' event is sometimes missing.
+        // --> When seeing an active mouse move w/o button press,
+        //     treat that just like a release.
+        if (mouse_mode.ordinal() >= MouseMode.ZOOM_IN_X.ordinal()  &&  !e.isPrimaryButtonDown())
+        {
+            mouseUp(e);
+            return;
+        }
+
         PlotCursors.setCursor(this, mouse_mode);
 
         final Point2D start = mouse_start.orElse(null);
@@ -1010,7 +1021,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         else if (mouse_mode == MouseMode.ZOOM_IN_PLOT)
         {
             if (Math.abs(start.getX() - current.getX()) > ZOOM_PIXEL_THRESHOLD  ||
-                    Math.abs(start.getY() - current.getY()) > ZOOM_PIXEL_THRESHOLD)
+                Math.abs(start.getY() - current.getY()) > ZOOM_PIXEL_THRESHOLD)
             {   // X axis increases going _right_ just like mouse 'x' coordinate
                 int low = (int) Math.min(start.getX(), current.getX());
                 int high = (int) Math.max(start.getX(), current.getX());
@@ -1104,11 +1115,14 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     private void mouseExit(final MouseEvent e)
     {
         deselectMouseAnnotation();
-        // Reset cursor
+
+        // Redraw if we are actively panning or zooming, or crosshair needs to hide
+        final boolean need_redraw = mouse_mode.ordinal() > MouseMode.INTERNAL_MODES.ordinal()  ||  show_crosshair;
         // Clear mouse position so drawMouseModeFeedback() won't restore cursor
         mouse_current = Optional.empty();
+        // Reset cursor
         PlotCursors.setCursor(this, Cursor.DEFAULT);
-        if (show_crosshair)
+        if (need_redraw)
             requestRedraw();
     }
 
