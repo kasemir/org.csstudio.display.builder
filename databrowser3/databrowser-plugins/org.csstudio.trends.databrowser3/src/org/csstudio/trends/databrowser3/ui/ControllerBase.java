@@ -246,6 +246,28 @@ public abstract class ControllerBase
             if (axis != null)
                 this.executeOnUIThread(() -> axis.setAutoScale(autoScale));
         }
+
+        @Override
+        public void gridChanged(int index, boolean show_grid)
+        {
+            if (index == -1)
+                this.executeOnUIThread(() -> model.setGridVisible(show_grid));
+            else
+            {
+                final AxisConfig axis = model.getAxis(index);
+                if (axis != null)
+                    this.executeOnUIThread(() -> axis.setGridVisible(show_grid));
+            }
+        }
+
+        @Override
+        public void logarithmicChanged(int index, boolean use_log)
+        {
+            System.out.println("Log: " + use_log);
+            final AxisConfig axis = model.getAxis(index);
+            if (axis != null)
+                this.executeOnUIThread(() -> axis.setLogScale(use_log));
+        }
     };
 
     /** Initialize

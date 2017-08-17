@@ -40,6 +40,7 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
 {
     public enum ToolIcons
     {
+        CONFIGURE,
         ADD_ANNOTATION,
         EDIT_ANNOTATION,
         CROSSHAIR,
@@ -121,6 +122,8 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
 
     private void addOptions(final boolean active)
     {
+        final Button configure = newButton(ToolIcons.CONFIGURE, Messages.PlotOptions);
+
         final Button add_annotation = newButton(ToolIcons.ADD_ANNOTATION, Messages.AddAnnotation);
 
         edit_annotation = newButton(ToolIcons.EDIT_ANNOTATION, Messages.EditAnnotation);
@@ -131,6 +134,7 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
 
         if (active)
         {
+            configure.setOnAction(event -> plot.showConfigurationDialog());
             add_annotation.setOnAction(event ->
             {
                 final AddAnnotationDialog<XTYPE> dialog = new AddAnnotationDialog<>(plot);

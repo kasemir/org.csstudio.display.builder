@@ -8,7 +8,8 @@
 package org.csstudio.display.builder.representation.javafx;
 
 import org.csstudio.display.builder.model.properties.ColorMap;
-import org.csstudio.display.builder.model.properties.WidgetColor;
+import org.csstudio.display.builder.model.properties.PredefinedColorMaps;
+import org.csstudio.javafx.rtplot.ColorMappingFunction;
 
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.SimpleObjectProperty;
@@ -60,7 +61,7 @@ public class ColorMapDialog extends Dialog<ColorMap>
     }
 
     /** Table for picking predefined color */
-    private TableView<ColorMap.Predefined> predefined_table;
+    private TableView<PredefinedColorMaps.Predefined> predefined_table;
 
     /** Table for editing <code>color_sections</code> */
     private TableView<ColorSection> sections_table;
@@ -110,10 +111,10 @@ public class ColorMapDialog extends Dialog<ColorMap>
     {
         // Table for selecting a predefined color map
         predefined_table = new TableView<>();
-        final TableColumn<ColorMap.Predefined, String> name_column = new TableColumn<>(Messages.ColorMapDialog_PredefinedMap);
+        final TableColumn<PredefinedColorMaps.Predefined, String> name_column = new TableColumn<>(Messages.ColorMapDialog_PredefinedMap);
         name_column.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getDescription()));
         predefined_table.getColumns().add(name_column);
-        predefined_table.setItems(FXCollections.observableArrayList(ColorMap.PREDEFINED));
+        predefined_table.getItems().addAll(PredefinedColorMaps.PREDEFINED);
         predefined_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         // Table for viewing/editing color sections
@@ -252,8 +253,8 @@ public class ColorMapDialog extends Dialog<ColorMap>
     {
         this.map = map;
 
-        if (map instanceof ColorMap.Predefined)
-            predefined_table.getSelectionModel().select((ColorMap.Predefined) map);
+        if (map instanceof PredefinedColorMaps.Predefined)
+            predefined_table.getSelectionModel().select((PredefinedColorMaps.Predefined) map);
         else
             predefined_table.getSelectionModel().clearSelection();
 
@@ -303,8 +304,7 @@ public class ColorMapDialog extends Dialog<ColorMap>
         final PixelWriter writer = colors.getPixelWriter();
         for (int x=0; x<256; ++x)
         {
-            final WidgetColor color = map.getColor(x);
-            final int arfb = (255 << 24) | (color.getRed() << 16) | (color.getGreen() << 8) | color.getBlue();
+            final int arfb = ColorMappingFunction.getRGB(map.getColor(x));
             for (int y=0; y<COLOR_BAR_HEIGHT; ++y)
                 writer.setArgb(x, y, arfb);
         }

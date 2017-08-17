@@ -30,6 +30,7 @@ import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
+import org.csstudio.display.builder.model.properties.PredefinedColorMaps;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
 import org.csstudio.display.builder.model.widgets.ArcWidget;
@@ -115,6 +116,9 @@ import org.csstudio.display.builder.representation.javafx.widgets.plots.ImageRep
 import org.csstudio.display.builder.representation.javafx.widgets.plots.XYPlotRepresentation;
 import org.csstudio.javafx.DialogHelper;
 import org.csstudio.javafx.Styles;
+import org.csstudio.javafx.rtplot.ColorMappingFunction;
+import org.csstudio.javafx.rtplot.NamedColorMapping;
+import org.csstudio.javafx.rtplot.NamedColorMappings;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.RegistryFactory;
@@ -212,6 +216,8 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     private Group scroll_body;
     private ScrollPane model_root;
 
+    private static boolean initialized_colormaps = false;
+
     /** Constructor
      *  @param edit_mode Edit mode?
      */
@@ -239,6 +245,13 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         }
         for (Map.Entry<String, WidgetRepresentationFactory<Parent, Node>> entry : factories.entrySet())
             register(entry.getKey(), entry.getValue());
+
+        if (! initialized_colormaps)
+        {
+            for (PredefinedColorMaps.Predefined map : PredefinedColorMaps.PREDEFINED)
+                NamedColorMappings.add(new NamedColorMapping(map.getName(), intensity  ->  ColorMappingFunction.getRGB(map.getColor(intensity))));
+            initialized_colormaps = true;
+        }
     }
 
     /**

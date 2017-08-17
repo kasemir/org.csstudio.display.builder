@@ -22,7 +22,7 @@ public interface ColorMappingFunction
     public final static ColorMappingFunction GRAYSCALE = value ->
     {
         final int level = (int) (value * 255 + 0.5);
-        return getRGB(level, level, level);
+        return getRGB(new int[] { level, level, level });
     };
 
     /** Returns the RGB value representing a color.
@@ -33,16 +33,16 @@ public interface ColorMappingFunction
     public int getRGB(double value);
 
     /** Helper for creating RGB integer from components
-     *  @param red
+     *  @param rgb [ red, green, blue ]
      *  @param green
      *  @param blue
      *  @return RGB value (including alpha set to fully opaque)
      */
-    public static int getRGB(int red, int green, int blue)
+    public static int getRGB(int[] rgb)
     {
         return 0xFF000000              |
-               ((red   & 0xFF) << 16)  |
-               ((green & 0xFF) <<  8)  |
-               ((blue  & 0xFF));
+               ((rgb[0] & 0xFF) << 16)  |
+               ((rgb[1] & 0xFF) <<  8)  |
+               ((rgb[2] & 0xFF));
     }
 }
