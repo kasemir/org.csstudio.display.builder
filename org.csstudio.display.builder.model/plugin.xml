@@ -36,7 +36,7 @@
             category="STRUCTURE"
             class="org.csstudio.display.builder.model.widgets.ArrayWidget"
             description="%ArrayWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/array.gif"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/array.png"
             name="%ArrayWidget_Name"
             type="array">
          <alternates
@@ -47,7 +47,7 @@
             category="CONTROL"
             class="org.csstudio.display.builder.model.widgets.BoolButtonWidget"
             description="%BoolButtonWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/bool_button.gif"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/bool_button.png"
             name="%BoolButtonWidget_Name"
             type="bool_button">
          <alternates
@@ -75,7 +75,7 @@
             category="CONTROL"
             class="org.csstudio.display.builder.model.widgets.CheckBoxWidget"
             description="%CheckBoxWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/checkbox.gif"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/checkbox.png"
             name="%CheckBoxWidget_Name"
             type="checkbox">
          <alternates
@@ -94,7 +94,7 @@
             category="CONTROL"
             class="org.csstudio.display.builder.model.widgets.ComboWidget"
             description="%ComboWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/combo.gif"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/combo.png"
             name="%ComboWidget_Name"
             type="combo">
          <alternates
@@ -212,7 +212,7 @@
             category="MONITOR"
             class="org.csstudio.display.builder.model.widgets.MultiStateLEDWidget"
             description="%MultiStateLEDWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/led.png"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/led-multi.png"
             name="%MultiStateLEDWidget_Name"
             type="multi_state_led">
          <alternates
@@ -275,7 +275,7 @@
             category="CONTROL"
             class="org.csstudio.display.builder.model.widgets.RadioWidget"
             description="%RadioWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/radiobutton.gif"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/radiobutton.png"
             name="%RadioWidget_Name"
             type="radio">
          <alternates
@@ -303,7 +303,7 @@
             category="CONTROL"
             class="org.csstudio.display.builder.model.widgets.ScaledSliderWidget"
             description="%ScaledSliderWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/scaled_slider.gif"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/scaled_slider.png"
             name="%ScaledSliderWidget_Name"
             type="scaledslider">
          <alternates
@@ -328,7 +328,7 @@
             category="CONTROL"
             class="org.csstudio.display.builder.model.widgets.SpinnerWidget"
             description="%SpinnerWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/Spinner.gif"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/Spinner.png"
             name="%SpinnerWidget_Name"
             type="spinner">
          <alternates
@@ -356,7 +356,7 @@
             category="MONITOR"
             class="org.csstudio.display.builder.model.widgets.TableWidget"
             description="%TableWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/table.gif"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/table.png"
             name="%TableWidget_Name"
             type="table">
          <alternates
@@ -422,7 +422,7 @@
             category="MONITOR"
             class="org.csstudio.display.builder.model.widgets.ThermometerWidget"
             description="%ThermometerWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/Thermo.gif"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/Thermo.png"
             name="%ThermometerWidgetWidget_Name"
             type="thermometer">
          <alternates

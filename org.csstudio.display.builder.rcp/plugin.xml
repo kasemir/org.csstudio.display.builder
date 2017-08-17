@@ -115,7 +115,7 @@
             category="CONTROL"
             class="org.csstudio.display.builder.rcp.widgets.FileSelectorWidget"
             description="%FileSelector_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.rcp/icons/open_file.png"
+            icon="platform:/plugin/org.csstudio.display.builder.rcp/icons/file-selector.png"
             name="%FileSelector"
             type="fileselector">
       </widget>
