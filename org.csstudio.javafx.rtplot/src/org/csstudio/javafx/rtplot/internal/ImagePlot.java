@@ -1083,6 +1083,17 @@ public class ImagePlot extends PlotCanvasBase
     {
         final Point2D current = new Point2D(e.getX(), e.getY());
         mouse_current = Optional.of(current);
+
+        // While zooming, when mouse is quickly dragged outside the widget
+        // and then released, the 'mouseUp' event is sometimes missing.
+        // --> When seeing an active mouse move w/o button press,
+        //     treat that just like a release.
+        if (mouse_mode.ordinal() >= MouseMode.ZOOM_IN_X.ordinal()  &&  !e.isPrimaryButtonDown())
+        {
+            mouseUp(e);
+            return;
+        }
+
         PlotCursors.setCursor(this, mouse_mode);
 
         final Point2D start = mouse_start.orElse(null);
