@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.properties;
 
+import java.time.Instant;
 import java.util.List;
 
 import org.csstudio.display.builder.model.Messages;
@@ -231,6 +232,26 @@ public class CommonWidgetProperties
             }
         };
     }
+
+    /** Constructor for a runtime event property
+     *
+     *  @param name Internal name of the property
+     *  @param description Human-readable description
+     */
+    public static final WidgetPropertyDescriptor<Instant> newRuntimeEvent(final String name, final String description)
+    {
+        return new WidgetPropertyDescriptor<Instant>(WidgetPropertyCategory.RUNTIME, name, description)
+        {
+            @Override
+            public WidgetProperty<Instant> createProperty(final Widget widget, final Instant value)
+            {
+                return new RuntimeEventProperty(this, widget, value);
+            }
+        };
+    }
+
+    public static final WidgetPropertyDescriptor<Instant> runtimePropConfigure =
+        CommonWidgetProperties.newRuntimeEvent("configure", "Configure");
 
     // All properties are described by
     // Category and property name

@@ -37,5 +37,5 @@ public enum MouseMode
     /** Zoom into Y axis */
     ZOOM_IN_Y,
     /** Zoom into the plot */
-    ZOOM_IN_PLOT,
+    ZOOM_IN_PLOT;
 }

@@ -13,6 +13,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propInteractive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMaximum;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMinimum;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropConfigure;
 import static org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.propToolbar;
 
 import java.util.Arrays;
@@ -41,6 +42,8 @@ import org.csstudio.display.builder.model.properties.ColorMapWidgetProperty;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
 import org.csstudio.display.builder.model.properties.IntegerWidgetProperty;
+import org.csstudio.display.builder.model.properties.PredefinedColorMaps;
+import org.csstudio.display.builder.model.properties.RuntimeEventProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.csstudio.display.builder.model.widgets.PVWidget;
@@ -356,6 +359,7 @@ public class ImageWidget extends PVWidget
     private volatile WidgetProperty<Boolean> cursor_crosshair;
     private volatile WidgetProperty<Double[]> crosshair_location;
     private volatile ArrayWidgetProperty<ROIWidgetProperty> rois;
+    private volatile RuntimeEventProperty configure;
 
     public ImageWidget()
     {
@@ -368,7 +372,7 @@ public class ImageWidget extends PVWidget
         super.defineProperties(properties);
         properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
         properties.add(show_toolbar = propToolbar.createProperty(this,false));
-        properties.add(data_colormap = propDataColormap.createProperty(this, ColorMap.VIRIDIS));
+        properties.add(data_colormap = propDataColormap.createProperty(this, PredefinedColorMaps.VIRIDIS));
         properties.add(color_bar = new ColorBarProperty(this));
         properties.add(x_axis = new XAxisWidgetProperty(this));
         properties.add(y_axis = new YAxisWidgetProperty(this));
@@ -387,6 +391,7 @@ public class ImageWidget extends PVWidget
         properties.add(cursor_crosshair = propCursorCrosshair.createProperty(this, false));
         properties.add(crosshair_location = propCrosshairLocation.createProperty(this, null));
         properties.add(rois = propROIs.createProperty(this, Collections.emptyList()));
+        properties.add(configure = (RuntimeEventProperty) runtimePropConfigure.createProperty(this, null));
     }
 
     @Override
@@ -520,5 +525,11 @@ public class ImageWidget extends PVWidget
     public ArrayWidgetProperty<ROIWidgetProperty> propROIs()
     {
         return rois;
+    }
+
+    /** @return 'configure' property */
+    public RuntimeEventProperty runtimePropConfigure()
+    {
+        return configure;
     }
 }

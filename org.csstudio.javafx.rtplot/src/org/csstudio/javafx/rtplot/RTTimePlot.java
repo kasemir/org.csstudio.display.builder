@@ -141,6 +141,12 @@ public class RTTimePlot extends RTPlot<Instant>
         x_axis.setValueRange(end.minus(duration), end);
     }
 
+    /** return Snapshot image of current plot */
+    public Image getImage()
+    {
+        return plot.snapshot(null, null);
+    }
+
     @Override
     public void dispose()
     {
@@ -148,10 +154,5 @@ public class RTTimePlot extends RTPlot<Instant>
         final ScheduledFuture<?> was_scrolling = scrolling.getAndSet(null);
         if (was_scrolling != null)
             was_scrolling.cancel(false);
-    }
-
-    public Image getImage()
-    {
-        return this.getPlotNode().snapshot(null, null);
     }
 }

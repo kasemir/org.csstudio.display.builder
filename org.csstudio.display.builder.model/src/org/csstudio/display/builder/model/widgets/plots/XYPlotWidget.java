@@ -12,6 +12,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propInteractive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropConfigure;
 import static org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.propToolbar;
 
 import java.util.Arrays;
@@ -41,6 +42,7 @@ import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
+import org.csstudio.display.builder.model.properties.RuntimeEventProperty;
 import org.csstudio.display.builder.model.properties.StringWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
@@ -260,7 +262,7 @@ public class XYPlotWidget extends VisibleWidget
             {
                 // Y PV
                 final String pv_name = XMLUtil.getChildString(xml, "trace_" + legacy_trace + "_y_pv").orElse("");
-                
+
                 // Was legacy widget used with scalar data, concatenated into waveform?
                 final Optional<String> concat = XMLUtil.getChildString(xml, "trace_" + legacy_trace + "_concatenate_data");
                 if (concat.isPresent()  &&  concat.get().equals("true"))
@@ -268,7 +270,7 @@ public class XYPlotWidget extends VisibleWidget
                 	logger.log(Level.WARNING, plot + " does not support 'concatenate_data' for trace " + legacy_trace + ", PV " + pv_name);
                 	logger.log(Level.WARNING, "To plot a scalar PV over time, consider the Data Browser widget");
                 }
-                
+
                 final TraceWidgetProperty trace;
                 if (plot.traces.size() <= legacy_trace)
                     trace = plot.traces.addElement();
@@ -321,6 +323,7 @@ public class XYPlotWidget extends VisibleWidget
     private volatile ArrayWidgetProperty<YAxisWidgetProperty> y_axes;
     private volatile ArrayWidgetProperty<TraceWidgetProperty> traces;
     private volatile ArrayWidgetProperty<MarkerProperty> markers;
+    private volatile RuntimeEventProperty configure;
 
     public XYPlotWidget()
     {
@@ -346,6 +349,7 @@ public class XYPlotWidget extends VisibleWidget
         properties.add(y_axes = PlotWidgetProperties.propYAxes.createProperty(this, Arrays.asList(YAxisWidgetProperty.create(this, Messages.PlotWidget_Y))));
         properties.add(traces = PlotWidgetProperties.propTraces.createProperty(this, Arrays.asList(new TraceWidgetProperty(this, 0))));
         properties.add(markers = propMarkers.createProperty(this, Collections.emptyList()));
+        properties.add(configure = (RuntimeEventProperty) runtimePropConfigure.createProperty(this, null));
     }
 
     @Override
@@ -443,5 +447,11 @@ public class XYPlotWidget extends VisibleWidget
     public ArrayWidgetProperty<MarkerProperty> propMarkers()
     {
         return markers;
+    }
+
+    /** @return 'configure' property */
+    public RuntimeEventProperty runtimePropConfigure()
+    {
+        return configure;
     }
 }

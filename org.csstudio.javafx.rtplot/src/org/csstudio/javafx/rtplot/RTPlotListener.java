@@ -24,6 +24,12 @@ public interface RTPlotListener<XTYPE extends Comparable<XTYPE>>
     /** Invoked when auto scale is enabled or disabled by user interaction */
     default public void changedAutoScale(Axis<?> axis) {};
 
+    /** Invoked when grid is enabled/disabled by user interaction */
+    default public void changedGrid(Axis<?> axis) {};
+
+    /** Invoked when logarithmic mode is enabled/disabled by user interaction */
+    default public void changedLogarithmic(YAxis<?> axis) {};
+
     /** Invoked when a PlotMarker has been moved
      *  @param index Index 0, .. of the {@link PlotMarker}
      */

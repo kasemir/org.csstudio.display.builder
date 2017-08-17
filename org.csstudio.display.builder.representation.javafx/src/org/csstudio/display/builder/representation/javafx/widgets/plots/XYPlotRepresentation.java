@@ -376,6 +376,8 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         tracesChanged(model_widget.propTraces(), null, model_widget.propTraces().getValue());
         model_widget.propTraces().addPropertyListener(this::tracesChanged);
 
+        model_widget.runtimePropConfigure().addPropertyListener((p, o, n) -> plot.showConfigurationDialog());
+
         plot.addListener(plot_listener);
     }
 
