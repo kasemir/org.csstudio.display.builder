@@ -149,7 +149,7 @@ abstract public class MacroizedWidgetProperty<T> extends WidgetProperty<T>
             }
             catch (final Exception ex)
             {
-                logger.log(Level.WARNING, widget + " property " + getName() + " cannot expand macros for " + specification, ex);
+                logger.log(Level.WARNING, widget + " property " + getName() + " cannot expand macros for '" + specification + "'", ex);
                 expanded = specification;
             }
 
@@ -171,7 +171,7 @@ abstract public class MacroizedWidgetProperty<T> extends WidgetProperty<T>
             }
             catch (final Exception ex)
             {
-                logger.log(Level.WARNING, widget + " property " + getName() + " cannot evaluate " + expanded, ex);
+                logger.log(Level.WARNING, widget + " property " + getName() + " cannot evaluate '" + expanded + "'", ex);
                 value = default_value;
             }
         }
