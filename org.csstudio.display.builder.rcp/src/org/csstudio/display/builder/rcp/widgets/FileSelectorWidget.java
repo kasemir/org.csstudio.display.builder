@@ -29,7 +29,7 @@ public class FileSelectorWidget extends PVWidget
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         new WidgetDescriptor("fileselector", WidgetCategory.CONTROL,
             "File Selector",
-            "platform:/plugin/org.csstudio.display.builder.rcp/icons/open_file.png",
+            "platform:/plugin/org.csstudio.display.builder.rcp/icons/file-selector.png.png",
             "Select a file, writing path and/or filename to PV")
     {
         @Override
