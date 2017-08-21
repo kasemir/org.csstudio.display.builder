@@ -179,6 +179,7 @@ public class Messages extends NLS
     public static String WidgetProperties_Editable;
     public static String WidgetProperties_EmptyColor;
     public static String WidgetProperties_Enabled;
+    public static String WidgetProperties_ExtremaVisible;
     public static String WidgetProperties_File;
     public static String WidgetProperties_FillColor;
     public static String WidgetProperties_FlatBar;
@@ -282,6 +283,8 @@ public class Messages extends NLS
     public static String WidgetProperties_StretchToFit;
     public static String WidgetProperties_Symbol;
     public static String WidgetProperties_Symbols;
+    public static String WidgetProperties_TagColor;
+    public static String WidgetProperties_TagVisible;
     public static String WidgetProperties_Text;
     public static String WidgetProperties_TextColor;
     public static String WidgetProperties_TextVisible;

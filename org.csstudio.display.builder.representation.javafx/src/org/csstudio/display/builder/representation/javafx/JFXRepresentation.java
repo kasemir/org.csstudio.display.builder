@@ -45,6 +45,7 @@ import org.csstudio.display.builder.model.widgets.EllipseWidget;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.csstudio.display.builder.model.widgets.GaugeWidget;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
+import org.csstudio.display.builder.model.widgets.KnobWidget;
 import org.csstudio.display.builder.model.widgets.LEDWidget;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
 import org.csstudio.display.builder.model.widgets.LinearMeterWidget;
@@ -88,6 +89,7 @@ import org.csstudio.display.builder.representation.javafx.widgets.EmbeddedDispla
 import org.csstudio.display.builder.representation.javafx.widgets.GaugeRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.GroupRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.KnobRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.LEDRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.LabelRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.LinearMeterRepresentation;
@@ -274,6 +276,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         factories.put(GaugeWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new GaugeRepresentation());
         factories.put(GroupWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new GroupRepresentation());
         factories.put(ImageWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new ImageRepresentation());
+        factories.put(KnobWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new KnobRepresentation());
         factories.put(LabelWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new LabelRepresentation());
         factories.put(LEDWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new LEDRepresentation());
         factories.put(LinearMeterWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new LinearMeterRepresentation());
