@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="2.0.0">
+  <name>Knob Widgets</name>
+  <width>660</width>
+  <height>900</height>
+  <actions execute_as_one="true">
+  </actions>
+  <widget type="label" version="2.0.0">
+    <name>Label</name>
+    <class>TITLE</class>
+    <text>Knob Widget</text>
+    <x use_class="true">0</x>
+    <y use_class="true">0</y>
+    <width>550</width>
+    <height>31</height>
+    <font use_class="true">
+      <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
+      </font>
+    </font>
+    <foreground_color use_class="true">
+      <color name="Text" red="0" green="0" blue="0">
+      </color>
+    </foreground_color>
+    <transparent use_class="true">true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_1</name>
+    <text>Knob widgets allow to write in a PV and monitorig the current value.</text>
+    <y>50</y>
+    <width>620</width>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Rectangle</name>
+    <x>290</x>
+    <y>780</y>
+    <width>1</width>
+    <height>1</height>
+  </widget>
+  <widget type="knob" version="2.0.0">
+    <name>Knob</name>
+    <pv_name>loc://current.static.value(77.0)</pv_name>
+    <x>160</x>
+    <y>130</y>
+    <width>300</width>
+    <height>300</height>
+    <extrema_visible>true</extrema_visible>
+    <tag_color>
+      <color name="ActiveText" red="255" green="255" blue="0">
+      </color>
+    </tag_color>
+    <tag_visible>true</tag_visible>
+    <unit>&lt;unit&gt;</unit>
+    <limits_from_pv>false</limits_from_pv>
+  </widget>
+  <widget type="polyline" version="2.0.0">
+    <name>Polyline</name>
+    <x>120</x>
+    <y>140</y>
+    <width>81</width>
+    <height>50</height>
+    <line_color>
+      <color red="255" green="0" blue="0">
+      </color>
+    </line_color>
+    <arrows>2</arrows>
+    <points>
+      <point x="0.0" y="0.0">
+      </point>
+      <point x="81.0" y="50.0">
+      </point>
+    </points>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_2</name>
+    <text>Read-back (current) value</text>
+    <x>20</x>
+    <y>120</y>
+    <width>180</width>
+  </widget>
+  <widget type="polyline" version="2.0.0">
+    <name>Polyline_1</name>
+    <x>417</x>
+    <y>190</y>
+    <width>72</width>
+    <height>58</height>
+    <line_color>
+      <color red="255" green="0" blue="0">
+      </color>
+    </line_color>
+    <arrows>2</arrows>
+    <points>
+      <point x="72.0" y="0.0">
+      </point>
+      <point x="0.0" y="58.0">
+      </point>
+    </points>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_3</name>
+    <text>Knob (target) value</text>
+    <x>440</x>
+    <y>170</y>
+    <width>146</width>
+  </widget>
+  <widget type="polyline" version="2.0.0">
+    <name>Polyline_2</name>
+    <x>120</x>
+    <y>140</y>
+    <width>126</width>
+    <height>113</height>
+    <line_color>
+      <color red="255" green="0" blue="0">
+      </color>
+    </line_color>
+    <arrows>2</arrows>
+    <points>
+      <point x="0.0" y="0.0">
+      </point>
+      <point x="126.0" y="113.0">
+      </point>
+    </points>
+  </widget>
+  <widget type="polyline" version="2.0.0">
+    <name>Polyline_3</name>
+    <x>343</x>
+    <y>190</y>
+    <width>146</width>
+    <height>32</height>
+    <line_color>
+      <color red="255" green="0" blue="0">
+      </color>
+    </line_color>
+    <arrows>2</arrows>
+    <points>
+      <point x="146.0" y="0.0">
+      </point>
+      <point x="0.0" y="32.0">
+      </point>
+    </points>
+  </widget>
+  <widget type="polyline" version="2.0.0">
+    <name>Polyline_4</name>
+    <x>452</x>
+    <y>289</y>
+    <width>65</width>
+    <height>1</height>
+    <arrows>2</arrows>
+    <points>
+      <point x="65.0" y="0.0">
+      </point>
+      <point x="0.0" y="1.0">
+      </point>
+    </points>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_4</name>
+    <text>High</text>
+    <x>526</x>
+    <y>281</y>
+    <width>60</width>
+  </widget>
+  <widget type="polyline" version="2.0.0">
+    <name>Polyline_5</name>
+    <x>430</x>
+    <y>355</y>
+    <width>65</width>
+    <height>1</height>
+    <arrows>2</arrows>
+    <points>
+      <point x="65.0" y="0.0">
+      </point>
+      <point x="0.0" y="1.0">
+      </point>
+    </points>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_5</name>
+    <text>HiHi</text>
+    <x>502</x>
+    <y>347</y>
+    <width>60</width>
+  </widget>
+  <widget type="polyline" version="2.0.0">
+    <name>Polyline_6</name>
+    <x>457</x>
+    <y>405</y>
+    <width>65</width>
+    <height>1</height>
+    <line_color>
+      <color red="255" green="0" blue="0">
+      </color>
+    </line_color>
+    <arrows>2</arrows>
+    <points>
+      <point x="65.0" y="0.0">
+      </point>
+      <point x="0.0" y="1.0">
+      </point>
+    </points>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_6</name>
+    <text>Max</text>
+    <x>529</x>
+    <y>396</y>
+    <width>60</width>
+  </widget>
+  <widget type="polyline" version="2.0.0">
+    <name>Polyline_7</name>
+    <x>263</x>
+    <y>421</y>
+    <width>42</width>
+    <height>50</height>
+    <line_color>
+      <color red="255" green="0" blue="0">
+      </color>
+    </line_color>
+    <arrows>2</arrows>
+    <points>
+      <point x="0.0" y="50.0">
+      </point>
+      <point x="42.0" y="0.0">
+      </point>
+    </points>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_7</name>
+    <text>Tag</text>
+    <x>235</x>
+    <y>471</y>
+    <width>60</width>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_8</name>
+    <text>Read-back value can be always visible, or displayed only when it differs
+from the knob one.
+
+Knob value can be synced with the read-back one, so that the knob will 
+positioned at the read-back value.
+
+When dragged, Knob can write the new target value on mouse button release, or
+continuously.
+
+Extrema (maximum and minimum values) can be hidden.</text>
+    <x>20</x>
+    <y>510</y>
+    <width>520</width>
+    <height>180</height>
+  </widget>
+  <widget type="knob" version="2.0.0">
+    <name>Knob_1</name>
+    <pv_name>sim://ramp(-20,100,1,0.1)</pv_name>
+    <x>20</x>
+    <y>710</y>
+    <width>150</width>
+    <height>150</height>
+    <color_ok>
+      <color red="200" green="180" blue="160">
+      </color>
+    </color_ok>
+    <knob_color>
+      <color red="200" green="180" blue="160">
+      </color>
+    </knob_color>
+    <show_hihi>false</show_hihi>
+    <show_high>false</show_high>
+    <show_low>false</show_low>
+    <show_lolo>false</show_lolo>
+    <value_color>
+      <color red="255" green="245" blue="235" alpha="200">
+      </color>
+    </value_color>
+    <synced_knob>true</synced_knob>
+  </widget>
+  <widget type="knob" version="2.0.0">
+    <name>Knob_2</name>
+    <pv_name>sim://ramp(-20,100,1,0.1)</pv_name>
+    <x>180</x>
+    <y>710</y>
+    <width>150</width>
+    <height>150</height>
+    <color_hihi>
+      <color red="255" green="0" blue="0" alpha="160">
+      </color>
+    </color_hihi>
+    <color_high>
+      <color red="255" green="200" blue="0" alpha="160">
+      </color>
+    </color_high>
+    <color_lolo>
+      <color red="255" green="0" blue="0" alpha="160">
+      </color>
+    </color_lolo>
+    <color_low>
+      <color red="255" green="200" blue="0" alpha="160">
+      </color>
+    </color_low>
+    <color_ok>
+      <color red="55" green="255" blue="35" alpha="160">
+      </color>
+    </color_ok>
+    <knob_color>
+      <color red="200" green="180" blue="160">
+      </color>
+    </knob_color>
+    <value_color>
+      <color red="255" green="245" blue="235" alpha="200">
+      </color>
+    </value_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_9</name>
+    <text>knob synced</text>
+    <x>20</x>
+    <y>870</y>
+    <width>150</width>
+    <horizontal_alignment>1</horizontal_alignment>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_10</name>
+    <text>knob not synced</text>
+    <x>180</x>
+    <y>870</y>
+    <width>150</width>
+    <horizontal_alignment>1</horizontal_alignment>
+  </widget>
+  <widget type="knob" version="2.0.0">
+    <name>Knob_3</name>
+    <pv_name>loc://knob-pv1&lt;VDouble&gt;(30.0)</pv_name>
+    <x>340</x>
+    <y>710</y>
+    <width>150</width>
+    <height>120</height>
+    <color>
+      <color red="153" green="77" blue="0">
+      </color>
+    </color>
+    <knob_color>
+      <color name="OK" red="0" green="255" blue="0">
+      </color>
+    </knob_color>
+  </widget>
+  <widget type="knob" version="2.0.0">
+    <name>Knob_4</name>
+    <pv_name>loc://knob-pv2&lt;VDouble&gt;(40.0)</pv_name>
+    <x>500</x>
+    <y>710</y>
+    <width>150</width>
+    <height>120</height>
+    <color>
+      <color red="77" green="51" blue="153">
+      </color>
+    </color>
+    <knob_color>
+      <color name="OK" red="0" green="255" blue="0">
+      </color>
+    </knob_color>
+    <write_on_release>false</write_on_release>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Text Update</name>
+    <pv_name>loc://knob-pv1</pv_name>
+    <x>360</x>
+    <y>840</y>
+    <width>110</width>
+    <horizontal_alignment>1</horizontal_alignment>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Text Update_1</name>
+    <pv_name>loc://knob-pv2</pv_name>
+    <x>520</x>
+    <y>840</y>
+    <width>110</width>
+    <horizontal_alignment>1</horizontal_alignment>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_11</name>
+    <text>write on release</text>
+    <x>340</x>
+    <y>870</y>
+    <width>150</width>
+    <horizontal_alignment>1</horizontal_alignment>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_12</name>
+    <text>write continuously</text>
+    <x>502</x>
+    <y>870</y>
+    <width>150</width>
+    <horizontal_alignment>1</horizontal_alignment>
+  </widget>
+</display>

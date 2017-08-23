@@ -116,7 +116,11 @@ public class KnobRepresentation extends RegionBaseRepresentation<Knob, KnobWidge
                     jfx_node.setCurrentValue(newval);
 
                     if ( firstUsage || model_widget.propSyncedKnob().getValue() ) {
+
+                        firstUsage = false;
+
                         jfx_node.setTargetValue(newval);
+
                     }
 
                 } else {
@@ -151,7 +155,6 @@ public class KnobRepresentation extends RegionBaseRepresentation<Knob, KnobWidge
         knob.setIndicatorColor(JFXUtil.convert(model_widget.propKnobColor().getValue()));
         knob.setMaxValue(max);
         knob.setMinValue(min);
-        knob.setOnTargetSet(e -> toolkit.fireWrite(model_widget, jfx_node.getTargetValue()));
         knob.setTagColor(JFXUtil.convert(model_widget.propTagColor().getValue()));
         knob.setTagVisible(model_widget.propTagVisible().getValue());
         knob.setTextColor(JFXUtil.convert(model_widget.propTextColor().getValue()));
@@ -160,8 +163,13 @@ public class KnobRepresentation extends RegionBaseRepresentation<Knob, KnobWidge
 //        knob.setDisable(!model_widget.propEnabled().getValue());
         Styles.update(knob, Styles.NOT_ENABLED, !model_widget.propEnabled().getValue());
 
+        knob.setOnTargetSet(e -> {
+            if ( !toolkit.isEditMode() ) {
+                toolkit.fireWrite(model_widget, jfx_node.getTargetValue());
+            }
+        });
         knob.targetValueProperty().addListener((observable, oldValue, newValue) -> {
-            if ( !model_widget.propWriteOnRelease().getValue() ) {
+            if ( !toolkit.isEditMode() && !model_widget.propWriteOnRelease().getValue() ) {
                 toolkit.fireWrite(model_widget, newValue);
             }
         });
