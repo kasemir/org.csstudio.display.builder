@@ -17,6 +17,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propTransparent;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -50,7 +51,12 @@ public class SymbolWidget extends PVWidget {
         WidgetCategory.MONITOR,
         "Symbol",
         "platform:/plugin/org.csstudio.display.builder.model/icons/symbol.png",
-        "A container of symbols displayed depending of the value of a PV"
+        "A container of symbols displayed depending of the value of a PV",
+        Arrays.asList(
+            "org.csstudio.opibuilder.widgets.ImageBoolIndicator",
+            "org.csstudio.opibuilder.widgets.symbol.bool.BoolMonitorWidget",
+            "org.csstudio.opibuilder.widgets.symbol.multistate.MultistateMonitorWidget"
+        )
     ) {
         @Override
         public Widget createWidget ( ) {
