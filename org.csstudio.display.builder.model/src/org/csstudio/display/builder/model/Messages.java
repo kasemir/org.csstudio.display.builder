@@ -160,6 +160,7 @@ public class Messages extends NLS
     public static String WidgetProperties_ColorLoLo;
     public static String WidgetProperties_ColorLow;
     public static String WidgetProperties_ColorMap;
+    public static String WidgetProperties_ColorOK;
     public static String WidgetProperties_Connected;
     public static String WidgetProperties_CornerHeight;
     public static String WidgetProperties_CornerWidth;
@@ -283,6 +284,7 @@ public class Messages extends NLS
     public static String WidgetProperties_StretchToFit;
     public static String WidgetProperties_Symbol;
     public static String WidgetProperties_Symbols;
+    public static String WidgetProperties_SyncedKnob;
     public static String WidgetProperties_TagColor;
     public static String WidgetProperties_TagVisible;
     public static String WidgetProperties_Text;
@@ -315,6 +317,7 @@ public class Messages extends NLS
     public static String WidgetProperties_WidthPVName;
     public static String WidgetProperties_WrapWords;
     public static String WidgetProperties_Writable;
+    public static String WidgetProperties_WriteOnRelease;
     public static String WidgetProperties_X;
     public static String WidgetProperties_XPVName;
     public static String WidgetProperties_Y;

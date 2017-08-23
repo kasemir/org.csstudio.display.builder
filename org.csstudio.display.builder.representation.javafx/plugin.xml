@@ -60,7 +60,7 @@
             type="image">
       </representation>
       <representation
-            class="org.csstudio.display.builder.representation.javafx.widgets.plots.KnobRepresentation"
+            class="org.csstudio.display.builder.representation.javafx.widgets.KnobRepresentation"
             type="knob">
       </representation>
       <representation
