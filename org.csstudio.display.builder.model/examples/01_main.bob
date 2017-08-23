@@ -8,6 +8,28 @@
     </color>
   </grid_color>
   <widget type="label" version="2.0.0">
+    <name>Label_9</name>
+    <class>COMMENT</class>
+    <text>Press buttons to see sub-displays.
+
+Note you can also navigate between buttons via &lt;Tab&gt; key or &lt;Shift&gt; and cursor keys,
+then press &lt;SPACE&gt; to activate button.</text>
+    <x>8</x>
+    <y>411</y>
+    <width>640</width>
+    <height>80</height>
+    <font use_class="true">
+      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
+      </font>
+    </font>
+    <foreground_color use_class="true">
+      <color name="Text" red="0" green="0" blue="0">
+      </color>
+    </foreground_color>
+    <transparent use_class="true">true</transparent>
+    <wrap_words use_class="true">true</wrap_words>
+  </widget>
+  <widget type="label" version="2.0.0">
     <name>Label</name>
     <class>TITLE</class>
     <text>Display Builder Examples</text>
@@ -637,27 +659,5 @@
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>Label_9</name>
-    <class>COMMENT</class>
-    <text>Press buttons to see sub-displays.
-
-Note you can also navigate between buttons via &lt;Tab&gt; key or &lt;Shift&gt; and cursor keys,
-then press &lt;SPACE&gt; to activate button.</text>
-    <x>8</x>
-    <y>411</y>
-    <width>640</width>
-    <height>80</height>
-    <font use_class="true">
-      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
-      </font>
-    </font>
-    <foreground_color use_class="true">
-      <color name="Text" red="0" green="0" blue="0">
-      </color>
-    </foreground_color>
-    <transparent use_class="true">true</transparent>
-    <wrap_words use_class="true">true</wrap_words>
   </widget>
 </display>
