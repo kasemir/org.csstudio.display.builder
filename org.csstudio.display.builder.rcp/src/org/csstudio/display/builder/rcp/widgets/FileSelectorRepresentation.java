@@ -7,10 +7,14 @@
  *******************************************************************************/
 package org.csstudio.display.builder.rcp.widgets;
 
+import static org.csstudio.display.builder.rcp.Plugin.logger;
+
 import java.io.File;
+import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.rcp.Messages;
 import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
@@ -34,13 +38,30 @@ import javafx.scene.image.ImageView;
 @SuppressWarnings("nls")
 public class FileSelectorRepresentation extends JFXBaseRepresentation<Button, FileSelectorWidget>
 {
+    private static Image open_file_icon;
+
+    static
+    {
+        Image icon = null;
+        try
+        {
+            icon = new Image(ModelResourceUtil.openResourceStream("platform:/plugin/org.csstudio.display.builder.rcp/icons/open_file.png"));
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Cannot load icon", ex);
+        }
+        open_file_icon = icon;
+    }
     private final DirtyFlag dirty_size = new DirtyFlag();
 
     @Override
     protected Button createJFXNode() throws Exception
     {
         final Button button = new Button();
-        button.setGraphic(new ImageView(new Image(FileSelectorWidget.WIDGET_DESCRIPTOR.getIconStream())));
+
+        if (open_file_icon != null)
+            button.setGraphic(new ImageView(open_file_icon));
 
         if (! toolkit.isEditMode())
             button.setOnAction(event -> selectFile());
