@@ -422,6 +422,21 @@
     <height>26</height>
     <tooltip>$(actions)</tooltip>
   </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_33</name>
+    <actions>
+      <action type="open_display">
+        <file>controls_knob.bob</file>
+        <target>replace</target>
+        <description>Knob</description>
+      </action>
+    </actions>
+    <x>470</x>
+    <y>400</y>
+    <width>120</width>
+    <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
   <widget type="label" version="2.0.0">
     <name>Plots</name>
     <text>Plots</text>
@@ -644,20 +659,5 @@ then press &lt;SPACE&gt; to activate button.</text>
     </foreground_color>
     <transparent use_class="true">true</transparent>
     <wrap_words use_class="true">true</wrap_words>
-  </widget>
-  <widget type="action_button" version="3.0.0">
-    <name>Action Button_33</name>
-    <actions>
-      <action type="open_display">
-        <file>controls_knob.bob</file>
-        <target>replace</target>
-        <description>Knob</description>
-      </action>
-    </actions>
-    <x>470</x>
-    <y>400</y>
-    <width>120</width>
-    <height>26</height>
-    <tooltip>$(actions)</tooltip>
   </widget>
 </display>
