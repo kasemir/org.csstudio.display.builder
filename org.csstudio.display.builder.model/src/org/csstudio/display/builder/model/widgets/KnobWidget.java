@@ -28,13 +28,18 @@ import java.util.List;
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
+import org.csstudio.display.builder.model.WidgetConfigurator;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
+import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.WidgetColor;
+import org.osgi.framework.Version;
+import org.w3c.dom.Element;
 
 
 /**
@@ -69,7 +74,6 @@ public class KnobWidget extends WritablePVWidget {
     public static final WidgetPropertyDescriptor<WidgetColor> propColorLow       = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "color_low",        Messages.WidgetProperties_ColorLow);
     public static final WidgetPropertyDescriptor<WidgetColor> propColorOK        = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "color_ok",         Messages.WidgetProperties_ColorOK);
     public static final WidgetPropertyDescriptor<Boolean>     propExtremaVisible = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "extrema_visible",  Messages.WidgetProperties_ExtremaVisible);
-    public static final WidgetPropertyDescriptor<WidgetColor> propKnobColor      = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "knob_color",       Messages.WidgetProperties_KnobColor);
     public static final WidgetPropertyDescriptor<Double>      propLevelHiHi      = newDoublePropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "level_hihi",       Messages.WidgetProperties_LevelHiHi);
     public static final WidgetPropertyDescriptor<Double>      propLevelHigh      = newDoublePropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "level_high",       Messages.WidgetProperties_LevelHigh);
     public static final WidgetPropertyDescriptor<Double>      propLevelLoLo      = newDoublePropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "level_lolo",       Messages.WidgetProperties_LevelLoLo);
@@ -81,6 +85,7 @@ public class KnobWidget extends WritablePVWidget {
     public static final WidgetPropertyDescriptor<WidgetColor> propTagColor       = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "tag_color",        Messages.WidgetProperties_TagColor);
     public static final WidgetPropertyDescriptor<Boolean>     propTagVisible     = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "tag_visible",      Messages.WidgetProperties_TagVisible);
     public static final WidgetPropertyDescriptor<WidgetColor> propTextColor      = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "text_color",       Messages.WidgetProperties_TextColor);
+    public static final WidgetPropertyDescriptor<WidgetColor> propThumbColor     = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "thumb_color",      Messages.WidgetProperties_ThumbColor);
     public static final WidgetPropertyDescriptor<String>      propUnit           = newStringPropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "unit",             Messages.WidgetProperties_Unit);
     public static final WidgetPropertyDescriptor<WidgetColor> propValueColor     = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "value_color",      Messages.WidgetProperties_ValueColor);
     public static final WidgetPropertyDescriptor<Boolean>     propValueVisible   = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "value_visible",    Messages.WidgetProperties_ValueVisible);
@@ -94,7 +99,6 @@ public class KnobWidget extends WritablePVWidget {
     private volatile WidgetProperty<WidgetColor> color_ok;
     private volatile WidgetProperty<Boolean>     enabled;
     private volatile WidgetProperty<Boolean>     extrema_visible;
-    private volatile WidgetProperty<WidgetColor> knob_color;
     private volatile WidgetProperty<Double>      level_high;
     private volatile WidgetProperty<Double>      level_hihi;
     private volatile WidgetProperty<Double>      level_lolo;
@@ -111,6 +115,7 @@ public class KnobWidget extends WritablePVWidget {
     private volatile WidgetProperty<WidgetColor> tag_color;
     private volatile WidgetProperty<Boolean>     tag_visible;
     private volatile WidgetProperty<WidgetColor> text_color;
+    private volatile WidgetProperty<WidgetColor> thumb_color;
     private volatile WidgetProperty<Boolean>     transparent;
     private volatile WidgetProperty<String>      unit;
     private volatile WidgetProperty<Boolean>     unit_from_pv;
@@ -120,6 +125,11 @@ public class KnobWidget extends WritablePVWidget {
 
     public KnobWidget ( ) {
         super(WIDGET_DESCRIPTOR.getType(), 220, 220);
+    }
+
+    @Override
+    public WidgetConfigurator getConfigurator ( final Version persistedVersion ) throws Exception {
+        return new KnobConfigurator(persistedVersion);
     }
 
     public WidgetProperty<WidgetColor> propBackgroundColor ( ) {
@@ -156,10 +166,6 @@ public class KnobWidget extends WritablePVWidget {
 
     public WidgetProperty<Boolean> propExtremaVisible ( ) {
         return extrema_visible;
-    }
-
-    public WidgetProperty<WidgetColor> propKnobColor ( ) {
-        return knob_color;
     }
 
     public WidgetProperty<Double> propLevelHiHi ( ) {
@@ -226,6 +232,10 @@ public class KnobWidget extends WritablePVWidget {
         return text_color;
     }
 
+    public WidgetProperty<WidgetColor> propThumbColor ( ) {
+        return thumb_color;
+    }
+
     public WidgetProperty<Boolean> propTransparent ( ) {
         return transparent;
     }
@@ -264,7 +274,6 @@ public class KnobWidget extends WritablePVWidget {
         properties.add(color_low        = propColorLow.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.ALARM_MINOR)));
         properties.add(color_ok         = propColorOK.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.ALARM_OK)));
         properties.add(extrema_visible  = propExtremaVisible.createProperty(this, false));
-        properties.add(knob_color       = propKnobColor.createProperty(this, new WidgetColor(46, 50, 55)));
         properties.add(level_hihi       = propLevelHiHi.createProperty(this, 90.0));
         properties.add(level_high       = propLevelHigh.createProperty(this, 80.0));
         properties.add(level_lolo       = propLevelLoLo.createProperty(this, 10.0));
@@ -276,6 +285,7 @@ public class KnobWidget extends WritablePVWidget {
         properties.add(tag_color        = propTagColor.createProperty(this, new WidgetColor(204, 102, 80)));
         properties.add(tag_visible      = propTagVisible.createProperty(this, false));
         properties.add(text_color       = propTextColor.createProperty(this, new WidgetColor(255, 255, 255)));
+        properties.add(thumb_color      = propThumbColor.createProperty(this, new WidgetColor(46, 50, 55)));
         properties.add(transparent      = propTransparent.createProperty(this, true));
         properties.add(unit             = propUnit.createProperty(this, ""));
         properties.add(value_color      = propValueColor.createProperty(this, new WidgetColor(0, 22, 0, 153)));
@@ -288,6 +298,43 @@ public class KnobWidget extends WritablePVWidget {
         properties.add(synced_knob      = propSyncedKnob.createProperty(this, false));
         properties.add(unit_from_pv     = propUnitFromPV.createProperty(this, true));
         properties.add(write_on_release = propWriteOnRelease.createProperty(this, true));
+
+    }
+
+    /**
+     * Custom configurator to read legacy *.opi files.
+     */
+    protected static class KnobConfigurator extends WidgetConfigurator {
+
+        public KnobConfigurator ( Version xmlVersion ) {
+            super(xmlVersion);
+        }
+
+        @Override
+        public boolean configureFromXML ( final ModelReader reader, final Widget widget, final Element xml ) throws Exception {
+
+            if ( !super.configureFromXML(reader, widget, xml) ) {
+                return false;
+            }
+
+            if ( xml_version.getMajor() < 2 ) {
+
+                KnobWidget knob = (KnobWidget) widget;
+
+                XMLUtil.getChildColor(xml, "color_hi").ifPresent(value -> knob.propColorHigh().setValue(value));
+                XMLUtil.getChildColor(xml, "color_lo").ifPresent(value -> knob.propColorLow().setValue(value));
+                XMLUtil.getChildColor(xml, "knob_color").ifPresent(value -> knob.propColor().setValue(value));
+                XMLUtil.getChildDouble(xml, "level_hi").ifPresent(value -> knob.propLevelHigh().setValue(value));
+                XMLUtil.getChildDouble(xml, "level_lo").ifPresent(value -> knob.propLevelLow().setValue(value));
+                XMLUtil.getChildBoolean(xml, "show_hi").ifPresent(show -> knob.propShowHigh().setValue(show));
+                XMLUtil.getChildBoolean(xml, "show_lo").ifPresent(show -> knob.propShowLow().setValue(show));
+                XMLUtil.getChildBoolean(xml, "transparent_background").ifPresent(trans -> knob.propTransparent().setValue(trans));
+
+            }
+
+            return true;
+
+        }
 
     }
 

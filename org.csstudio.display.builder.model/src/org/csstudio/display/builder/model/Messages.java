@@ -293,6 +293,7 @@ public class Messages extends NLS
     public static String WidgetProperties_Threshold;
     public static String WidgetProperties_ThresholdColor;
     public static String WidgetProperties_ThresholdVisible;
+    public static String WidgetProperties_ThumbColor;
     public static String WidgetProperties_TickLabelColor;
     public static String WidgetProperties_TickLabelDecimals;
     public static String WidgetProperties_TickLabelsVisible;

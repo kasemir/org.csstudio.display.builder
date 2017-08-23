@@ -78,7 +78,7 @@ public class KnobRepresentation extends RegionBaseRepresentation<Knob, KnobWidge
             jfx_node.setCurrentValueAlwaysVisible(model_widget.propValueVisible().getValue());
             jfx_node.setCurrentValueColor(JFXUtil.convert(model_widget.propValueColor().getValue()));
             jfx_node.setExtremaVisible(model_widget.propExtremaVisible().getValue());
-            jfx_node.setIndicatorColor(JFXUtil.convert(model_widget.propKnobColor().getValue()));
+            jfx_node.setIndicatorColor(JFXUtil.convert(model_widget.propThumbColor().getValue()));
             jfx_node.setTagColor(JFXUtil.convert(model_widget.propTagColor().getValue()));
             jfx_node.setTagVisible(model_widget.propTagVisible().getValue());
             jfx_node.setTextColor(JFXUtil.convert(model_widget.propTextColor().getValue()));
@@ -152,7 +152,7 @@ public class KnobRepresentation extends RegionBaseRepresentation<Knob, KnobWidge
         knob.setDecimals(FormatOptionHandler.actualPrecision(model_widget.runtimePropValue().getValue(), model_widget.propPrecision().getValue()));
         knob.setExtremaVisible(model_widget.propExtremaVisible().getValue());
         knob.setGradientStops(computeGradientStops());
-        knob.setIndicatorColor(JFXUtil.convert(model_widget.propKnobColor().getValue()));
+        knob.setIndicatorColor(JFXUtil.convert(model_widget.propThumbColor().getValue()));
         knob.setMaxValue(max);
         knob.setMinValue(min);
         knob.setTagColor(JFXUtil.convert(model_widget.propTagColor().getValue()));
@@ -195,7 +195,7 @@ public class KnobRepresentation extends RegionBaseRepresentation<Knob, KnobWidge
         model_widget.propBackgroundColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propExtremaVisible().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propKnobColor().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propThumbColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTagColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTagVisible().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTextColor().addUntypedPropertyListener(this::lookChanged);
