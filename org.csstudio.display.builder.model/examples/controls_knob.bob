@@ -274,7 +274,7 @@ Extrema (maximum and minimum values) can be hidden.</text>
   </widget>
   <widget type="knob" version="2.0.0">
     <name>Knob_2</name>
-    <pv_name>sim://ramp(-20,100,1,0.1)</pv_name>
+    <pv_name>loc://xxx(50)</pv_name>
     <x>180</x>
     <y>710</y>
     <width>150</width>
@@ -300,13 +300,42 @@ Extrema (maximum and minimum values) can be hidden.</text>
       </color>
     </color_ok>
     <thumb_color>
-      <color red="200" green="180" blue="160">
+      <color name="OK" red="0" green="255" blue="0">
       </color>
     </thumb_color>
     <value_color>
-      <color red="255" green="245" blue="235" alpha="200">
+      <color name="OK" red="0" green="255" blue="0">
       </color>
     </value_color>
+    <rules>
+      <rule name="Color" prop_id="thumb_color" out_exp="false">
+        <exp bool_exp="pv0&gt;=90">
+          <value>
+            <color name="MAJOR" red="255" green="0" blue="0">
+            </color>
+          </value>
+        </exp>
+        <exp bool_exp="pv0&gt;=80">
+          <value>
+            <color name="MINOR" red="255" green="128" blue="0">
+            </color>
+          </value>
+        </exp>
+        <exp bool_exp="pv0&lt;=10">
+          <value>
+            <color name="MAJOR" red="255" green="0" blue="0">
+            </color>
+          </value>
+        </exp>
+        <exp bool_exp="pv0&lt;=20">
+          <value>
+            <color name="MINOR" red="255" green="128" blue="0">
+            </color>
+          </value>
+        </exp>
+        <pv_name>$(pv_name)</pv_name>
+      </rule>
+    </rules>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_9</name>
@@ -388,5 +417,65 @@ Extrema (maximum and minimum values) can be hidden.</text>
     <y>870</y>
     <width>150</width>
     <horizontal_alignment>1</horizontal_alignment>
+  </widget>
+  <widget type="knob" version="2.0.0">
+    <name>Knob_5</name>
+    <pv_name>loc://xxxx(50)</pv_name>
+    <x>180</x>
+    <y>910</y>
+    <width>150</width>
+    <height>150</height>
+    <color_hihi>
+      <color red="255" green="0" blue="0" alpha="160">
+      </color>
+    </color_hihi>
+    <color_high>
+      <color red="255" green="200" blue="0" alpha="160">
+      </color>
+    </color_high>
+    <color_lolo>
+      <color red="255" green="0" blue="0" alpha="160">
+      </color>
+    </color_lolo>
+    <color_low>
+      <color red="255" green="200" blue="0" alpha="160">
+      </color>
+    </color_low>
+    <color_ok>
+      <color red="55" green="255" blue="35" alpha="160">
+      </color>
+    </color_ok>
+    <thumb_color>
+      <color name="OK" red="0" green="255" blue="0">
+      </color>
+    </thumb_color>
+    <value_color>
+      <color name="OK" red="0" green="255" blue="0">
+      </color>
+    </value_color>
+    <scripts>
+      <script file="EmbeddedPy">
+        <text><![CDATA[# Embedded python script
+from org.csstudio.display.builder.runtime.script import PVUtil
+
+pv0 = PVUtil.getDouble(pvs[0])
+if pv0 >= widget.getPropertyValue("level_hihi"):
+    color = widget.getPropertyValue("color_hihi")
+elif pv0 >= widget.getPropertyValue("level_high"):
+    color = widget.getPropertyValue("color_high")
+elif pv0 <= widget.getPropertyValue("level_lolo"):
+    color = widget.getPropertyValue("color_lolo")
+elif pv0 <= widget.getPropertyValue("level_low"):
+    color = widget.getPropertyValue("color_low")
+else:
+    color = widget.getPropertyValue("color_ok")
+
+widget.setPropertyValue("thumb_color", color)
+
+]]>
+</text>
+        <pv_name>$(pv_name)</pv_name>
+      </script>
+    </scripts>
   </widget>
 </display>
