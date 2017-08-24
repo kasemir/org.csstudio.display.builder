@@ -64,6 +64,7 @@ public class KnobWidget extends WritablePVWidget {
         }
     };
 
+    public static final WidgetPropertyDescriptor<Boolean>     propDragDisabled   = newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "drag_disabled",    Messages.WidgetProperties_DragDisabled);
     public static final WidgetPropertyDescriptor<Boolean>     propSyncedKnob     = newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "synced_knob",      Messages.WidgetProperties_SyncedKnob);
     public static final WidgetPropertyDescriptor<Boolean>     propUnitFromPV     = newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "unit_from_pv",     Messages.WidgetProperties_UnitFromPV);
     public static final WidgetPropertyDescriptor<Boolean>     propWriteOnRelease = newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "write_on_release", Messages.WidgetProperties_WriteOnRelease);
@@ -97,6 +98,7 @@ public class KnobWidget extends WritablePVWidget {
     private volatile WidgetProperty<WidgetColor> color_lolo;
     private volatile WidgetProperty<WidgetColor> color_low;
     private volatile WidgetProperty<WidgetColor> color_ok;
+    private volatile WidgetProperty<Boolean>     drag_disabled;
     private volatile WidgetProperty<Boolean>     enabled;
     private volatile WidgetProperty<Boolean>     extrema_visible;
     private volatile WidgetProperty<Double>      level_high;
@@ -158,6 +160,10 @@ public class KnobWidget extends WritablePVWidget {
 
     public WidgetProperty<WidgetColor> propColorOK ( ) {
         return color_ok;
+    }
+
+    public WidgetProperty<Boolean> propDragDisabled ( ) {
+        return drag_disabled;
     }
 
     public WidgetProperty<Boolean> propEnabled ( ) {
@@ -291,6 +297,7 @@ public class KnobWidget extends WritablePVWidget {
         properties.add(value_color      = propValueColor.createProperty(this, new WidgetColor(0, 22, 0, 153)));
         properties.add(value_visible    = propValueVisible.createProperty(this, true));
 
+        properties.add(drag_disabled    = propDragDisabled.createProperty(this, false));
         properties.add(enabled          = propEnabled.createProperty(this, true));
         properties.add(limits_from_pv   = propLimitsFromPV.createProperty(this, true));
         properties.add(minimum          = propMinimum.createProperty(this, 0.0));

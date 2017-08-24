@@ -1,10 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <display version="2.0.0">
   <name>Knob Widget</name>
-  <width>660</width>
-  <height>900</height>
+  <width>670</width>
+  <height>920</height>
   <actions execute_as_one="true">
   </actions>
+  <widget type="rectangle" version="2.0.0">
+    <name>Rectangle_1</name>
+    <x>10</x>
+    <y>700</y>
+    <width>330</width>
+    <height>210</height>
+    <line_width>1</line_width>
+    <line_color>
+      <color red="100" green="80" blue="60" alpha="160">
+      </color>
+    </line_color>
+    <background_color>
+      <color red="200" green="180" blue="160" alpha="160">
+      </color>
+    </background_color>
+    <corner_width>5</corner_width>
+    <corner_height>5</corner_height>
+  </widget>
   <widget type="label" version="2.0.0">
     <name>Label</name>
     <class>TITLE</class>
@@ -270,11 +288,12 @@ Extrema (maximum and minimum values) can be hidden.</text>
       <color red="255" green="245" blue="235" alpha="200">
       </color>
     </value_color>
+    <drag_disabled>true</drag_disabled>
     <synced_knob>true</synced_knob>
   </widget>
   <widget type="knob" version="2.0.0">
     <name>Knob_2</name>
-    <pv_name>loc://xxx(50)</pv_name>
+    <pv_name>sim://ramp(-20,100,1,0.1)</pv_name>
     <x>180</x>
     <y>710</y>
     <width>150</width>
@@ -300,7 +319,7 @@ Extrema (maximum and minimum values) can be hidden.</text>
       </color>
     </color_ok>
     <thumb_color>
-      <color name="OK" red="0" green="255" blue="0">
+      <color red="200" green="180" blue="160">
       </color>
     </thumb_color>
     <value_color>
@@ -308,34 +327,42 @@ Extrema (maximum and minimum values) can be hidden.</text>
       </color>
     </value_color>
     <rules>
-      <rule name="Color" prop_id="thumb_color" out_exp="false">
-        <exp bool_exp="pv0&gt;=90">
+      <rule name="Value Color" prop_id="value_color" out_exp="false">
+        <exp bool_exp="pv0 &lt; 10">
           <value>
-            <color name="MAJOR" red="255" green="0" blue="0">
+            <color red="255" green="0" blue="0">
             </color>
           </value>
         </exp>
-        <exp bool_exp="pv0&gt;=80">
+        <exp bool_exp="pv0 &gt;= 10 &amp;&amp; pv0 &lt; 20">
           <value>
-            <color name="MINOR" red="255" green="128" blue="0">
+            <color red="255" green="200" blue="0">
             </color>
           </value>
         </exp>
-        <exp bool_exp="pv0&lt;=10">
+        <exp bool_exp="pv0 &gt;= 20 &amp;&amp; pv0 &lt;= 80">
           <value>
-            <color name="MAJOR" red="255" green="0" blue="0">
+            <color red="55" green="255" blue="35">
             </color>
           </value>
         </exp>
-        <exp bool_exp="pv0&lt;=20">
+        <exp bool_exp="pv0 &gt; 80 &amp;&amp; pv0 &lt;= 90">
           <value>
-            <color name="MINOR" red="255" green="128" blue="0">
+            <color red="255" green="200" blue="0">
             </color>
           </value>
         </exp>
-        <pv_name>$(pv_name)</pv_name>
+        <exp bool_exp="pv0 &gt; 90">
+          <value>
+            <color red="255" green="0" blue="0">
+            </color>
+          </value>
+        </exp>
+        <pv_name>sim://ramp(-20,100,1,0.1)</pv_name>
       </rule>
     </rules>
+    <drag_disabled>true</drag_disabled>
+    <limits_from_pv>false</limits_from_pv>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_9</name>
@@ -356,26 +383,32 @@ Extrema (maximum and minimum values) can be hidden.</text>
   <widget type="knob" version="2.0.0">
     <name>Knob_3</name>
     <pv_name>loc://knob-pv1&lt;VDouble&gt;(30.0)</pv_name>
-    <x>340</x>
+    <x>350</x>
     <y>710</y>
     <width>150</width>
-    <height>120</height>
+    <height>140</height>
     <color>
       <color red="153" green="77" blue="0">
       </color>
     </color>
+    <show_hihi>false</show_hihi>
+    <show_high>false</show_high>
+    <show_low>false</show_low>
+    <show_lolo>false</show_lolo>
     <thumb_color>
       <color name="OK" red="0" green="255" blue="0">
       </color>
     </thumb_color>
+    <limits_from_pv>false</limits_from_pv>
+    <minimum>-100.0</minimum>
   </widget>
   <widget type="knob" version="2.0.0">
     <name>Knob_4</name>
     <pv_name>loc://knob-pv2&lt;VDouble&gt;(40.0)</pv_name>
-    <x>500</x>
+    <x>510</x>
     <y>710</y>
     <width>150</width>
-    <height>120</height>
+    <height>140</height>
     <color>
       <color red="77" green="51" blue="153">
       </color>
@@ -384,98 +417,55 @@ Extrema (maximum and minimum values) can be hidden.</text>
       <color name="OK" red="0" green="255" blue="0">
       </color>
     </thumb_color>
+    <limits_from_pv>false</limits_from_pv>
     <write_on_release>false</write_on_release>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update</name>
     <pv_name>loc://knob-pv1</pv_name>
-    <x>360</x>
-    <y>840</y>
+    <x>370</x>
+    <y>860</y>
     <width>110</width>
     <horizontal_alignment>1</horizontal_alignment>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update_1</name>
     <pv_name>loc://knob-pv2</pv_name>
-    <x>520</x>
-    <y>840</y>
+    <x>530</x>
+    <y>860</y>
     <width>110</width>
     <horizontal_alignment>1</horizontal_alignment>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_11</name>
     <text>write on release</text>
-    <x>340</x>
-    <y>870</y>
+    <x>350</x>
+    <y>890</y>
     <width>150</width>
     <horizontal_alignment>1</horizontal_alignment>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_12</name>
     <text>write continuously</text>
-    <x>502</x>
-    <y>870</y>
+    <x>510</x>
+    <y>890</y>
     <width>150</width>
     <horizontal_alignment>1</horizontal_alignment>
   </widget>
-  <widget type="knob" version="2.0.0">
-    <name>Knob_5</name>
-    <pv_name>loc://xxxx(50)</pv_name>
-    <x>180</x>
-    <y>910</y>
-    <width>150</width>
-    <height>150</height>
-    <color_hihi>
-      <color red="255" green="0" blue="0" alpha="160">
+  <widget type="label" version="2.0.0">
+    <name>Label_13</name>
+    <text>THUMB DRAG DISABLED: THE PV IS NOT WRITABLE</text>
+    <x>20</x>
+    <y>890</y>
+    <width>310</width>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0">
+      </font>
+    </font>
+    <foreground_color>
+      <color red="179" green="102" blue="26">
       </color>
-    </color_hihi>
-    <color_high>
-      <color red="255" green="200" blue="0" alpha="160">
-      </color>
-    </color_high>
-    <color_lolo>
-      <color red="255" green="0" blue="0" alpha="160">
-      </color>
-    </color_lolo>
-    <color_low>
-      <color red="255" green="200" blue="0" alpha="160">
-      </color>
-    </color_low>
-    <color_ok>
-      <color red="55" green="255" blue="35" alpha="160">
-      </color>
-    </color_ok>
-    <thumb_color>
-      <color name="OK" red="0" green="255" blue="0">
-      </color>
-    </thumb_color>
-    <value_color>
-      <color name="OK" red="0" green="255" blue="0">
-      </color>
-    </value_color>
-    <scripts>
-      <script file="EmbeddedPy">
-        <text><![CDATA[# Embedded python script
-from org.csstudio.display.builder.runtime.script import PVUtil
-
-pv0 = PVUtil.getDouble(pvs[0])
-if pv0 >= widget.getPropertyValue("level_hihi"):
-    color = widget.getPropertyValue("color_hihi")
-elif pv0 >= widget.getPropertyValue("level_high"):
-    color = widget.getPropertyValue("color_high")
-elif pv0 <= widget.getPropertyValue("level_lolo"):
-    color = widget.getPropertyValue("color_lolo")
-elif pv0 <= widget.getPropertyValue("level_low"):
-    color = widget.getPropertyValue("color_low")
-else:
-    color = widget.getPropertyValue("color_ok")
-
-widget.setPropertyValue("thumb_color", color)
-
-]]>
-</text>
-        <pv_name>$(pv_name)</pv_name>
-      </script>
-    </scripts>
+    </foreground_color>
+    <horizontal_alignment>1</horizontal_alignment>
   </widget>
 </display>

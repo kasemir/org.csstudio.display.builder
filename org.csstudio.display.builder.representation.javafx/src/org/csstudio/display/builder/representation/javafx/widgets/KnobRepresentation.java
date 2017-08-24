@@ -86,8 +86,8 @@ public class KnobRepresentation extends RegionBaseRepresentation<Knob, KnobWidge
 
         if ( dirtyLimits.checkAndClear() ) {
             jfx_node.setGradientStops(computeGradientStops());
-//            jfx_node.setMinValue(min);
-//            jfx_node.setMaxValue(max);
+            jfx_node.setMinValue(min);
+            jfx_node.setMaxValue(max);
         }
 
         if ( dirtyUnit.checkAndClear() ) {
@@ -96,6 +96,7 @@ public class KnobRepresentation extends RegionBaseRepresentation<Knob, KnobWidge
 
         if ( dirtyStyle.checkAndClear() ) {
 //            jfx_node.setDisable(!model_widget.propEnabled().getValue());
+            jfx_node.setDragDisabled(model_widget.propDragDisabled().getValue());
             Styles.update(jfx_node, Styles.NOT_ENABLED, !model_widget.propEnabled().getValue());
         }
 
@@ -150,6 +151,7 @@ public class KnobRepresentation extends RegionBaseRepresentation<Knob, KnobWidge
         knob.setCurrentValueAlwaysVisible(model_widget.propValueVisible().getValue());
         knob.setCurrentValueColor(JFXUtil.convert(model_widget.propValueColor().getValue()));
         knob.setDecimals(FormatOptionHandler.actualPrecision(model_widget.runtimePropValue().getValue(), model_widget.propPrecision().getValue()));
+        knob.setDragDisabled(model_widget.propDragDisabled().getValue());
         knob.setExtremaVisible(model_widget.propExtremaVisible().getValue());
         knob.setGradientStops(computeGradientStops());
         knob.setIndicatorColor(JFXUtil.convert(model_widget.propThumbColor().getValue()));
@@ -223,6 +225,7 @@ public class KnobRepresentation extends RegionBaseRepresentation<Knob, KnobWidge
         model_widget.propUnit().addUntypedPropertyListener(this::unitChanged);
         model_widget.propUnitFromPV().addUntypedPropertyListener(this::unitChanged);
 
+        model_widget.propDragDisabled().addUntypedPropertyListener(this::styleChanged);
         model_widget.propEnabled().addUntypedPropertyListener(this::styleChanged);
 
         if ( toolkit.isEditMode() ) {
