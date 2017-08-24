@@ -177,6 +177,7 @@ public class Messages extends NLS
     public static String WidgetProperties_DiscreteHours;
     public static String WidgetProperties_DiscreteMinutes;
     public static String WidgetProperties_DiscreteSeconds;
+    public static String WidgetProperties_DragDisabled;
     public static String WidgetProperties_Editable;
     public static String WidgetProperties_EmptyColor;
     public static String WidgetProperties_Enabled;
