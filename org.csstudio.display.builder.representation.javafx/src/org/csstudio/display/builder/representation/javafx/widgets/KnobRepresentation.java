@@ -30,7 +30,6 @@ import org.diirt.vtype.ValueUtil;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Stop;
 import se.ess.knobs.Knob;
-import se.ess.knobs.KnobBuilder;
 
 /**
  * @author claudiorosati, European Spallation Source ERIC
@@ -95,7 +94,6 @@ public class KnobRepresentation extends RegionBaseRepresentation<Knob, KnobWidge
         }
 
         if ( dirtyStyle.checkAndClear() ) {
-//            jfx_node.setDisable(!model_widget.propEnabled().getValue());
             jfx_node.setDragDisabled(model_widget.propDragDisabled().getValue());
             Styles.update(jfx_node, Styles.NOT_ENABLED, !model_widget.propEnabled().getValue());
         }
@@ -142,28 +140,7 @@ public class KnobRepresentation extends RegionBaseRepresentation<Knob, KnobWidge
 
         unit.set(model_widget.propUnit().getValue());
 
-        Knob knob = KnobBuilder.create().build();
-
-        knob.setPrefHeight(model_widget.propHeight().getValue());
-        knob.setPrefWidth(model_widget.propWidth().getValue());
-        knob.setBackgroundColor(model_widget.propTransparent().getValue() ? Color.TRANSPARENT : JFXUtil.convert(model_widget.propBackgroundColor().getValue()));
-        knob.setColor(JFXUtil.convert(model_widget.propColor().getValue()));
-        knob.setCurrentValueAlwaysVisible(model_widget.propValueVisible().getValue());
-        knob.setCurrentValueColor(JFXUtil.convert(model_widget.propValueColor().getValue()));
-        knob.setDecimals(FormatOptionHandler.actualPrecision(model_widget.runtimePropValue().getValue(), model_widget.propPrecision().getValue()));
-        knob.setDragDisabled(model_widget.propDragDisabled().getValue());
-        knob.setExtremaVisible(model_widget.propExtremaVisible().getValue());
-        knob.setGradientStops(computeGradientStops());
-        knob.setIndicatorColor(JFXUtil.convert(model_widget.propThumbColor().getValue()));
-        knob.setMaxValue(max);
-        knob.setMinValue(min);
-        knob.setTagColor(JFXUtil.convert(model_widget.propTagColor().getValue()));
-        knob.setTagVisible(model_widget.propTagVisible().getValue());
-        knob.setTextColor(JFXUtil.convert(model_widget.propTextColor().getValue()));
-        knob.setUnit(unit.get());
-
-//        knob.setDisable(!model_widget.propEnabled().getValue());
-        Styles.update(knob, Styles.NOT_ENABLED, !model_widget.propEnabled().getValue());
+        Knob knob = new Knob();
 
         knob.setOnTargetSet(e -> {
             if ( !toolkit.isEditMode() ) {
@@ -175,6 +152,14 @@ public class KnobRepresentation extends RegionBaseRepresentation<Knob, KnobWidge
                 toolkit.fireWrite(model_widget, newValue);
             }
         });
+
+        dirtyContent.mark();
+        dirtyGeometry.mark();
+        dirtyLimits.mark();
+        dirtyLook.mark();
+        dirtyStyle.mark();
+        dirtyUnit.mark();
+        toolkit.scheduleUpdate(this);
 
         return knob;
 
