@@ -160,6 +160,7 @@ public class Messages extends NLS
     public static String WidgetProperties_ColorLoLo;
     public static String WidgetProperties_ColorLow;
     public static String WidgetProperties_ColorMap;
+    public static String WidgetProperties_ColorOK;
     public static String WidgetProperties_Connected;
     public static String WidgetProperties_CornerHeight;
     public static String WidgetProperties_CornerWidth;
@@ -176,9 +177,11 @@ public class Messages extends NLS
     public static String WidgetProperties_DiscreteHours;
     public static String WidgetProperties_DiscreteMinutes;
     public static String WidgetProperties_DiscreteSeconds;
+    public static String WidgetProperties_DragDisabled;
     public static String WidgetProperties_Editable;
     public static String WidgetProperties_EmptyColor;
     public static String WidgetProperties_Enabled;
+    public static String WidgetProperties_ExtremaVisible;
     public static String WidgetProperties_File;
     public static String WidgetProperties_FillColor;
     public static String WidgetProperties_FlatBar;
@@ -282,12 +285,16 @@ public class Messages extends NLS
     public static String WidgetProperties_StretchToFit;
     public static String WidgetProperties_Symbol;
     public static String WidgetProperties_Symbols;
+    public static String WidgetProperties_SyncedKnob;
+    public static String WidgetProperties_TagColor;
+    public static String WidgetProperties_TagVisible;
     public static String WidgetProperties_Text;
     public static String WidgetProperties_TextColor;
     public static String WidgetProperties_TextVisible;
     public static String WidgetProperties_Threshold;
     public static String WidgetProperties_ThresholdColor;
     public static String WidgetProperties_ThresholdVisible;
+    public static String WidgetProperties_ThumbColor;
     public static String WidgetProperties_TickLabelColor;
     public static String WidgetProperties_TickLabelDecimals;
     public static String WidgetProperties_TickLabelsVisible;
@@ -312,6 +319,7 @@ public class Messages extends NLS
     public static String WidgetProperties_WidthPVName;
     public static String WidgetProperties_WrapWords;
     public static String WidgetProperties_Writable;
+    public static String WidgetProperties_WriteOnRelease;
     public static String WidgetProperties_X;
     public static String WidgetProperties_XPVName;
     public static String WidgetProperties_Y;

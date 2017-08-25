@@ -12,6 +12,7 @@ package org.csstudio.display.builder.model.widgets;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newColorPropertyDescriptor;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.csstudio.display.builder.model.Messages;
@@ -43,7 +44,10 @@ public class GaugeWidget extends BaseGaugeWidget {
         WidgetCategory.MONITOR,
         "Gauge",
         "platform:/plugin/org.csstudio.display.builder.model/icons/gauge.png",
-        "Gauge that can read a numeric PV"
+        "Gauge that can read a numeric PV",
+        Arrays.asList(
+            "org.csstudio.opibuilder.widgets.gauge"
+        )
     ) {
         @Override
         public Widget createWidget ( ) {

@@ -100,12 +100,6 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
                 jfx_node.setTitleColor((Color) value);
             }
 
-            value = model_widget.propUnit().getValue();
-
-            if ( !Objects.equals(value, jfx_node.getUnit()) ) {
-                jfx_node.setUnit((String) value);
-            }
-
             value = JFXUtil.convert(model_widget.propUnitColor().getValue());
 
             if ( !Objects.equals(value, jfx_node.getUnitColor()) ) {
@@ -184,7 +178,6 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
             } finally {
                 updatingValue.set(false);
             }
-
         }
 
     }
@@ -339,7 +332,6 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         model_widget.propTitle().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTitleColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTransparent().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propUnit().addUntypedPropertyListener(this::lookChanged);
         model_widget.propUnitColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propValueColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propValueVisible().addUntypedPropertyListener(this::lookChanged);
@@ -360,6 +352,7 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         model_widget.propMaximum().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propMinimum().addUntypedPropertyListener(this::limitsChanged);
 
+        model_widget.propUnit().addUntypedPropertyListener(this::unitChanged);
         model_widget.propUnitFromPV().addUntypedPropertyListener(this::unitChanged);
 
         model_widget.propEnabled().addUntypedPropertyListener(this::styleChanged);
@@ -475,7 +468,6 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
             }
 
         }
-
 
         if ( ! Objects.equals(unit.get(), newUnit)) {
             unit.set(newUnit);
