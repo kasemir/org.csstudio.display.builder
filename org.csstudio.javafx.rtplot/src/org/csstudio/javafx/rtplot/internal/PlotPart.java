@@ -34,11 +34,9 @@ public class PlotPart
     final private static boolean debug = false;
     private long debug_runs = 0;
 
-    // @guardedBy(this)
-    private String name;
+    private volatile String name;
 
-    // @guardedBy(this)
-    private Color color = Color.BLACK;
+    private volatile Color color = Color.BLACK;
 
     final private PlotPartListener listener;
 
@@ -78,7 +76,7 @@ public class PlotPart
     }
 
     /** @return Part name */
-    public synchronized String getName()
+    public String getName()
     {
         return name;
     }
@@ -98,7 +96,7 @@ public class PlotPart
     }
 
     /** @return Color to use for this part */
-    public synchronized Color getColor()
+    public Color getColor()
     {
         return color;
     }

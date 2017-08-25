@@ -10,9 +10,11 @@ package org.csstudio.display.builder.model.widgets.plots;
 import static org.csstudio.display.builder.model.ModelPlugin.logger;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propInteractive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropConfigure;
+import static org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.propGridColor;
 import static org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.propToolbar;
 
 import java.util.Arrays;
@@ -314,7 +316,9 @@ public class XYPlotWidget extends VisibleWidget
         }
     };
 
+    private volatile WidgetProperty<WidgetColor> foreground;
     private volatile WidgetProperty<WidgetColor> background;
+    private volatile WidgetProperty<WidgetColor> grid;
     private volatile WidgetProperty<String> title;
     private volatile WidgetProperty<WidgetFont> title_font;
     private volatile WidgetProperty<Boolean> show_toolbar;
@@ -340,7 +344,9 @@ public class XYPlotWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
+        properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
         properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
+        properties.add(grid = propGridColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.GRID)));
         properties.add(title = PlotWidgetProperties.propTitle.createProperty(this, ""));
         properties.add(title_font = PlotWidgetProperties.propTitleFont.createProperty(this, NamedWidgetFonts.HEADER2));
         properties.add(show_toolbar = propToolbar.createProperty(this,false));
@@ -399,6 +405,18 @@ public class XYPlotWidget extends VisibleWidget
     public WidgetProperty<WidgetColor> propBackground()
     {
         return background;
+    }
+
+    /** @return 'foreground_color' property */
+    public WidgetProperty<WidgetColor> propForeground()
+    {
+        return foreground;
+    }
+
+    /** @return 'grid_color' property */
+    public WidgetProperty<WidgetColor> propGridColor()
+    {
+        return grid;
     }
 
     /** @return 'title' property */

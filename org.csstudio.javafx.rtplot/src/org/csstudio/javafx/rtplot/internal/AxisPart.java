@@ -10,6 +10,7 @@ package org.csstudio.javafx.rtplot.internal;
 import static org.csstudio.javafx.rtplot.Activator.logger;
 
 import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -53,6 +54,8 @@ public abstract class AxisPart<T extends Comparable<T>> extends PlotPart impleme
 
     protected volatile boolean show_grid = false;
 
+    protected volatile Color grid_color;
+
     private AtomicBoolean visible = new AtomicBoolean(true);
 
     /** Is this a horizontal axis? Otherwise: Vertical. */
@@ -84,6 +87,7 @@ public abstract class AxisPart<T extends Comparable<T>> extends PlotPart impleme
 
     /** Font to use for scale */
     protected volatile Font scale_font = new Font(Plot.FONT_FAMILY, Font.PLAIN, 12);
+
 
     /** @param name Axis name
      *  @param listener {@link PlotPartListener}
@@ -154,6 +158,11 @@ public abstract class AxisPart<T extends Comparable<T>> extends PlotPart impleme
         show_grid = grid;
         requestLayout();
         requestRefresh();
+    }
+
+    public void setGridColor(final Color grid_color)
+    {
+        this.grid_color = grid_color;
     }
 
     /** {@inheritDoc} */

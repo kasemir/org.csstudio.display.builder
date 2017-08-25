@@ -291,7 +291,8 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
         final Stroke old_width = gc.getStroke();
         final Color old_bg = gc.getBackground();
         final Color old_fg = gc.getColor();
-        gc.setColor(GraphicsUtils.convert(getColor()));
+        final Color foreground = GraphicsUtils.convert(getColor());
+        gc.setColor(foreground);
         gc.setFont(scale_font);
 
         // Simple line for the axis
@@ -322,8 +323,10 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
             // Grid line
             if (show_grid)
             {   // Dashed line
+                gc.setColor(grid_color);
                 gc.setStroke(new BasicStroke(1, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 1, new float[] { 5 }, 0));
                 gc.drawLine(plot_bounds.x, y, plot_bounds.x + plot_bounds.width-1, y);
+                gc.setColor(foreground);
             }
             gc.setStroke(old_width);
 

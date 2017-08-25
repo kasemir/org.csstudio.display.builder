@@ -353,6 +353,8 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         super.registerListeners();
 
         model_widget.propBackground().addUntypedPropertyListener(config_listener);
+        model_widget.propForeground().addUntypedPropertyListener(config_listener);
+        model_widget.propGridColor().addUntypedPropertyListener(config_listener);
         model_widget.propTitle().addUntypedPropertyListener(config_listener);
         model_widget.propTitleFont().addUntypedPropertyListener(config_listener);
         model_widget.propToolbar().addUntypedPropertyListener(config_listener);
@@ -481,7 +483,9 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
 
     private void updateConfig()
     {
+        plot.setForeground(JFXUtil.convert(model_widget.propForeground().getValue()));
         plot.setBackground(JFXUtil.convert(model_widget.propBackground().getValue()));
+        plot.setGridColor(JFXUtil.convert(model_widget.propGridColor().getValue()));
         plot.setTitleFont(JFXUtil.convert(model_widget.propTitleFont().getValue()));
         plot.setTitle(model_widget.propTitle().getValue());
 
