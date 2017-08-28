@@ -108,11 +108,11 @@ public class TimeAxis extends AxisPart<Instant>
 
         super.paint(gc);
         final Rectangle region = getBounds();
-        final int region_end = region.x + region.width;
 
         final Stroke old_width = gc.getStroke();
         final Color old_fg = gc.getColor();
-        gc.setColor(GraphicsUtils.convert(getColor()));
+        final Color foreground = GraphicsUtils.convert(getColor());
+        gc.setColor(foreground);
         gc.setFont(scale_font);
 
         // Simple line for the axis
@@ -120,19 +120,11 @@ public class TimeAxis extends AxisPart<Instant>
 
         // Axis and Tick marks
         computeTicks(gc);
-        final int minor_ticks = ticks.getMinorTicks();
-        Instant tick = ticks.getStart();
-        int x = getScreenCoord(tick);
-        int prev_x = getScreenCoord(ticks.getPrevious(tick));
-        while (x < region_end)
-        {   // Minor ticks?
-            for (int i=1; i<minor_ticks; ++i)
-            {
-                final int minor_x = prev_x + ((x - prev_x)*i)/minor_ticks;
-                if (minor_x < region.x)
-                    continue;
-                gc.drawLine(minor_x, region.y, minor_x, region.y + MINOR_TICK_LENGTH);
-            }
+
+        Rectangle avoid = null;
+        for (MajorTick<Instant> tick : ticks.getMajorTicks())
+        {
+            final int x = getScreenCoord(tick.getValue());
 
             // Major tick marks
             gc.setStroke(TICK_STROKE);
@@ -140,27 +132,22 @@ public class TimeAxis extends AxisPart<Instant>
 
             // Grid line
             if (show_grid)
-            {
-                // Dashed line
+            {   // Dashed line
+                gc.setColor(grid_color);
                 gc.setStroke(new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10, new float[] { 2 }, 0));
                 gc.drawLine(x, plot_bounds.y, x, region.y-1);
+                gc.setColor(foreground);
             }
             gc.setStroke(old_width);
 
             // Tick Label
-            drawTickLabel(gc, tick, false);
-
-            prev_x = x;
-            tick = ticks.getNext(tick);
-            x = getScreenCoord(tick);
+            avoid = drawTickLabel(gc, x, tick.getLabel(), false, avoid);
         }
-        // Minor ticks after last major tick?
-        for (int i=1; i<minor_ticks; ++i)
+
+        for (MinorTick<Instant> tick : ticks.getMinorTicks())
         {
-            final int minor_x = prev_x + ((x - prev_x)*i)/minor_ticks;
-            if (minor_x >= region_end)
-                break;
-            gc.drawLine(minor_x, region.y, minor_x, region.y + MINOR_TICK_LENGTH);
+            final int x = getScreenCoord(tick.getValue());
+            gc.drawLine(x, region.y, x, region.y + MINOR_TICK_LENGTH);
         }
 
         if (! getName().isEmpty())
@@ -176,13 +163,9 @@ public class TimeAxis extends AxisPart<Instant>
         gc.setColor(old_fg);
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public void drawTickLabel(final Graphics2D gc, final Instant tick, final boolean floating)
+    private Rectangle drawTickLabel(final Graphics2D gc, final int x, final String mark, final boolean floating, final Rectangle avoid)
     {
         final Rectangle region = getBounds();
-        final int x = getScreenCoord(tick);
-        final String mark = floating ? ticks.formatDetailed(tick) : ticks.format(tick);
         gc.setFont(scale_font);
         final Rectangle metrics = GraphicsUtils.measureText(gc, mark);
         int tx = x - metrics.width/2;
@@ -190,18 +173,31 @@ public class TimeAxis extends AxisPart<Instant>
         if (tx + metrics.width > region.x + region.width)
             tx = region.x + region.width - metrics.width;
 
+        final Rectangle outline = new Rectangle(tx-BORDER, region.y + TICK_LENGTH-BORDER, metrics.width+2*BORDER, metrics.height+2*BORDER);
         if (floating)
         {
             gc.drawLine(x, region.y, x, region.y + TICK_LENGTH);
             final Color orig_fill = gc.getColor();
             gc.setColor(java.awt.Color.WHITE);
-            gc.fillRect(tx-BORDER, region.y + TICK_LENGTH-BORDER, metrics.width+2*BORDER, metrics.height+2*BORDER);
+            gc.fillRect(outline.x, outline.y, outline.width, outline.height);
             gc.setColor(orig_fill);
-            gc.drawRect(tx-BORDER, region.y + TICK_LENGTH-BORDER, metrics.width+2*BORDER, metrics.height+2*BORDER);
+            gc.drawRect(outline.x, outline.y, outline.width, outline.height);
         }
 
+        if (avoid != null  &&  outline.intersects(avoid))
+            return avoid;
         // Debug: Outline of text
         // gc.drawRect(tx, region.y + TICK_LENGTH, metrics.width, metrics.height);
         GraphicsUtils.drawMultilineText(gc, tx, region.y + TICK_LENGTH + metrics.y, mark);
+        return outline;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void drawTickLabel(final Graphics2D gc, final Instant tick)
+    {
+        final int x = getScreenCoord(tick);
+        final String mark = ticks.formatDetailed(tick);
+        drawTickLabel(gc, x, mark, true, null);
     }
 }

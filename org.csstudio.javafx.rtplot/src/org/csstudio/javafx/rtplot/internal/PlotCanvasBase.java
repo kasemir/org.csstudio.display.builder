@@ -20,6 +20,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
+import org.csstudio.javafx.BufferUtil;
+import org.csstudio.javafx.DoubleBuffer;
 import org.csstudio.javafx.rtplot.util.RTPlotUpdateThrottle;
 
 import javafx.application.Platform;
@@ -116,6 +118,9 @@ abstract class PlotCanvasBase extends ImageView
         }
     };
 
+    /** (Double) buffer used to combined the plot with mouse feedback overlays */
+    private final DoubleBuffer buffers = new DoubleBuffer();
+
     /** Redraw the plot on UI thread by painting the 'plot_image' */
     private final Runnable redraw_runnable = () ->
     {
@@ -126,17 +131,17 @@ abstract class PlotCanvasBase extends ImageView
             if (copy.getType() != BufferedImage.TYPE_INT_ARGB)
                 throw new IllegalPathStateException("Need TYPE_INT_ARGB for direct buffer access, not " + copy.getType());
             final int width = copy.getWidth(), height = copy.getHeight();
-            final BufferedImage combined = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-            final int[] src = ((DataBufferInt) copy.getRaster().getDataBuffer()).getData();
+            final BufferUtil buffer = buffers.getBufferedImage(width, height);
+            final BufferedImage combined = buffer.getImage();
+            final int[] src  = ((DataBufferInt)     copy.getRaster().getDataBuffer()).getData();
             final int[] dest = ((DataBufferInt) combined.getRaster().getDataBuffer()).getData();
             System.arraycopy(src, 0, dest, 0, width * height);
 
             // Add mouse mode feedback
-            final Graphics2D gc = combined.createGraphics();
+            final Graphics2D gc = buffer.getGraphics();
             gc.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             gc.setColor(Color.BLACK);
             drawMouseModeFeedback(gc);
-            gc.dispose();
 
             // Convert to JFX image and show
             final WritableImage image = new WritableImage(width, height);

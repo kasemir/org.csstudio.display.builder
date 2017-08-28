@@ -267,26 +267,13 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
         gc.setFont(scale_font);
         final FontMetrics metrics = gc.getFontMetrics();
 
-        // Measure first tick
-        double tick = ticks.getStart();
-        String mark = ticks.format(tick);
-        int low = metrics.stringWidth(mark);
-        // System.out.println("Initial tick: " + mark + " (" + low + ")");
+        final List<MajorTick<Double>> major_ticks = ticks.getMajorTicks();
+        if (major_ticks.isEmpty())
+            return super.getPixelGaps(gc);
 
-        // Get last tick
-        final double low_value = range.getLow();
-        final double high_value = range.getHigh();
-        final boolean normal = low_value <= high_value;
-        double last = tick;
-        while ((normal ? tick <= high_value : tick >= high_value)  &&  Double.isFinite(tick))
-        {
-            last = tick;
-            tick = ticks.getNext(tick);
-        }
-        // Measure last tick
-        mark = ticks.format(last);
-        final int high = metrics.stringWidth(mark);
-        // System.out.println("Final tick: " + mark + " (" + high + ")");
+        // Measure first and last tick
+        final int low = metrics.stringWidth(major_ticks.get(0).getLabel());
+        final int high = metrics.stringWidth(major_ticks.get(major_ticks.size()-1).getLabel());
 
         return new int[] { low / 2, high / 2 };
     }
@@ -304,7 +291,8 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
         final Stroke old_width = gc.getStroke();
         final Color old_bg = gc.getBackground();
         final Color old_fg = gc.getColor();
-        gc.setColor(GraphicsUtils.convert(getColor()));
+        final Color foreground = GraphicsUtils.convert(getColor());
+        gc.setColor(foreground);
         gc.setFont(scale_font);
 
         // Simple line for the axis
@@ -324,56 +312,34 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
         gc.drawLine(line_x, region.y, line_x, region.y + region.height-1);
         computeTicks(gc);
 
-        final double low_value = range.getLow();
-        final double high_value = range.getHigh();
-        final boolean normal = low_value <= high_value;
-        final int minor_ticks = ticks.getMinorTicks();
-        double tick = ticks.getStart();
-        double prev = ticks.getPrevious(tick);
-        for (/**/;
-                (normal ? tick <= high_value : tick >= high_value)  &&  Double.isFinite(tick);
-                tick = ticks.getNext(tick))
+        // Major tick marks
+        Rectangle avoid = null;
+        for (MajorTick<Double> tick : ticks.getMajorTicks())
         {
-            // Minor ticks?
-            for (int i=1; i<minor_ticks; ++i)
-            {
-                final double minor = prev + ((tick - prev)*i)/minor_ticks;
-                if (normal ? minor < low_value : minor > low_value)
-                    continue;
-                final int y = getScreenCoord(minor);
-                gc.drawLine(minor_x, y, line_x, y);
+            final int y = getScreenCoord(tick.getValue());
+            gc.setStroke(TICK_STROKE);
+            gc.drawLine(line_x, y, tick_x, y);
+
+            // Grid line
+            if (show_grid)
+            {   // Dashed line
+                gc.setColor(grid_color);
+                gc.setStroke(new BasicStroke(1, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 1, new float[] { 5 }, 0));
+                gc.drawLine(plot_bounds.x, y, plot_bounds.x + plot_bounds.width-1, y);
+                gc.setColor(foreground);
             }
+            gc.setStroke(old_width);
 
-            // Major tick marks (skipping those outside visible region)
-            final int y = getScreenCoord(tick);
-            if (y >= region.y  &&  y <= region.y + region.height)
-            {
-                gc.setStroke(TICK_STROKE);
-                gc.drawLine(line_x, y, tick_x, y);
-
-                // Grid line
-                if (show_grid)
-                {
-                    gc.setStroke(new BasicStroke(1, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 1, new float[] { 5 }, 0));
-                    gc.drawLine(plot_bounds.x, y, plot_bounds.x + plot_bounds.width-1, y);
-                }
-                gc.setStroke(old_width);
-
-                // Tick Label
-                drawTickLabel(gc, tick, false);
-            }
-            prev = tick;
+            // Tick Label
+            avoid = drawTickLabel(gc, y, tick.getLabel(), false, avoid);
         }
-        // Minor ticks after last major tick?
-        if (Double.isFinite(tick))
-            for (int i=1; i<minor_ticks; ++i)
-            {
-                final double minor = prev + ((tick - prev)*i)/minor_ticks;
-                if (normal ? minor > high_value : minor < high_value)
-                    break;
-                final int y = getScreenCoord(minor);
-                gc.drawLine(minor_x, y, line_x, y);
-            }
+
+        // Minor tick marks
+        for (MinorTick<Double> tick : ticks.getMinorTicks())
+        {
+            final int y = getScreenCoord(tick.getValue());
+            gc.drawLine(minor_x, y, line_x, y);
+        }
 
         gc.setColor(old_fg);
         gc.setBackground(old_bg);
@@ -389,6 +355,7 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
         final Color old_fg = gc.getColor();
         label_provider.start();
         int i = 0;
+
         while (label_provider.hasNext()  &&  i < label_x.size())
         {   // Draw labels at pre-computed locations
             if (i > 0)
@@ -402,40 +369,57 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
         }
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public void drawTickLabel(final Graphics2D gc, final Double tick, final boolean floating)
+    /** @param gc
+     *  @param screen_y Screen location of label along the axis
+     *  @param mark Label text
+     *  @param floating Add 'floating' box?
+     *  @param avoid Outline of previous label to avoid
+     *  @return Outline of this label or the last one if skipping this label
+     */
+    private Rectangle drawTickLabel(final Graphics2D gc, final int screen_y, final String mark, final boolean floating, final Rectangle avoid)
     {
         final Rectangle region = getBounds();
-        final String mark = floating ? ticks.formatDetailed(tick) : ticks.format(tick);
         gc.setFont(scale_font);
         final FontMetrics metrics = gc.getFontMetrics();
         final int mark_height = metrics.stringWidth(mark);
         final int mark_width = metrics.getHeight();
         final int x = is_right ? region.x + TICK_LENGTH : region.x + region.width - TICK_LENGTH - mark_width;
-        final int y0 = getScreenCoord(tick);
-        int y = y0  - mark_height/2;
+        int y = screen_y  - mark_height/2;
         // Correct location of top label to remain within region
         if (y < 0)
             y = 0;
 
+        final Rectangle outline = new Rectangle(x-BORDER,  y-BORDER, mark_width+2*BORDER, mark_height+2*BORDER);
         if (floating)
         {
             if (is_right)
-                gc.drawLine(x - TICK_LENGTH, y0, x, y0);
+                gc.drawLine(x - TICK_LENGTH, screen_y, x, screen_y);
             else
-                gc.drawLine(x + mark_width, y0, x + mark_width + TICK_LENGTH, y0);
+                gc.drawLine(x + mark_width, screen_y, x + mark_width + TICK_LENGTH, screen_y);
 
             // Box around label
             final Color orig_fill = gc.getColor();
             gc.setColor(java.awt.Color.WHITE);
-            gc.fillRect(x-BORDER,  y-BORDER, mark_width+2*BORDER, mark_height+2*BORDER);
+            gc.fillRect(outline.x, outline.y, outline.width, outline.height);
             gc.setColor(orig_fill);
-            gc.drawRect(x-BORDER,  y-BORDER, mark_width+2*BORDER, mark_height+2*BORDER);
+            gc.drawRect(outline.x, outline.y, outline.width, outline.height);
         }
 
+        if (avoid != null  &&  outline.intersects(avoid))
+            return avoid;
         // Debug: Outline of text
         // gc.drawRect(x,  y, mark_width, mark_height); // Debug outline of tick label
         GraphicsUtils.drawVerticalText(gc, x, y, mark, !is_right);
+        return outline;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void drawTickLabel(final Graphics2D gc, final Double tick)
+    {
+        final int y0 = getScreenCoord(tick);
+        final String mark = ticks.formatDetailed(tick);
+
+        drawTickLabel(gc, y0, mark, true, null);
     }
 }

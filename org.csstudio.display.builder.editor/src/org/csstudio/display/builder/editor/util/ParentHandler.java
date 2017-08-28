@@ -120,53 +120,38 @@ public class ParentHandler
                 return findParent(widgets);
         }
 
-        private ParentSearchResult findParent ( final List<Widget> children ) {
-
-//             System.out.println("Searching for surrounding parent in " + children.size() + " widgets on " + Thread.currentThread().getName());
-
+        private ParentSearchResult findParent(final List<Widget> children)
+        {
+            // System.out.println("Searching for surrounding parent in " + children.size() + " widgets on " + Thread.currentThread().getName());
             final ParentSearchResult result = new ParentSearchResult();
-
-            for ( Widget widget : children ) {
-
-                if ( ignore.contains(widget) ) {
+            for (Widget widget : children)
+            {
+                if (ignore.contains(widget))
                     continue;
-                }
-
                 final ChildrenProperty child_prop;
-
-                if ( widget instanceof GroupWidget ) {
-                    child_prop = ( (GroupWidget) widget ).runtimeChildren();
-                } else if ( widget instanceof TabsWidget ) {    // Check children of _selected_ Tab
-
+                if (widget instanceof GroupWidget)
+                    child_prop = ((GroupWidget) widget).runtimeChildren();
+                else if (widget instanceof TabsWidget)
+                {   // Check children of _selected_ Tab
                     final TabsWidget tabwid = (TabsWidget) widget;
                     final int selected = tabwid.propActiveTab().getValue();
-
                     child_prop = tabwid.propTabs().getValue().get(selected).children();
-
-                } else if ( widget instanceof ArrayWidget ) {
-
-                    List<Widget> widgets = ( (ArrayWidget) widget ).runtimeChildren().getValue();
-
-                    if ( widgets.isEmpty() || ( !ignore.isEmpty() && widgets.get(0).getType().equals(ignore.get(0).getType()) ) ) {
-                        child_prop = ( (ArrayWidget) widget ).runtimeChildren();
-                    } else {
+                }
+                else if (widget instanceof ArrayWidget)
+                {
+                    List<Widget> widgets = ((ArrayWidget) widget).runtimeChildren().getValue();
+                    if (widgets.isEmpty() || (!ignore.isEmpty() && widgets.get(0).getType().equals(ignore.get(0).getType())))
+                        child_prop = ((ArrayWidget) widget).runtimeChildren();
+                    else
                         continue;
-                    }
-
-                } else {
+                }
+                else
                     continue;
-                }
-
-                if ( checkIfWidgetWithinBounds(widget) ) {
+                if (checkIfWidgetWithinBounds(widget))
                     result.update(child_prop, depth);
-                }
-
                 result.update(new ParentWidgetSearch(bounds, child_prop.getValue(), ignore, depth + 1).compute());
-
             }
-
             return result;
-
         }
 
         private boolean checkIfWidgetWithinBounds(final Widget widget)

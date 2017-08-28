@@ -30,6 +30,7 @@ import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
+import org.csstudio.display.builder.model.properties.PredefinedColorMaps;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
 import org.csstudio.display.builder.model.widgets.ArcWidget;
@@ -44,6 +45,7 @@ import org.csstudio.display.builder.model.widgets.EllipseWidget;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.csstudio.display.builder.model.widgets.GaugeWidget;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
+import org.csstudio.display.builder.model.widgets.KnobWidget;
 import org.csstudio.display.builder.model.widgets.LEDWidget;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
 import org.csstudio.display.builder.model.widgets.LinearMeterWidget;
@@ -87,6 +89,7 @@ import org.csstudio.display.builder.representation.javafx.widgets.EmbeddedDispla
 import org.csstudio.display.builder.representation.javafx.widgets.GaugeRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.GroupRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.KnobRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.LEDRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.LabelRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.LinearMeterRepresentation;
@@ -115,6 +118,9 @@ import org.csstudio.display.builder.representation.javafx.widgets.plots.ImageRep
 import org.csstudio.display.builder.representation.javafx.widgets.plots.XYPlotRepresentation;
 import org.csstudio.javafx.DialogHelper;
 import org.csstudio.javafx.Styles;
+import org.csstudio.javafx.rtplot.ColorMappingFunction;
+import org.csstudio.javafx.rtplot.NamedColorMapping;
+import org.csstudio.javafx.rtplot.NamedColorMappings;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.RegistryFactory;
@@ -212,6 +218,8 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     private Group scroll_body;
     private ScrollPane model_root;
 
+    private static boolean initialized_colormaps = false;
+
     /** Constructor
      *  @param edit_mode Edit mode?
      */
@@ -239,6 +247,13 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         }
         for (Map.Entry<String, WidgetRepresentationFactory<Parent, Node>> entry : factories.entrySet())
             register(entry.getKey(), entry.getValue());
+
+        if (! initialized_colormaps)
+        {
+            for (PredefinedColorMaps.Predefined map : PredefinedColorMaps.PREDEFINED)
+                NamedColorMappings.add(new NamedColorMapping(map.getName(), intensity  ->  ColorMappingFunction.getRGB(map.getColor(intensity))));
+            initialized_colormaps = true;
+        }
     }
 
     /**
@@ -261,6 +276,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         factories.put(GaugeWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new GaugeRepresentation());
         factories.put(GroupWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new GroupRepresentation());
         factories.put(ImageWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new ImageRepresentation());
+        factories.put(KnobWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new KnobRepresentation());
         factories.put(LabelWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new LabelRepresentation());
         factories.put(LEDWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new LEDRepresentation());
         factories.put(LinearMeterWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new LinearMeterRepresentation());

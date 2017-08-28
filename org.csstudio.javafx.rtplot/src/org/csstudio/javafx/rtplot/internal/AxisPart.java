@@ -10,6 +10,7 @@ package org.csstudio.javafx.rtplot.internal;
 import static org.csstudio.javafx.rtplot.Activator.logger;
 
 import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -53,6 +54,8 @@ public abstract class AxisPart<T extends Comparable<T>> extends PlotPart impleme
 
     protected volatile boolean show_grid = false;
 
+    protected volatile Color grid_color;
+
     private AtomicBoolean visible = new AtomicBoolean(true);
 
     /** Is this a horizontal axis? Otherwise: Vertical. */
@@ -84,6 +87,7 @@ public abstract class AxisPart<T extends Comparable<T>> extends PlotPart impleme
 
     /** Font to use for scale */
     protected volatile Font scale_font = new Font(Plot.FONT_FAMILY, Font.PLAIN, 12);
+
 
     /** @param name Axis name
      *  @param listener {@link PlotPartListener}
@@ -156,6 +160,11 @@ public abstract class AxisPart<T extends Comparable<T>> extends PlotPart impleme
         requestRefresh();
     }
 
+    public void setGridColor(final Color grid_color)
+    {
+        this.grid_color = grid_color;
+    }
+
     /** {@inheritDoc} */
     @Override
     public boolean isVisible()
@@ -225,6 +234,7 @@ public abstract class AxisPart<T extends Comparable<T>> extends PlotPart impleme
         }
         dirty_ticks = true;
         requestLayout();
+        requestRefresh();
     }
 
     /** @return Transformation between values and pixels */
@@ -369,14 +379,12 @@ public abstract class AxisPart<T extends Comparable<T>> extends PlotPart impleme
      */
     abstract public void paint(final Graphics2D gc, final Rectangle plot_bounds);
 
-    /** Draw a tick label, used both to paint the normal axis labels
-     *  and for special, cursor-related tick locations.
+    /** Draw a floating tick label for cursor-related tick locations.
      *
      *  @param gc GC to use
      *  @param tick Location of the tick
-     *  @param floating Draw in 'floating' mode above ordinary tick labels?
      */
-    abstract public void drawTickLabel(final Graphics2D gc, final T tick, final boolean floating);
+    abstract public void drawTickLabel(final Graphics2D gc, final T tick);
 
 	@Override
     public String toString()

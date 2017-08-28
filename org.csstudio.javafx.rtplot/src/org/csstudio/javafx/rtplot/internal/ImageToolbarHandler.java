@@ -35,6 +35,7 @@ public class ImageToolbarHandler
 {
     public enum ToolIcons
     {
+        CONFIGURE,
         ZOOM_IN,
         ZOOM_OUT,
         PAN,
@@ -99,6 +100,7 @@ public class ImageToolbarHandler
 
     private void addMouseModes(final boolean active)
     {
+        final Button configure = newButton(ToolIcons.CONFIGURE, Messages.ImageOptions);
         zoom_in = newToggleButton(ToolIcons.ZOOM_IN, Messages.Zoom_In_TT);
         zoom_out = newToggleButton(ToolIcons.ZOOM_OUT, Messages.Zoom_Out_TT);
         pan = newToggleButton(ToolIcons.PAN, Messages.Pan_TT);
@@ -107,6 +109,7 @@ public class ImageToolbarHandler
 
         if (active)
         {
+            configure.setOnAction(event -> plot.showConfigurationDialog());
             zoom_in.setOnAction(event ->
             {
                 selectMouseMode(zoom_in);

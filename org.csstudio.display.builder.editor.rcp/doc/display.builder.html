@@ -73,7 +73,7 @@ Select <i>Display Builder</i> and click OK.
 The examples will be in a project folder named "Display Builder".
 </p>
 
-<p>Start the first example display, <b>01_main.bob</b>, by right-clicking on the file in the Navigator and selecting 
+<p>Start the first example display, <b>01_main.bob</b>, by right-clicking on the file in the Navigator and selecting
 <b>Open With...</b> > <b>Display Runtime</b>.
 </p>
 
@@ -94,7 +94,7 @@ can be opened from the menu bar: <b>Window</b> > <b>Open Perspective</b> > <b>Ot
 then select <b>Display Editor</b>.
 </p>
 
-<p>Alternatively, if you are already inside the display editor, 
+<p>Alternatively, if you are already inside the display editor,
 right-click in the central Editor part and select <b>Open Editor Perspective</b>.
 This will open the Display Editor perspective,
 or - in case are already in that perspective -
@@ -117,7 +117,7 @@ Then choose a container and name for the new display file in the New Display wiz
 <h3>Editing an Existing Display</h3>
 
 <p>Right-click on a <i>*.bob</i> or <i>*.opi</i> file in the Navigator and select
-<b>Open With...</b> > <b>Display Editor</b> (or <b>Other</b> > <b>Display Editor</b>). 
+<b>Open With...</b> > <b>Display Editor</b> (or <b>Other</b> > <b>Display Editor</b>).
 </p>
 
 <p>If you are already executing a display, you can open that display file in the editor
@@ -235,7 +235,7 @@ In addition, the properties of all selected widgets can be adjusted in the
 </p>
 
 <p>
-	If the 
+	If the
 	<img src="PLUGINS_ROOT/org.csstudio.display.builder.editor/icons/grid.png"/>
 	<em>Align widgets to Grid</em> button is selected, then the selection outline
 	will align to grid points when moving.
@@ -279,7 +279,7 @@ In addition, the properties of all selected widgets can be adjusted in the
 	<em>Align widgets to Grid</em>,
 	<img src="PLUGINS_ROOT/org.csstudio.display.builder.editor/icons/snap.png"/>
 	<em>Snap to widgets</em>
-	and 
+	and
     <img src="PLUGINS_ROOT/org.csstudio.display.builder.editor/icons/coords.png"/>
     <em>Widget Coordinates</em> buttons again control if the resized region
     snaps to grid coordinates or other widgets,
@@ -324,7 +324,7 @@ In addition, the properties of all selected widgets can be adjusted in the
 	Image files (with extension <code>.bmp</code>, <code>.gif</code>, <code>.jpeg</code>,
 	<code>.jpg</code>, <code>.png</code>, and <code>.svg</code>) and OPI files (with extension
 	<code>.bob</code>, and <code>.opi</code>) can be dropped into the editor.
-	A single image file will create Picture widgets. Multiple image files will create a 
+	A single image file will create Picture widgets. Multiple image files will create a
 	Symbol widget, while OPI files will create
 	Embedded Display ones. The created widget will reference the dropped file,
 	using (if possible) a relative path location.
@@ -496,7 +496,7 @@ note that the "class" property has a drop-down list that includes
 "TITLE" as a known class name.
 Selecting "TITLE" will apply the x, y, font, color and transparent
 settings that were defined in the class.
-Furthermore, these properties are marked with a 
+Furthermore, these properties are marked with a
 <img src="PLUGINS_ROOT/org.csstudio.display.builder.editor/icons/class_property.png"/>
 in the property panel, they cannot be modified.
 </p>
@@ -618,7 +618,7 @@ and enter a text or PV name by configuring the corresponding property.
 </p>
 
 <p>The following is a brief description of core widgets.
-For details on each widget refer to the 
+For details on each widget refer to the
 <a href="#get_started">example displays.</a>
 They showcase each widget and explain their key properties.
 </p>
@@ -869,7 +869,7 @@ properties of a widget, relying on the default behavior of a widget.
 For special cases, widgets can use <a href="#rules">Rules</a> that dynamically
 assign widget property values based on conditional expressions.
 </p>
-  
+
 <h4>scripts</h4>
 
 <p>Similar to Rules but even more flexible are <a href="#scripts">Scripts</a>
@@ -978,7 +978,7 @@ operators may also be used. All input PVs of the rule are accessible as follows:
 Assume a rule for the "width" property of a widget.
 By default, the "Value" field provides the exact value, for example "40" for the width.
 In Value-as-Expression mode, the value can contain an expression like "20 + pv0 * 2"
-The expression will be evaluated by Python (Jython). 
+The expression will be evaluated by Python (Jython).
 </p>
 
 <h3>Value as Expression</h3>
@@ -989,7 +989,7 @@ Checking this option changes the way the "Value" is handled.
 Assume a rule for the "width" property of a widget.
 By default, the "Value" field provides the exact value, for example "40" for the width.
 In Value-as-Expression mode, the value can contain an expression like "20 + pv0 * 2"
-The expression will be evaluated by Python (Jython). 
+The expression will be evaluated by Python (Jython).
 </p>
 
 <h3>Show Script</h3>
@@ -1085,7 +1085,7 @@ This will typically result in a script that fails to execute because it tries to
 a Python <code>None</code> value.
 The widget indicates to the user via its border that there is one or more disconnected PV,
 which includes disconnected script PVs.
-Once the PV reconnects, the script will again execute successfully. 
+Once the PV reconnects, the script will again execute successfully.
 </p>
 <p>A careful Python script that needs to avoid <code>None</code> errors can check like this:
 </p>
@@ -1136,10 +1136,12 @@ which it locates based on their name:
 </p>
 
 <pre>
-result = InvokeSomeCodeThatDoesSomething()
+# 'widget' is the action button to which this script is attached
+# If necessary, locate other widgets in the display by name:
+from org.csstudio.display.builder.runtime.script import ScriptUtil
+other = ScriptUtil.findWidgetByName(widget, "name_of_other_widget")
 
-children = widget.getDisplayModel().runtimeChildren()
-other = children.getChildByName("name_of_other_widget")
+result = InvokeSomeCodeThatDoesSomething()
 
 other.setPropertyValue("text", result)
 </pre>
@@ -1175,7 +1177,7 @@ This is typically accomplished via the usual Python shebang
 </p>
 
 <pre>
-#!/usr/bin/env python 
+#!/usr/bin/env python
 </pre>
 
 <p>Python scripts must be in *.py files, they cannot be embedded in the *.bob file.
@@ -1239,7 +1241,7 @@ python setup.py install
 <p>The main API of <code>connect2j</code> is the scriptContext context manager. Simply place code which accesses
 Display Builder API inside a "with" statement using scriptContext, like so:
 </p>
-<pre>#!/usr/bin/env python 
+<pre>#!/usr/bin/env python
 from connect2j import scriptContext
 
 # Code that does not interact with Display Builder

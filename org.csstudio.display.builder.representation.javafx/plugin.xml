@@ -56,6 +56,14 @@
             type="group">
       </representation>
       <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.plots.ImageRepresentation"
+            type="image">
+      </representation>
+      <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.KnobRepresentation"
+            type="knob">
+      </representation>
+      <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.LabelRepresentation"
             type="label">
       </representation>
@@ -150,10 +158,6 @@
       <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.WebBrowserRepresentation"
             type="webbrowser">
-      </representation>
-      <representation
-            class="org.csstudio.display.builder.representation.javafx.widgets.plots.ImageRepresentation"
-            type="image">
       </representation>
       <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.plots.XYPlotRepresentation"

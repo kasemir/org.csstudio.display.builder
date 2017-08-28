@@ -58,7 +58,7 @@ public class PlotWidgetProperties
     public static final WidgetPropertyDescriptor<Boolean> propAutoscale =
         CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "autoscale", Messages.PlotWidget_AutoScale);
 
-    private static final WidgetPropertyDescriptor<Boolean> propLogscale =
+    public static final WidgetPropertyDescriptor<Boolean> propLogscale =
         CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "log_scale", Messages.PlotWidget_LogScale);
 
     public static final WidgetPropertyDescriptor<WidgetFont> propScaleFont =
@@ -75,6 +75,9 @@ public class PlotWidgetProperties
 
     public static final WidgetPropertyDescriptor<Boolean> propGrid =
         CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "show_grid", Messages.PlotWidget_ShowGrid);
+
+    public static final WidgetPropertyDescriptor<WidgetColor> propGridColor =
+        CommonWidgetProperties.newColorPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "grid_color", Messages.PlotWidget_GridColor);
 
     private final static StructuredWidgetProperty.Descriptor propXAxis =
         new Descriptor(WidgetPropertyCategory.BEHAVIOR, "x_axis", Messages.PlotWidget_XAxis);

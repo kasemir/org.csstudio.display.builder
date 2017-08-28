@@ -35,6 +35,7 @@ import org.csstudio.display.builder.model.widgets.EllipseWidget;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.csstudio.display.builder.model.widgets.GaugeWidget;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
+import org.csstudio.display.builder.model.widgets.KnobWidget;
 import org.csstudio.display.builder.model.widgets.LEDWidget;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
 import org.csstudio.display.builder.model.widgets.LinearMeterWidget;
@@ -153,6 +154,7 @@ public class WidgetFactory
         addWidgetType(GaugeWidget.WIDGET_DESCRIPTOR);
         addWidgetType(GroupWidget.WIDGET_DESCRIPTOR);
         addWidgetType(ImageWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(KnobWidget.WIDGET_DESCRIPTOR);
         addWidgetType(LabelWidget.WIDGET_DESCRIPTOR);
         addWidgetType(LEDWidget.WIDGET_DESCRIPTOR);
         addWidgetType(LinearMeterWidget.WIDGET_DESCRIPTOR);

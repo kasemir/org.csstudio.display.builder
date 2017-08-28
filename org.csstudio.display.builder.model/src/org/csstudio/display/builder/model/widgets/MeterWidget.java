@@ -14,6 +14,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newDoublePropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newIntegerPropertyDescriptor;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.csstudio.display.builder.model.Messages;
@@ -45,7 +46,10 @@ public class MeterWidget extends BaseMeterWidget {
         WidgetCategory.MONITOR,
         "Meter",
         "platform:/plugin/org.csstudio.display.builder.model/icons/meter.png",
-        "Meter that can read a numeric PV"
+        "Meter that can read a numeric PV",
+        Arrays.asList(
+            "org.csstudio.opibuilder.widgets.meter"
+        )
     ) {
         @Override
         public Widget createWidget ( ) {

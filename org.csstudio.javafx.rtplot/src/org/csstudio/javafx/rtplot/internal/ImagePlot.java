@@ -24,6 +24,7 @@ import java.util.logging.Level;
 
 import org.csstudio.javafx.BufferUtil;
 import org.csstudio.javafx.ChildCare;
+import org.csstudio.javafx.DoubleBuffer;
 import org.csstudio.javafx.PlatformInfo;
 import org.csstudio.javafx.Tracker;
 import org.csstudio.javafx.rtplot.Axis;
@@ -33,9 +34,11 @@ import org.csstudio.javafx.rtplot.Interpolation;
 import org.csstudio.javafx.rtplot.Messages;
 import org.csstudio.javafx.rtplot.RTImagePlotListener;
 import org.csstudio.javafx.rtplot.RegionOfInterest;
+import org.csstudio.javafx.rtplot.data.ValueRange;
 import org.csstudio.javafx.rtplot.internal.undo.ChangeImageZoom;
 import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 import org.csstudio.javafx.rtplot.internal.util.LinearScreenTransform;
+import org.csstudio.javafx.rtplot.internal.util.Log10;
 import org.diirt.util.array.ArrayByte;
 import org.diirt.util.array.ArrayInt;
 import org.diirt.util.array.ArrayShort;
@@ -108,9 +111,9 @@ public class ImagePlot extends PlotCanvasBase
 
     /** Is 'image_data' meant to be treated as 'unsigned'? */
     private volatile boolean unsigned_data = false;
-    
+
     /** Color map: use ColorMap or RGB pixels? */
-    private volatile VImageType vimage_type = VImageType.TYPE_MONO; //TODO: should use a purpose-made enum instead of VImageType? (i.e. MappingType {function, rgb1, rgb2, rgb3})
+    private volatile VImageType vimage_type = VImageType.TYPE_MONO;
 
     /** Regions of interest */
     private final List<RegionOfInterest> rois = new CopyOnWriteArrayList<>();
@@ -156,6 +159,8 @@ public class ImagePlot extends PlotCanvasBase
     /** @param plot_listener Plot listener */
     public void setListener(final RTImagePlotListener plot_listener)
     {
+        if (this.plot_listener != null)
+            throw new IllegalStateException("Listener already set");
         this.plot_listener = plot_listener;
     }
 
@@ -172,11 +177,38 @@ public class ImagePlot extends PlotCanvasBase
         requestUpdate();
     }
 
+    /** @return Auto-scale the color mapping? */
+    public boolean isAutoscale()
+    {
+        return autoscale;
+    }
+
     /** @param autoscale  Auto-scale the color mapping? */
     public void setAutoscale(final boolean autoscale)
     {
         this.autoscale = autoscale;
         requestUpdate();
+    }
+
+    /** @return Use log scale for color mapping? */
+    public boolean isLogscale()
+    {
+        return colorbar_axis.isLogarithmic();
+    }
+
+    /** @param logscale Use log scale for color mapping? */
+    public void setLogscale(final boolean logscale)
+    {
+        colorbar_axis.setLogarithmic(logscale);
+        requestUpdate();
+    }
+
+    /** Get color mapping value range
+      * @return {@link ValueRange}
+     */
+    public ValueRange getValueRange()
+    {
+        return new ValueRange(min, max);
     }
 
     /** Set color mapping value range
@@ -195,6 +227,12 @@ public class ImagePlot extends PlotCanvasBase
     {
         this.color_mapping = color_mapping;
         requestUpdate();
+    }
+
+    /** @return {@link ColorMappingFunction} */
+    public ColorMappingFunction getColorMapping()
+    {
+        return color_mapping;
     }
 
     /** Set axis range for 'full' image
@@ -228,6 +266,12 @@ public class ImagePlot extends PlotCanvasBase
     public Axis<Double> getYAxis()
     {
         return y_axis;
+    }
+
+    /** @return Show color map? */
+    public boolean isShowingColorMap()
+    {
+        return show_colormap;
     }
 
     /** @param show Show color map? */
@@ -398,7 +442,7 @@ public class ImagePlot extends PlotCanvasBase
     {
         return Byte.toUnsignedInt(iter.nextByte());
     }
-    
+
     private static int getUShortForRGB(final IteratorNumber iter)
     {
         return Short.toUnsignedInt(iter.nextShort());
@@ -408,7 +452,7 @@ public class ImagePlot extends PlotCanvasBase
     {
         return iter.nextInt();
     }
-    
+
     private static int getByteForRGB(final IteratorNumber iter)
     {
         return Byte.toUnsignedInt((byte)(iter.nextByte()+Byte.MIN_VALUE));
@@ -423,7 +467,10 @@ public class ImagePlot extends PlotCanvasBase
     {
         return iter.nextInt()+Integer.MIN_VALUE;
     }
-    
+
+    /** Buffers used to create the next image buffer */
+    private final DoubleBuffer buffers = new DoubleBuffer();
+
     /** Draw all components into image buffer */
     @Override
     protected BufferedImage updateImageBuffer()
@@ -440,7 +487,7 @@ public class ImagePlot extends PlotCanvasBase
         if (area_copy.width <= 0  ||  area_copy.height <= 0)
             return null;
 
-        final BufferUtil buffer = BufferUtil.getBufferedImage(area_copy.width, area_copy.height);
+        final BufferUtil buffer = buffers.getBufferedImage(area_copy.width, area_copy.height);
         if (buffer == null)
             return null;
         final BufferedImage image = buffer.getImage();
@@ -530,7 +577,7 @@ public class ImagePlot extends PlotCanvasBase
 	                else
 	                    logger.log(Level.WARNING, "Cannot handle unsigned data of type " + numbers.getClass().getName());
 	            }
-	
+
 	            if (autoscale)
 	            {   // Compute min..max before layout of color bar
 	                final IteratorNumber iter = numbers.iterator();
@@ -546,10 +593,13 @@ public class ImagePlot extends PlotCanvasBase
 	                }
 	                logger.log(Level.FINE, "Autoscale range {0} .. {1}", new Object[] { min, max });
 	            }
-	            colorbar_axis.setValueRange(min, max);
             }
         }
 
+        // If log, min needs to be 1
+        if (colorbar_axis.isLogarithmic()  &&  min < 1.0)
+            min = 1;
+        colorbar_axis.setValueRange(min, max);
         if (need_layout.getAndSet(false))
             computeLayout(gc, area_copy, min, max);
 
@@ -637,8 +687,6 @@ public class ImagePlot extends PlotCanvasBase
         gc.setFont(x_axis.label_font);
         for (RegionOfInterest roi : rois)
             drawROI(gc, roi);
-
-        gc.dispose();
 
         return image;
     }
@@ -729,6 +777,9 @@ public class ImagePlot extends PlotCanvasBase
 
     // private static long runs = 0, avg_nano = 0;
 
+    /** Buffers used for the data (to be merged/scaled into the complete image) */
+    private final DoubleBuffer data_buffers = new DoubleBuffer();
+
     /** @param data_width
      *  @param data_height
      *  @param numbers
@@ -738,9 +789,9 @@ public class ImagePlot extends PlotCanvasBase
      *  @param color_mapping
      *  @return {@link BufferedImage}, sized to match data
      */
-    private static BufferedImage drawData(final int data_width, final int data_height, final ListNumber numbers,
-                                          final ToDoubleFunction<IteratorNumber> next_sample_func,
-                                          double min, double max, final ColorMappingFunction color_mapping)
+    private BufferedImage drawData(final int data_width, final int data_height, final ListNumber numbers,
+                                   final ToDoubleFunction<IteratorNumber> next_sample_func,
+                                   double min, double max, final ColorMappingFunction color_mapping)
     {
         // final long start = System.nanoTime();
 
@@ -751,18 +802,18 @@ public class ImagePlot extends PlotCanvasBase
             return null;
         }
 
-        // NOT using BufferUtil because the Graphics2D are only used for error message.
-        // Other image access is directly to raster buffer.
-        final BufferedImage image = new BufferedImage(data_width, data_height, BufferedImage.TYPE_INT_ARGB);
+        final BufferUtil buffer = data_buffers.getBufferedImage(data_width, data_height);
+        if (buffer == null)
+            return null;
+        final BufferedImage image = buffer.getImage();
         if (numbers.size() < data_width * data_height)
         {
             final String message = "Image sized " + data_width + " x " + data_height +
                                    " received only " + numbers.size() + " data samples";
             logger.log(Level.WARNING, message);
-            final Graphics2D gc = image.createGraphics();
+            final Graphics2D gc = buffer.getGraphics();
             gc.setColor(Color.RED);
             gc.drawString(message, 0, 10);
-            gc.dispose();
             return image;
         }
         if (!  (min < max))  // Implies min and max being finite, not-NaN
@@ -781,20 +832,39 @@ public class ImagePlot extends PlotCanvasBase
         final int[] data = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
         final IteratorNumber iter = numbers.iterator();
         int idx = 0;
-        final double span = max - min;
-        
-        for (int y=0; y<data_height; ++y)
-            for (int x=0; x<data_width; ++x)
-            {
-                final double sample = next_sample_func.applyAsDouble(iter);
-                double scaled = (sample - min) / span;
-                if (scaled < 0.0)
-                    scaled = 0;
-                else if (scaled > 1.0)
-                    scaled = 1.0;
-                data[idx++] = color_mapping.getRGB(scaled);
-            }
 
+        if (colorbar_axis.isLogarithmic())
+        {
+            final double lmin = Log10.log10(min),
+                         lmax = Log10.log10(max),
+                         span = lmax - lmin;
+            for (int y=0; y<data_height; ++y)
+                for (int x=0; x<data_width; ++x)
+                {
+                    final double sample = Log10.log10(next_sample_func.applyAsDouble(iter));
+                    double scaled = (sample - lmin) / span;
+                    if (scaled < 0.0)
+                        scaled = 0;
+                    else if (scaled > 1.0)
+                        scaled = 1.0;
+                    data[idx++] = color_mapping.getRGB(scaled);
+                }
+        }
+        else
+        {
+            final double span = max - min;
+            for (int y=0; y<data_height; ++y)
+                for (int x=0; x<data_width; ++x)
+                {
+                    final double sample = next_sample_func.applyAsDouble(iter);
+                    double scaled = (sample - min) / span;
+                    if (scaled < 0.0)
+                        scaled = 0;
+                    else if (scaled > 1.0)
+                        scaled = 1.0;
+                    data[idx++] = color_mapping.getRGB(scaled);
+                }
+        }
         // final long nano = System.nanoTime() - start;
         // avg_nano = (avg_nano*3 + nano)/4;
         // if (++runs > 100)
@@ -805,7 +875,7 @@ public class ImagePlot extends PlotCanvasBase
 
         return image;
     }
-    
+
     /** @param data_width
      *  @param data_height
      *  @param numbers
@@ -813,8 +883,8 @@ public class ImagePlot extends PlotCanvasBase
      *  @param type RGB type (RGB1, RGB2, or RGB3)
      *  @return {@link BufferedImage}, sized to match data
      */
-    private static BufferedImage drawDataRGB(final int data_width, final int data_height, final ListNumber numbers,
-                                          final ToIntFunction<IteratorNumber> next_rgbs [], final VImageType type)
+    private BufferedImage drawDataRGB(final int data_width, final int data_height, final ListNumber numbers,
+                                      final ToIntFunction<IteratorNumber> next_rgbs [], final VImageType type)
     {
         if (data_width <= 0  ||  data_height <= 0)
         {
@@ -823,18 +893,18 @@ public class ImagePlot extends PlotCanvasBase
             return null;
         }
 
-        // NOT using BufferUtil because the Graphics2D are only used for error message.
-        // Other image access is directly to raster buffer.
-        final BufferedImage image = new BufferedImage(data_width, data_height, BufferedImage.TYPE_INT_RGB);
+        final BufferUtil buffer = data_buffers.getBufferedImage(data_width, data_height);
+        if (buffer == null)
+            return null;
+        final BufferedImage image = buffer.getImage();
         if (numbers.size() < data_width * data_height * 3)
         {
             final String message = "RGB image sized " + data_width + " x " + data_height +
                                    " received only " + numbers.size() + " data samples";
             logger.log(Level.WARNING, message);
-            final Graphics2D gc = image.createGraphics();
+            final Graphics2D gc = buffer.getGraphics();
             gc.setColor(Color.RED);
             gc.drawString(message, 0, 10);
-            gc.dispose();
             return image;
         }
 
@@ -876,7 +946,7 @@ public class ImagePlot extends PlotCanvasBase
 	        	for (int i = 0; i < data_height*data_width; ++i)
 	            	data[i] = next_rgbs[0].applyAsInt(iter) | next_rgbs[1].applyAsInt(iter) | next_rgbs[2].applyAsInt(iter);
         }
-        
+
         return image;
     }
 
@@ -1013,6 +1083,17 @@ public class ImagePlot extends PlotCanvasBase
     {
         final Point2D current = new Point2D(e.getX(), e.getY());
         mouse_current = Optional.of(current);
+
+        // While zooming, when mouse is quickly dragged outside the widget
+        // and then released, the 'mouseUp' event is sometimes missing.
+        // --> When seeing an active mouse move w/o button press,
+        //     treat that just like a release.
+        if (mouse_mode.ordinal() >= MouseMode.ZOOM_IN_X.ordinal()  &&  !e.isPrimaryButtonDown())
+        {
+            mouseUp(e);
+            return;
+        }
+
         PlotCursors.setCursor(this, mouse_mode);
 
         final Point2D start = mouse_start.orElse(null);
@@ -1093,7 +1174,7 @@ public class ImagePlot extends PlotCanvasBase
         }
     	return null;
     }
-    
+
     /** Update information about the image location under the mouse pointer
      *  @param mouse_x
      *  @param mouse_y
@@ -1339,5 +1420,38 @@ public class ImagePlot extends PlotCanvasBase
             return new AxisRange<Double>(Math.max(min, low), Math.min(max, high));
         else
             return new AxisRange<Double>(Math.min(min, low), Math.max(max, high));
+    }
+
+    void fireChangedAxisRange(final Axis<Double> axis)
+    {
+        final RTImagePlotListener listener = plot_listener;
+        if (listener == null)
+            return;
+        final AxisRange<Double> range = axis.getValueRange();
+        if (axis == x_axis)
+            listener.changedXAxis(range.getLow(), range.getHigh());
+        else
+            listener.changedYAxis(range.getLow(), range.getHigh());
+    }
+
+    void fireChangedAutoScale()
+    {
+        final RTImagePlotListener listener = plot_listener;
+        if (listener != null)
+            listener.changedAutoScale(autoscale);
+    }
+
+    void fireChangedLogarithmic()
+    {
+        final RTImagePlotListener listener = plot_listener;
+        if (listener != null)
+            listener.changedLogarithmic(isLogscale());
+    }
+
+    void fireChangedValueRange()
+    {
+        final RTImagePlotListener listener = plot_listener;
+        if (listener != null)
+            listener.changedValueRange(min, max);
     }
 }

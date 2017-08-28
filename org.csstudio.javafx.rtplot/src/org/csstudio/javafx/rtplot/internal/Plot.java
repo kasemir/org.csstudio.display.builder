@@ -27,6 +27,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 
 import org.csstudio.javafx.BufferUtil;
+import org.csstudio.javafx.DoubleBuffer;
 import org.csstudio.javafx.PlatformInfo;
 import org.csstudio.javafx.rtplot.Annotation;
 import org.csstudio.javafx.rtplot.Axis;
@@ -59,8 +60,12 @@ import javafx.scene.input.MouseEvent;
 @SuppressWarnings("nls")
 public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
 {
+    /** Foreground color */
+    javafx.scene.paint.Color foreground = javafx.scene.paint.Color.BLACK;
+
     /** Background color */
-    private volatile Color background = Color.WHITE;
+    private volatile Color background = Color.WHITE,
+                           grid = Color.DARK_GRAY;
 
     public static final String FONT_FAMILY = "Liberation Sans";
 
@@ -157,10 +162,22 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         listeners.remove(listener);
     }
 
+    /** @param color Foreground color */
+    public void setForeground(final javafx.scene.paint.Color color)
+    {
+        foreground = color;
+    }
+
     /** @param color Background color */
     public void setBackground(final Color color)
     {
         background = color;
+    }
+
+    /** @param color Grid color */
+    public void setGridColor(final Color color)
+    {
+        grid = color;
     }
 
     /** @param title Title */
@@ -489,7 +506,11 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         int plot_width = bounds.width;
 
         final List<YAxisImpl<XTYPE>> save_copy = new ArrayList<>(y_axes);
-        // TODO: Call axis.getPixelGaps(gc), determine max space needed above & below all axes,
+
+        // Could call axis.getPixelGaps(gc), determine max space needed above & below all axes,
+        // but for now the top & right label is shifted to stay within the region,
+        // and the bottom & left labels are almost always OK to reach beyond their axis region.
+
         // First, lay out 'left' axes in reverse order to get "2, 1, 0" on the left of the plot.
         for (YAxisImpl<XTYPE> axis : save_copy)
             if (! axis.isOnRight())
@@ -538,6 +559,9 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         plot_area.setBounds(total_left_axes_width-1, title_height, plot_width+1, y_axis_height);
     }
 
+    /** Buffers used to create the next image buffer */
+    private final DoubleBuffer buffers = new DoubleBuffer();
+
     /** Draw all components into image buffer */
     @Override
     protected BufferedImage updateImageBuffer()
@@ -548,7 +572,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
 
         plot_processor.autoscale();
 
-        final BufferUtil buffer = BufferUtil.getBufferedImage(area_copy.width, area_copy.height);
+        final BufferUtil buffer = buffers.getBufferedImage(area_copy.width, area_copy.height);
         if (buffer == null)
             return null;
         final BufferedImage image = buffer.getImage();
@@ -572,16 +596,23 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         gc.setColor(background);
         gc.fillRect(0, 0, area_copy.width, area_copy.height);
 
+        title_part.setColor(foreground);
         title_part.paint(gc, title_font);
         legend.paint(gc, legend_font, traces);
 
         // Fetch x_axis transformation and use that to paint all traces,
         // because X Axis tends to change from scrolling
         // while we're painting traces
+        x_axis.setColor(foreground);
+        x_axis.setGridColor(grid);
         x_axis.paint(gc, plot_bounds);
         final ScreenTransform<XTYPE> x_transform = x_axis.getScreenTransform();
         for (YAxisImpl<XTYPE> y_axis : y_axes)
+        {
+            y_axis.setColor(foreground);
+            y_axis.setGridColor(grid);
             y_axis.paint(gc, plot_bounds);
+        }
 
         gc.setClip(plot_bounds.x, plot_bounds.y, plot_bounds.width, plot_bounds.height);
         plot_area.paint(gc);
@@ -591,12 +622,11 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
                 trace_painter.paint(gc, plot_area.getBounds(), x_transform, y_axis, trace);
 
         drawPlotMarkers(gc);
+        gc.setClip(null);
 
         // Annotations use label font
         for (AnnotationImpl<XTYPE> annotation : annotations)
             annotation.paint(gc, x_axis, y_axes.get(annotation.getTrace().getYAxis()));
-
-        gc.dispose();
 
         return image;
     }
@@ -650,9 +680,9 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
             gc.drawLine(plot_bounds.x, (int)current.getY(), plot_bounds.x + plot_bounds.width, (int)current.getY());
             gc.drawLine((int)current.getX(), plot_bounds.y, (int)current.getX(), plot_bounds.y + plot_bounds.height);
             // Corresponding axis ticks
-            x_axis.drawTickLabel(gc, x_axis.getValue((int)current.getX()), true);
+            x_axis.drawTickLabel(gc, x_axis.getValue((int)current.getX()));
             for (YAxisImpl<XTYPE> axis : y_axes)
-                axis.drawTickLabel(gc, axis.getValue((int)current.getY()), true);
+                axis.drawTickLabel(gc, axis.getValue((int)current.getY()));
             // Trace markers
             final List<CursorMarker> safe_markers = cursor_markers;
             if (safe_markers != null)
@@ -840,6 +870,17 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     {
         final Point2D current = new Point2D(e.getX(), e.getY());
         mouse_current = Optional.of(current);
+
+        // While zooming, when mouse is quickly dragged outside the widget
+        // and then released, the 'mouseUp' event is sometimes missing.
+        // --> When seeing an active mouse move w/o button press,
+        //     treat that just like a release.
+        if (mouse_mode.ordinal() >= MouseMode.ZOOM_IN_X.ordinal()  &&  !e.isPrimaryButtonDown())
+        {
+            mouseUp(e);
+            return;
+        }
+
         PlotCursors.setCursor(this, mouse_mode);
 
         final Point2D start = mouse_start.orElse(null);
@@ -1003,7 +1044,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         else if (mouse_mode == MouseMode.ZOOM_IN_PLOT)
         {
             if (Math.abs(start.getX() - current.getX()) > ZOOM_PIXEL_THRESHOLD  ||
-                    Math.abs(start.getY() - current.getY()) > ZOOM_PIXEL_THRESHOLD)
+                Math.abs(start.getY() - current.getY()) > ZOOM_PIXEL_THRESHOLD)
             {   // X axis increases going _right_ just like mouse 'x' coordinate
                 int low = (int) Math.min(start.getX(), current.getX());
                 int high = (int) Math.max(start.getX(), current.getX());
@@ -1097,11 +1138,14 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     private void mouseExit(final MouseEvent e)
     {
         deselectMouseAnnotation();
-        // Reset cursor
+
+        // Redraw if we are actively panning or zooming, or crosshair needs to hide
+        final boolean need_redraw = mouse_mode.ordinal() > MouseMode.INTERNAL_MODES.ordinal()  ||  show_crosshair;
         // Clear mouse position so drawMouseModeFeedback() won't restore cursor
         mouse_current = Optional.empty();
+        // Reset cursor
         PlotCursors.setCursor(this, Cursor.DEFAULT);
-        if (show_crosshair)
+        if (need_redraw)
             requestRedraw();
     }
 
@@ -1176,6 +1220,20 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     {
         for (RTPlotListener<?> listener : listeners)
             listener.changedAutoScale(axis);
+    }
+
+    /** Notify listeners */
+    public void fireGridChange(final Axis<?> axis)
+    {
+        for (RTPlotListener<?> listener : listeners)
+            listener.changedGrid(axis);
+    }
+
+    /** Notify listeners */
+    public void fireLogarithmicChange(final YAxis<?> axis)
+    {
+        for (RTPlotListener<?> listener : listeners)
+            listener.changedLogarithmic(axis);
     }
 
     /** Notify listeners */

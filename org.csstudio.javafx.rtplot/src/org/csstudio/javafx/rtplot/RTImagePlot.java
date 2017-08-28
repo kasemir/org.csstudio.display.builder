@@ -12,8 +12,11 @@ import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
+import org.csstudio.javafx.DialogHelper;
 import org.csstudio.javafx.rtplot.data.PlotDataItem;
+import org.csstudio.javafx.rtplot.data.ValueRange;
 import org.csstudio.javafx.rtplot.internal.AxisPart;
+import org.csstudio.javafx.rtplot.internal.ImageConfigDialog;
 import org.csstudio.javafx.rtplot.internal.ImagePlot;
 import org.csstudio.javafx.rtplot.internal.ImageToolbarHandler;
 import org.csstudio.javafx.rtplot.internal.MouseMode;
@@ -33,6 +36,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
+import javafx.stage.Stage;
 
 /** Real-time plot
  *
@@ -83,7 +87,7 @@ public class RTImagePlot extends BorderPane
     		center.getChildren().add(axisLimitsField);
         }
     }
-    
+
     private TextField constructAxisLimitsField()
     {
     	final TextField field = new TextField();
@@ -94,10 +98,10 @@ public class RTImagePlot extends BorderPane
     		if (!newval) hideAxisLimitsField();
     	});
     	field.setVisible(false);
-    	field.setManaged(false); //false because we manage layout, not the Parent    	
+    	field.setManaged(false); //false because we manage layout, not the Parent
     	return field;
     }
-    
+
 	private void showAxisLimitsField(AxisPart<Double> axis, boolean isHigh, Rectangle area)
     {
 		axisLimitsField.setOnKeyPressed((KeyEvent event)->
@@ -117,7 +121,7 @@ public class RTImagePlot extends BorderPane
 				hideAxisLimitsField();
 			}
 		});
-		
+
 		String tip = isHigh ? axis.getValueRange().getHigh().toString() :
 			axis.getValueRange().getLow().toString();
     	axisLimitsField.setText(tip);
@@ -128,7 +132,7 @@ public class RTImagePlot extends BorderPane
 		axisLimitsField.requestFocus();
 		axisLimitsField.layout(); //force text to appear in field
 	}
-	
+
 	protected void changeAxisLimit(AxisPart<Double> axis, boolean isHigh, Double value)
 	{
 		AxisRange<Double> old_range = axis.getValueRange();
@@ -145,12 +149,35 @@ public class RTImagePlot extends BorderPane
 					axis, old_range, new_range, null, null, null));
 		}
 	}
-	
+
     private void hideAxisLimitsField()
     {
 		axisLimitsField.setVisible(false);
     }
 
+    /** Configuration dialog
+     *
+     *  <p>Dialog is non-modal and sets to <code>null</code> when closed
+     */
+    private ImageConfigDialog config_dialog = null;
+
+
+    /** Show the configuration dialog or bring existing dialog to front */
+    public void showConfigurationDialog()
+    {
+        if (config_dialog == null)
+        {
+            config_dialog = new ImageConfigDialog(this);
+            config_dialog.setOnHiding(evt ->  config_dialog = null);
+            DialogHelper.positionDialog(config_dialog, this, 30 - (int) getWidth()/2, 30 - (int) getHeight()/2);
+            config_dialog.show();
+        }
+        else
+        {   // Raise existing dialog
+            final Stage stage = (Stage) config_dialog.getDialogPane().getContent().getScene().getWindow();
+            stage.toFront();
+        }
+    }
 
     /** onKeyPressed */
     private void keyPressed(final KeyEvent event)
@@ -161,6 +188,8 @@ public class RTImagePlot extends BorderPane
             plot.getUndoableActionManager().undoLast();
         else if (event.getCode() == KeyCode.Y)
             plot.getUndoableActionManager().redoLast();
+        else if (event.getCode() == KeyCode.O)
+            showConfigurationDialog();
         else if (event.getCode() == KeyCode.C)
             toolbar.toggleCrosshair();
         else if (event.getCode() == KeyCode.T)
@@ -175,11 +204,11 @@ public class RTImagePlot extends BorderPane
             toolbar.selectMouseMode(MouseMode.NONE);
         event.consume();
     }
-    
+
     @SuppressWarnings("unchecked")
 	private void mouseClicked(MouseEvent event)
     {
-    	Object [] info = plot.axisClickInfo(event); 
+    	Object [] info = plot.axisClickInfo(event);
     	if (info != null)
     		showAxisLimitsField((AxisPart<Double>)info[0], (boolean)info[1], (Rectangle)info[2]);
     }
@@ -188,6 +217,12 @@ public class RTImagePlot extends BorderPane
     public void setListener(final RTImagePlotListener plot_listener)
     {
         plot.setListener(plot_listener);
+    }
+
+    /** Not meant to be public API, for internal use only */
+    public ImagePlot internalGetImagePlot()
+    {
+        return plot;
     }
 
     /** @return <code>true</code> if toolbar is visible */
@@ -252,10 +287,28 @@ public class RTImagePlot extends BorderPane
         plot.setInterpolation(interpolation);
     }
 
+    /** @return Auto-scale the color mapping? */
+    public boolean isAutoscale()
+    {
+        return plot.isAutoscale();
+    }
+
     /** @param autoscale  Auto-scale the color mapping? */
-    public void setAutoscale(boolean autoscale)
+    public void setAutoscale(final boolean autoscale)
     {
         plot.setAutoscale(autoscale);
+    }
+
+    /** @return Use log scale for color mapping? */
+    public boolean isLogscale()
+    {
+        return plot.isLogscale();
+    }
+
+    /** @param logscale  Use log scale for color mapping? */
+    public void setLogscale(final boolean logscale)
+    {
+        plot.setLogscale(logscale);
     }
 
     /** @return X axis */
@@ -328,6 +381,12 @@ public class RTImagePlot extends BorderPane
         plot.setColorMapping(color_mapping);
     }
 
+    /** @return Show color map? */
+    public boolean isShowingColorMap()
+    {
+        return plot.isShowingColorMap();
+    }
+
     /** @param show Show color map? */
     public void showColorMap(final boolean show)
     {
@@ -383,6 +442,14 @@ public class RTImagePlot extends BorderPane
                              final double min_y, final double max_y)
     {
         plot.setAxisRange(min_x, max_x, min_y, max_y);
+    }
+
+    /** Get color mapping value range
+     *  @return {@link ValueRange}
+     */
+    public ValueRange getValueRange()
+    {
+        return plot.getValueRange();
     }
 
     /** Set color mapping value range
