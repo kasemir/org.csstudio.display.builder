@@ -61,7 +61,8 @@ public class HorizontalNumericAxis extends NumericAxis
 
         final Stroke old_width = gc.getStroke();
         final Color old_fg = gc.getColor();
-        gc.setColor(GraphicsUtils.convert(getColor()));
+        final Color foreground = GraphicsUtils.convert(getColor());
+        gc.setColor(foreground);
         gc.setFont(scale_font);
 
         super.paint(gc);
@@ -82,8 +83,10 @@ public class HorizontalNumericAxis extends NumericAxis
             // Grid line
             if (show_grid)
             {   // Dashed line
+                gc.setColor(grid_color);
                 gc.setStroke(new BasicStroke(1, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 1, new float[] { 5 }, 0));
                 gc.drawLine(x, plot_bounds.y, x, plot_bounds.y + plot_bounds.height-1);
+                gc.setColor(foreground);
             }
             gc.setStroke(old_width);
 

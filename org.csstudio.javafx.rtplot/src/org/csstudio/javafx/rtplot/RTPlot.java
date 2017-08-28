@@ -281,10 +281,22 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
         return new Screenshot(plot);
     }
 
+    /** @param color Foreground color */
+    public void setForeground(final Color color)
+    {
+        plot.setForeground(color);
+    }
+
     /** @param color Background color */
     public void setBackground(final Color color)
     {
         plot.setBackground(GraphicsUtils.convert(Objects.requireNonNull(color)));
+    }
+
+    /** @param color Grid color */
+    public void setGridColor(final Color color)
+    {
+        plot.setGridColor(GraphicsUtils.convert(Objects.requireNonNull(color)));
     }
 
     /** @param title Title text */

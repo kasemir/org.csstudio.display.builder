@@ -60,8 +60,12 @@ import javafx.scene.input.MouseEvent;
 @SuppressWarnings("nls")
 public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
 {
+    /** Foreground color */
+    javafx.scene.paint.Color foreground = javafx.scene.paint.Color.BLACK;
+
     /** Background color */
-    private volatile Color background = Color.WHITE;
+    private volatile Color background = Color.WHITE,
+                           grid = Color.DARK_GRAY;
 
     public static final String FONT_FAMILY = "Liberation Sans";
 
@@ -158,10 +162,22 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         listeners.remove(listener);
     }
 
+    /** @param color Foreground color */
+    public void setForeground(final javafx.scene.paint.Color color)
+    {
+        foreground = color;
+    }
+
     /** @param color Background color */
     public void setBackground(final Color color)
     {
         background = color;
+    }
+
+    /** @param color Grid color */
+    public void setGridColor(final Color color)
+    {
+        grid = color;
     }
 
     /** @param title Title */
@@ -580,16 +596,23 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         gc.setColor(background);
         gc.fillRect(0, 0, area_copy.width, area_copy.height);
 
+        title_part.setColor(foreground);
         title_part.paint(gc, title_font);
         legend.paint(gc, legend_font, traces);
 
         // Fetch x_axis transformation and use that to paint all traces,
         // because X Axis tends to change from scrolling
         // while we're painting traces
+        x_axis.setColor(foreground);
+        x_axis.setGridColor(grid);
         x_axis.paint(gc, plot_bounds);
         final ScreenTransform<XTYPE> x_transform = x_axis.getScreenTransform();
         for (YAxisImpl<XTYPE> y_axis : y_axes)
+        {
+            y_axis.setColor(foreground);
+            y_axis.setGridColor(grid);
             y_axis.paint(gc, plot_bounds);
+        }
 
         gc.setClip(plot_bounds.x, plot_bounds.y, plot_bounds.width, plot_bounds.height);
         plot_area.paint(gc);

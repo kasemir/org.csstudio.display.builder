@@ -111,7 +111,8 @@ public class TimeAxis extends AxisPart<Instant>
 
         final Stroke old_width = gc.getStroke();
         final Color old_fg = gc.getColor();
-        gc.setColor(GraphicsUtils.convert(getColor()));
+        final Color foreground = GraphicsUtils.convert(getColor());
+        gc.setColor(foreground);
         gc.setFont(scale_font);
 
         // Simple line for the axis
@@ -131,10 +132,11 @@ public class TimeAxis extends AxisPart<Instant>
 
             // Grid line
             if (show_grid)
-            {
-                // Dashed line
+            {   // Dashed line
+                gc.setColor(grid_color);
                 gc.setStroke(new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10, new float[] { 2 }, 0));
                 gc.drawLine(x, plot_bounds.y, x, region.y-1);
+                gc.setColor(foreground);
             }
             gc.setStroke(old_width);
 

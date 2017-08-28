@@ -76,6 +76,9 @@ public class PlotWidgetProperties
     public static final WidgetPropertyDescriptor<Boolean> propGrid =
         CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "show_grid", Messages.PlotWidget_ShowGrid);
 
+    public static final WidgetPropertyDescriptor<WidgetColor> propGridColor =
+        CommonWidgetProperties.newColorPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "grid_color", Messages.PlotWidget_GridColor);
+
     private final static StructuredWidgetProperty.Descriptor propXAxis =
         new Descriptor(WidgetPropertyCategory.BEHAVIOR, "x_axis", Messages.PlotWidget_XAxis);
 
