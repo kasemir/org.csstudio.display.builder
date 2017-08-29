@@ -331,8 +331,6 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
     @Override
     protected AnchorPane createJFXNode ( ) throws Exception {
 
-        imageChanged(null, null, null);
-
         autoSize = model_widget.propAutoSize().getValue();
 
         if ( autoSize ) {
@@ -402,6 +400,8 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
         enabled = model_widget.propEnabled().getValue();
 
         Styles.update(symbol, Styles.NOT_ENABLED, !enabled);
+
+        imageChanged(null, null, null);
 
         return symbol;
 
