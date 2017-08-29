@@ -201,10 +201,17 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
                 model_widget.propHeight().setValue((int) Math.round(maxSize.getHeight()));
             }
 
+            double w = model_widget.propWidth().getValue();
+            double h = model_widget.propHeight().getValue();
+
             jfx_node.setLayoutX(model_widget.propX().getValue());
             jfx_node.setLayoutY(model_widget.propY().getValue());
-            jfx_node.setPrefWidth(model_widget.propWidth().getValue());
-            jfx_node.setPrefHeight(model_widget.propHeight().getValue());
+            jfx_node.setPrefWidth(w);
+            jfx_node.setPrefHeight(h);
+
+            double minSize = Math.min(w, h);
+
+            indexLabelBackground.setRadius(Math.min(minSize / 2, 16.0));
 
         }
 
