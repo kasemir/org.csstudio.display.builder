@@ -18,6 +18,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -42,6 +44,7 @@ import org.diirt.vtype.VNumberArray;
 import org.diirt.vtype.VString;
 import org.diirt.vtype.VType;
 
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -67,6 +70,8 @@ import javafx.scene.text.FontWeight;
  * @version 1.0.0 19 Jun 2017
  */
 public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, SymbolWidget> {
+
+    private static final Executor EXECUTOR = Executors.newFixedThreadPool(8);
 
     private static Image defaultSymbol = null;
 
@@ -99,7 +104,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
     }
 
     private void setImageIndex ( int imageIndex ) {
-        this.imageIndex.set(imageIndex);
+        Platform.runLater(() -> this.imageIndex.set(imageIndex));
     }
 
 
@@ -131,7 +136,8 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
                 }
 
             } catch ( Exception ex ) {
-                logger.log(Level.WARNING, "Cannot obtain image size for {0} [{1}].", new Object[] { imageFile, ex.getMessage() });
+                //  The following message has proven to be annoying and not useful.
+                //logger.log(Level.WARNING, "Cannot obtain image size for {0} [{1}].", new Object[] { imageFile, ex.getMessage() });
             }
 
         });
@@ -325,7 +331,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
     @Override
     protected AnchorPane createJFXNode ( ) throws Exception {
 
-        updateSymbols();
+        imageChanged(null, null, null);
 
         autoSize = model_widget.propAutoSize().getValue();
 
@@ -456,29 +462,33 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
     }
 
     private void imageChanged ( final WidgetProperty<String> property, final String oldValue, final String newValue ) {
+        EXECUTOR.execute(() -> {
 
-        updateSymbols();
+            updateSymbols();
 
-        dirtyContent.mark();
-        toolkit.scheduleUpdate(this);
+            dirtyContent.mark();
+            toolkit.scheduleUpdate(this);
 
+        });
     }
 
     private void imagesChanged ( final WidgetProperty<List<WidgetProperty<String>>> property, final List<WidgetProperty<String>> oldValue, final List<WidgetProperty<String>> newValue ) {
+        EXECUTOR.execute(() -> {
 
-        updateSymbols();
+            updateSymbols();
 
-        if ( oldValue != null ) {
-            oldValue.stream().forEach(p -> p.removePropertyListener(imagePropertyListener));
-        }
+            if ( oldValue != null ) {
+                oldValue.stream().forEach(p -> p.removePropertyListener(imagePropertyListener));
+            }
 
-        if ( newValue != null ) {
-            newValue.stream().forEach(p -> p.addPropertyListener(imagePropertyListener));
-        }
+            if ( newValue != null ) {
+                newValue.stream().forEach(p -> p.addPropertyListener(imagePropertyListener));
+            }
 
-        dirtyContent.mark();
-        toolkit.scheduleUpdate(this);
+            dirtyContent.mark();
+            toolkit.scheduleUpdate(this);
 
+        });
     }
 
     private void initialIndexChanged ( final WidgetProperty<?> property, final Object oldValue, final Object newValue ) {
