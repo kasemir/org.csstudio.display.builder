@@ -149,6 +149,7 @@ public class HistoricSamples extends PlotSamples
         if (merged == samples)
             return;
         samples = merged;
+        have_new_samples.set(true);
         computeVisibleSize();
     }
 
