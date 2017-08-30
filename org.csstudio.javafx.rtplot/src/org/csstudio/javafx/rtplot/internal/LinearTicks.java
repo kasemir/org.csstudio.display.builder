@@ -150,7 +150,7 @@ public class LinearTicks extends Ticks<Double>
         	for (double value = start; value < high + distance; value += distance)
         	{
         	    // Compute major tick marks
-        	    if (value > low  &&  value < high)
+        	    if (value >= low  &&  value <= high)
         	        major_ticks.add(new MajorTick<Double>(value, format(value)));
 
         	    // Fill major tick marks with minor ticks
