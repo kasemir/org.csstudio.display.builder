@@ -64,9 +64,6 @@ public class SymbolWidget extends PVWidget {
         }
     };
 
-    /** 'symbol' property: element for list of 'symbols' property */
-//    private static final WidgetPropertyDescriptor<String>                       propSymbol        = newFilenamePropertyDescriptor(WidgetPropertyCategory.WIDGET,   "symbol",         Messages.WidgetProperties_Symbol);
-
     public static final WidgetPropertyDescriptor<Integer>                       propInitialIndex  = newIntegerPropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "initial_index",  Messages.WidgetProperties_InitialIndex, 0, Integer.MAX_VALUE);
     public static final WidgetPropertyDescriptor<Boolean>                       propShowIndex     = newBooleanPropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "show_index",     Messages.WidgetProperties_ShowIndex);
 
