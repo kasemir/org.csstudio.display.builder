@@ -64,9 +64,6 @@ public class SymbolWidget extends PVWidget {
         }
     };
 
-    /** 'symbol' property: element for list of 'symbols' property */
-    private static final WidgetPropertyDescriptor<String>                       propSymbol        = newFilenamePropertyDescriptor(WidgetPropertyCategory.WIDGET,   "symbol",         Messages.WidgetProperties_Symbol);
-
     public static final WidgetPropertyDescriptor<Integer>                       propInitialIndex  = newIntegerPropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "initial_index",  Messages.WidgetProperties_InitialIndex, 0, Integer.MAX_VALUE);
     public static final WidgetPropertyDescriptor<Boolean>                       propShowIndex     = newBooleanPropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "show_index",     Messages.WidgetProperties_ShowIndex);
 
@@ -79,7 +76,7 @@ public class SymbolWidget extends PVWidget {
         WidgetPropertyCategory.WIDGET,
         "symbols",
         Messages.WidgetProperties_Symbols,
-        (widget, index) -> propSymbol.createProperty(widget, DEFAULT_SYMBOL)
+        (widget, index) -> propSymbol(index).createProperty(widget, DEFAULT_SYMBOL)
     );
 
     private volatile WidgetProperty<Boolean>                     auto_size;
@@ -93,6 +90,11 @@ public class SymbolWidget extends PVWidget {
     private volatile WidgetProperty<Boolean>                     transparent;
     private volatile String                                      importedFrom = null;
 
+    /** Returns 'symbol' property: element for list of 'symbols' property */
+    private static WidgetPropertyDescriptor<String> propSymbol( int index ) {
+        return newFilenamePropertyDescriptor(WidgetPropertyCategory.WIDGET, "symbol", Messages.WidgetProperties_Symbol + " " + index);
+    }
+
     /**
      * @param type Widget type.
      * @param default_width Default widget width.
@@ -103,7 +105,7 @@ public class SymbolWidget extends PVWidget {
     }
 
     public void addSymbol( String fileName ) {
-        symbols.addElement(propSymbol.createProperty(this, fileName));
+        symbols.addElement(propSymbol(symbols.size()).createProperty(this, fileName));
     }
 
     public void clearImportedFrom ( ) {

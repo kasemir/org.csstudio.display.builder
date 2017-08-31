@@ -13,6 +13,7 @@ import static org.csstudio.display.builder.representation.ToolkitRepresentation.
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -83,8 +84,8 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
     private final DirtyFlag                      dirtyStyle            = new DirtyFlag();
     private final DirtyFlag                      dirtyValue            = new DirtyFlag();
     private volatile boolean                     enabled               = true;
-    private final List<Image>                    imagesList            = new ArrayList<>(4);
-    private final Map<String, Image>             imagesMap             = new TreeMap<>();
+    private final List<Image>                    imagesList            = Collections.synchronizedList(new ArrayList<>(4));
+    private final Map<String, Image>             imagesMap             = Collections.synchronizedMap(new TreeMap<>());
     private final WidgetPropertyListener<String> imagePropertyListener = this::imageChanged;
     private ImageView                            imageView;
     private Label                                indexLabel;
@@ -223,9 +224,11 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
 
         if ( dirtyIndex.checkAndClear() ) {
 
-            setImageIndex(Math.min(Math.max(model_widget.propInitialIndex().getValue(), 0), imagesList.size() - 1));
+            int index = Math.min(Math.max(model_widget.propInitialIndex().getValue(), 0), imagesList.size() - 1);
 
-            imageView.setImage(( getImageIndex() >= 0 ) ? imagesList.get(getImageIndex()) : getDefaultSymbol());
+            setImageIndex(index);
+
+            imageView.setImage(( index >= 0 ) ? imagesList.get(index) : getDefaultSymbol());
 
         }
 
@@ -628,7 +631,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
 
     }
 
-    private void updateSymbols ( ) {
+    private synchronized void updateSymbols ( ) {
 
         ArrayWidgetProperty<WidgetProperty<String>> propSymbols = model_widget.propSymbols();
         List<WidgetProperty<String>> fileNames = propSymbols.getValue();
