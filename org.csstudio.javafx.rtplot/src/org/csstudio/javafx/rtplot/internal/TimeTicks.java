@@ -200,7 +200,7 @@ public class TimeTicks extends Ticks<Instant>
         final Instant end = getNext(high);
         for (Instant value = start;  value.isBefore(end);  value = getNext(value))
         {
-            if (value.isAfter(low)  &&  value.isBefore(high))
+            if (value.compareTo(low) >= 0  &&  value.compareTo(high) <= 0)
                 major_ticks.add(new MajorTick<Instant>(value, format(value)));
 
             final long ms = value.toEpochMilli();
@@ -258,7 +258,8 @@ public class TimeTicks extends Ticks<Instant>
     public String format(final Instant tick)
     {
         final ZonedDateTime local = ZonedDateTime.ofInstant(tick, ZoneId.systemDefault());
-        if (tick.equals(start))
+        // Use full format for the start tick
+        if (tick.compareTo(start) <= 0)
             return config.start_formatter.format(local);
         return config.formatter.format(local);
     }
