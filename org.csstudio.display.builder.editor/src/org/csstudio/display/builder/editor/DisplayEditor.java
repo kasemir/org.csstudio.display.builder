@@ -475,4 +475,17 @@ public class DisplayEditor
         if (model != null)
             toolkit.disposeRepresentation(model);
     }
+
+    /** @param level_spec Zoom level specification like "123 %"
+     *  @return Zoom spec actually used
+     */
+    public String requestZoom(String level_spec)
+    {
+        level_spec = toolkit.requestZoom(level_spec);
+        // Toolkit sets the widget_parent transforms to one Scale().
+        // Apply same to the edit_tools
+        edit_tools.getTransforms().setAll(widget_parent.getTransforms());
+
+        return level_spec;
+    }
 }

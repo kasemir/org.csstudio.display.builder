@@ -180,7 +180,7 @@ public class EditorDemoGUI
         zoom_levels.setEditable(true);
         zoom_levels.setValue(JFXRepresentation.DEFAULT_ZOOM_LEVEL);
 
-        zoom_levels.setOnAction(event -> zoom_levels.setValue(toolkit.requestZoom(zoom_levels.getValue())));
+        zoom_levels.setOnAction(event -> zoom_levels.setValue(editor.requestZoom(zoom_levels.getValue())));
 
         return new ToolBar(
                 createButton(new LoadModelAction(this)),
