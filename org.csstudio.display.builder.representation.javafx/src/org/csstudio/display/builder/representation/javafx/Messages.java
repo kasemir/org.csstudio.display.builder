@@ -118,6 +118,9 @@ public class Messages extends NLS
     public static String WidgetInfoDialog_TabPVs;
     public static String WidgetInfoDialog_Title;
     public static String WidgetInfoDialog_Value;
+    public static String Zoom_All;
+    public static String Zoom_Height;
+    public static String Zoom_Width;
 
     static
     {

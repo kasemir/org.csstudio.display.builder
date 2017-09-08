@@ -33,6 +33,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.SplitPane;
@@ -174,6 +175,13 @@ public class EditorDemoGUI
         final Button back_button = createButton(ActionDescription.TO_BACK);
         final Button front_button = createButton(ActionDescription.TO_FRONT);
 
+        final ComboBox<String> zoom_levels = new ComboBox<>();
+        zoom_levels.getItems().addAll(JFXRepresentation.ZOOM_LEVELS);
+        zoom_levels.setEditable(true);
+        zoom_levels.setValue(JFXRepresentation.DEFAULT_ZOOM_LEVEL);
+
+        zoom_levels.setOnAction(event -> zoom_levels.setValue(toolkit.requestZoom(zoom_levels.getValue())));
+
         return new ToolBar(
                 createButton(new LoadModelAction(this)),
                 createButton(new SaveModelAction(this)),
@@ -188,6 +196,7 @@ public class EditorDemoGUI
                 undo_button,
                 redo_button,
                 new Separator(),
+                zoom_levels,
                 debug);
     }
 

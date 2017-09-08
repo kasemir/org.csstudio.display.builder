@@ -65,17 +65,17 @@ import javafx.scene.layout.Pane;
  *   |                      |
  *  model_root (Scroll)    palette
  *   |
- *  scroll_body (Pane)
+ *  scroll_body (Group)
  *   |
  *   +----------------------------+
  *   |                            |
- *  model_parent (Group)      edit_tools
+ *  widget_parent (Pane)      edit_tools
  *  (model rep. in back)      (on top)
  *   |                            |
  *  widget representations    selection tracker, points, rubberband
  *  </pre>
  *
- *  <p>model_parent hosts representations of model widgets
+ *  <p>widget_parent hosts representations of model widgets
  *
  *  <p>edit_tools holds GroupHandler, SelectionTracker
  *
@@ -85,7 +85,7 @@ import javafx.scene.layout.Pane;
  *  <p>model_root is ScrollPane, drop target for new widgets, starts 'rubberband'.
  *
  *  <p>The scroll_body is initially empty.
- *  As widget representations are added in the model_parent,
+ *  As widget representations are added in the widget_parent,
  *  the scroll_body grows.
  *  The scroll bars of the editor automatically enable
  *  as the content of the scroll_body grows beyond the editor.
@@ -116,7 +116,7 @@ public class DisplayEditor
     private SplitPane root;
     private ScrollPane model_root;
     private Palette palette;
-    private Pane model_parent;
+    private Pane widget_parent;
 
     /** @param toolkit JFX Toolkit
      *  @param stack_size Number of undo/redo entries
@@ -143,7 +143,7 @@ public class DisplayEditor
 
         final Group scroll_body = (Group) model_root.getContent();
 
-        model_parent = (Pane) scroll_body.getChildren().get(0);
+        widget_parent = (Pane) scroll_body.getChildren().get(0);
 
         scroll_body.getChildren().add(edit_tools);
 
@@ -354,7 +354,7 @@ public class DisplayEditor
         // Create representation for model items
         try
         {
-            toolkit.representModel(model_parent, model);
+            toolkit.representModel(widget_parent, model);
         }
         catch (final Exception ex)
         {
@@ -446,7 +446,7 @@ public class DisplayEditor
     public void debug()
     {
         System.out.println("JavaFX Nodes for Model's Representation");
-        final int nodes = countAndDumpNodes(model_parent, 1);
+        final int nodes = countAndDumpNodes(widget_parent, 1);
         System.out.println("Node Count: " + nodes);
     }
 

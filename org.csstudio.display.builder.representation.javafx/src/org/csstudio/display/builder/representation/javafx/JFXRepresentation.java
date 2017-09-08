@@ -162,11 +162,11 @@ import javafx.stage.Window;
  *
  *  <p>General scene layout:
  *  <pre>
- *  model_root
+ *  model_root    (ScrollPane)
  *   |
- *  scroll_body
+ *  scroll_body   (Group)
  *   |
- *  widget_parent
+ *  widget_parent (Pane)
  *  </pre>
  *
  *  <p>widget_parent:
@@ -361,11 +361,61 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         Styles.setSceneStyle(scene);
     }
 
+    /** Standard zoom levels */
+    // Values and order of options similar to 'Word' on Mac
+    public static final String[] ZOOM_LEVELS = new String[]
+    {
+        "200 %",
+        "150 %",
+        "125 %",
+        "100 %",
+        " 75 %",
+        " 50 %",
+        " 25 %",
+        Messages.Zoom_Width,
+        Messages.Zoom_Height,
+        Messages.Zoom_All
+    };
+
+    /** Default zoom level */
+    public static final String DEFAULT_ZOOM_LEVEL = ZOOM_LEVELS[3];
+
+    /** @param level_spec "123 %" or Messages.Zoom_*
+     *  @return Zoom spec actually used
+     */
+    final public String requestZoom(final String level_spec)
+    {
+        double zoom;
+        if (level_spec.equalsIgnoreCase(Messages.Zoom_All))
+            zoom = ZOOM_ALL;
+        else if (level_spec.equalsIgnoreCase(Messages.Zoom_Width))
+            zoom = ZOOM_WIDTH;
+        else if (level_spec.equalsIgnoreCase(Messages.Zoom_Height))
+            zoom = ZOOM_HEIGHT;
+        else
+        {   // Parse " 123 % "
+            String number = level_spec.trim();
+            if (number.endsWith("%"))
+                number = number.substring(0, number.length()-1).trim();
+            try
+            {
+                zoom = Double.parseDouble(number) / 100.0;
+            }
+            catch (NumberFormatException ex)
+            {
+                zoom = 1.0;
+            }
+        }
+        zoom = setZoom(zoom);
+
+        return Math.round(zoom*100) + " %";
+    }
+
     /** Set zoom level
      *  @param zoom Zoom level: 1.0 for 100%, 0.5 for 50%, ZOOM_ALL, ZOOM_WIDTH, ZOOM_HEIGHT
      *  @return Zoom level actually used
      */
-    final public double setZoom(double zoom)
+    private double setZoom(double zoom)
     {
         if (zoom <= 0.0)
         {   // Determine zoom to fit outline of display into available space
