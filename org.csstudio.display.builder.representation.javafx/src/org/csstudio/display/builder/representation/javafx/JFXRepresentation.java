@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2017 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -150,6 +150,7 @@ import javafx.scene.media.MediaPlayer.Status;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Line;
 import javafx.scene.transform.Scale;
+import javafx.scene.transform.Transform;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 
@@ -443,6 +444,9 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         // Setting a Scale() transform does not exhibit that quirk,
         // maybe because both X and Y scaling are set 'at once'?
 
+        if (isEditMode())
+            updateModelSizeIndicators();
+
         return zoom;
     }
 
@@ -510,8 +514,16 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     /** Update lines that indicate model's size in edit mode */
     private void updateModelSizeIndicators()
     {
-        final int width = model.propWidth().getValue();
-        final int height = model.propHeight().getValue();
+        int width = model.propWidth().getValue();
+        int height = model.propHeight().getValue();
+
+        final ObservableList<Transform> transforms = widget_parent.getTransforms();
+        if (transforms.size() > 0  &&  transforms.get(0) instanceof Scale)
+        {
+            final Scale scale = (Scale) transforms.get(0);
+            width  *= scale.getX();
+            height *= scale.getY();
+        }
 
         horiz_bound.setStartY(height);
         horiz_bound.setEndX(width);
