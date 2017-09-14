@@ -125,6 +125,8 @@ abstract public class ModelItem
     public boolean setName(String new_name) throws Exception
     {
         new_name = new_name.trim();
+        if (new_name.isEmpty())
+            throw new Exception("Empty name");
         if (new_name.equals(name))
             return false;
         name = new_name;
