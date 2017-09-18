@@ -10,11 +10,8 @@ package org.csstudio.display.builder.runtime.script.internal;
 import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 
@@ -33,14 +30,11 @@ import org.csstudio.display.builder.runtime.script.ScriptUtil;
  * @author Amanda Carpenter
  */
 @SuppressWarnings("nls")
-public class PythonScriptSupport
+public class PythonScriptSupport extends BaseScriptSupport
 {
     ScriptSupport support;
     static PVUtil pvutil = new PVUtil();
     static ScriptUtil scriptutil = new ScriptUtil();
-
-    // See comments on queued_scripts in JythonScriptSupport
-    private final Set<PythonScript> queued_scripts = Collections.newSetFromMap(new ConcurrentHashMap<PythonScript, Boolean>());
 
     public PythonScriptSupport(final ScriptSupport support) throws Exception
     {
@@ -58,19 +52,13 @@ public class PythonScriptSupport
     public Future<Object> submit(PythonScript script, Widget widget, RuntimePV[] pvs)
     {
         // Skip script that's already in the queue.
-        // Check-then-set, no atomic submit-unless-queued logic.
-        // Might still add some scripts twice, but good enough.
-        if (queued_scripts.contains(script))
-        {
-            logger.log(Level.FINE, "Skipping script {0}, already queued for execution", script);
+        if (! markAsScheduled(script))
             return null;
-        }
-        queued_scripts.add(script);
 
         return support.submit(() ->
         {
             // Script may be queued again
-            queued_scripts.remove(script);
+            removeScheduleMarker(script);
             try
             {
                 Map<String, Object> map = new HashMap<String, Object>();

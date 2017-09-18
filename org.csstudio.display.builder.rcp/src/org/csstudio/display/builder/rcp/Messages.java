@@ -36,9 +36,6 @@ public class Messages extends NLS
     public static String TopDisplays;
     public static String WidgetProperties_Filespace;
     public static String WidgetProperties_Filecomponent;
-    public static String Zoom_All;
-    public static String Zoom_Height;
-    public static String Zoom_Width;
 
     static
     {

@@ -9,12 +9,8 @@ package org.csstudio.display.builder.editor.rcp;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.csstudio.display.builder.editor.actions.ActionDescription;
-import org.csstudio.display.builder.editor.rcp.actions.EditorPartAction;
-import org.csstudio.display.builder.editor.rcp.actions.ExecuteDisplayAction;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.jface.action.Separator;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -33,32 +29,6 @@ import org.eclipse.ui.part.EditorActionBarContributor;
  */
 public class DisplayEditorToolbarContributor extends EditorActionBarContributor
 {
-    // Actions that act on active editor
-    private final EditorPartAction[] editor_actions = new EditorPartAction[]
-    {
-        new ExecuteDisplayAction(),
-        null, // Marker for Separator
-        EditorPartAction.forToggledActionDescription(ActionDescription.ENABLE_GRID),
-        EditorPartAction.forToggledActionDescription(ActionDescription.ENABLE_SNAP),
-        EditorPartAction.forToggledActionDescription(ActionDescription.ENABLE_COORDS),
-        null, // Marker for Separator
-        EditorPartAction.forActionDescription(ActionDescription.TO_BACK),
-        EditorPartAction.forActionDescription(ActionDescription.MOVE_UP),
-        EditorPartAction.forActionDescription(ActionDescription.MOVE_DOWN),
-        EditorPartAction.forActionDescription(ActionDescription.TO_FRONT),
-        null, // Marker for Separator
-        EditorPartAction.forActionDescription(ActionDescription.ALIGN_LEFT),
-        EditorPartAction.forActionDescription(ActionDescription.ALIGN_CENTER),
-        EditorPartAction.forActionDescription(ActionDescription.ALIGN_RIGHT),
-        EditorPartAction.forActionDescription(ActionDescription.ALIGN_TOP),
-        EditorPartAction.forActionDescription(ActionDescription.ALIGN_MIDDLE),
-        EditorPartAction.forActionDescription(ActionDescription.ALIGN_BOTTOM),
-        EditorPartAction.forActionDescription(ActionDescription.MATCH_WIDTH),
-        EditorPartAction.forActionDescription(ActionDescription.MATCH_HEIGHT),
-        EditorPartAction.forActionDescription(ActionDescription.DIST_HORIZ),
-        EditorPartAction.forActionDescription(ActionDescription.DIST_VERT),
-    };
-
     // Global actions defined by RCP
     // Holds actions for toolbar created by RCP ActionFactory.
     // Active editor then registers a handler.
@@ -77,22 +47,6 @@ public class DisplayEditorToolbarContributor extends EditorActionBarContributor
         global_actions.add(ActionFactory.PASTE.create(window));
         global_actions.add(ActionFactory.DELETE.create(window));
         global_actions.add(ActionFactory.SELECT_ALL.create(window));
-
-        for (EditorPartAction epa : editor_actions)
-            if (epa == null)
-                manager.add(new Separator());
-            else
-                manager.add(epa);
-        manager.add(new Separator());
-        addGlobalAction(manager, ActionFactory.UNDO.create(window));
-        addGlobalAction(manager, ActionFactory.REDO.create(window));
-        manager.add(new Separator());
-    }
-
-    private void addGlobalAction(final IToolBarManager manager, final IWorkbenchAction action)
-    {
-        manager.add(action);
-        global_actions.add(action);
     }
 
     @Override
@@ -105,10 +59,6 @@ public class DisplayEditorToolbarContributor extends EditorActionBarContributor
         final IActionBars bars = getActionBars();
         if (bars == null)
             return;
-
-        for (EditorPartAction epa : editor_actions)
-            if (epa != null)
-                epa.setActiveEditor(editor);
 
         // RCP defines global actions for copy, undo, ..
         // in the menu, including key bindings.
@@ -126,9 +76,6 @@ public class DisplayEditorToolbarContributor extends EditorActionBarContributor
     @Override
     public void dispose()
     {
-        for (EditorPartAction epa : editor_actions)
-            if (epa != null)
-                epa.setActiveEditor(null);
         for (IWorkbenchAction action : global_actions)
             action.dispose();
         global_actions.clear();

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2017 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import java.util.ListIterator;
 import java.util.Objects;
 import java.util.logging.Level;
 
+import org.csstudio.display.builder.editor.actions.ActionDescription;
 import org.csstudio.display.builder.editor.palette.Palette;
 import org.csstudio.display.builder.editor.poly.PointsBinding;
 import org.csstudio.display.builder.editor.tracker.SelectedWidgetUITracker;
@@ -38,6 +39,7 @@ import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.widgets.ArrayWidget;
 import org.csstudio.display.builder.representation.ToolkitListener;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
+import org.csstudio.display.builder.util.ResourceUtil;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 
 import javafx.geometry.Point2D;
@@ -45,37 +47,54 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Separator;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToolBar;
+import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 
 /** Display editor UI
  *
- *  <p>Shows DisplayModel, has Palette to add widgets.
+ *  <p>Shows DisplayModel, has Toolbar, Palette to add widgets.
  *  Allows interactive move/resize.
  *
  *  <p>Extends the basic JFXRepresentation scene layout:
  *  <pre>
- *  root (SplitPane)
+ *  root (Border Pane)
  *   |
- *   +----------------------+
- *   |                      |
- *  model_root (Scroll)    palette
+ *   + top:
+ *   | Toolbar
  *   |
- *  scroll_body (Pane)
- *   |
- *   +----------------------------+
- *   |                            |
- *  model_parent (Group)      edit_tools
- *  (model rep. in back)      (on top)
- *   |                            |
- *  widget representations    selection tracker, points, rubberband
+ *   + center:
+ *     model_and_palette (SplitPane)
+ *      |
+ *      +----------------------------+
+ *      |                            |
+ *     model_root (Scroll)          palette
+ *      |
+ *     scroll_body (Group)
+ *      |
+ *      +-------------------------+
+ *      |                         |
+ *     widget_parent (Pane)      edit_tools
+ *     (model rep. in back)      (on top)
+ *      |                         |
+ *     widget representations    selection tracker, points, rubberband
  *  </pre>
  *
- *  <p>model_parent hosts representations of model widgets
+ *  <p>widget_parent hosts representations of model widgets
  *
  *  <p>edit_tools holds GroupHandler, SelectionTracker
  *
@@ -85,7 +104,7 @@ import javafx.scene.layout.Pane;
  *  <p>model_root is ScrollPane, drop target for new widgets, starts 'rubberband'.
  *
  *  <p>The scroll_body is initially empty.
- *  As widget representations are added in the model_parent,
+ *  As widget representations are added in the widget_parent,
  *  the scroll_body grows.
  *  The scroll bars of the editor automatically enable
  *  as the content of the scroll_body grows beyond the editor.
@@ -109,14 +128,14 @@ public class DisplayEditor
     private final WidgetSelectionHandler selection = new WidgetSelectionHandler();
     private final ParentHandler group_handler;
     private final SelectedWidgetUITracker selection_tracker;
-    private final Group edit_tools = new Group();
-
     private AutoScrollHandler autoScrollHandler;
     private DisplayModel model;
-    private SplitPane root;
+
+    private ToolBar toolbar;
     private ScrollPane model_root;
     private Palette palette;
-    private Pane model_parent;
+    private Pane widget_parent;
+    private final Group edit_tools = new Group();
 
     /** @param toolkit JFX Toolkit
      *  @param stack_size Number of undo/redo entries
@@ -143,23 +162,158 @@ public class DisplayEditor
 
         final Group scroll_body = (Group) model_root.getContent();
 
-        model_parent = (Pane) scroll_body.getChildren().get(0);
+        widget_parent = (Pane) scroll_body.getChildren().get(0);
 
         scroll_body.getChildren().add(edit_tools);
 
         palette = new Palette(this);
         final Node palette_node = palette.create();
 
-        root = new SplitPane();
-
-        root.getItems().addAll(model_root, palette_node);
-        root.setDividerPositions(1);
+        final SplitPane model_and_palette = new SplitPane(model_root, palette_node);
+        model_and_palette.setDividerPositions(1);
 
         SplitPane.setResizableWithParent(palette_node, false);
         edit_tools.getChildren().addAll(selection_tracker);
         hookListeners();
 
+        toolbar = createToolbar();
+
+        final BorderPane root = new BorderPane(model_and_palette);
+        root.setTop(toolbar);
+
         return root;
+    }
+
+    private ToolBar createToolbar()
+    {
+        final Button undo_button = createButton(ActionDescription.UNDO);
+        final Button redo_button = createButton(ActionDescription.REDO);
+        undo_button.setDisable(true);
+        redo_button.setDisable(true);
+        undo.addListener((to_undo, to_redo) ->
+        {
+            undo_button.setDisable(to_undo == null);
+            redo_button.setDisable(to_redo == null);
+        });
+
+        final ComboBox<String> zoom_levels = new ComboBox<>();
+        zoom_levels.getItems().addAll(JFXRepresentation.ZOOM_LEVELS);
+        zoom_levels.setEditable(true);
+        zoom_levels.setValue(JFXRepresentation.DEFAULT_ZOOM_LEVEL);
+        zoom_levels.setTooltip(new Tooltip("Select Zoom Level"));
+        zoom_levels.setPrefWidth(100.0);
+        zoom_levels.setOnAction(event -> zoom_levels.setValue(requestZoom(zoom_levels.getValue())));
+
+        final MenuButton order = new MenuButton(null, null,
+            createMenuItem(ActionDescription.TO_BACK),
+            createMenuItem(ActionDescription.MOVE_UP),
+            createMenuItem(ActionDescription.MOVE_DOWN),
+            createMenuItem(ActionDescription.TO_FRONT));
+        order.setTooltip(new Tooltip("Order"));
+
+        final MenuButton align = new MenuButton(null, null,
+            createMenuItem(ActionDescription.ALIGN_LEFT),
+            createMenuItem(ActionDescription.ALIGN_CENTER),
+            createMenuItem(ActionDescription.ALIGN_RIGHT),
+            createMenuItem(ActionDescription.ALIGN_TOP),
+            createMenuItem(ActionDescription.ALIGN_MIDDLE),
+            createMenuItem(ActionDescription.ALIGN_BOTTOM));
+        align.setTooltip(new Tooltip("Align"));
+
+        final MenuButton size = new MenuButton(null, null,
+            createMenuItem(ActionDescription.MATCH_WIDTH),
+            createMenuItem(ActionDescription.MATCH_HEIGHT));
+        align.setTooltip(new Tooltip("Size"));
+
+        final MenuButton dist = new MenuButton(null, null,
+            createMenuItem(ActionDescription.DIST_HORIZ),
+            createMenuItem(ActionDescription.DIST_VERT));
+        align.setTooltip(new Tooltip("Distribute"));
+
+        // Use the first item as the icon for the drop-down...
+        try
+        {
+            order.setGraphic(new ImageView(new Image(ResourceUtil.openPlatformResource(ActionDescription.TO_BACK.getIconResourcePath()))));
+            align.setGraphic(new ImageView(new Image(ResourceUtil.openPlatformResource(ActionDescription.ALIGN_LEFT.getIconResourcePath()))));
+            size.setGraphic(new ImageView(new Image(ResourceUtil.openPlatformResource(ActionDescription.MATCH_WIDTH.getIconResourcePath()))));
+            dist.setGraphic(new ImageView(new Image(ResourceUtil.openPlatformResource(ActionDescription.DIST_HORIZ.getIconResourcePath()))));
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Cannot load icon", ex);
+        }
+
+
+        return new ToolBar(
+            createToggleButton(ActionDescription.ENABLE_GRID),
+            createToggleButton(ActionDescription.ENABLE_SNAP),
+            createToggleButton(ActionDescription.ENABLE_COORDS),
+            new Separator(),
+            order,
+            align,
+            size,
+            dist,
+            new Separator(),
+            undo_button,
+            redo_button,
+            new Separator(),
+            zoom_levels);
+    }
+
+    private MenuItem createMenuItem(final ActionDescription action)
+    {
+        final MenuItem item = new MenuItem();
+        try
+        {
+            item.setGraphic(new ImageView(new Image(ResourceUtil.openPlatformResource(action.getIconResourcePath()))));
+        }
+        catch (final Exception ex)
+        {
+            logger.log(Level.WARNING, "Cannot load action icon", ex);
+        }
+        item.setText(action.getToolTip());
+        item.setOnAction(event -> action.run(this));
+        return item;
+    }
+
+    private Button createButton(final ActionDescription action)
+    {
+        final Button button = new Button();
+        try
+        {
+            button.setGraphic(new ImageView(new Image(ResourceUtil.openPlatformResource(action.getIconResourcePath()))));
+        }
+        catch (final Exception ex)
+        {
+            logger.log(Level.WARNING, "Cannot load action icon", ex);
+        }
+        button.setTooltip(new Tooltip(action.getToolTip()));
+        button.setOnAction(event -> action.run(this));
+        return button;
+    }
+
+    private ToggleButton createToggleButton(final ActionDescription action)
+    {
+        final ToggleButton button = new ToggleButton();
+        try
+        {
+            button.setGraphic(new ImageView(new Image(ResourceUtil.openPlatformResource(action.getIconResourcePath()))));
+        }
+        catch (final Exception ex)
+        {
+            logger.log(Level.WARNING, "Cannot load action icon", ex);
+        }
+        button.setTooltip(new Tooltip(action.getToolTip()));
+        button.setSelected(true);
+        button.selectedProperty()
+              .addListener((observable, old_value, enabled) -> action.run(this, enabled) );
+        return button;
+    }
+
+    /** @return ToolBar */
+    public ToolBar getToolBar()
+    {
+        return toolbar;
     }
 
     /** @return Selection tracker */
@@ -247,6 +401,9 @@ public class DisplayEditor
             selection.setSelection(found);
     }
 
+    /** @param region Requested location and size of the new widget
+     *  @param desc Description for widget to create
+     */
     private void createWidget(final Rectangle2D region, final WidgetDescriptor desc)
     {
         // Create widget of that type
@@ -354,7 +511,7 @@ public class DisplayEditor
         // Create representation for model items
         try
         {
-            toolkit.representModel(model_parent, model);
+            toolkit.representModel(widget_parent, model);
         }
         catch (final Exception ex)
         {
@@ -446,7 +603,7 @@ public class DisplayEditor
     public void debug()
     {
         System.out.println("JavaFX Nodes for Model's Representation");
-        final int nodes = countAndDumpNodes(model_parent, 1);
+        final int nodes = countAndDumpNodes(widget_parent, 1);
         System.out.println("Node Count: " + nodes);
     }
 
@@ -474,5 +631,18 @@ public class DisplayEditor
     {
         if (model != null)
             toolkit.disposeRepresentation(model);
+    }
+
+    /** @param level_spec Zoom level specification like "123 %"
+     *  @return Zoom spec actually used
+     */
+    public String requestZoom(String level_spec)
+    {
+        level_spec = toolkit.requestZoom(level_spec);
+        // Toolkit sets the widget_parent transforms to one Scale().
+        // Apply same to the edit_tools
+        edit_tools.getTransforms().setAll(widget_parent.getTransforms());
+
+        return level_spec;
     }
 }

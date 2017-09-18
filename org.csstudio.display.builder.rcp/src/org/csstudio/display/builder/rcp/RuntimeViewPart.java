@@ -400,14 +400,6 @@ public class RuntimeViewPart extends FXViewPart
 	    return representation;
 	}
 
-    /** @param zoom Zoom level, 1.0 for 100%, -1 to 'fit'
-	 *  @return Zoom level actually used
-	 */
-	public double setZoom(final double zoom)
-    {
-        return representation.setZoom(zoom);
-    }
-
 	/** Persist the view's input "on demand".
      *
      *  <p>Framework only persists to memento on exit,
@@ -433,7 +425,7 @@ public class RuntimeViewPart extends FXViewPart
         {
             // Obtain E4 model element for E3 view,
             // based on http://www.vogella.com/tutorials/EclipsePlugIn/article.html#eclipsecontext
-            final IEclipseContext context = (IEclipseContext) getViewSite().getService(IEclipseContext.class);
+            final IEclipseContext context = getViewSite().getService(IEclipseContext.class);
             final MPart part = context.get(MPart.class);
 
             // Based on org.eclipse.ui.internal.ViewReference#persist():
