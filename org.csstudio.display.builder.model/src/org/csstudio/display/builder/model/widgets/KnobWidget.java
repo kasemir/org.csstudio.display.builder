@@ -129,6 +129,10 @@ public class KnobWidget extends WritablePVWidget {
         super(WIDGET_DESCRIPTOR.getType(), 220, 220);
     }
 
+    protected KnobWidget ( final String type, final int default_width, final int default_height ) {
+        super(type, default_width, default_height);
+    }
+
     @Override
     public WidgetConfigurator getConfigurator ( final Version persistedVersion ) throws Exception {
         return new KnobConfigurator(persistedVersion);
