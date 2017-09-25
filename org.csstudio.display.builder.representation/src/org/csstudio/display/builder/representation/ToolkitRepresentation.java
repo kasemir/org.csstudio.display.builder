@@ -396,7 +396,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      *  @param delay Delay from now until command will be executed
      *  @param unit {@link TimeUnit}
      */
-    public void schedule(final Runnable command, long delay, TimeUnit unit)
+    public void schedule(final Runnable command, final long delay, final TimeUnit unit)
     {
         // Use the model thread pool to schedule,
         // then perform the command on the UI thread.
