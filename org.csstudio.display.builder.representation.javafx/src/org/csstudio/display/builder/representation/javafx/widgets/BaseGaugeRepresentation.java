@@ -11,8 +11,6 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -31,7 +29,6 @@ import org.diirt.vtype.ValueUtil;
 import eu.hansolo.medusa.Gauge;
 import eu.hansolo.medusa.GaugeBuilder;
 import eu.hansolo.medusa.Section;
-import javafx.application.Platform;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 
@@ -271,24 +268,9 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         Styles.update(gauge, Styles.NOT_ENABLED, !enabled);
 
         //  TODO: CR: It should not be necessary, but it doesn't work otherwise
-        final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(r -> {
-
-            Thread t = new Thread(r);
-
-            t.setDaemon(true);
-            t.setPriority(Thread.NORM_PRIORITY - 2);
-
-            return t;
-
-        });
-
-        executor.schedule(() -> {
-            Platform.runLater(() -> {
+        toolkit.schedule(() -> {
                 jfx_node.setPrefWidth(model_widget.propWidth().getValue());
                 jfx_node.setPrefHeight(model_widget.propHeight().getValue());
-                executor.shutdown();
-            });
-            executor.shutdown();
         }, 111, TimeUnit.MILLISECONDS);
 
         return gauge;

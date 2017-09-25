@@ -20,6 +20,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,6 +30,7 @@ import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.ActionInfo;
+import org.csstudio.display.builder.model.util.ModelThreadPool;
 
 /** Representation for a toolkit.
  *
@@ -387,6 +389,19 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      */
     @Override
     abstract public void execute(final Runnable command);
+
+    /** Schedule a command to be executed on the UI thread
+     *
+     *  @param command Command to execute
+     *  @param delay Delay from now until command will be executed
+     *  @param unit {@link TimeUnit}
+     */
+    public void schedule(final Runnable command, long delay, TimeUnit unit)
+    {
+        // Use the model thread pool to schedule,
+        // then perform the command on the UI thread.
+        ModelThreadPool.getTimer().schedule(() -> execute(command), delay, unit);
+    }
 
     /** Show message dialog.
      *

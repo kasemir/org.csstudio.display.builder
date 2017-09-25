@@ -11,7 +11,7 @@ import static org.csstudio.display.builder.representation.ToolkitRepresentation.
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
@@ -21,12 +21,10 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.Direction;
-import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.model.widgets.TabsWidget;
 import org.csstudio.display.builder.model.widgets.TabsWidget.TabItemProperty;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
-import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import javafx.geometry.Side;
 import javafx.scene.control.Label;
@@ -276,26 +274,19 @@ public class TabsRepresentation extends JFXBaseRepresentation<TabPane, TabsWidge
         // In addition, if TabPane is the _only_ widget, it will not show
         // unless the background style is initially set to something.
         // OK to then clear the style later, i.e. in here.
-        final Callable<Object> twiddle = () ->
+        final Runnable twiddle = () ->
         {
-            Thread.sleep(500);
-            Platform.runLater(() ->
-            {
-                jfx_node.setStyle("");
-                jfx_node.setSide(Side.BOTTOM);
-                if (model_widget.propDirection().getValue() == Direction.HORIZONTAL)
-                    jfx_node.setSide(Side.TOP);
-                else
-                    jfx_node.setSide(Side.LEFT);
-            });
-            Thread.sleep(500);
-            Platform.runLater(() ->
-            {   // Insets computation only possible once TabPane is properly displayed.
-                // Until then, content Pane will report position as 0,0.
-                computeInsets();
-            });
-            return null;
+            jfx_node.setStyle("");
+            jfx_node.setSide(Side.BOTTOM);
+            if (model_widget.propDirection().getValue() == Direction.HORIZONTAL)
+                jfx_node.setSide(Side.TOP);
+            else
+                jfx_node.setSide(Side.LEFT);
+
+            // Insets computation only possible once TabPane is properly displayed.
+            // Until then, content Pane will report position as 0,0.
+            toolkit.schedule(this::computeInsets, 500, TimeUnit.MILLISECONDS);
         };
-        ModelThreadPool.getExecutor().submit(twiddle);
+        toolkit.schedule(twiddle, 500, TimeUnit.MILLISECONDS);
     }
 }
