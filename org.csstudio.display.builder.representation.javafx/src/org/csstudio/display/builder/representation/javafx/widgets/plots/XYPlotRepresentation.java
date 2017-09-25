@@ -18,7 +18,6 @@ import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
-import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.plots.PlotWidgetPointType;
 import org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.AxisWidgetProperty;
@@ -270,7 +269,7 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
 
             // Decouple from CAJ's PV thread
             latest_data.set(new XYVTypeDataProvider(x_data, y_data, error));
-            ModelThreadPool.getExecutor().submit(() -> updateData());
+            toolkit.submit(this::updateData);
         }
 
         // Update XYPlot data on different thread, not from CAJ callback.
