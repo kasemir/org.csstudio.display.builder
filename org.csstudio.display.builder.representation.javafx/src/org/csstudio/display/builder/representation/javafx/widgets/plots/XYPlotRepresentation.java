@@ -11,6 +11,7 @@ import static org.csstudio.display.builder.representation.ToolkitRepresentation.
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 
@@ -26,6 +27,7 @@ import org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.YAx
 import org.csstudio.display.builder.model.widgets.plots.PlotWidgetTraceType;
 import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget;
 import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget.MarkerProperty;
+import org.csstudio.display.builder.representation.RepresentationUpdateThrottle;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.widgets.RegionBaseRepresentation;
 import org.csstudio.javafx.rtplot.Axis;
@@ -314,6 +316,7 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
     {
         // Plot is only active in runtime mode, not edit mode
         plot = new RTValuePlot(! toolkit.isEditMode());
+        plot.setUpdateThrottle(RepresentationUpdateThrottle.plot_update_delay, TimeUnit.MILLISECONDS);
         plot.showToolbar(false);
         plot.showCrosshair(false);
 
