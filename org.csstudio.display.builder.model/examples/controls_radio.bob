@@ -1,25 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<display version="1.0.0">
+<display version="2.0.0">
   <name>Radio Button</name>
   <macros>
     <one>Macro "one"</one>
     <three>Macro "three"</three>
     <two>Macro "two"</two>
   </macros>
-  <x>-1</x>
-  <y>-1</y>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update</name>
-    <y>388</y>
+    <pv_name>loc://test&lt;String&gt;</pv_name>
+    <y>448</y>
     <width>150</width>
     <height>25</height>
-    <pv_name>loc://test&lt;String&gt;</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label</name>
-    <y>281</y>
-    <width>221</width>
     <text>Items from property</text>
+    <y>341</y>
+    <width>221</width>
     <font>
       <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
       </font>
@@ -27,23 +25,23 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update_2</name>
-    <y>231</y>
+    <pv_name>loc://test3&lt;VEnum&gt;(0, "High", "Medium", "Low")</pv_name>
+    <y>291</y>
     <width>190</width>
     <height>25</height>
-    <pv_name>loc://test3&lt;VEnum&gt;(0, "High", "Medium", "Low")</pv_name>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update_3</name>
-    <y>488</y>
+    <pv_name>loc://test2&lt;String&gt;</pv_name>
+    <y>548</y>
     <width>150</width>
     <height>25</height>
-    <pv_name>loc://test2&lt;String&gt;</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label</name>
-    <y>431</y>
-    <width>150</width>
     <text>Items with macros</text>
+    <y>491</y>
+    <width>150</width>
     <font>
       <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
       </font>
@@ -51,9 +49,9 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_5</name>
+    <text>Radio Button Widget</text>
     <width>241</width>
     <height>30</height>
-    <text>Radio Button Widget</text>
     <font>
       <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
       </font>
@@ -61,28 +59,31 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_6</name>
-    <y>30</y>
-    <width>431</width>
-    <height>90</height>
     <text>The one Radio Button Widget actually creates several
 radio buttons, one for each value of the PV.
 When an item is selected, the widget attempts to write its
-value to the PV. If the write fails for any reason, the true PV
-value is still shown.</text>
+value to the PV.
+For a numeric or enumerated PV, the index of the selected
+radio button is written, i.e. 0, 1, 2, ...
+For other PV types, the label of the selected radio button
+is written.</text>
+    <y>30</y>
+    <width>431</width>
+    <height>150</height>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_9</name>
-    <y>150</y>
-    <width>378</width>
-    <height>61</height>
     <text>By default, the property "Items From PV" is set
 and the widget obtains its items from an enumerated PV.</text>
+    <y>210</y>
+    <width>378</width>
+    <height>61</height>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_10</name>
-    <y>120</y>
-    <width>260</width>
     <text>Items from PV</text>
+    <y>180</y>
+    <width>260</width>
     <font>
       <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
       </font>
@@ -90,33 +91,21 @@ and the widget obtains its items from an enumerated PV.</text>
   </widget>
   <widget type="radio" version="2.0.0">
     <name>Combo_ItemsFromPV</name>
-    <y>191</y>
+    <pv_name>loc://test3&lt;VEnum&gt;(0, "High", "Medium", "Low")</pv_name>
+    <y>251</y>
     <width>383</width>
     <height>27</height>
-    <foreground_color>
-      <color red="0" green="0" blue="0">
-      </color>
-    </foreground_color>
-    <font>
-      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
-      </font>
-    </font>
-    <pv_name>loc://test3&lt;VEnum&gt;(0, "High", "Medium", "Low")</pv_name>
+    <items>
+      <item>Item 1</item>
+      <item>Item 2</item>
+    </items>
   </widget>
   <widget type="radio" version="2.0.0">
     <name>Combo</name>
-    <y>361</y>
+    <pv_name>loc://test&lt;String&gt;</pv_name>
+    <y>421</y>
     <width>383</width>
     <height>27</height>
-    <foreground_color>
-      <color red="0" green="0" blue="0">
-      </color>
-    </foreground_color>
-    <font>
-      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
-      </font>
-    </font>
-    <pv_name>loc://test&lt;String&gt;</pv_name>
     <items>
       <item>One Item</item>
       <item>Another Item</item>
@@ -126,26 +115,18 @@ and the widget obtains its items from an enumerated PV.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_11</name>
-    <y>311</y>
-    <width>378</width>
-    <height>40</height>
     <text>Alternatively, the items can be configured on the widget,
 not reading them from a PV.</text>
+    <y>371</y>
+    <width>378</width>
+    <height>40</height>
   </widget>
   <widget type="radio" version="2.0.0">
     <name>Combo_Macros</name>
-    <y>461</y>
+    <pv_name>loc://test2&lt;String&gt;</pv_name>
+    <y>521</y>
     <width>439</width>
     <height>27</height>
-    <foreground_color>
-      <color red="0" green="0" blue="0">
-      </color>
-    </foreground_color>
-    <font>
-      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
-      </font>
-    </font>
-    <pv_name>loc://test2&lt;String&gt;</pv_name>
     <items>
       <item>$(one)</item>
       <item>$(two)</item>
