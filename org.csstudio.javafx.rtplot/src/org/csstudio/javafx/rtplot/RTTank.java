@@ -117,6 +117,15 @@ public class RTTank extends Canvas
         });
     }
 
+    /** Update the dormant time between updates
+     *  @param dormant_time How long throttle remains dormant after a trigger
+     *  @param unit Units for the dormant period
+     */
+    public void setUpdateThrottle(final long dormant_time, final TimeUnit unit)
+    {
+        update_throttle.setDormantTime(dormant_time, unit);
+    }
+
     /** @param font Scale font */
     public void setFont(final Font font)
     {

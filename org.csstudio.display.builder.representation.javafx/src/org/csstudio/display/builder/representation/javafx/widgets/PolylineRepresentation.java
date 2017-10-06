@@ -36,7 +36,7 @@ public class PolylineRepresentation extends JFXBaseRepresentation<Group, Polylin
     public Group createJFXNode() throws Exception
     {
         final Polyline polyline = new Polyline();
-        polyline.setStrokeLineJoin(StrokeLineJoin.ROUND);
+        polyline.setStrokeLineJoin(StrokeLineJoin.MITER);
         polyline.setStrokeLineCap(StrokeLineCap.BUTT);
         return new Group(polyline, new Arrow(), new Arrow());
     }

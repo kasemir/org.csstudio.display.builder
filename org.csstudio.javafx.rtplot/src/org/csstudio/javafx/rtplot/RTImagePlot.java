@@ -10,6 +10,7 @@ package org.csstudio.javafx.rtplot;
 import java.awt.Rectangle;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.TimeUnit;
 
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.DialogHelper;
@@ -86,6 +87,15 @@ public class RTImagePlot extends BorderPane
     		axisLimitsField = constructAxisLimitsField();
     		center.getChildren().add(axisLimitsField);
         }
+    }
+
+    /** Update the dormant time between updates
+     *  @param dormant_time How long throttle remains dormant after a trigger
+     *  @param unit Units for the dormant period
+     */
+    public void setUpdateThrottle(final long dormant_time, final TimeUnit unit)
+    {
+        plot.setUpdateThrottle(dormant_time, unit);
     }
 
     private TextField constructAxisLimitsField()

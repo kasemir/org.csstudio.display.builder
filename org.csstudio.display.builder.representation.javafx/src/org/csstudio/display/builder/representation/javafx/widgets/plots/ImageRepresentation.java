@@ -11,6 +11,7 @@ import static org.csstudio.display.builder.representation.ToolkitRepresentation.
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
@@ -25,6 +26,7 @@ import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget.AxisWidgetProperty;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget.ROIWidgetProperty;
+import org.csstudio.display.builder.representation.RepresentationUpdateThrottle;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.widgets.RegionBaseRepresentation;
 import org.csstudio.javafx.rtplot.Axis;
@@ -147,6 +149,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
     {
         // Plot is only active in runtime mode, not edit mode
         image_plot = new RTImagePlot(! toolkit.isEditMode());
+        image_plot.setUpdateThrottle(RepresentationUpdateThrottle.plot_update_delay, TimeUnit.MILLISECONDS);
         image_plot.setAutoscale(false);
 
         if (! toolkit.isEditMode())

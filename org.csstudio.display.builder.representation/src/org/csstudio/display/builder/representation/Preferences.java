@@ -55,4 +55,13 @@ public class Preferences
             milli = prefs.getInt(ID, "update_delay", milli, null);
         return milli;
     }
+
+    public static int getPlotUpdateDelayMillisec()
+    {
+        int milli = 100;
+        final IPreferencesService prefs = Platform.getPreferencesService();
+        if (prefs != null)
+            milli = prefs.getInt(ID, "plot_update_delay", milli, null);
+        return milli;
+    }
 }
