@@ -37,22 +37,24 @@ import se.ess.knobs.Knob;
  */
 public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidget> extends RegionBaseRepresentation<C, W> {
 
-    private final DirtyFlag               dirtyContent  = new DirtyFlag();
-    private final DirtyFlag               dirtyGeometry = new DirtyFlag();
-    private final DirtyFlag               dirtyLimits   = new DirtyFlag();
-    private final DirtyFlag               dirtyLook     = new DirtyFlag();
-    private final DirtyFlag               dirtyStyle    = new DirtyFlag();
-    private final DirtyFlag               dirtyUnit     = new DirtyFlag();
-    private final DirtyFlag               dirtyValue    = new DirtyFlag();
-    private volatile double               high          = Double.NaN;
-    private volatile double               hihi          = Double.NaN;
-    private volatile double               lolo          = Double.NaN;
-    private volatile double               low           = Double.NaN;
-    private volatile double               max           = 100.0;
-    private volatile double               min           = 0.0;
-    private final AtomicReference<String> unit          = new AtomicReference<>("");
-    private final AtomicBoolean           updatingValue = new AtomicBoolean(false);
-    private volatile boolean              firstUsage    = true;
+    private final DirtyFlag               dirtyContent       = new DirtyFlag();
+    private final DirtyFlag               dirtyGeometry      = new DirtyFlag();
+    private final DirtyFlag               dirtyLimits        = new DirtyFlag();
+    private final DirtyFlag               dirtyLook          = new DirtyFlag();
+    private final DirtyFlag               dirtyStyle         = new DirtyFlag();
+    private final DirtyFlag               dirtyUnit          = new DirtyFlag();
+    private final DirtyFlag               dirtyValue         = new DirtyFlag();
+    private final DirtyFlag               dirtyWriteValue    = new DirtyFlag();
+    private volatile double               high               = Double.NaN;
+    private volatile double               hihi               = Double.NaN;
+    private volatile double               lolo               = Double.NaN;
+    private volatile double               low                = Double.NaN;
+    private volatile double               max                = 100.0;
+    private volatile double               min                = 0.0;
+    private final AtomicReference<String> unit               = new AtomicReference<>("");
+    private final AtomicBoolean           updatingValue      = new AtomicBoolean(false);
+    private final AtomicBoolean           updatingWriteValue = new AtomicBoolean(false);
+    private volatile boolean              firstUsage         = true;
 
     @Override
     public void updateChanges ( ) {
@@ -106,15 +108,11 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
 
                 if ( !Double.isNaN(newval) ) {
 
-                    if ( newval < min ) {
-                        newval = min;
-                    } else if ( newval > max ) {
-                        newval = max;
-                    }
+                    newval = clamp(newval, min, max);
 
                     jfx_node.setCurrentValue(newval);
 
-                    if ( firstUsage || model_widget.propSyncedKnob().getValue() ) {
+                    if ( !isWritePVNameValid() && ( firstUsage || model_widget.propSyncedKnob().getValue() ) ) {
 
                         firstUsage = false;
 
@@ -131,6 +129,29 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
             }
         }
 
+        if ( isWritePVNameValid() && dirtyWriteValue.checkAndClear() && updatingWriteValue.compareAndSet(false, true) ) {
+            try {
+
+                final VType vtype = model_widget.propWritePVValue().getValue();
+                double newval = VTypeUtil.getValueNumber(vtype).doubleValue();
+
+                if ( !Double.isNaN(newval) ) {
+
+                    newval = clamp(newval, min, max);
+
+                    jfx_node.setTargetValue(newval);
+
+                    firstUsage = false;
+
+                } else {
+//  TODO: CR: do something!!!
+                }
+
+            } finally {
+                updatingWriteValue.set(false);
+            }
+        }
+
     }
 
     @Override
@@ -144,12 +165,12 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
 
         knob.setOnTargetSet(e -> {
             if ( !toolkit.isEditMode() ) {
-                toolkit.fireWrite(model_widget, jfx_node.getTargetValue());
+                writePV(jfx_node.getTargetValue());
             }
         });
         knob.targetValueProperty().addListener((observable, oldValue, newValue) -> {
             if ( !toolkit.isEditMode() && !model_widget.propWriteOnRelease().getValue() ) {
-                toolkit.fireWrite(model_widget, newValue);
+                writePV(newValue);
             }
         });
 
@@ -217,11 +238,17 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
 
         if ( toolkit.isEditMode() ) {
             dirtyValue.checkAndClear();
+            dirtyWriteValue.checkAndClear();
         } else {
             model_widget.runtimePropValue().addPropertyListener(this::valueChanged);
             model_widget.propSyncedKnob().addUntypedPropertyListener(this::synchChanged);
+            model_widget.propWritePVValue().addPropertyListener(this::writeValueChanged);
         }
 
+    }
+
+    private double clamp ( double value, double minValue, double maxValue ) {
+        return ( value < minValue ) ? minValue : ( value > maxValue ) ? maxValue : value;
     }
 
     private List<Stop> computeGradientStops ( ) {
@@ -284,6 +311,14 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
         toolkit.scheduleUpdate(this);
     }
 
+    private boolean isWritePVNameValid ( ) {
+
+        String wpvName = model_widget.propWritePVName().getValue();
+
+        return ( wpvName != null && !wpvName.trim().isEmpty() );
+
+    }
+
     private void limitsChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
         updateLimits();
         dirtyLimits.mark();
@@ -310,21 +345,6 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
             dirtyUnit.mark();
             toolkit.scheduleUpdate(this);
         }
-    }
-
-    private void valueChanged ( final WidgetProperty<? extends VType> property, final VType old_value, final VType new_value ) {
-
-        if ( model_widget.propLimitsFromPV().getValue() ) {
-            limitsChanged(null, null, null);
-        }
-
-        if ( model_widget.propPrecision().getValue() == -1 ) {
-            contentChanged(null, null, null);
-        }
-
-        dirtyValue.mark();
-        toolkit.scheduleUpdate(this);
-
     }
 
     /**
@@ -438,6 +458,41 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
 
         return somethingChanged;
 
+    }
+
+    private void valueChanged ( final WidgetProperty<? extends VType> property, final VType old_value, final VType new_value ) {
+
+        if ( model_widget.propLimitsFromPV().getValue() ) {
+            limitsChanged(null, null, null);
+        }
+
+        if ( model_widget.propPrecision().getValue() == -1 ) {
+            contentChanged(null, null, null);
+        }
+
+        dirtyValue.mark();
+        toolkit.scheduleUpdate(this);
+
+    }
+
+    private void writePV ( Object value ) {
+
+        if ( isWritePVNameValid() ) {
+
+//            RuntimeUtil.
+
+
+
+
+        } else {
+            toolkit.fireWrite(model_widget, value);
+        }
+
+    }
+
+    private void writeValueChanged ( final WidgetProperty<? extends VType> property, final VType old_value, final VType new_value ) {
+        dirtyWriteValue.mark();
+        toolkit.scheduleUpdate(this);
     }
 
 }

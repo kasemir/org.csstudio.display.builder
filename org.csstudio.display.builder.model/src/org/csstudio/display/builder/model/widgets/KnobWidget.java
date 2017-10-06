@@ -12,6 +12,8 @@ package org.csstudio.display.builder.model.widgets;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newColorPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newDoublePropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newPVNamePropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newRuntimeValue;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newStringPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propColor;
@@ -38,6 +40,7 @@ import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.WidgetColor;
+import org.diirt.vtype.VType;
 import org.osgi.framework.Version;
 import org.w3c.dom.Element;
 
@@ -63,6 +66,9 @@ public class KnobWidget extends WritablePVWidget {
             return new KnobWidget();
         }
     };
+
+    public static final WidgetPropertyDescriptor<String>      propWritePVName    = newPVNamePropertyDescriptor (WidgetPropertyCategory.WIDGET,   "write_pv_name",    Messages.WidgetProperties_WritePVName);
+    public static final WidgetPropertyDescriptor<VType>       propWritePVValue   = newRuntimeValue             (                                 "write_pv_value",   Messages.WidgetProperties_WritePVValue);
 
     public static final WidgetPropertyDescriptor<Boolean>     propDragDisabled   = newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "drag_disabled",    Messages.WidgetProperties_DragDisabled);
     public static final WidgetPropertyDescriptor<Boolean>     propSyncedKnob     = newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "synced_knob",      Messages.WidgetProperties_SyncedKnob);
@@ -124,6 +130,8 @@ public class KnobWidget extends WritablePVWidget {
     private volatile WidgetProperty<WidgetColor> value_color;
     private volatile WidgetProperty<Boolean>     value_visible;
     private volatile WidgetProperty<Boolean>     write_on_release;
+    private volatile WidgetProperty<String>      write_pv_name;
+    private volatile WidgetProperty<VType>       write_pv_value;
 
     public KnobWidget ( ) {
         super(WIDGET_DESCRIPTOR.getType(), 220, 220);
@@ -270,10 +278,21 @@ public class KnobWidget extends WritablePVWidget {
         return write_on_release;
     }
 
+    public WidgetProperty<String> propWritePVName ( ) {
+        return write_pv_name;
+    }
+
+    public WidgetProperty<VType> propWritePVValue ( ) {
+        return write_pv_value;
+    }
+
     @Override
     protected void defineProperties ( final List<WidgetProperty<?>> properties ) {
 
         super.defineProperties(properties);
+
+        properties.add(write_pv_name    = propWritePVName.createProperty(this, ""));
+        properties.add(write_pv_value   = propWritePVValue.createProperty(this, RUNTIME_VALUE_NO_PV));
 
         properties.add(background_color = propBackgroundColor.createProperty(this, new WidgetColor(255, 254, 253)));
         properties.add(color            = propColor.createProperty(this, new WidgetColor(66, 71, 79)));

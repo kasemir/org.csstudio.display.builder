@@ -321,6 +321,8 @@ public class Messages extends NLS
     public static String WidgetProperties_WrapWords;
     public static String WidgetProperties_Writable;
     public static String WidgetProperties_WriteOnRelease;
+    public static String WidgetProperties_WritePVName;
+    public static String WidgetProperties_WritePVValue;
     public static String WidgetProperties_X;
     public static String WidgetProperties_XPVName;
     public static String WidgetProperties_Y;
