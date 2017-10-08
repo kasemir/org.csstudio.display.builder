@@ -291,6 +291,7 @@ public class Messages extends NLS
     public static String WidgetProperties_SyncedKnob;
     public static String WidgetProperties_TagColor;
     public static String WidgetProperties_TagVisible;
+    public static String WidgetProperties_TargetVisible;
     public static String WidgetProperties_Text;
     public static String WidgetProperties_TextColor;
     public static String WidgetProperties_TextVisible;

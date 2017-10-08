@@ -91,11 +91,11 @@ public class KnobWidget extends WritablePVWidget {
     public static final WidgetPropertyDescriptor<Boolean>     propShowLow         = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "show_low",          Messages.WidgetProperties_ShowLow);
     public static final WidgetPropertyDescriptor<WidgetColor> propTagColor        = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "tag_color",         Messages.WidgetProperties_TagColor);
     public static final WidgetPropertyDescriptor<Boolean>     propTagVisible      = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "tag_visible",       Messages.WidgetProperties_TagVisible);
+    public static final WidgetPropertyDescriptor<Boolean>     propTargetVisible   = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "target_visible",    Messages.WidgetProperties_TargetVisible);
     public static final WidgetPropertyDescriptor<WidgetColor> propTextColor       = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "text_color",        Messages.WidgetProperties_TextColor);
     public static final WidgetPropertyDescriptor<WidgetColor> propThumbColor      = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "thumb_color",       Messages.WidgetProperties_ThumbColor);
     public static final WidgetPropertyDescriptor<String>      propUnit            = newStringPropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "unit",              Messages.WidgetProperties_Unit);
     public static final WidgetPropertyDescriptor<WidgetColor> propValueColor      = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "value_color",       Messages.WidgetProperties_ValueColor);
-    public static final WidgetPropertyDescriptor<Boolean>     propValueVisible    = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "value_visible",     Messages.WidgetProperties_ValueVisible);
 
     private volatile WidgetProperty<WidgetColor> background_color;
     private volatile WidgetProperty<WidgetColor> color;
@@ -124,13 +124,13 @@ public class KnobWidget extends WritablePVWidget {
     private volatile WidgetProperty<Boolean>     synced_knob;
     private volatile WidgetProperty<WidgetColor> tag_color;
     private volatile WidgetProperty<Boolean>     tag_visible;
+    private volatile WidgetProperty<Boolean>     target_visible;
     private volatile WidgetProperty<WidgetColor> text_color;
     private volatile WidgetProperty<WidgetColor> thumb_color;
     private volatile WidgetProperty<Boolean>     transparent;
     private volatile WidgetProperty<String>      unit;
     private volatile WidgetProperty<Boolean>     unit_from_pv;
     private volatile WidgetProperty<WidgetColor> value_color;
-    private volatile WidgetProperty<Boolean>     value_visible;
     private volatile WidgetProperty<Boolean>     write_on_release;
 
     public KnobWidget ( ) {
@@ -254,6 +254,10 @@ public class KnobWidget extends WritablePVWidget {
         return tag_visible;
     }
 
+    public WidgetProperty<Boolean> propTargetVisible ( ) {
+        return target_visible;
+    }
+
     public WidgetProperty<WidgetColor> propTextColor ( ) {
         return text_color;
     }
@@ -276,10 +280,6 @@ public class KnobWidget extends WritablePVWidget {
 
     public WidgetProperty<WidgetColor> propValueColor ( ) {
         return value_color;
-    }
-
-    public WidgetProperty<Boolean> propValueVisible ( ) {
-        return value_visible;
     }
 
     public WidgetProperty<Boolean> propWriteOnRelease ( ) {
@@ -313,12 +313,12 @@ public class KnobWidget extends WritablePVWidget {
         properties.add(show_lolo         = propShowLoLo.createProperty(this, true));
         properties.add(tag_color         = propTagColor.createProperty(this, new WidgetColor(204, 102, 80)));
         properties.add(tag_visible       = propTagVisible.createProperty(this, false));
+        properties.add(target_visible    = propTargetVisible.createProperty(this, true));
         properties.add(text_color        = propTextColor.createProperty(this, new WidgetColor(255, 255, 255)));
         properties.add(thumb_color       = propThumbColor.createProperty(this, new WidgetColor(46, 50, 55)));
         properties.add(transparent       = propTransparent.createProperty(this, true));
         properties.add(unit              = propUnit.createProperty(this, ""));
         properties.add(value_color       = propValueColor.createProperty(this, new WidgetColor(0, 22, 0, 153)));
-        properties.add(value_visible     = propValueVisible.createProperty(this, true));
 
         properties.add(drag_disabled     = propDragDisabled.createProperty(this, false));
         properties.add(enabled           = propEnabled.createProperty(this, true));
