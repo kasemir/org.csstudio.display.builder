@@ -316,6 +316,7 @@ public class Messages extends NLS
     public static String WidgetProperties_UnsignedData;
     public static String WidgetProperties_Value;
     public static String WidgetProperties_ValueColor;
+    public static String WidgetProperties_ValueVisible;
     public static String WidgetProperties_VerticalAlignment;
     public static String WidgetProperties_Visible;
     public static String WidgetProperties_Width;
