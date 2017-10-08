@@ -8,6 +8,7 @@
  */
 package org.csstudio.display.builder.representation.javafx.widgets;
 
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -31,30 +32,29 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Stop;
 import se.ess.knobs.Knob;
 
+
 /**
  * @author claudiorosati, European Spallation Source ERIC
  * @version 1.0.0 21 Aug 2017
  */
 public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidget> extends RegionBaseRepresentation<C, W> {
 
-    private final DirtyFlag               dirtyContent       = new DirtyFlag();
-    private final DirtyFlag               dirtyGeometry      = new DirtyFlag();
-    private final DirtyFlag               dirtyLimits        = new DirtyFlag();
-    private final DirtyFlag               dirtyLook          = new DirtyFlag();
-    private final DirtyFlag               dirtyStyle         = new DirtyFlag();
-    private final DirtyFlag               dirtyUnit          = new DirtyFlag();
-    private final DirtyFlag               dirtyValue         = new DirtyFlag();
-    private final DirtyFlag               dirtyWriteValue    = new DirtyFlag();
-    private volatile double               high               = Double.NaN;
-    private volatile double               hihi               = Double.NaN;
-    private volatile double               lolo               = Double.NaN;
-    private volatile double               low                = Double.NaN;
-    private volatile double               max                = 100.0;
-    private volatile double               min                = 0.0;
-    private final AtomicReference<String> unit               = new AtomicReference<>("");
-    private final AtomicBoolean           updatingValue      = new AtomicBoolean(false);
-    private final AtomicBoolean           updatingWriteValue = new AtomicBoolean(false);
-    private volatile boolean              firstUsage         = true;
+    private final DirtyFlag               dirtyContent  = new DirtyFlag();
+    private final DirtyFlag               dirtyGeometry = new DirtyFlag();
+    private final DirtyFlag               dirtyLimits   = new DirtyFlag();
+    private final DirtyFlag               dirtyLook     = new DirtyFlag();
+    private final DirtyFlag               dirtyStyle    = new DirtyFlag();
+    private final DirtyFlag               dirtyUnit     = new DirtyFlag();
+    private final DirtyFlag               dirtyValue    = new DirtyFlag();
+    private volatile double               high          = Double.NaN;
+    private volatile double               hihi          = Double.NaN;
+    private volatile double               lolo          = Double.NaN;
+    private volatile double               low           = Double.NaN;
+    private volatile double               max           = 100.0;
+    private volatile double               min           = 0.0;
+    private final AtomicReference<String> unit          = new AtomicReference<>("");
+    private final AtomicBoolean           updatingValue = new AtomicBoolean(false);
+    private volatile boolean              firstUsage    = true;
 
     @Override
     public void updateChanges ( ) {
@@ -103,52 +103,28 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
         if ( dirtyValue.checkAndClear() && updatingValue.compareAndSet(false, true) ) {
             try {
 
-                final VType vtype = model_widget.runtimePropValue().getValue();
-                double newval = VTypeUtil.getValueNumber(vtype).doubleValue();
+                boolean rbValid = isReadbackPVNameValid();
+                double newVal = VTypeUtil.getValueNumber(model_widget.runtimePropValue().getValue()).doubleValue();
+                double rbNewVal = rbValid ? VTypeUtil.getValueNumber(model_widget.propReadbackPVValue().getValue()).doubleValue() : newVal;
 
-                if ( !Double.isNaN(newval) ) {
+                if ( !Double.isNaN(rbNewVal) ) {
+                    jfx_node.setCurrentValue(clamp(rbNewVal, min, max));
+                } else {
+                    //  TODO: CR: do something!!!
+                }
 
-                    newval = clamp(newval, min, max);
+                if ( !Double.isNaN(newVal) && ( firstUsage || model_widget.propSyncedKnob().getValue() ) ) {
 
-                    jfx_node.setCurrentValue(newval);
+                    firstUsage = false;
 
-                    if ( !isWritePVNameValid() && ( firstUsage || model_widget.propSyncedKnob().getValue() ) ) {
-
-                        firstUsage = false;
-
-                        jfx_node.setTargetValue(newval);
-
-                    }
+                    jfx_node.setTargetValue(clamp(newVal, min, max));
 
                 } else {
-//  TODO: CR: do something!!!
+                    //  TODO: CR: do something!!!
                 }
 
             } finally {
                 updatingValue.set(false);
-            }
-        }
-
-        if ( isWritePVNameValid() && dirtyWriteValue.checkAndClear() && updatingWriteValue.compareAndSet(false, true) ) {
-            try {
-
-                final VType vtype = model_widget.propWritePVValue().getValue();
-                double newval = VTypeUtil.getValueNumber(vtype).doubleValue();
-
-                if ( !Double.isNaN(newval) ) {
-
-                    newval = clamp(newval, min, max);
-
-                    jfx_node.setTargetValue(newval);
-
-                    firstUsage = false;
-
-                } else {
-//  TODO: CR: do something!!!
-                }
-
-            } finally {
-                updatingWriteValue.set(false);
             }
         }
 
@@ -165,12 +141,12 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
 
         knob.setOnTargetSet(e -> {
             if ( !toolkit.isEditMode() ) {
-                writePV(jfx_node.getTargetValue());
+                toolkit.fireWrite(model_widget, jfx_node.getTargetValue());
             }
         });
         knob.targetValueProperty().addListener((observable, oldValue, newValue) -> {
             if ( !toolkit.isEditMode() && !model_widget.propWriteOnRelease().getValue() ) {
-                writePV(newValue);
+                toolkit.fireWrite(model_widget, newValue);
             }
         });
 
@@ -238,11 +214,10 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
 
         if ( toolkit.isEditMode() ) {
             dirtyValue.checkAndClear();
-            dirtyWriteValue.checkAndClear();
         } else {
             model_widget.runtimePropValue().addPropertyListener(this::valueChanged);
+            model_widget.propReadbackPVValue().addPropertyListener(this::valueChanged);
             model_widget.propSyncedKnob().addUntypedPropertyListener(this::synchChanged);
-            model_widget.propWritePVValue().addPropertyListener(this::writeValueChanged);
         }
 
     }
@@ -311,11 +286,11 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
         toolkit.scheduleUpdate(this);
     }
 
-    private boolean isWritePVNameValid ( ) {
+    private boolean isReadbackPVNameValid ( ) {
 
-        String wpvName = model_widget.propWritePVName().getValue();
+        String rbpvName = model_widget.propReadbackPVName().getValue();
 
-        return ( wpvName != null && !wpvName.trim().isEmpty() );
+        return ( rbpvName != null && !rbpvName.trim().isEmpty() );
 
     }
 
@@ -473,26 +448,6 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
         dirtyValue.mark();
         toolkit.scheduleUpdate(this);
 
-    }
-
-    private void writePV ( Object value ) {
-
-        if ( isWritePVNameValid() ) {
-
-//            RuntimeUtil.
-
-
-
-
-        } else {
-            toolkit.fireWrite(model_widget, value);
-        }
-
-    }
-
-    private void writeValueChanged ( final WidgetProperty<? extends VType> property, final VType old_value, final VType new_value ) {
-        dirtyWriteValue.mark();
-        toolkit.scheduleUpdate(this);
     }
 
 }

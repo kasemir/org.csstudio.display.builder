@@ -258,6 +258,8 @@ public class Messages extends NLS
     public static String WidgetProperties_Precision;
     public static String WidgetProperties_PreserveRatio;
     public static String WidgetProperties_PVName;
+    public static String WidgetProperties_ReadbackPVName;
+    public static String WidgetProperties_ReadbackPVValue;
     public static String WidgetProperties_ResizeBehavior;
     public static String WidgetProperties_Rotation;
     public static String WidgetProperties_Rules;
@@ -321,8 +323,6 @@ public class Messages extends NLS
     public static String WidgetProperties_WrapWords;
     public static String WidgetProperties_Writable;
     public static String WidgetProperties_WriteOnRelease;
-    public static String WidgetProperties_WritePVName;
-    public static String WidgetProperties_WritePVValue;
     public static String WidgetProperties_X;
     public static String WidgetProperties_XPVName;
     public static String WidgetProperties_Y;

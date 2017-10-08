@@ -39,7 +39,7 @@ public class KnobWidgetRuntime extends WidgetRuntime<KnobWidget> {
 
         super.start();
 
-        bindings.add(new PVBinding(widget.propWritePVName(), widget.propWritePVValue()));
+        bindings.add(new PVBinding(widget.propReadbackPVName(), widget.propReadbackPVValue()));
 
     }
 
@@ -61,6 +61,7 @@ public class KnobWidgetRuntime extends WidgetRuntime<KnobWidget> {
             this.listener = new PropertyUpdater(value);
 
             connect();
+
             name.addPropertyListener(this);
 
         }
@@ -71,7 +72,7 @@ public class KnobWidgetRuntime extends WidgetRuntime<KnobWidget> {
         }
 
         @Override
-        public void propertyChanged ( final WidgetProperty<String> property, String old_value, String new_value ) {
+        public void propertyChanged ( final WidgetProperty<String> property, String oldValue, String newValue ) {
             //  PV name changed: Disconnect existing PV...
             disconnect();
             //  ...and connect to new PV.
@@ -98,7 +99,7 @@ public class KnobWidgetRuntime extends WidgetRuntime<KnobWidget> {
             }
 
             pv.addListener(listener);
-            addPV(pv);
+            addPV(pv, true);
             pv_ref.set(pv);
 
         }
