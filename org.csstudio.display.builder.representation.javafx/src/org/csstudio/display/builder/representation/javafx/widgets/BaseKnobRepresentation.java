@@ -76,12 +76,12 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
         if ( dirtyLook.checkAndClear() ) {
             jfx_node.setBackgroundColor(model_widget.propTransparent().getValue() ? Color.TRANSPARENT : JFXUtil.convert(model_widget.propBackgroundColor().getValue()));
             jfx_node.setColor(JFXUtil.convert(model_widget.propColor().getValue()));
-            jfx_node.setCurrentValueAlwaysVisible(model_widget.propValueVisible().getValue());
             jfx_node.setCurrentValueColor(JFXUtil.convert(model_widget.propValueColor().getValue()));
             jfx_node.setExtremaVisible(model_widget.propExtremaVisible().getValue());
             jfx_node.setIndicatorColor(JFXUtil.convert(model_widget.propThumbColor().getValue()));
             jfx_node.setTagColor(JFXUtil.convert(model_widget.propTagColor().getValue()));
             jfx_node.setTagVisible(model_widget.propTagVisible().getValue());
+            jfx_node.setTargetValueAlwaysVisible(model_widget.propTargetVisible().getValue());
             jfx_node.setTextColor(JFXUtil.convert(model_widget.propTextColor().getValue()));
         }
 
@@ -187,7 +187,7 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
         model_widget.propTextColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTransparent().addUntypedPropertyListener(this::lookChanged);
         model_widget.propValueColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propValueVisible().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propTargetVisible().addUntypedPropertyListener(this::lookChanged);
 
         model_widget.propColorHiHi().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propColorHigh().addUntypedPropertyListener(this::limitsChanged);
