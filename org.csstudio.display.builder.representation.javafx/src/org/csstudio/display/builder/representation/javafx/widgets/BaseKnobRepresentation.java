@@ -8,6 +8,7 @@
  */
 package org.csstudio.display.builder.representation.javafx.widgets;
 
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -30,6 +31,7 @@ import org.diirt.vtype.ValueUtil;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Stop;
 import se.ess.knobs.Knob;
+
 
 /**
  * @author claudiorosati, European Spallation Source ERIC
@@ -101,29 +103,24 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
         if ( dirtyValue.checkAndClear() && updatingValue.compareAndSet(false, true) ) {
             try {
 
-                final VType vtype = model_widget.runtimePropValue().getValue();
-                double newval = VTypeUtil.getValueNumber(vtype).doubleValue();
+                boolean rbValid = isReadbackPVNameValid();
+                double newVal = VTypeUtil.getValueNumber(model_widget.runtimePropValue().getValue()).doubleValue();
+                double rbNewVal = rbValid ? VTypeUtil.getValueNumber(model_widget.propReadbackPVValue().getValue()).doubleValue() : newVal;
 
-                if ( !Double.isNaN(newval) ) {
+                if ( !Double.isNaN(rbNewVal) ) {
+                    jfx_node.setCurrentValue(clamp(rbNewVal, min, max));
+                } else {
+                    //  TODO: CR: do something!!!
+                }
 
-                    if ( newval < min ) {
-                        newval = min;
-                    } else if ( newval > max ) {
-                        newval = max;
-                    }
+                if ( !Double.isNaN(newVal) && ( firstUsage || model_widget.propSyncedKnob().getValue() ) ) {
 
-                    jfx_node.setCurrentValue(newval);
+                    firstUsage = false;
 
-                    if ( firstUsage || model_widget.propSyncedKnob().getValue() ) {
-
-                        firstUsage = false;
-
-                        jfx_node.setTargetValue(newval);
-
-                    }
+                    jfx_node.setTargetValue(clamp(newVal, min, max));
 
                 } else {
-//  TODO: CR: do something!!!
+                    //  TODO: CR: do something!!!
                 }
 
             } finally {
@@ -219,9 +216,14 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
             dirtyValue.checkAndClear();
         } else {
             model_widget.runtimePropValue().addPropertyListener(this::valueChanged);
+            model_widget.propReadbackPVValue().addPropertyListener(this::valueChanged);
             model_widget.propSyncedKnob().addUntypedPropertyListener(this::synchChanged);
         }
 
+    }
+
+    private double clamp ( double value, double minValue, double maxValue ) {
+        return ( value < minValue ) ? minValue : ( value > maxValue ) ? maxValue : value;
     }
 
     private List<Stop> computeGradientStops ( ) {
@@ -284,6 +286,14 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
         toolkit.scheduleUpdate(this);
     }
 
+    private boolean isReadbackPVNameValid ( ) {
+
+        String rbpvName = model_widget.propReadbackPVName().getValue();
+
+        return ( rbpvName != null && !rbpvName.trim().isEmpty() );
+
+    }
+
     private void limitsChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
         updateLimits();
         dirtyLimits.mark();
@@ -310,21 +320,6 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
             dirtyUnit.mark();
             toolkit.scheduleUpdate(this);
         }
-    }
-
-    private void valueChanged ( final WidgetProperty<? extends VType> property, final VType old_value, final VType new_value ) {
-
-        if ( model_widget.propLimitsFromPV().getValue() ) {
-            limitsChanged(null, null, null);
-        }
-
-        if ( model_widget.propPrecision().getValue() == -1 ) {
-            contentChanged(null, null, null);
-        }
-
-        dirtyValue.mark();
-        toolkit.scheduleUpdate(this);
-
     }
 
     /**
@@ -437,6 +432,21 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
         }
 
         return somethingChanged;
+
+    }
+
+    private void valueChanged ( final WidgetProperty<? extends VType> property, final VType old_value, final VType new_value ) {
+
+        if ( model_widget.propLimitsFromPV().getValue() ) {
+            limitsChanged(null, null, null);
+        }
+
+        if ( model_widget.propPrecision().getValue() == -1 ) {
+            contentChanged(null, null, null);
+        }
+
+        dirtyValue.mark();
+        toolkit.scheduleUpdate(this);
 
     }
 
