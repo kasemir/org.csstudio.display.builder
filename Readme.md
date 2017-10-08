@@ -27,17 +27,17 @@ with improvements:
 Try Nightly Snapshot
 --------------------
 
-Since Feb. 2017, the SNS products include the display builder.
+Since Feb. 2017, the SNS products include the Display Builder.
 
 Download the 'Basic EPICS' or SNS version of CS-Studio from http://ics-web.sns.ornl.gov/css/nightly
 
-When you use a different CS-Studio product that doesn't already include the display builder,
+When you use a different CS-Studio product that doesn't already include the Display Builder,
 you may be able to add it.
 Open the menu `Help`, `Install New Software`. Enter `http://ics-web.sns.ornl.gov/css/display.builder`
-as a site, select the display builder for installation, follow the steps in the installation dialog, restart.
+as a site, select the Display Builder for installation, follow the steps in the installation dialog, restart.
 
 
-Finally, check the display builder examples:
+Finally, check the Display Builder examples:
 
 1. Open the menu `CS-Studio`, `Utilities`, `Install Samples` to install the `Display Builder` examples.
 2. From the Navigator, open the `Display Builder/01_main.bob` file in the editor, look around,
@@ -48,8 +48,8 @@ Finally, check the display builder examples:
 JavaFX Issues
 -------------
 
-The display builder uses Java FX as its graphics library.
-If the display builder editor and runtime don't open up,
+The Display Builder uses Java FX as its graphics library.
+If the Display Builder editor and runtime don't open up,
 try other JavaFX-based components of CS-Studio,
 for example invoke the Menu `CS-Studio`, `Debugging`, `Logging Configuration`,
 to check if there is a general problem with JavaFX support on your computer.
@@ -134,7 +134,7 @@ __Standalone Runtime product:__
 
  * org.csstudio.display.builder/repository/display_runtime.product
  
-This product executes the display builder runtime as a standalone program.
+This product executes the Display Builder runtime as a standalone program.
 The configuration settings (EPICS CA address list, ..) and the initial display file
 to open need to be provided on the command line:
 
@@ -329,6 +329,233 @@ The runtime is registered via `org.csstudio.display.builder.runtime.widgets`
 and  in the `WidgetRuntimeFactory`.
 
 
+Compatibility with BOY
+----------------------
+
+The Display Builder reads existing BOY `*.opi` files.
+
+#### Widget Mappings
+
+Most widgets and their properties aim to be compatible with their BOY counterpart.
+
+In some cases, widget types are mapped.
+BOY had a plain rectangle and a rounded rectangle widget, which has been turned
+into a rectangle widget with a corner radius property.
+BOY had an LED widget, which would either indicate a binary state, which could
+be based on a bit in a number or zero vs. non-zero numeric value. That same LED
+widget could also reflect one of N states, using very different configuration
+parameters. In the Display Builder, there a separate (binary) LED and Multi-State LED widgets.
+Rectangle and LED widgets are automatically mapped from `*.opi` files based on their configuration.
+
+The BOY XYGraph had many different modes of operation,
+some of which depend on the type of PV (scalar vs. waveform).
+The Display Builder offers the XYPlot for plotting X and Y waveforms (with optional error waveform),
+and the Data Browser plot for showing scalar PVs over time (with access to history).
+Since the PV type is not known when loading a display file,
+the Display Builder cannot automatically convert all XYGraphs from `*.opi` files.
+It will default to the XYPlot, requiring manual conversion to a Data Browser widget.
+In addition, the support for cursors and overlays is different between BOY
+and the Display Builder, requiring manual conversion.
+
+#### Groups
+
+The BOY grouping container clipped contained widgets,
+which often resulted in displays that included several widgets
+which the user could never see because they had accidentally been
+moved outside of the group border, yet remained inside the group.
+
+The Display Builder will show such widgets from imported `*.opi` files.
+To get the same end result, such 'orphaned' widgets need to be deleted
+in the `*.opi` file. In the BOY editor, this is somewhat hard because
+you cannot see them. So you need to use the Outline view to select and then
+delete them.
+
+#### Embedded Displays
+
+In BOY, displays embedded in "Linking Containers" were merged into the main display.
+They were loaded one by one, delaying the load of the complete display
+until every embedded display was fetched.
+
+In the Display Builder, embedded displays are treated as a black box.
+They are loaded in parallel while the main display is already shown.
+The content of each embedded display widget is then represented as soon as it resolves.
+
+The content of an embedded display file can change.
+The main display can thus not assume anything about the content of the embedded display.
+Likewise, an embedded display can be included by arbitrary parent displays.
+Embedded displays are therefore implemented as a sandbox.
+Scripts within the main display cannot touch widgets in embedded displays
+and vice versa.
+
+
+#### Alarm Indication, Border
+
+In BOY, the border reduced the usable widget area, causing the widget proper
+to grow respectively shrink with border visibility.
+Alarm-sensitive borders were only represented via a color.
+
+In the Display Builder, the alarm borders are drawn around the widget,
+not affecting the widget size. The alarm states are indicated via color
+and line type. Even color blind users can thus distinguish the alarm state,
+eliminating the need for alternate alarm indications.
+
+While the alarm-based border can be disabled, the fundamental disconnected state
+of a PV is always indicated via the respective border to assert that users
+will always be aware of missing data.
+
+#### Macros
+
+Similar to BOY, macros can be in the format `$(macro_name)` as well as `${macro_name}`.
+
+In contrast to EDM and BOY, macros are simply defined and possibly re-defined in the following order:
+
+  1. Environment Variables
+  2. System Properties
+  3. Widget Property
+  4. Preferences
+  5. OpenDisplayAction
+  6. EmbeddedWidget
+  7. DisplayModel
+  8. GroupWidget
+
+BOY did not fall back to environment variables or system properties.
+
+While BOY limits macros to string-based properties, more properties now support macros.
+For example, the numeric 'x' position can be specified as $(POS).
+If the macro does not expand to a valid specification, for example if the macro POS has the value 'eight'
+instead of '8', the default value for that property will be used, and a warning is logged.
+
+For displays that are meant as templates, to be invoked with macros,
+standalone testing is possible by using the syntax `$(macro_name=default_value)`.
+When such displays are invoked with macros, their values are replaced.
+If they are invoked without macros, the default value is used.
+
+BOY resp. EDM had options to _not_ inherit parent macros as well as to _not_ replace
+the values of existing macros. The new implementation will always inherit all parent macros
+and replace them in the order just described.
+This simplifies the behavior of macros, since discussions with the implementor of EDM found
+no good reason to duplicate the more complicated previous behavior.
+As a technical detail, the BOY *.opi XML format treated `"include_parent_macros"`,
+the option to inherit parent macros, just like the name of an ordinary macro.
+This macro name is now ignored. 
+
+Properties that support macros are based on `MacroizedWidgetProperty`.
+They distinguish between the original value specification,
+which is a text that may contain macros like `"$(INSTANCE_NUMBER)"`,
+and the current value, which evaluates the current macro settings and may be an integer like `8`.
+
+
+#### Fonts
+
+Since available fonts differ between installations of Windows, Linux, Mac OS X,
+the Display Builder defaults to the "Liberation" fonts,
+which are included.
+
+Even when the same true-type-fonts were available, the legacy CS-Studio displays rendered
+fonts differently across operating systems because it failed to distinguish between
+pixels on the screen and font size points.
+Font sizes were specified in "points", a unit equal to 1/72 of an inch when printed on paper.
+While operator displays use "pixels" for widget locations, sizes, line width etc.,
+font specifications like "height 12" were in points.
+For SWT as used in the legacy  CS-Studio displays, the on-screen size of fonts depends
+on the resolution and size of the display.
+For existing *.opi files, the desired font sizes are therefore unknown unless one can measure
+them on the OS and hardware where the display was originally executed. 
+
+Using JavaFX, fonts so far appear to be mapped 1 pixel per 1 "point" on Linux, Windows and Mac OS X.
+To verify, execute `org.csstudio.display.builder.representation.javafx.JFXFontCalibration`.
+
+For SWT, Mac OS X also results in a 1-to-1 mapping, while Windows and Linux scale the font "points"
+to screen pixels depending on the display.
+To determine this scaling factor, execute `org.csstudio.display.builder.representation.swt.SWTFontCalibation`.
+
+Goal for the Display Builder is some level of compatibility with existing *.opi displays
+that were created on Linux, and high levels of similarity across operating systems for
+newly created displays.
+
+Going forward, JavaFX is thus used which (at least so far) has scaling factor of 1.0
+but self-configures the calibration factor on startup.
+To support existing displays, each site needs to once determine the legacy scaling factor
+by executing `SWTFontCalibation` on the production computer,
+then configure this via `FontWidgetProperty.setLegacyFontSizeCalibration()`.
+
+Java 8u60 may apply DPI scaling to all coordinates, which is OK
+because then fonts, rectangles, ... are all scaled consistently for high resolution screens.
+Alternatively, high resolution displays may require using a default zoom factor of for example 2.0
+for the global zoom.
+
+#### Rules
+
+Rules are highly compatible between BOY and the Display Builder.
+
+Internally, however, BOY translated rules into JavaScript, while
+the Display Builder translates into Jython.
+Rules with boolean expressions like `pv0 > 5  && pv1 < 2`
+are translated into `pv0 > 5 and pv1 < 2`,
+but expressions that invoked JavaScript methods will need to
+be modified into the corresponding Jython code.
+
+
+#### Scripts
+
+Scripts are generally not portable, since the underlying widget model API is
+completely different.
+
+The legacy helper classes from `org.csstudio.opibuilder.scriptUtil` are replaced with similar classes.
+For example, references to `org.csstudio.opibuilder.scriptUtil.PVUtil` need to be updated to
+`org.csstudio.display.builder.runtime.script.PVUtil`.
+
+__Jython__
+
+Basic Jython scripts similar to this one will work without changes because of compatibility classes:
+```
+from org.csstudio.opibuilder.scriptUtil import PVUtil
+widget.setPropertyValue("text", PVUtil.getString(pvs[0]))
+```
+
+For compatibility, classes with the original package name are included.
+When accessed the first time, an error is logged:
+
+`Script accessed deprecated org.csstudio.opibuilder.scriptUtil.PVUtil, update to org.csstudio.display.builder.runtime.script.PVUtil`.
+
+Such Jython scripts should be updated to
+```
+from org.csstudio.display.builder.runtime.script import PVUtil
+widget.setPropertyValue("text", PVUtil.getString(pvs[0]))
+```
+
+__Python__
+
+In addition to Jython, the Display Builder supports real C-Python scripts.
+They are invoked via Py4J, and a helper library is provided that allows
+writing Jython as well as Python script in a common way.
+Check online help for details.
+
+__Java Script__
+
+JavaScript execution is based on the Nashorn JS engine included in Java 8,
+while the legacy tool used the Rhino engine.
+
+Nashorn requires changes to Rhino scripts because 'importPackage' is no longer supported.
+Instead of `importPackage`, use the fully qualified name.
+
+Example:
+
+```
+importPackage(Packages.org.csstudio.opibuilder.scriptUtil);
+widget.setPropertyValue("text", PVUtil.getString(pvs[0]));
+```
+
+needs to change into the following, including use of the new package name:
+
+```
+PVUtil = org.csstudio.display.builder.runtime.script.PVUtil;
+widget.setPropertyValue("text", PVUtil.getString(pvs[0]));
+```
+
+
+
+
 Performance: JavaFX vs. SWT
 ---------------------------
 
@@ -430,140 +657,3 @@ JFX WritableImage has very limited API.
 Best option seems to use AWT to draw buffered image in background thread,
 then show that in JFX Canvas.
 
-
-Macros
-------
-
-Similar to BOY, macros can be in the format `$(macro_name)` as well as `${macro_name}`.
-
-In contrast to EDM and BOY, macros are simply defined and possibly re-defined in the following order:
-
-  1. Preferences
-  2. OpenDisplayAction
-  3. EmbeddedWidget
-  4. DisplayModel
-  5. GroupWidget
-
-While BOY limits macros to string-based properties, more properties now support macros.
-For example, the numeric 'x' position can be specified as $(POS).
-If the macro does not expand to a valid specification, for example if the macro POS has the value 'eight'
-instead of '8', the default value for that property will be used, and a warning is logged.
-
-For displays that are meant as templates, to be invoked with macros,
-standalone testing is possible by using the syntax `$(macro_name=default_value)`.
-When such displays are invoked with macros, their values are replaced.
-If they are invoked without macros, the default value is used.
-
-BOY resp. EDM had options to _not_ inherit parent macros as well as to _not_ replace
-the values of existing macros. The new implementation will always inherit all parent macros
-and replace them in the order just described.
-This simplifies the behavior of macros, since discussions with the implementor of EDM found
-no good reason to duplicate the more complicated previous behavior.
-As a technical detail, the BOY *.opi XML format treated `"include_parent_macros"`,
-the option to inherit parent macros, just like the name of an ordinary macro.
-This macro name is now ignored. 
-
-Compared to `org.csstudio.apputil.macros.MacroUtil`, `org.csstudio.display.builder.model.macros.MacroHandler` simply recurses instead of maintaining its own stack/lockstack/parsedMacros.
-Need to check for infinite loop.
-
-Properties that support macros are based on `MacroizedWidgetProperty`.
-They distinguish between the original value specification,
-which is a text that may contain macros like `"$(INSTANCE_NUMBER)"`,
-and the current value, which evaluates the current macro settings and may be an integer like `8`.
-
-
-Fonts
------
-
-Available fonts differ between installations of Windows, Linux, Mac OS X.
-New developments should install open source fonts that are available for all operating systems,
-for example the "Liberation" fonts.
-
-Even when the same true-type-fonts were available, the legacy CS-Studio displays rendered
-fonts differently across operating systems because it failed to distinguish between
-pixels on the screen and font size points.
-Font sizes are specified in "points", a unit equal to 1/72 of an inch when printed on paper.
-While operator displays use "pixels" for widget locations, sizes, line width etc.,
-font specifications like "height 12" were in points.
-For SWT as used in the legacy  CS-Studio displays, the on-screen size of fonts depends
-on the resolution and size of the display.
-For existing *.opi files, the desired font sizes are therefore unknown unless one can measure
-them on the OS and hardware where the display was originally executed. 
-
-Using JavaFX, fonts so far appear to be mapped 1 pixel per 1 "point" on Linux, Windows and Mac OS X.
-To verify, execute `org.csstudio.display.builder.representation.javafx.JFXFontCalibration`.
-
-For SWT, Mac OS X also results in a 1-to-1 mapping, while Windows and Linux scale the font "points"
-to screen pixels depending on the display.
-To determine this scaling factor, execute `org.csstudio.display.builder.representation.swt.SWTFontCalibation`.
-
-Goal for the display builder is some level of compatibility with existing *.opi displays
-that were created on Linux, and high levels of similarity across operating systems for
-newly created displays.
-
-Going forward, JavaFX is thus used which (at least so far) has scaling factor of 1.0
-but self-configures the calibration factor on startup.
-To support existing displays, each site needs to once determine the legacy scaling factor
-by executing `SWTFontCalibation` on the production computer,
-then configure this via `FontWidgetProperty.setLegacyFontSizeCalibration()`.
-
-Java 8u60 may apply DPI scaling to all coordinates, which is OK
-because then fonts, rectangles, ... are all scaled consistently for high resolution screens.
-Alternatively, high resolution displays may require using a default zoom factor of for example 2.0
-for the global zoom.
-
-
-Scripts
--------
-
-The legacy helper classes from `org.csstudio.opibuilder.scriptUtil` are being replaced with similar classes.
-For example, references to `org.csstudio.opibuilder.scriptUtil.PVUtil` need to be updated to
-`org.csstudio.display.builder.runtime.script.PVUtil`.
-
-__Jython__
-
-Basic Jython scripts similar to this one will work without changes because of compatibility classes:
-```
-from org.csstudio.opibuilder.scriptUtil import PVUtil
-widget.setPropertyValue("text", PVUtil.getString(pvs[0]))
-```
-
-For compatibility, classes with the original package name are included.
-When accessed the first time, an error is logged:
-
-`Script accessed deprecated org.csstudio.opibuilder.scriptUtil.PVUtil, update to org.csstudio.display.builder.runtime.script.PVUtil`.
-
-Such Jython scripts should be updated to
-```
-from org.csstudio.display.builder.runtime.script import PVUtil
-widget.setPropertyValue("text", PVUtil.getString(pvs[0]))
-```
-
-__Python__
-
-In addition to Jython, the display builder supports real C-Python scripts.
-They are invoked via Py4J, and a helper library is provided that allows
-writing Jython as well as Python script in a common way.
-Check online help for details.
-
-__Java Script__
-
-JavaScript execution is based on the Nashorn JS engine included in Java 8,
-while the legacy tool used the Rhino engine.
-
-Nashorn requires changes to Rhino scripts because 'importPackage' is no longer supported.
-Instead of `importPackage`, use the fully qualified name.
-
-Example:
-
-```
-importPackage(Packages.org.csstudio.opibuilder.scriptUtil);
-widget.setPropertyValue("text", PVUtil.getString(pvs[0]));
-```
-
-needs to change into the following, including use of the new package name:
-
-```
-PVUtil = org.csstudio.display.builder.runtime.script.PVUtil;
-widget.setPropertyValue("text", PVUtil.getString(pvs[0]));
-```
