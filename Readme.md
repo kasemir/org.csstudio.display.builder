@@ -56,7 +56,7 @@ to check if there is a general problem with JavaFX support on your computer.
 
  * Install the Oracle Java 8 JDK. When you fetch the JDK from Oracle, it will include JavaFX. If you install the JDK as for example packaged by RedHat, assert that you get all the pieces, including `lib/jfxswt.jar` and `lib/ext/jfxrt.jar`.
  * Start css with command-line options `-vmargs -Dorg.osgi.framework.bundle.parent=ext  -Dosgi.framework.extensions=org.eclipse.fx.osgi`. Instead of using the command line option, these settings can also be added to the product's css.ini file (Windows, Linux) or the css.app/Contents/Info.plist (Mac OS X).
- * On Linux, either set the environment variable `export SWT_GTK3=0` or add `--launcher.GTK_version 2` to the command line parameters. Eclipse SWT can use either GTK 2 or GTK 3, and will prefer the latter. JavaFX, however, is still limited to GTK 2, so SWT must be configured to also use GTK 2.
+ * On Linux, either set the environment variable `export SWT_GTK3=0` or add `--launcher.GTK_version 2` to the command line parameters. Eclipse SWT can use either GTK 2 or GTK 3, and will prefer the latter. Under Java 8, however, JavaFX is still limited to GTK 2, so SWT must be configured to also use GTK 2.
  * On Linux, including remote login to Linux via ssh, check that OpenGL is supported. See https://github.com/ControlSystemStudio/cs-studio/issues/1828 for details on adding the `iglx` option to the X server on Mac OS X and Linux.
 
 
@@ -157,105 +157,34 @@ Allows compilation from command line, for example to automate a nightly build. R
 Code Overview
 -------------
 
-`org.csstudio.display.builder.model`,
+#### `org.csstudio.display.builder.model`
+
 Describes a DisplayModel as a hierarchy of Widgets which each have Properties.
-Can load displays from local file system and "http:.." URLs.
-`examples/` directory holds example displays.
-
-`org.csstudio.display.builder.representation`, 
-`org.csstudio.display.builder.representation.javafx`,
-`org.csstudio.display.builder.representation.swt`:
-Graphical rendering of model on screen, with implementation for Java FX and SWT.
-(SWT implementation is very limited)
-
-`org.csstudio.display.builder.runtime`:
-Connects widgets to process variables, executes scripts, executes actions when
-user presses buttons etc.
-
-`org.csstudio.display.builder.model.rcp`:
-RCP fragment for model adds support for workspace files.
-
-`org.csstudio.display.builder.rcp`:
-Combines model, representation (Java FX) and runtime into RCP 'View'
-for executing displays inside CS-Studio.
-
-`org.csstudio.display.builder.editor`:
-Display editor, implemented in Java FX.
-
-`org.csstudio.display.builder.editor.rcp`:
-Hosts editor inside CS-Studio.
-
-`org.csstudio.display.builder.editor.examples`:
-RCP plugin for installing the examples.
-
-`org.csstudio.display.builder.util`,
-`org.csstudio.javafx`,
-`org.csstudio.javafx.rtplot`:
-Utilities; Generic, Java FX, Plot widget.
-
-`org.csstudio.display.builder.feature`:
-Eclipse feature for all of the above.
-
-`repository` and `build`:
-P2 repository files and Maven/Tycho build support. 
-
-
-Basic widgets can be added by implementing a Model and a Representation,
-see Ellipse example
-https://github.com/kasemir/org.csstudio.display.builder/commit/5abd05bcdd2a3c4fdae1ade0cbaf30de8703d814
- 
-
-Development Status
-------------------
-
-#### Model
-
-Describes Widgets and their Properties.
 Widget Properties have well defined types. Access to properties is thread-safe.
 Listeners can react to widget property changes.
-Widgets and their properties can persist to and load from XML files.
+Widgets and their properties can persist to and load from XML files,
+using the file system (read, write) or "http:.." URLs (read).
+The `examples/` directory holds example displays.
+
 Widget categories as well as property categories combined with a well defined order of widget properties
 allow editors to present them in a consistent way.
 
 The Model reads existing *.opi files, adapting them to the current model
 and writing them in the new format.
 
-Available basic widgets include Rectangle, Label, TextUpdate, LED, ProgressBar with their essential properties.
-
-Widgets with key functionality:
-* Group that contains child widgets,
-* EmbeddedDisplay widget that (at runtime) loads other *.opi file,
-* ActionButton that opens new *.opi, either in new window or replacing existing model.
-
-To add a new widget, implement a new widget model based on the `Widget` class.
-Register via extension point.
-To support standalone testing w/o RCP, also add to `WidgetFactory#registerKnownWidgets`.
-
-Major TODOs:
- * Add more widgets and their properties.
-
-####  Representation
+#### `org.csstudio.display.builder.representation*`
 
 Represents Widgets in a UI toolkit, i.e. makes them visible on the screen.
 Implemented for SWT and JavaFX to demonstrate that different toolkits can be supported,
 but SWT implementation is limited because emphasis is on JavaFX.
 
-To represent a new widget, implement a `WidgetRepresentation` for either JavaFX or SWT (or both)
-and register with the `JFXRepresentation` respectively `SWTRepresentation`
-via an extension point.
-To support standalone testing w/o RCP, also add to `JFXRepresentation#registerKnownRepresentations`
-or the corresponding `SWTRepresentation`.
-
 The representation needs to add listeners to model properties of interest.
 On change, it can prepare the UI update, which is then scheduled via `ToolkitRepresentation.scheduleUpdate()`
 to occur on the UI thread in a throttled manner.
 
-Major TODOs:
- * Mode widgets and their representation.
- 
-####  Runtime
+#### `org.csstudio.display.builder.runtime`
 
-Connects to PVs, executes Jython and JavaScript in background threads.
+Connects widgets to PVs, executes Jython and JavaScript in background threads.
 Throttled updates on user interface thread.
 Resolves embedded displays relative to parent.
 
@@ -275,14 +204,13 @@ The base `WidgetRuntime` handles the following:
    The script can then update widget properties.
    Similarly, "rules" are converted into scripts and then executed.
 
-Major TODOs:
- * None?
- 
-####  Editor
+#### `org.csstudio.display.builder.model.rcp`
 
-Interactive display editor.
+RCP fragment for model adds support for workspace files.
 
-New JFX-based development has Palette, Property Panel, Widget Tree,
+#### `org.csstudio.display.builder.editor`
+
+Interactive display editor with Palette, Property Panel, Widget Tree,
 copy/paste,
 move/resize via tracker, snap-to-grid, snap-to-other-widgets,
 align, distribute,
@@ -293,15 +221,112 @@ Considered GEF 4 which supports JFX, but still lacks basics like palette & prope
 Major TODOs:
  * Rulers, Guides
 
-####  Eclipse Integration
+#### `org.csstudio.display.builder.rcp`
 
-RCP integration uses an SWT FXCanvas to display the JavaFX representation within
+Uses an SWT FXCanvas to display the JavaFX representation within
 a current version of Eclipse/RCP.
 
-An RCP 'View' hosts the display runtime, while an RCP 'Editor' is used for the display editor.
+Combines model, representation (Java FX) and runtime into RCP 'View'
+for executing displays inside CS-Studio.
 
-Major TODOs:
- * None?
+#### `org.csstudio.display.builder.editor.rcp`
+
+Hosts editor inside CS-Studio as an RCP 'Editor'.
+
+#### `org.csstudio.display.builder.editor.examples`
+
+RCP plugin for installing the examples.
+
+#### `org.csstudio.display.builder.util`
+
+Non-UI utilities.
+
+#### `org.csstudio.javafx`
+
+Java FX helpers.
+
+#### `org.csstudio.javafx.rtplot`
+
+Plot widget.
+
+#### `org.csstudio.display.builder.feature`
+
+Eclipse feature for all of the above.
+
+#### `repository` and `build`
+
+P2 repository files and Maven/Tycho build support. 
+
+
+Components of a Widget
+----------------------
+
+#### Graphical Widgets
+
+A basic graphical widget can be added by implementing a Model and a Representation,
+see Ellipse example
+https://github.com/kasemir/org.csstudio.display.builder/commit/5abd05bcdd2a3c4fdae1ade0cbaf30de8703d814
+
+The `EllipseWidget` model provides a `WidgetDescriptor`,
+and its `defineProperties()` methods adds the desired properties
+to the `BaseWidget`.
+For convenience when directly accessing the widget from the representation
+or scripts, the `EllipseWidget` also implements methods to access the added
+properties, but that is not strictly necessary since one can always access
+all properties via  `Widget.getProperty(..)`.
+
+The `EllipseRepresentation` representation creates the actual JavaFX scene elements for
+the widget. It registers listeners to the model, and updates the JavaFX scene elements
+when the model changes.
+Note that the representation does not directly update the elements in the model property listener.
+The property model listeners are typically invoked in background threads.
+The representation reacts by maybe pre-computing a color or other detail that it needs
+to update the JavaFX scene elements, then sets a flag to note what needs to be updated,
+and schedules an update on the toolkit's UI thread. Eventually, `updateChanges()` is
+called on the UI thread, where the JavaFX elements are updated.
+
+Graphical widgets don't directly use PVs, but the base widget does support rules
+and scripts, so properties of a graphical widget could still change in response to PV updates.
+
+#### Monitor Widgets
+
+Widgets based on the `PVWidget` include a primary "pv_name" and "pv_value" property.
+The default `WidgetRuntime` connects to the PV specified by the "pv_name"
+and updates the "pv_value" with the received values.
+The widget representation simply needs to listen to "pv_value" changes
+in the same way as it would listen to any other property changes.
+For an example, refer to the `TextUpdate` widget and its `TextUpdateRepresentation`.
+
+Widgets that use multiple PVs need to implement their own runtime
+to connect to these added PV names, typically updating PV value properties
+similar to the default `WidgetRuntime`, and having their representation
+listen to these changes. For an example, refer to the `XYPlotWidget`.
+
+#### Control Widgets
+
+Widgets that write to PVs typically react to user input.
+For an example, refer to the `TextEntryRepresentation`.
+When it receives user input from the JavaFX node,
+we want to write a value to the PV.
+That PV is maintained by the `WidgetRuntime`.
+The representation, however, cannot directly access the runtime.
+It is decoupled, because in edit mode there would in fact not be any runtime.
+The representation sends an event via
+`ToolkitRepresentation.fireWrite(Widget widget, Object value)`.
+In runtime mode, the `WidgetRuntime` subscribes to these events
+and writes to the PV. 
+
+At this time, the widget model, representation and - if required - a widget specific runtime
+are registered in two ways: Via extension points, and by directly listing them in the associated
+Factory for standalone testing without RCP.
+The widget model is registered via the `org.csstudio.display.builder.model.widgets` extension point,
+and in `WidgetFactory#registerKnownWidgets`.
+The widget representation is registered via the `org.csstudio.display.builder.representation.widgets`
+extension point,
+and added to `JFXRepresentation#registerKnownRepresentations`
+or the corresponding `SWTRepresentation`.
+The runtime is registered via `org.csstudio.display.builder.runtime.widgets`
+and  in the `WidgetRuntimeFactory`.
 
 
 Performance: JavaFX vs. SWT
