@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
@@ -52,7 +51,6 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
     private volatile double               low           = Double.NaN;
     private volatile double               max           = 100.0;
     private volatile double               min           = 0.0;
-    private final AtomicReference<String> unit          = new AtomicReference<>("");
     private final AtomicBoolean           updatingValue = new AtomicBoolean(false);
 
     @Override
@@ -139,7 +137,7 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         }
 
         if ( dirtyUnit.checkAndClear() ) {
-            jfx_node.setUnit(unit.get());
+            jfx_node.setUnit(getUnit());
         }
 
         if ( dirtyStyle.checkAndClear() ) {
@@ -269,8 +267,8 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
 
         //  TODO: CR: It should not be necessary, but it doesn't work otherwise
         toolkit.schedule(() -> {
-                jfx_node.setPrefWidth(model_widget.propWidth().getValue());
-                jfx_node.setPrefHeight(model_widget.propHeight().getValue());
+            jfx_node.setPrefWidth(model_widget.propWidth().getValue());
+            jfx_node.setPrefHeight(model_widget.propHeight().getValue());
         }, 111, TimeUnit.MILLISECONDS);
 
         return gauge;
@@ -318,6 +316,29 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         }
 
         return sections.toArray(new Section[sections.size()]);
+
+    }
+
+    /**
+     * @return The unit string to be displayed.
+     */
+    protected String getUnit ( ) {
+
+        //  Model's values.
+        String newUnit = model_widget.propUnit().getValue();
+
+        if ( model_widget.propUnitFromPV().getValue() ) {
+
+            //  Try to get engineering unit from PV.
+            final Display display_info = ValueUtil.displayOf(model_widget.runtimePropValue().getValue());
+
+            if ( display_info != null ) {
+                newUnit = display_info.getUnits();
+            }
+
+        }
+
+        return newUnit;
 
     }
 
@@ -453,38 +474,6 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
 
     }
 
-    /**
-     * Updates, if required, the unit.
-     *
-     * @return {@code true} is something changed and and UI update is required.
-     */
-    protected boolean updateUnit ( ) {
-
-        boolean somethingChanged = false;
-
-        //  Model's values.
-        String newUnit = model_widget.propUnit().getValue();
-
-        if ( model_widget.propUnitFromPV().getValue() ) {
-
-            //  Try to get engineering unit from PV.
-            final Display display_info = ValueUtil.displayOf(model_widget.runtimePropValue().getValue());
-
-            if ( display_info != null ) {
-                newUnit = display_info.getUnits();
-            }
-
-        }
-
-        if ( ! Objects.equals(unit.get(), newUnit)) {
-            unit.set(newUnit);
-            somethingChanged = true;
-        }
-
-        return somethingChanged;
-
-    }
-
     private void contentChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
         dirtyContent.mark();
         toolkit.scheduleUpdate(this);
@@ -519,10 +508,8 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
     }
 
     private void unitChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
-        if ( updateUnit() ) {
-            dirtyUnit.mark();
-            toolkit.scheduleUpdate(this);
-        }
+        dirtyUnit.mark();
+        toolkit.scheduleUpdate(this);
     }
 
     private void valueChanged ( final WidgetProperty<? extends VType> property, final VType old_value, final VType new_value ) {
@@ -533,6 +520,10 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
 
         if ( model_widget.propPrecision().getValue() == -1 ) {
             contentChanged(null, null, null);
+        }
+
+        if ( model_widget.propUnitFromPV().getValue() ) {
+            dirtyUnit.mark();
         }
 
         dirtyValue.mark();

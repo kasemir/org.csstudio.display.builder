@@ -12,9 +12,7 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.model.DirtyFlag;
@@ -52,7 +50,6 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
     private volatile double               low           = Double.NaN;
     private volatile double               max           = 100.0;
     private volatile double               min           = 0.0;
-    private final AtomicReference<String> unit          = new AtomicReference<>("");
     private final AtomicBoolean           updatingValue = new AtomicBoolean(false);
     private volatile boolean              firstUsage    = true;
 
@@ -92,7 +89,7 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
         }
 
         if ( dirtyUnit.checkAndClear() ) {
-            jfx_node.setUnit(unit.get());
+            jfx_node.setUnit(getUnit());
         }
 
         if ( dirtyStyle.checkAndClear() ) {
@@ -103,9 +100,8 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
         if ( dirtyValue.checkAndClear() && updatingValue.compareAndSet(false, true) ) {
             try {
 
-                boolean rbValid = isReadbackPVNameValid();
                 double newVal = VTypeUtil.getValueNumber(model_widget.runtimePropValue().getValue()).doubleValue();
-                double rbNewVal = rbValid ? VTypeUtil.getValueNumber(model_widget.propReadbackPVValue().getValue()).doubleValue() : newVal;
+                double rbNewVal = isReadbackPVNameValid() ? VTypeUtil.getValueNumber(model_widget.propReadbackPVValue().getValue()).doubleValue() : newVal;
 
                 if ( !Double.isNaN(rbNewVal) ) {
                     jfx_node.setCurrentValue(clamp(rbNewVal, min, max));
@@ -135,8 +131,6 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
 
         updateLimits();
 
-        unit.set(model_widget.propUnit().getValue());
-
         C knob = createKnob();
 
         knob.setOnTargetSet(e -> {
@@ -163,6 +157,29 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
     }
 
     protected abstract C createKnob();
+
+    /**
+     * @return The unit string to be displayed.
+     */
+    protected String getUnit ( ) {
+
+        //  Model's values.
+        String newUnit = model_widget.propUnit().getValue();
+
+        if ( model_widget.propUnitFromPV().getValue() ) {
+
+            //  Try to get engineering unit from PV.
+            final Display display_info = ValueUtil.displayOf(model_widget.runtimePropValue().getValue());
+
+            if ( display_info != null ) {
+                newUnit = display_info.getUnits();
+            }
+
+        }
+
+        return newUnit;
+
+    }
 
     @Override
     protected void registerListeners ( ) {
@@ -316,10 +333,10 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
     }
 
     private void unitChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
-        if ( updateUnit() ) {
+//        if ( updateUnit() ) {
             dirtyUnit.mark();
             toolkit.scheduleUpdate(this);
-        }
+//        }
     }
 
     /**
@@ -403,38 +420,6 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
 
     }
 
-    /**
-     * Updates, if required, the unit.
-     *
-     * @return {@code true} is something changed and and UI update is required.
-     */
-    protected boolean updateUnit ( ) {
-
-        boolean somethingChanged = false;
-
-        //  Model's values.
-        String newUnit = model_widget.propUnit().getValue();
-
-        if ( model_widget.propUnitFromPV().getValue() ) {
-
-            //  Try to get engineering unit from PV.
-            final Display display_info = ValueUtil.displayOf(model_widget.runtimePropValue().getValue());
-
-            if ( display_info != null ) {
-                newUnit = display_info.getUnits();
-            }
-
-        }
-
-        if ( ! Objects.equals(unit.get(), newUnit)) {
-            unit.set(newUnit);
-            somethingChanged = true;
-        }
-
-        return somethingChanged;
-
-    }
-
     private void valueChanged ( final WidgetProperty<? extends VType> property, final VType old_value, final VType new_value ) {
 
         if ( model_widget.propLimitsFromPV().getValue() ) {
@@ -443,6 +428,10 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
 
         if ( model_widget.propPrecision().getValue() == -1 ) {
             contentChanged(null, null, null);
+        }
+
+        if ( model_widget.propUnitFromPV().getValue() ) {
+            dirtyUnit.mark();
         }
 
         dirtyValue.mark();
