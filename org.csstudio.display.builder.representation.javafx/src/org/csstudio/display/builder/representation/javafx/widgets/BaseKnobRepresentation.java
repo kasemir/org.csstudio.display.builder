@@ -333,10 +333,8 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
     }
 
     private void unitChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
-//        if ( updateUnit() ) {
-            dirtyUnit.mark();
-            toolkit.scheduleUpdate(this);
-//        }
+        dirtyUnit.mark();
+        toolkit.scheduleUpdate(this);
     }
 
     /**
