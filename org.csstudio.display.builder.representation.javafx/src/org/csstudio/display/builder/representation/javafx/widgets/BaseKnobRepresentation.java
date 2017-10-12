@@ -80,6 +80,8 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
             jfx_node.setTagVisible(model_widget.propTagVisible().getValue());
             jfx_node.setTargetValueAlwaysVisible(model_widget.propTargetVisible().getValue());
             jfx_node.setTextColor(JFXUtil.convert(model_widget.propTextColor().getValue()));
+            jfx_node.setZeroDetentEnabled(model_widget.propZeroDetentEnabled().getValue());
+
         }
 
         if ( dirtyLimits.checkAndClear() ) {
@@ -205,6 +207,7 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
         model_widget.propTransparent().addUntypedPropertyListener(this::lookChanged);
         model_widget.propValueColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTargetVisible().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propZeroDetentEnabled().addUntypedPropertyListener(this::lookChanged);
 
         model_widget.propColorHiHi().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propColorHigh().addUntypedPropertyListener(this::limitsChanged);
@@ -333,10 +336,8 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
     }
 
     private void unitChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
-//        if ( updateUnit() ) {
-            dirtyUnit.mark();
-            toolkit.scheduleUpdate(this);
-//        }
+        dirtyUnit.mark();
+        toolkit.scheduleUpdate(this);
     }
 
     /**
