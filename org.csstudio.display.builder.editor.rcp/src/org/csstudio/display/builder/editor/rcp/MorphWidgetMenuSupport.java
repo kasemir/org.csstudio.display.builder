@@ -96,11 +96,11 @@ public class MorphWidgetMenuSupport
                 {
                     // Replace _all_ children of ArrayWidget, not just the selected ones
                     final List<Widget> children = new ArrayList<>(target.getValue());
-                    steps.execute(new RemoveWidgetsAction(children));
+                    steps.execute(new RemoveWidgetsAction(selection, children));
                     for (Widget child : children)
                     {
                         final Widget replacement = createNewWidget(child);
-                        steps.execute(new AddWidgetAction(target, replacement));
+                        steps.execute(new AddWidgetAction(selection, target, replacement));
                         replacements.add(replacement);
                     }
 
@@ -112,8 +112,8 @@ public class MorphWidgetMenuSupport
                 else
                 {
                     final Widget replacement = createNewWidget(widget);
-                    steps.execute(new RemoveWidgetsAction(Arrays.asList(widget)));
-                    steps.execute(new AddWidgetAction(target, replacement));
+                    steps.execute(new RemoveWidgetsAction(selection, Arrays.asList(widget)));
+                    steps.execute(new AddWidgetAction(selection, target, replacement));
                     replacements.add(replacement);
                     ++i;
                 }

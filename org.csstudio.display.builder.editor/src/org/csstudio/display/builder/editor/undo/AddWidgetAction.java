@@ -7,7 +7,10 @@
  ******************************************************************************/
 package org.csstudio.display.builder.editor.undo;
 
+import java.util.Arrays;
+
 import org.csstudio.display.builder.editor.Messages;
+import org.csstudio.display.builder.editor.WidgetSelectionHandler;
 import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.util.undo.UndoableAction;
@@ -17,12 +20,14 @@ import org.csstudio.display.builder.util.undo.UndoableAction;
  */
 public class AddWidgetAction extends UndoableAction
 {
+    private final WidgetSelectionHandler selection;
     private final ChildrenProperty children;
     private final Widget widget;
 
-    public AddWidgetAction(final ChildrenProperty children, final Widget widget)
+    public AddWidgetAction(final WidgetSelectionHandler selection, final ChildrenProperty children, final Widget widget)
     {
         super(Messages.AddWidget);
+        this.selection = selection;
         this.children = children;
         this.widget = widget;
     }
@@ -31,11 +36,13 @@ public class AddWidgetAction extends UndoableAction
     public void run()
     {
         children.addChild(widget);
+        selection.setSelection(Arrays.asList(widget));
     }
 
     @Override
     public void undo()
     {
+        selection.clear();
         children.removeChild(widget);
     }
 }

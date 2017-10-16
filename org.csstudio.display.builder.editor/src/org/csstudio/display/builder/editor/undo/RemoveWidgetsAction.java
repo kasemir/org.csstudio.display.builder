@@ -7,9 +7,11 @@
  ******************************************************************************/
 package org.csstudio.display.builder.editor.undo;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.csstudio.display.builder.editor.Messages;
+import org.csstudio.display.builder.editor.WidgetSelectionHandler;
 import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.util.undo.UndoableAction;
@@ -19,12 +21,14 @@ import org.csstudio.display.builder.util.undo.UndoableAction;
  */
 public class RemoveWidgetsAction extends UndoableAction
 {
+    private final WidgetSelectionHandler selection;
     private final ChildrenProperty[] containers;
     private final Widget[] widgets;
 
-    public RemoveWidgetsAction(final List<Widget> widgets)
+    public RemoveWidgetsAction(final WidgetSelectionHandler selection, final List<Widget> widgets)
     {
         super(Messages.RemoveWidgets);
+        this.selection = selection;
         final int N = widgets.size();
         this.containers = new ChildrenProperty[N];
         this.widgets = new Widget[N];
@@ -42,6 +46,7 @@ public class RemoveWidgetsAction extends UndoableAction
         // Add the one removed last, ..
         for (int i=widgets.length-1; i>=0; --i)
             containers[i].removeChild(widgets[i]);
+        selection.clear();
     }
 
     @Override
@@ -49,5 +54,6 @@ public class RemoveWidgetsAction extends UndoableAction
     {
         for (int i=0; i<widgets.length; ++i)
             containers[i].addChild(widgets[i]);
+        selection.setSelection(Arrays.asList(widgets));
     }
 }

@@ -10,7 +10,6 @@ package org.csstudio.display.builder.editor;
 import static org.csstudio.display.builder.editor.Plugin.logger;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Objects;
@@ -422,7 +421,7 @@ public class DisplayEditor
         // Add to model
         final ChildrenProperty target = model.runtimeChildren();
         widget_naming.setDefaultName(model, widget);
-        undo.execute(new AddWidgetAction(target, widget));
+        undo.execute(new AddWidgetAction(selection, target, widget));
 
         // De-activate the palette, so rubberband will from now on select widgets
         palette.clearSelectedWidgetType();
@@ -458,7 +457,7 @@ public class DisplayEditor
                     widget.propX().setValue(widget.propX().getValue() - dx);
                     widget.propY().setValue(widget.propY().getValue() - dy);
                     widget_naming.setDefaultName(container.getDisplayModel(), widget);
-                    undo.execute(new AddWidgetAction(target, widget));
+                    undo.execute(new AddWidgetAction(selection, target, widget));
                 }
 
                 //hide highlight, since not adding to ArrayWidget container
@@ -479,7 +478,7 @@ public class DisplayEditor
                 widget.propX().setValue(widget.propX().getValue() - dx);
                 widget.propY().setValue(widget.propY().getValue() - dy);
                 widget_naming.setDefaultName(container.getDisplayModel(), widget);
-                undo.execute(new AddWidgetAction(target, widget));
+                undo.execute(new AddWidgetAction(selection, target, widget));
             }
             selection.setSelection(widgets);
         }
@@ -566,8 +565,7 @@ public class DisplayEditor
         final List<Widget> widgets = copyToClipboard();
         if (widgets == null)
             return;
-        undo.execute(new RemoveWidgetsAction(widgets));
-        selection_tracker.setSelectedWidgets(Collections.emptyList());
+        undo.execute(new RemoveWidgetsAction(selection, widgets));
     }
 
     /** Paste widgets from clipboard
