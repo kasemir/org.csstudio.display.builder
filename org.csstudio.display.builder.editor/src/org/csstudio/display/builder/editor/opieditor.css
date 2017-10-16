@@ -98,6 +98,14 @@
     -fx-background-radius: 0;
 }
 
+.array_property_filler
+{
+    -fx-font-size: 1px;
+    -fx-background-color: lemonchiffon; 
+    -fx-padding: 0 0 0 0;
+    -fx-background-radius: 0;
+}
+
 .array_property_end
 {
     -fx-font-size: 3px;
@@ -125,6 +133,12 @@
     -fx-background-color: null;
     -fx-padding: 0.0em 0.0em 0.0em 0.0em; /* 1 0 0 0 */
     -fx-border-color: derive(-fx-background,-2%);
+}
+
+.property_separator_filler:horizontal .line {
+    -fx-background-color: null;
+    -fx-padding: 0.0em 0.0em 0.0em 0.0em; /* 1 0 0 0 */
+    -fx-border-color: lemonchiffon;
 }
 
 .color_icon
