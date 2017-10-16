@@ -9,7 +9,6 @@ package org.csstudio.display.builder.runtime;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropPVValue;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropPVWritable;
 import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
 
 import java.util.ArrayList;
@@ -37,11 +36,9 @@ import org.csstudio.display.builder.model.properties.ExecuteScriptActionInfo;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.WritePVActionInfo;
 import org.csstudio.display.builder.model.rules.RuleInfo;
-import org.csstudio.display.builder.model.widgets.PVWidget;
 import org.csstudio.display.builder.runtime.internal.RuntimePVs;
 import org.csstudio.display.builder.runtime.pv.PVFactory;
 import org.csstudio.display.builder.runtime.pv.RuntimePV;
-import org.csstudio.display.builder.runtime.pv.RuntimePVListener;
 import org.csstudio.display.builder.runtime.script.internal.RuntimeScriptHandler;
 import org.csstudio.display.builder.runtime.script.internal.Script;
 import org.csstudio.display.builder.runtime.script.internal.ScriptSupport;
@@ -69,14 +66,8 @@ public class WidgetRuntime<MW extends Widget>
     /** The widget handled by this runtime */
     protected MW widget;
 
-    /** If widget has 'pv_name' and 'value', this listener establishes the primary PV */
-    private PVNameListener pv_name_listener = null;
-
-    /** Primary widget PV for behaviorPVName property, or <code>null</code> */
-    private final AtomicReference<RuntimePV> primary_pv = new AtomicReference<>();
-
-    /** Listener for <code>primary_pv</code> */
-    private RuntimePVListener primary_pv_listener;
+    /** If widget has 'pv_name' and 'value', this binds the primary PV */
+    private final AtomicReference<PVNameToValueBinding> pv_name_binding = new AtomicReference<>();
 
     /** start() involves background jobs to start script support etc.
      *  This latch indicates that they have completed
@@ -115,73 +106,6 @@ public class WidgetRuntime<MW extends Widget>
      *  <p>Lazily created if there are scripts.
      */
     private volatile Map<ExecuteScriptActionInfo, Script> action_scripts = null;
-
-    /** PVListener that updates 'value' property with received VType */
-    protected static class PropertyUpdater implements RuntimePVListener
-    {
-        private final WidgetProperty<VType> property;
-
-        /** @param property Widget property to update with values received from PV */
-        public PropertyUpdater(final WidgetProperty<VType> property)
-        {
-            this.property = property;
-            // Send initial 'disconnected' update so widget shows
-            // disconnected state until the first value arrives
-            disconnected(null);
-        }
-
-        @Override
-        public void valueChanged(final RuntimePV pv, final VType value)
-        {
-            property.setValue(value);
-        }
-
-        @Override
-        public void disconnected(final RuntimePV pv)
-        {
-            property.setValue(null);
-        }
-    };
-
-    /** Listener to "pv_name" property. Connects/re-connects primary PV */
-    private class PVNameListener implements WidgetPropertyListener<String>
-    {
-        @Override
-        public void propertyChanged(final WidgetProperty<String> name_property,
-                                    final String old_name, final String pv_name)
-        {
-            if (Objects.equals(old_name, pv_name))
-                return;
-
-            // In case already connected...
-            disconnectPrimaryPV();
-
-            if (pv_name.isEmpty())
-            {
-                widget.getProperty(runtimePropPVValue).setValue(PVWidget.RUNTIME_VALUE_NO_PV);
-                return;
-            }
-
-            logger.log(Level.FINER, "Connecting {0} to {1}",  new Object[] { widget, pv_name });
-
-            // Create listener, which marks the value as disconnected
-            primary_pv_listener = new PropertyUpdater(widget.getProperty(runtimePropPVValue));
-            // Then connect PV, which either gets a value soon,
-            // or may throw exception -> widget already shows disconnected
-            try
-            {
-                final RuntimePV pv = PVFactory.getPV(pv_name);
-                primary_pv.set(pv);
-                pv.addListener(primary_pv_listener);
-                // For widgets that have a "pv_writable" property, update it
-                addPV(pv, widget.checkProperty(runtimePropPVWritable).isPresent());
-            }
-            catch (Exception ex)
-            {
-                logger.log(Level.WARNING, "Error connecting PV " + pv_name, ex);
-            }
-        }
-    };
 
     /** When widget class changes, re-apply class to widget */
     private static final WidgetPropertyListener<String> update_widget_class =
@@ -247,7 +171,10 @@ public class WidgetRuntime<MW extends Widget>
     /** @return {@link Optional} containing primary PV of widget, if present. */
     public Optional<RuntimePV> getPrimaryPV()
     {
-        return Optional.ofNullable(primary_pv.get());
+        final PVNameToValueBinding binding = pv_name_binding.get();
+        if (binding == null)
+            return Optional.empty();
+        return Optional.ofNullable(binding.getPV());
     }
 
     /** Runtime actions
@@ -273,16 +200,7 @@ public class WidgetRuntime<MW extends Widget>
         final Optional<WidgetProperty<VType>> value = widget.checkProperty(runtimePropPVValue);
 
         if (name.isPresent() &&  value.isPresent())
-        {
-            pv_name_listener = new PVNameListener();
-            // Fetching the PV name will resolve macros,
-            // i.e. set the name property and thus notify listeners
-            // -> Do that once before registering listener
-            final String pv_name = name.get().getValue();
-            name.get().addPropertyListener(pv_name_listener);
-            // Initial connection
-            pv_name_listener.propertyChanged(name.get(), null, pv_name);
-        }
+            pv_name_binding.set(new PVNameToValueBinding(this, name.get(), value.get(), true));
 
         // Prepare action-related PVs
         final List<ActionInfo> actions = widget.propActions().getValue().getActions();
@@ -416,7 +334,7 @@ public class WidgetRuntime<MW extends Widget>
     /** Wait for start() and related operations to complete.
      *
      *  <p>Call before reading 'lazily' populated variables
-     *  */
+     */
     private void awaitStartup()
     {
         try
@@ -438,10 +356,8 @@ public class WidgetRuntime<MW extends Widget>
         try
         {
             awaitStartup();
-            final RuntimePV pv = primary_pv.get();
-            if (pv == null)
-                throw new Exception("No PV");
-            pv.write(value);
+            getPrimaryPV().orElseThrow(() -> new Exception("No PV"))
+                          .write(value);
         }
         catch (final Exception ex)
         {
@@ -502,20 +418,6 @@ public class WidgetRuntime<MW extends Widget>
         script.submit(widget);
     }
 
-    /** Disconnect the primary PV
-     *
-     *  <p>OK to call when there was no PV
-     */
-    private void disconnectPrimaryPV()
-    {
-        final RuntimePV pv = primary_pv.getAndSet(null);
-        if (pv == null)
-            return;
-        removePV(pv);
-        pv.removeListener(primary_pv_listener);
-        PVFactory.releasePV(pv);
-    }
-
     /** Stop: Disconnect PVs, ... */
     public void stop()
     {
@@ -533,12 +435,9 @@ public class WidgetRuntime<MW extends Widget>
             writable_pvs = null;
         }
 
-        disconnectPrimaryPV();
-        if (pv_name_listener != null)
-        {
-            widget.getProperty(propPVName).removePropertyListener(pv_name_listener);
-            pv_name_listener = null;
-        }
+        final PVNameToValueBinding binding = pv_name_binding.getAndSet(null);
+        if (binding != null)
+            binding.dispose();
 
         final Map<ExecuteScriptActionInfo, Script> actions = action_scripts;
         if (actions != null)
