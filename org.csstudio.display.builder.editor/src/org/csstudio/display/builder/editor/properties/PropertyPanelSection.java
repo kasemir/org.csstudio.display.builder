@@ -45,6 +45,7 @@ import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.DialogHelper;
 import org.csstudio.javafx.MultiLineInputDialog;
 
+import javafx.geometry.HPos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -56,6 +57,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -100,6 +102,21 @@ public class PropertyPanelSection extends GridPane
     private final List<WidgetPropertyBinding<?,?>> bindings = new ArrayList<>();
     private int next_row = -1;
 
+    //  Instance initializer.
+    {
+
+        getColumnConstraints().add(new ColumnConstraints( 6));                                                                          //  column 0 is 3 pixels wide
+        getColumnConstraints().add(new ColumnConstraints( 6));                                                                          //  column 1 is 3 pixels wide
+        getColumnConstraints().add(new ColumnConstraints(32, USE_COMPUTED_SIZE, Integer.MAX_VALUE, Priority.ALWAYS, HPos.LEFT, true));  //  column 2
+        getColumnConstraints().add(new ColumnConstraints( 3, USE_COMPUTED_SIZE, 16));                                                   //  column 3 is 3 pixels wide
+        getColumnConstraints().add(new ColumnConstraints(32, USE_COMPUTED_SIZE, Integer.MAX_VALUE, Priority.ALWAYS, HPos.LEFT, true));  //  column 4
+        getColumnConstraints().add(new ColumnConstraints( 6));                                                                          //  column 5 is 3 pixels wide
+        getColumnConstraints().add(new ColumnConstraints( 6));                                                                          //  column 6 is 3 pixels wide
+
+        getColumnConstraints().get(2).setPercentWidth(40);
+
+    }
+
     public void setClassMode(final boolean class_mode)
     {
         this.class_mode = class_mode;
@@ -130,14 +147,14 @@ public class PropertyPanelSection extends GridPane
                 final Label header = new Label(category.getDescription());
                 header.getStyleClass().add("property_category");
                 header.setMaxWidth(Double.MAX_VALUE);
-                add(header, 0, getNextGridRow(), 3, 1);
+                add(header, 0, getNextGridRow(), 7, 1);
 
                 final Separator separator = new Separator();
                 separator.getStyleClass().add("property_separator");
-                add(separator, 0, getNextGridRow(), 3, 1);
+                add(separator, 0, getNextGridRow(), 7, 1);
             }
 
-            createPropertyUI(undo, property, other, 0);
+            createPropertyUI(undo, property, other, 0, 0);
         }
     }
 
@@ -366,21 +383,22 @@ public class PropertyPanelSection extends GridPane
      *  @param structureIndex Index of the array structure (element) being added. It is meaningful
      *                        only for properties instance of {@link StructuredWidgetProperty}.
      */
-    private void createPropertyUI(final UndoableActionManager undo,
-            final WidgetProperty<?> property,
-            final List<Widget> other,
-            final int structureIndex)
-    {
+    private void createPropertyUI(
+        final UndoableActionManager undo,
+        final WidgetProperty<?> property,
+        final List<Widget> other,
+        final int structureIndex,
+        final int indentationLevel
+    ) {
         // Skip runtime properties
         if (property.getCategory() == WidgetPropertyCategory.RUNTIME)
             return;
 
         final Label label = new Label(property.getDescription());
         label.setMaxWidth(Double.MAX_VALUE);
-        label.setMinWidth(100);
         final String tooltip = property.getDescription() + " (" + property.getPath() + ")";
         label.setTooltip(new Tooltip(tooltip));
-        // setGridLinesVisible(true); // For debugging the layout
+//        setGridLinesVisible(true); // For debugging the layout
 
         Node field = bindSimplePropertyField(undo, bindings, property, other);
         if (field != null)
@@ -438,14 +456,17 @@ public class PropertyPanelSection extends GridPane
             header.getStyleClass().add("structure_property_name");
             header.setMaxWidth(Double.MAX_VALUE);
 
-            add(header, 0, getNextGridRow(), 3, 1);
+            final int row = getNextGridRow();
+
+            fillIndent(indentationLevel, row);
+            add(header, 0 + indentationLevel, row, 7 - 2 * indentationLevel, 1);
 
             final Separator separator = new Separator();
             separator.getStyleClass().add("property_separator");
-            add(separator, 0, getNextGridRow(), 3, 1);
+            add(separator, 0 + indentationLevel, getNextGridRow(), 7 - 2 * indentationLevel, 1);
 
             for (WidgetProperty<?> elem : struct.getValue())
-                this.createPropertyUI(undo, elem, other, -1);
+                this.createPropertyUI(undo, elem, other, -1, indentationLevel);
             return;
         }
         else if (property instanceof ArrayWidgetProperty)
@@ -462,39 +483,43 @@ public class PropertyPanelSection extends GridPane
             count_binding.bind();
 
             // set size of array
-            final int row = getNextGridRow();
+            int row = getNextGridRow();
             label.getStyleClass().add("array_property_name");
             label.setMaxWidth(Double.MAX_VALUE);
             label.setMaxHeight(Double.MAX_VALUE);
             spinner.getStyleClass().add("array_property_value");
-            // Place array size spinner in 'label' section
-            HBox.setHgrow(label, Priority.ALWAYS);
-            add(new HBox(label, spinner), 0, row, 3, 1);
+            spinner.setMaxWidth(Double.MAX_VALUE);
+
+            fillHeaderIndent(indentationLevel, row);
+            add(label, indentationLevel, row, 4 - indentationLevel, 1);
+            add(spinner, 4, row, 2 - indentationLevel, 1);
 
             Separator separator = new Separator();
 
             separator.getStyleClass().add("property_separator");
-            add(separator, 0, getNextGridRow(), 3, 1);
+            add(separator, 1 + indentationLevel, getNextGridRow(), 5 - 2 * indentationLevel, 1);
 
             // array elements
             final List<WidgetProperty<?>> wpeList = array.getValue();
             for (int i = 0; i < wpeList.size(); i++)
             {
                 final WidgetProperty<?> elem = wpeList.get(i);
-                createPropertyUI(undo, elem, other, i);
+                createPropertyUI(undo, elem, other, i, indentationLevel + 1);
             }
 
             // mark end of array
+            row = getNextGridRow();
             final Label endlabel = new Label();
             endlabel.setMaxWidth(Double.MAX_VALUE);
             GridPane.setHgrow(endlabel, Priority.ALWAYS);
             endlabel.getStyleClass().add("array_property_end");
-            add(endlabel, 0, getNextGridRow(), 3, 1);
+            fillIndent(indentationLevel, row);
+            add(endlabel,0 + indentationLevel, row, 7 - 2 * indentationLevel, 1);
 
             separator = new Separator();
 
             separator.getStyleClass().add("property_separator");
-            add(separator, 0, getNextGridRow(), 3, 1);
+            add(separator, 0 + indentationLevel, getNextGridRow(), 7 - 2 * indentationLevel, 1);
 
             return;
         }
@@ -518,7 +543,8 @@ public class PropertyPanelSection extends GridPane
         // but show the value
         // GridPane.setHgrow(label, Priority.ALWAYS);
         GridPane.setHgrow(field, Priority.ALWAYS);
-        add(label, 0, row);
+        fillIndent(indentationLevel, row);
+        add(label, indentationLevel, row, 3 - indentationLevel, 1);
 
         final Widget widget = property.getWidget();
         if (! (property == widget.getProperty("type")  ||
@@ -532,7 +558,7 @@ public class PropertyPanelSection extends GridPane
                 final WidgetPropertyBinding<?,?> binding = new UseWidgetClassBinding(undo, check, field, property, other);
                 bindings.add(binding);
                 binding.bind();
-                add(check, 1, row);
+                add(check, 3, row);
             }
             else
             {   // Display file mode:
@@ -542,14 +568,98 @@ public class PropertyPanelSection extends GridPane
                 final WidgetPropertyBinding<?,?> binding = new ShowWidgetClassBinding(field, property, indicator);
                 bindings.add(binding);
                 binding.bind();
-                add(indicator, 1, row);
+                add(indicator, 3, row);
             }
         }
-        add(field, 2, row);
+        add(field, 4, row, 3 - indentationLevel, 1);
 
         final Separator separator = new Separator();
         separator.getStyleClass().add("property_separator");
-        add(separator, 0, getNextGridRow(), 3, 1);
+        add(separator, 0 + indentationLevel, getNextGridRow(), 7 - 2 * indentationLevel, 1);
+    }
+
+    private void fillHeaderIndent ( final int indentationLevel, final int row ) {
+
+        if ( indentationLevel >= 0 ) {
+
+            if ( indentationLevel > 0 ) {
+
+                Label indent = new Label();
+
+                indent.getStyleClass().add("array_property_filler");
+                indent.setMaxWidth(Double.MAX_VALUE);
+                indent.setMaxHeight(Double.MAX_VALUE);
+                indent.setMinWidth(0);
+                indent.setMinHeight(0);
+
+                add(indent, 0, row, indentationLevel, 1);
+
+            }
+
+            Label indent = new Label();
+
+            indent.getStyleClass().add("array_property_filler");
+            indent.setMaxWidth(Double.MAX_VALUE);
+            indent.setMaxHeight(Double.MAX_VALUE);
+            indent.setMinWidth(0);
+            indent.setMinHeight(0);
+
+            add(indent, 7 - indentationLevel - 1, row, indentationLevel + 1, 1);
+
+            Separator separator = new Separator();
+
+            separator.getStyleClass().add("property_separator_filler");
+
+            add(separator, 0, row + 1, indentationLevel + 1, 1);
+
+            separator = new Separator();
+
+            separator.getStyleClass().add("property_separator_filler");
+
+            add(separator, 7 - indentationLevel - 1, row + 1, indentationLevel + 1, 1);
+
+        }
+
+    }
+
+    private void fillIndent ( final int indentationLevel, final int row ) {
+
+        if ( indentationLevel > 0 ) {
+
+            Label indent = new Label();
+
+            indent.getStyleClass().add("array_property_filler");
+            indent.setMaxWidth(Double.MAX_VALUE);
+            indent.setMaxHeight(Double.MAX_VALUE);
+            indent.setMinWidth(0);
+            indent.setMinHeight(0);
+
+            add(indent, 0, row, indentationLevel, 1);
+
+            indent = new Label();
+
+            indent.getStyleClass().add("array_property_filler");
+            indent.setMaxWidth(Double.MAX_VALUE);
+            indent.setMaxHeight(Double.MAX_VALUE);
+            indent.setMinWidth(0);
+            indent.setMinHeight(0);
+
+            add(indent, 7 - indentationLevel, row, indentationLevel, 1);
+
+            Separator separator = new Separator();
+
+            separator.getStyleClass().add("property_separator_filler");
+
+            add(separator, 0, row + 1, indentationLevel, 1);
+
+            separator = new Separator();
+
+            separator.getStyleClass().add("property_separator_filler");
+
+            add(separator, 7 - indentationLevel, row + 1, indentationLevel, 1);
+
+        }
+
     }
 
     AutocompleteMenu getAutocompleteMenu()
