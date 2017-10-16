@@ -370,7 +370,9 @@ public class DisplayEditor
         new Rubberband(model_root, edit_tools, this::handleRubberbandSelection);
         new PointsBinding(edit_tools, selection, undo);
 
-        WidgetTransfer.addDropSupport(model_root, group_handler, selection_tracker, this::addWidgets);
+        // Attach D&Drop to the widget_parent which is zoomed,
+        // so drop will have the zoomed coordinate system
+        WidgetTransfer.addDropSupport(widget_parent, group_handler, selection_tracker, this::addWidgets);
 
         model_root.addEventFilter(KeyEvent.KEY_PRESSED, this::handleKeyPress);
     }
