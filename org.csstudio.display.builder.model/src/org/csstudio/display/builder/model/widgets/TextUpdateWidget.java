@@ -83,8 +83,13 @@ public class TextUpdateWidget extends PVWidget
                 return false;
             if (xml_version.getMajor() < 2)
             {
-                TextUpdateWidget text_widget = (TextUpdateWidget)widget;
+                final TextUpdateWidget text_widget = (TextUpdateWidget)widget;
                 TextUpdateWidget.readLegacyFormat(xml, text_widget.format, text_widget.precision, text_widget.propPVName());
+
+                // Legacy rotation_angle -> rotation_step
+                // BOY counted angle clockwise, we now use mathematical sense of rotation
+                XMLUtil.getChildDouble(xml, "rotation_angle")
+                       .ifPresent(angle -> text_widget.rotation_step.setValue(RotationStep.forAngle(- angle)));
 
                 // Legacy text update had a "text" property that allowed using
                 // it just like a label - no pv_name.
