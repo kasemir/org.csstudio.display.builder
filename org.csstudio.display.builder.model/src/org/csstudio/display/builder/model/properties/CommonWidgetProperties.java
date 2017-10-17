@@ -656,7 +656,7 @@ public class CommonWidgetProperties
     public static final WidgetPropertyDescriptor<VType> runtimePropPVValue =
             newRuntimeValue("pv_value", Messages.WidgetProperties_Value);
 
-    /** Runtime 'pv_writable' property: Are all PVs of the widget connected? */
+    /** Runtime 'pv_writable' property: Does primary PV have write access? */
     public static final WidgetPropertyDescriptor<Boolean> runtimePropPVWritable =
             newBooleanPropertyDescriptor(WidgetPropertyCategory.RUNTIME, "pv_writable", Messages.WidgetProperties_Writable);
 
