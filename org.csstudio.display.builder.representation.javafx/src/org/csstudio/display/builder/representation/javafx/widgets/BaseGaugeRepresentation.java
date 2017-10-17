@@ -416,8 +416,8 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
             final Display display_info = ValueUtil.displayOf(model_widget.runtimePropValue().getValue());
 
             if ( display_info != null ) {
-                newMin = display_info.getLowerCtrlLimit();
-                newMax = display_info.getUpperCtrlLimit();
+                newMin = display_info.getLowerDisplayLimit();
+                newMax = display_info.getUpperDisplayLimit();
                 newLoLo = display_info.getLowerAlarmLimit();
                 newLow = display_info.getLowerWarningLimit();
                 newHigh = display_info.getUpperWarningLimit();
