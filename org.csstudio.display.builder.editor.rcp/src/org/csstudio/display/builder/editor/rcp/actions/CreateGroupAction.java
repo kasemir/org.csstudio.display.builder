@@ -51,9 +51,7 @@ public class CreateGroupAction extends Action
         // Get bounds of widgets relative to their container,
         // which might be a group within the display
         // or the display itself
-        final Rectangle2D rect = widgets.stream()
-                                        .map(GeometryTools::getBounds)
-                                        .reduce(null, GeometryTools::join);
+        final Rectangle2D rect = GeometryTools.getBounds(widgets);
 
         // Inset depends on representation and changes with group style and font.
         // Can be obtained via group.runtimePropInsets() _after_ the group has
