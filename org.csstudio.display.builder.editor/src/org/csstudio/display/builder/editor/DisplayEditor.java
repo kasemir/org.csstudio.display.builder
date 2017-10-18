@@ -572,7 +572,7 @@ public class DisplayEditor
      *  @param x Desired coordinate of upper-left widget ..
      *  @param y .. when pasted
      */
-    public void pasteFromClipboard(final int x, final int y)
+    public void pasteFromClipboard(final int x, int y)
     {
         if (selection_tracker.isInlineEditorActive())
             return;
@@ -585,6 +585,11 @@ public class DisplayEditor
         if (! (xml.startsWith("<?xml")  &&
                xml.contains("<display")))
             return;
+
+        // Correct the y coordinate, measured inside this editor,
+        // by height of toolbar
+        y -= toolbar.getHeight();
+
         try
         {
             final DisplayModel model = ModelReader.parseXML(xml);
