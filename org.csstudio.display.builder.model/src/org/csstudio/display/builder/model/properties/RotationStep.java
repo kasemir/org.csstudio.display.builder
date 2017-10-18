@@ -28,6 +28,26 @@ public enum RotationStep
         this.angle = angle;
     }
 
+    /** Map angle to the closest rotation step
+     *  @param angle Angle in degrees, counter-clockwise
+     *  @return {@link RotationStep}
+     */
+    public static RotationStep forAngle(final double angle)
+    {
+        // Translate to 0 .. 360
+        int norm = (int) Math.round(angle % 360.0);
+        if (norm < 0)
+            norm += 360;
+        // Map angle to one of the possible options
+        if (norm >=  90-45  &&  norm <  90+45)
+            return NINETY;
+        if (norm >= 180-45  &&  norm < 180+45)
+            return ONEEIGHTY;
+        if (norm >= 270-45  &&  norm < 270+45)
+            return MINUS_NINETY;
+        return NONE;
+    }
+
     /** @return Rotation angle in degrees */
     public double getAngle()
     {
