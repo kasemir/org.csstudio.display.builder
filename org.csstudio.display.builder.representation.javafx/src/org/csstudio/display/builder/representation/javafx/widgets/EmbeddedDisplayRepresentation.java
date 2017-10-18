@@ -297,9 +297,18 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
     }
 
     @Override
-    public void dispose()
-    {
+    public void dispose ( ) {
+
+        DisplayModel em = model_widget.runtimePropEmbeddedModel().getValue();
+
+        if ( inner != null && em != null ) {
+            toolkit.disposeRepresentation(em);
+        }
+
         inner = null;
+
         super.dispose();
+
     }
+
 }
