@@ -221,6 +221,7 @@ public class RTTank extends Canvas
         plot_area.paint(gc);
 
         final AxisRange<Double> range = scale.getValueRange();
+        final boolean normal = range.getLow() <= range.getHigh();
         final double min = Math.min(range.getLow(), range.getHigh());
         final double max = Math.max(range.getLow(), range.getHigh());
         final double current = value;
@@ -239,7 +240,10 @@ public class RTTank extends Canvas
         gc.fillRoundRect(plot_bounds.x, plot_bounds.y, plot_bounds.width, plot_bounds.height, arc, arc);
 
         gc.setPaint(new GradientPaint(plot_bounds.x, 0, fill, plot_bounds.x+plot_bounds.width/2, 0, Color.WHITE, true));
-        gc.fillRoundRect(plot_bounds.x, plot_bounds.y+plot_bounds.height-level, plot_bounds.width, level, arc, arc);
+        if (normal)
+            gc.fillRoundRect(plot_bounds.x, plot_bounds.y+plot_bounds.height-level, plot_bounds.width, level, arc, arc);
+        else
+            gc.fillRoundRect(plot_bounds.x, plot_bounds.y, plot_bounds.width, level, arc, arc);
         gc.setColor(background);
 
         gc.dispose();
