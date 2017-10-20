@@ -100,9 +100,21 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
         case NONE:
         default:       prompt = false;
         }
-        if (prompt  &&
-            ! toolkit.showConfirmationDialog(model_widget, model_widget.propConfirmMessage().getValue()))
-            return;
+        if (prompt)
+        {   // Require password, or plain prompt?
+            final String message = model_widget.propConfirmMessage().getValue();
+            final String password = model_widget.propPassword().getValue();
+            if (password.length() > 0)
+            {
+                if (toolkit.showPasswordDialog(model_widget, message, password) == null)
+                    return;
+            }
+            else
+            {
+                if (! toolkit.showConfirmationDialog(model_widget, message))
+                    return;
+            }
+        }
 
         int new_val = (rt_value ^ ((use_bit < 0) ? 1 : (1 << use_bit)) );
         toolkit.fireWrite(model_widget, new_val);
