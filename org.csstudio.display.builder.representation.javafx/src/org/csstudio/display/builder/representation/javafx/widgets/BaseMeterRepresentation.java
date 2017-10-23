@@ -9,8 +9,6 @@
 package org.csstudio.display.builder.representation.javafx.widgets;
 
 
-import java.util.Objects;
-
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.BaseMeterWidget;
@@ -38,25 +36,12 @@ public abstract class BaseMeterRepresentation<W extends BaseMeterWidget> extends
         Object value;
 
         if ( dirtyLook.checkAndClear() ) {
-
-            value = LcdDesign.valueOf(model_widget.propLcdDesign().getValue().name());
-
-            if ( !Objects.equals(value, jfx_node.getLcdDesign()) ) {
-                jfx_node.setLcdDesign((LcdDesign) value);
-            }
-
-            value = LcdFont.valueOf(model_widget.propLcdFont().getValue().name());
-
-            if ( !Objects.equals(value, jfx_node.getLcdFont()) ) {
-                jfx_node.setLcdFont((LcdFont) value);
-            }
-
-            value = model_widget.propLcdVisible().getValue();
-
-            if ( !Objects.equals(value, jfx_node.isLcdVisible()) ) {
-                jfx_node.setLcdVisible((boolean) value);
-            }
-
+            jfx_node.setAutoScale(model_widget.propAutoScale().getValue());
+            jfx_node.setLcdDesign(LcdDesign.valueOf(model_widget.propLcdDesign().getValue().name()));
+            jfx_node.setLcdFont(LcdFont.valueOf(model_widget.propLcdFont().getValue().name()));
+            jfx_node.setLcdVisible(model_widget.propLcdVisible().getValue());
+            jfx_node.setMajorTickSpace(model_widget.propMajorTickSpace().getValue());
+            jfx_node.setMinorTickSpace(model_widget.propMinorTickSpace().getValue());
         }
 
     }
@@ -66,10 +51,13 @@ public abstract class BaseMeterRepresentation<W extends BaseMeterWidget> extends
 
         super.changeSkin(skinType);
 
+        jfx_node.setAutoScale(model_widget.propAutoScale().getValue());
         jfx_node.setLcdDesign(LcdDesign.valueOf(model_widget.propLcdDesign().getValue().name()));
         jfx_node.setLcdFont(LcdFont.valueOf(model_widget.propLcdFont().getValue().name()));
         jfx_node.setLcdVisible(model_widget.propLcdVisible().getValue());
         jfx_node.setNeedleBehavior(Gauge.NeedleBehavior.STANDARD);
+        jfx_node.setMajorTickSpace(model_widget.propMajorTickSpace().getValue());
+        jfx_node.setMinorTickSpace(model_widget.propMinorTickSpace().getValue());
 
     }
 
@@ -78,10 +66,13 @@ public abstract class BaseMeterRepresentation<W extends BaseMeterWidget> extends
 
         Gauge gauge = super.createJFXNode(Gauge.SkinType.LINEAR);
 
+        gauge.setAutoScale(model_widget.propAutoScale().getValue());
         gauge.setLcdDesign(LcdDesign.valueOf(model_widget.propLcdDesign().getValue().name()));
         gauge.setLcdFont(LcdFont.valueOf(model_widget.propLcdFont().getValue().name()));
         gauge.setLcdVisible(model_widget.propLcdVisible().getValue());
         gauge.setNeedleBehavior(Gauge.NeedleBehavior.STANDARD);
+        gauge.setMajorTickSpace(model_widget.propMajorTickSpace().getValue());
+        gauge.setMinorTickSpace(model_widget.propMinorTickSpace().getValue());
 
         return gauge;
 
@@ -118,9 +109,12 @@ public abstract class BaseMeterRepresentation<W extends BaseMeterWidget> extends
 
         super.registerListeners();
 
+        model_widget.propAutoScale().addUntypedPropertyListener(this::lookChanged);
         model_widget.propLcdDesign().addUntypedPropertyListener(this::lookChanged);
         model_widget.propLcdFont().addUntypedPropertyListener(this::lookChanged);
         model_widget.propLcdVisible().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propMajorTickSpace().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propMinorTickSpace().addUntypedPropertyListener(this::lookChanged);
 
     }
 

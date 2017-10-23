@@ -201,7 +201,7 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         jfx_node.setPrefHeight(model_widget.propHeight().getValue());
 
         jfx_node.setAnimated(false);
-        jfx_node.setAutoScale(true);
+//        jfx_node.setAutoScale(true);
         jfx_node.setBackgroundPaint(model_widget.propTransparent().getValue() ? Color.TRANSPARENT : JFXUtil.convert(model_widget.propBackgroundColor().getValue()));
         jfx_node.setCheckAreasForValue(false);
         jfx_node.setCheckSectionsForValue(false);
@@ -235,7 +235,7 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
                 //  Previous properties must be set first.
                 //--------------------------------------------------------
                 .animated(false)
-                .autoScale(true)
+//                .autoScale(true)
                 .backgroundPaint(model_widget.propTransparent().getValue() ? Color.TRANSPARENT : JFXUtil.convert(model_widget.propBackgroundColor().getValue()))
                 .checkAreasForValue(false)
                 .checkSectionsForValue(false)
