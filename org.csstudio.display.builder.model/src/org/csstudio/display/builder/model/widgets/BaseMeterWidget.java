@@ -10,7 +10,6 @@ package org.csstudio.display.builder.model.widgets;
 
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newDoublePropertyDescriptor;
 
 import java.util.List;
 
@@ -81,7 +80,6 @@ public abstract class BaseMeterWidget extends BaseGaugeWidget {
         STANDARD
     }
 
-    public static final WidgetPropertyDescriptor<Boolean>   propAutoScale      = newBooleanPropertyDescriptor           (WidgetPropertyCategory.BEHAVIOR, "auto_scale",       Messages.WidgetProperties_AutoScale);
     public static final WidgetPropertyDescriptor<Boolean>   propHighlightZones = newBooleanPropertyDescriptor           (WidgetPropertyCategory.BEHAVIOR, "highligh_zones",   Messages.WidgetProperties_HighlightZones);
 
     public static final WidgetPropertyDescriptor<LCDDesign> propLcdDesign      = new WidgetPropertyDescriptor<LCDDesign>(WidgetPropertyCategory.MISC,     "lcd_design",       Messages.WidgetProperties_LcdDesign) {
@@ -97,16 +95,11 @@ public abstract class BaseMeterWidget extends BaseGaugeWidget {
         }
     };
     public static final WidgetPropertyDescriptor<Boolean>   propLcdVisible     = newBooleanPropertyDescriptor           (WidgetPropertyCategory.MISC,     "lcd_visible",      Messages.WidgetProperties_LcdVisible);
-    public static final WidgetPropertyDescriptor<Double>    propMajorTickSpace = newDoublePropertyDescriptor            (WidgetPropertyCategory.MISC,     "major_tick_space", Messages.WidgetProperties_MajorTickSpace);
-    public static final WidgetPropertyDescriptor<Double>    propMinorTickSpace = newDoublePropertyDescriptor            (WidgetPropertyCategory.MISC,     "minor_tick_space", Messages.WidgetProperties_MinorTickSpace);
 
-    private volatile WidgetProperty<Boolean>   auto_scale;
     private volatile WidgetProperty<Boolean>   highligh_zones;
     private volatile WidgetProperty<LCDDesign> lcdDesign;
     private volatile WidgetProperty<LCDFont>   lcdFont;
     private volatile WidgetProperty<Boolean>   lcdVisible;
-    private volatile WidgetProperty<Double>    major_tick_space;
-    private volatile WidgetProperty<Double>    minor_tick_space;
 
     /**
      * @param type Widget type.
@@ -126,10 +119,6 @@ public abstract class BaseMeterWidget extends BaseGaugeWidget {
         return highligh_zones;
     }
 
-    public WidgetProperty<Boolean> propAutoScale ( ) {
-        return auto_scale;
-    }
-
     public WidgetProperty<LCDDesign> propLcdDesign ( ) {
         return lcdDesign;
     }
@@ -142,27 +131,16 @@ public abstract class BaseMeterWidget extends BaseGaugeWidget {
         return lcdVisible;
     }
 
-    public WidgetProperty<Double> propMajorTickSpace ( ) {
-        return major_tick_space;
-    }
-
-    public WidgetProperty<Double> propMinorTickSpace ( ) {
-        return minor_tick_space;
-    }
-
     @Override
     protected void defineProperties ( final List<WidgetProperty<?>> properties ) {
 
         super.defineProperties(properties);
 
-        properties.add(auto_scale       = propAutoScale.createProperty(this, true));
         properties.add(highligh_zones   = propHighlightZones.createProperty(this, true));
 
         properties.add(lcdDesign        = propLcdDesign.createProperty(this, LCDDesign.SECTIONS));
         properties.add(lcdFont          = propLcdFont.createProperty(this, LCDFont.DIGITAL_BOLD));
         properties.add(lcdVisible       = propLcdVisible.createProperty(this, true));
-        properties.add(major_tick_space = propMajorTickSpace.createProperty(this, 10.0));
-        properties.add(minor_tick_space = propMinorTickSpace.createProperty(this, 1.0));
 
     }
 
