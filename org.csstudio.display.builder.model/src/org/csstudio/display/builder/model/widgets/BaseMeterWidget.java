@@ -80,21 +80,21 @@ public abstract class BaseMeterWidget extends BaseGaugeWidget {
         STANDARD
     }
 
-    public static final WidgetPropertyDescriptor<Boolean>   propHighlightZones = newBooleanPropertyDescriptor           (WidgetPropertyCategory.BEHAVIOR, "highligh_zones", Messages.WidgetProperties_HighlightZones);
+    public static final WidgetPropertyDescriptor<Boolean>   propHighlightZones = newBooleanPropertyDescriptor           (WidgetPropertyCategory.BEHAVIOR, "highligh_zones",   Messages.WidgetProperties_HighlightZones);
 
-    public static final WidgetPropertyDescriptor<LCDDesign> propLcdDesign      = new WidgetPropertyDescriptor<LCDDesign>(WidgetPropertyCategory.MISC,     "lcd_design",     Messages.WidgetProperties_LcdDesign) {
+    public static final WidgetPropertyDescriptor<LCDDesign> propLcdDesign      = new WidgetPropertyDescriptor<LCDDesign>(WidgetPropertyCategory.MISC,     "lcd_design",       Messages.WidgetProperties_LcdDesign) {
         @Override
         public EnumWidgetProperty<LCDDesign> createProperty ( Widget widget, LCDDesign defaultValue ) {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
-    public static final WidgetPropertyDescriptor<LCDFont>   propLcdFont        = new WidgetPropertyDescriptor<LCDFont>  (WidgetPropertyCategory.MISC,     "lcd_font",       Messages.WidgetProperties_LcdFont) {
+    public static final WidgetPropertyDescriptor<LCDFont>   propLcdFont        = new WidgetPropertyDescriptor<LCDFont>  (WidgetPropertyCategory.MISC,     "lcd_font",         Messages.WidgetProperties_LcdFont) {
         @Override
         public EnumWidgetProperty<LCDFont> createProperty ( Widget widget, LCDFont defaultValue ) {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
-    public static final WidgetPropertyDescriptor<Boolean>   propLcdVisible     = newBooleanPropertyDescriptor           (WidgetPropertyCategory.MISC,     "lcd_visible",    Messages.WidgetProperties_LcdVisible);
+    public static final WidgetPropertyDescriptor<Boolean>   propLcdVisible     = newBooleanPropertyDescriptor           (WidgetPropertyCategory.MISC,     "lcd_visible",      Messages.WidgetProperties_LcdVisible);
 
     private volatile WidgetProperty<Boolean>   highligh_zones;
     private volatile WidgetProperty<LCDDesign> lcdDesign;
@@ -136,11 +136,11 @@ public abstract class BaseMeterWidget extends BaseGaugeWidget {
 
         super.defineProperties(properties);
 
-        properties.add(highligh_zones = propHighlightZones.createProperty(this, true));
+        properties.add(highligh_zones   = propHighlightZones.createProperty(this, true));
 
-        properties.add(lcdDesign      = propLcdDesign.createProperty(this, LCDDesign.SECTIONS));
-        properties.add(lcdFont        = propLcdFont.createProperty(this, LCDFont.DIGITAL_BOLD));
-        properties.add(lcdVisible     = propLcdVisible.createProperty(this, true));
+        properties.add(lcdDesign        = propLcdDesign.createProperty(this, LCDDesign.SECTIONS));
+        properties.add(lcdFont          = propLcdFont.createProperty(this, LCDFont.DIGITAL_BOLD));
+        properties.add(lcdVisible       = propLcdVisible.createProperty(this, true));
 
     }
 

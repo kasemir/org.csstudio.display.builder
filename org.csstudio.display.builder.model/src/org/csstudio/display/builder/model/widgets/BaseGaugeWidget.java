@@ -42,28 +42,32 @@ import org.w3c.dom.Element;
  */
 public abstract class BaseGaugeWidget extends PVWidget {
 
-    public static final WidgetPropertyDescriptor<Boolean>     propUnitFromPV   = newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "unit_from_pv",  Messages.WidgetProperties_UnitFromPV);
+    public static final WidgetPropertyDescriptor<Boolean>     propAutoScale      = newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "auto_scale",       Messages.WidgetProperties_AutoScale);
+    public static final WidgetPropertyDescriptor<Boolean>     propUnitFromPV     = newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "unit_from_pv",     Messages.WidgetProperties_UnitFromPV);
 
-    public static final WidgetPropertyDescriptor<WidgetColor> propColorHiHi    = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "color_hihi",    Messages.WidgetProperties_ColorHiHi);
-    public static final WidgetPropertyDescriptor<WidgetColor> propColorHigh    = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "color_high",    Messages.WidgetProperties_ColorHigh);
-    public static final WidgetPropertyDescriptor<WidgetColor> propColorLoLo    = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "color_lolo",    Messages.WidgetProperties_ColorLoLo);
-    public static final WidgetPropertyDescriptor<WidgetColor> propColorLow     = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "color_low",     Messages.WidgetProperties_ColorLow);
-    public static final WidgetPropertyDescriptor<Double>      propLevelHiHi    = newDoublePropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "level_hihi",    Messages.WidgetProperties_LevelHiHi);
-    public static final WidgetPropertyDescriptor<Double>      propLevelHigh    = newDoublePropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "level_high",    Messages.WidgetProperties_LevelHigh);
-    public static final WidgetPropertyDescriptor<Double>      propLevelLoLo    = newDoublePropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "level_lolo",    Messages.WidgetProperties_LevelLoLo);
-    public static final WidgetPropertyDescriptor<Double>      propLevelLow     = newDoublePropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "level_low",     Messages.WidgetProperties_LevelLow);
-    public static final WidgetPropertyDescriptor<Boolean>     propShowHiHi     = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "show_hihi",     Messages.WidgetProperties_ShowHiHi);
-    public static final WidgetPropertyDescriptor<Boolean>     propShowHigh     = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "show_high",     Messages.WidgetProperties_ShowHigh);
-    public static final WidgetPropertyDescriptor<Boolean>     propShowLoLo     = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "show_lolo",     Messages.WidgetProperties_ShowLoLo);
-    public static final WidgetPropertyDescriptor<Boolean>     propShowLow      = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "show_low",      Messages.WidgetProperties_ShowLow);
-    public static final WidgetPropertyDescriptor<String>      propTitle        = newStringPropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "title",         Messages.WidgetProperties_Title);
+    public static final WidgetPropertyDescriptor<WidgetColor> propColorHiHi      = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "color_hihi",       Messages.WidgetProperties_ColorHiHi);
+    public static final WidgetPropertyDescriptor<WidgetColor> propColorHigh      = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "color_high",       Messages.WidgetProperties_ColorHigh);
+    public static final WidgetPropertyDescriptor<WidgetColor> propColorLoLo      = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "color_lolo",       Messages.WidgetProperties_ColorLoLo);
+    public static final WidgetPropertyDescriptor<WidgetColor> propColorLow       = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "color_low",        Messages.WidgetProperties_ColorLow);
+    public static final WidgetPropertyDescriptor<Double>      propLevelHiHi      = newDoublePropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "level_hihi",       Messages.WidgetProperties_LevelHiHi);
+    public static final WidgetPropertyDescriptor<Double>      propLevelHigh      = newDoublePropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "level_high",       Messages.WidgetProperties_LevelHigh);
+    public static final WidgetPropertyDescriptor<Double>      propLevelLoLo      = newDoublePropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "level_lolo",       Messages.WidgetProperties_LevelLoLo);
+    public static final WidgetPropertyDescriptor<Double>      propLevelLow       = newDoublePropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "level_low",        Messages.WidgetProperties_LevelLow);
+    public static final WidgetPropertyDescriptor<Boolean>     propShowHiHi       = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "show_hihi",        Messages.WidgetProperties_ShowHiHi);
+    public static final WidgetPropertyDescriptor<Boolean>     propShowHigh       = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "show_high",        Messages.WidgetProperties_ShowHigh);
+    public static final WidgetPropertyDescriptor<Boolean>     propShowLoLo       = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "show_lolo",        Messages.WidgetProperties_ShowLoLo);
+    public static final WidgetPropertyDescriptor<Boolean>     propShowLow        = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "show_low",         Messages.WidgetProperties_ShowLow);
+    public static final WidgetPropertyDescriptor<String>      propTitle          = newStringPropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "title",            Messages.WidgetProperties_Title);
 
-    public static final WidgetPropertyDescriptor<WidgetColor> propTitleColor   = newColorPropertyDescriptor  (WidgetPropertyCategory.MISC,     "title_color",   Messages.WidgetProperties_TitleColor);
-    public static final WidgetPropertyDescriptor<String>      propUnit         = newStringPropertyDescriptor (WidgetPropertyCategory.MISC,     "unit",          Messages.WidgetProperties_Unit);
-    public static final WidgetPropertyDescriptor<WidgetColor> propUnitColor    = newColorPropertyDescriptor  (WidgetPropertyCategory.MISC,     "unit_color",    Messages.WidgetProperties_UnitColor);
-    public static final WidgetPropertyDescriptor<WidgetColor> propValueColor   = newColorPropertyDescriptor  (WidgetPropertyCategory.MISC,     "value_color",   Messages.WidgetProperties_ValueColor);
-    public static final WidgetPropertyDescriptor<Boolean>     propValueVisible = newBooleanPropertyDescriptor(WidgetPropertyCategory.MISC,     "value_visible", Messages.WidgetProperties_ValueVisible);
+    public static final WidgetPropertyDescriptor<Double>      propMajorTickSpace = newDoublePropertyDescriptor (WidgetPropertyCategory.MISC,     "major_tick_space", Messages.WidgetProperties_MajorTickSpace);
+    public static final WidgetPropertyDescriptor<Double>      propMinorTickSpace = newDoublePropertyDescriptor (WidgetPropertyCategory.MISC,     "minor_tick_space", Messages.WidgetProperties_MinorTickSpace);
+    public static final WidgetPropertyDescriptor<WidgetColor> propTitleColor     = newColorPropertyDescriptor  (WidgetPropertyCategory.MISC,     "title_color",      Messages.WidgetProperties_TitleColor);
+    public static final WidgetPropertyDescriptor<String>      propUnit           = newStringPropertyDescriptor (WidgetPropertyCategory.MISC,     "unit",             Messages.WidgetProperties_Unit);
+    public static final WidgetPropertyDescriptor<WidgetColor> propUnitColor      = newColorPropertyDescriptor  (WidgetPropertyCategory.MISC,     "unit_color",       Messages.WidgetProperties_UnitColor);
+    public static final WidgetPropertyDescriptor<WidgetColor> propValueColor     = newColorPropertyDescriptor  (WidgetPropertyCategory.MISC,     "value_color",      Messages.WidgetProperties_ValueColor);
+    public static final WidgetPropertyDescriptor<Boolean>     propValueVisible   = newBooleanPropertyDescriptor(WidgetPropertyCategory.MISC,     "value_visible",    Messages.WidgetProperties_ValueVisible);
 
+    private volatile WidgetProperty<Boolean>     auto_scale;
     private volatile WidgetProperty<WidgetColor> background_color;
     private volatile WidgetProperty<WidgetColor> color_hihi;
     private volatile WidgetProperty<WidgetColor> color_high;
@@ -75,8 +79,10 @@ public abstract class BaseGaugeWidget extends PVWidget {
     private volatile WidgetProperty<Double>      level_lolo;
     private volatile WidgetProperty<Double>      level_low;
     private volatile WidgetProperty<Boolean>     limits_from_pv;
+    private volatile WidgetProperty<Double>      major_tick_space;
     private volatile WidgetProperty<Double>      maximum;
     private volatile WidgetProperty<Double>      minimum;
+    private volatile WidgetProperty<Double>      minor_tick_space;
     private volatile WidgetProperty<Integer>     precision;
     private volatile WidgetProperty<Boolean>     show_high;
     private volatile WidgetProperty<Boolean>     show_hihi;
@@ -103,6 +109,10 @@ public abstract class BaseGaugeWidget extends PVWidget {
     @Override
     public WidgetConfigurator getConfigurator ( final Version persistedVersion ) throws Exception {
         return new BaseGaugeConfigurator(persistedVersion);
+    }
+
+    public WidgetProperty<Boolean> propAutoScale ( ) {
+        return auto_scale;
     }
 
     public WidgetProperty<WidgetColor> propBackgroundColor ( ) {
@@ -149,12 +159,20 @@ public abstract class BaseGaugeWidget extends PVWidget {
         return limits_from_pv;
     }
 
+    public WidgetProperty<Double> propMajorTickSpace ( ) {
+        return major_tick_space;
+    }
+
     public WidgetProperty<Double> propMaximum ( ) {
         return maximum;
     }
 
     public WidgetProperty<Double> propMinimum ( ) {
         return minimum;
+    }
+
+    public WidgetProperty<Double> propMinorTickSpace ( ) {
+        return minor_tick_space;
     }
 
     public WidgetProperty<Integer> propPrecision ( ) {
@@ -214,6 +232,8 @@ public abstract class BaseGaugeWidget extends PVWidget {
 
         super.defineProperties(properties);
 
+        properties.add(auto_scale       = propAutoScale.createProperty(this, true));
+
         properties.add(background_color = propBackgroundColor.createProperty(this, new WidgetColor(255, 254, 253)));
         properties.add(transparent      = propTransparent.createProperty(this, true));
 
@@ -238,6 +258,8 @@ public abstract class BaseGaugeWidget extends PVWidget {
         properties.add(unit_from_pv     = propUnitFromPV.createProperty(this, true));
         properties.add(enabled          = propEnabled.createProperty(this, true));
 
+        properties.add(major_tick_space = propMajorTickSpace.createProperty(this, 10.0));
+        properties.add(minor_tick_space = propMinorTickSpace.createProperty(this, 1.0));
         properties.add(title_color      = propTitleColor.createProperty(this, new WidgetColor(7, 5, 3)));
         properties.add(unit             = propUnit.createProperty(this, ""));
         properties.add(unit_color       = propUnitColor.createProperty(this, new WidgetColor(7, 5, 3)));

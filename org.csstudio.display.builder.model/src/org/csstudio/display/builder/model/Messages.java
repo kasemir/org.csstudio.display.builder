@@ -143,6 +143,7 @@ public class Messages extends NLS
     public static String WidgetProperties_AngleSize;
     public static String WidgetProperties_AngleStart;
     public static String WidgetProperties_ArrayIndex;
+    public static String WidgetProperties_AutoScale;
     public static String WidgetProperties_AutoSize;
     public static String WidgetProperties_Average;
     public static String WidgetProperties_AverageColor;
@@ -228,6 +229,7 @@ public class Messages extends NLS
     public static String WidgetProperties_Locale;
     public static String WidgetProperties_Macros;
     public static String WidgetProperties_MajorTickColor;
+    public static String WidgetProperties_MajorTickSpace;
     public static String WidgetProperties_MajorTickStepHint;
     public static String WidgetProperties_MajorTickType;
     public static String WidgetProperties_MajorTickVisible;
@@ -237,6 +239,7 @@ public class Messages extends NLS
     public static String WidgetProperties_MediumTickVisible;
     public static String WidgetProperties_Minimum;
     public static String WidgetProperties_MinorTickColor;
+    public static String WidgetProperties_MinorTickSpace;
     public static String WidgetProperties_MinorTickType;
     public static String WidgetProperties_MinorTickVisible;
     public static String WidgetProperties_MinuteColor;

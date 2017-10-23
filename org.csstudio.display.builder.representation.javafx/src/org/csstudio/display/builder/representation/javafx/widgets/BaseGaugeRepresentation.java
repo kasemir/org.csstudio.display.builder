@@ -10,7 +10,6 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -29,7 +28,6 @@ import eu.hansolo.medusa.Gauge;
 import eu.hansolo.medusa.GaugeBuilder;
 import eu.hansolo.medusa.Section;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 
 /**
  * @author claudiorosati, European Spallation Source ERIC
@@ -58,75 +56,36 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
 
         super.updateChanges();
 
-        Object value;
-
         if ( dirtyGeometry.checkAndClear() ) {
-
-            value = model_widget.propVisible().getValue();
-
-            if ( !Objects.equals(value, jfx_node.isVisible()) ) {
-                jfx_node.setVisible((boolean) value);
-            }
-
+            jfx_node.setVisible(model_widget.propVisible().getValue());
             jfx_node.setLayoutX(model_widget.propX().getValue());
             jfx_node.setLayoutY(model_widget.propY().getValue());
             jfx_node.setPrefWidth(model_widget.propWidth().getValue());
             jfx_node.setPrefHeight(model_widget.propHeight().getValue());
-
         }
 
         if ( dirtyLook.checkAndClear() ) {
 
-            value = JFXUtil.convert(model_widget.propBackgroundColor().getValue());
+            Color bgColor = JFXUtil.convert(model_widget.propBackgroundColor().getValue());
 
             if ( model_widget.propTransparent().getValue() ) {
-                value = ((Color) value).deriveColor(0, 1, 1, 0);
+                bgColor = bgColor.deriveColor(0, 1, 1, 0);
             }
 
-            if ( !Objects.equals(value, jfx_node.getBackgroundPaint()) ) {
-                jfx_node.setBackgroundPaint((Paint) value);
-            }
-
-            value = model_widget.propTitle().getValue();
-
-            if ( !Objects.equals(value, jfx_node.getTitle()) ) {
-                jfx_node.setTitle((String) value);
-            }
-
-            value = JFXUtil.convert(model_widget.propTitleColor().getValue());
-
-            if ( !Objects.equals(value, jfx_node.getTitleColor()) ) {
-                jfx_node.setTitleColor((Color) value);
-            }
-
-            value = JFXUtil.convert(model_widget.propUnitColor().getValue());
-
-            if ( !Objects.equals(value, jfx_node.getUnitColor()) ) {
-                jfx_node.setUnitColor((Color) value);
-            }
-
-            value = JFXUtil.convert(model_widget.propValueColor().getValue());
-
-            if ( !Objects.equals(value, jfx_node.getValueColor()) ) {
-                jfx_node.setValueColor((Color) value);
-            }
-
-            value = model_widget.propValueVisible().getValue();
-
-            if ( !Objects.equals(value, jfx_node.isValueVisible()) ) {
-                jfx_node.setValueVisible((boolean) value);
-            }
+            jfx_node.setAutoScale(model_widget.propAutoScale().getValue());
+            jfx_node.setBackgroundPaint(bgColor);
+            jfx_node.setMajorTickSpace(model_widget.propMajorTickSpace().getValue());
+            jfx_node.setMinorTickSpace(model_widget.propMinorTickSpace().getValue());
+            jfx_node.setTitle(model_widget.propTitle().getValue());
+            jfx_node.setTitleColor(JFXUtil.convert(model_widget.propTitleColor().getValue()));
+            jfx_node.setUnitColor(JFXUtil.convert(model_widget.propUnitColor().getValue()));
+            jfx_node.setValueColor(JFXUtil.convert(model_widget.propValueColor().getValue()));
+            jfx_node.setValueVisible(model_widget.propValueVisible().getValue());
 
         }
 
         if ( dirtyContent.checkAndClear() ) {
-
-            value = FormatOptionHandler.actualPrecision(model_widget.runtimePropValue().getValue(), model_widget.propPrecision().getValue());
-
-            if ( !Objects.equals(value, jfx_node.getDecimals()) ) {
-                jfx_node.setDecimals((int) value);
-            }
-
+            jfx_node.setDecimals(FormatOptionHandler.actualPrecision(model_widget.runtimePropValue().getValue(), model_widget.propPrecision().getValue()));
         }
 
         if ( dirtyLimits.checkAndClear() ) {
@@ -141,17 +100,7 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         }
 
         if ( dirtyStyle.checkAndClear() ) {
-
-            value = model_widget.propEnabled().getValue();
-
-            if ( !Objects.equals(value, enabled) ) {
-
-                enabled = (boolean) value;
-
-                Styles.update(jfx_node, Styles.NOT_ENABLED, !enabled);
-
-            }
-
+            Styles.update(jfx_node, Styles.NOT_ENABLED, !model_widget.propEnabled().getValue());
         }
 
         if ( dirtyValue.checkAndClear() && updatingValue.compareAndSet(false, true) ) {
@@ -201,7 +150,7 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         jfx_node.setPrefHeight(model_widget.propHeight().getValue());
 
         jfx_node.setAnimated(false);
-        jfx_node.setAutoScale(true);
+        jfx_node.setAutoScale(model_widget.propAutoScale().getValue());
         jfx_node.setBackgroundPaint(model_widget.propTransparent().getValue() ? Color.TRANSPARENT : JFXUtil.convert(model_widget.propBackgroundColor().getValue()));
         jfx_node.setCheckAreasForValue(false);
         jfx_node.setCheckSectionsForValue(false);
@@ -211,6 +160,8 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         jfx_node.setInnerShadowEnabled(false);
         jfx_node.setInteractive(false);
         jfx_node.setLedVisible(false);
+        jfx_node.setMajorTickSpace(model_widget.propMajorTickSpace().getValue());
+        jfx_node.setMinorTickSpace(model_widget.propMinorTickSpace().getValue());
         jfx_node.setReturnToZero(false);
         jfx_node.setSectionIconsVisible(false);
         jfx_node.setSectionTextVisible(false);
@@ -235,7 +186,7 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
                 //  Previous properties must be set first.
                 //--------------------------------------------------------
                 .animated(false)
-                .autoScale(true)
+                .autoScale(model_widget.propAutoScale().getValue())
                 .backgroundPaint(model_widget.propTransparent().getValue() ? Color.TRANSPARENT : JFXUtil.convert(model_widget.propBackgroundColor().getValue()))
                 .checkAreasForValue(false)
                 .checkSectionsForValue(false)
@@ -245,8 +196,10 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
                 .innerShadowEnabled(false)
                 .interactive(false)
                 .ledVisible(false)
+                .majorTickSpace(model_widget.propMajorTickSpace().getValue())
                 .maxValue(max)
                 .minValue(min)
+                .minorTickSpace(model_widget.propMinorTickSpace().getValue())
                 .returnToZero(false)
                 .sectionIconsVisible(false)
                 .sectionTextVisible(false)
@@ -356,7 +309,10 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         model_widget.propWidth().addUntypedPropertyListener(this::geometryChanged);
         model_widget.propHeight().addUntypedPropertyListener(this::geometryChanged);
 
+        model_widget.propAutoScale().addUntypedPropertyListener(this::lookChanged);
         model_widget.propBackgroundColor().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propMajorTickSpace().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propMinorTickSpace().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTitle().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTitleColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTransparent().addUntypedPropertyListener(this::lookChanged);
