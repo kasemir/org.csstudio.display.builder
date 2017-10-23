@@ -77,15 +77,31 @@ public class TankWidget extends PVWidget
             if (! super.configureFromXML(model_reader, widget, xml))
                 return false;
 
-            final TankWidget tank = (TankWidget) widget;
+            if (xml_version.getMajor() < 2)
+            {
+                final TankWidget tank = (TankWidget) widget;
 
-            Element element = XMLUtil.getChildElement(xml, "color_fillbackground");
-            if (element != null)
-                tank.empty_color.readFromXML(model_reader, element);
+                Element element = XMLUtil.getChildElement(xml, "color_fillbackground");
+                if (element != null)
+                    tank.empty_color.readFromXML(model_reader, element);
 
-            element = XMLUtil.getChildElement(xml, "scale_font");
-            if (element != null)
-                tank.font.readFromXML(model_reader, element);
+                element = XMLUtil.getChildElement(xml, "scale_font");
+                if (element != null)
+                    tank.font.readFromXML(model_reader, element);
+
+                if (XMLUtil.getChildBoolean(xml, "show_markers").orElse(true)  &&
+                    (XMLUtil.getChildBoolean(xml, "show_hi").orElse(true)   ||
+                     XMLUtil.getChildBoolean(xml, "show_hihi").orElse(true) ||
+                     XMLUtil.getChildBoolean(xml, "show_lo").orElse(true)   ||
+                     XMLUtil.getChildBoolean(xml, "show_lolo").orElse(true)))
+                {   // There was at least one marker,
+                    // but this widget is not supporting the legacy markers.
+                    // -> Adjust width so that tank uses roughly the same space,
+                    //    _not_ extending into the region that used to be occupied
+                    //    by the markers.
+                    tank.propWidth().setValue(Math.max(tank.propWidth().getValue() - 50, 50));
+                }
+            }
 
             return true;
         }
