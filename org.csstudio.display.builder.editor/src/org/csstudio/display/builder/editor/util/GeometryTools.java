@@ -87,6 +87,17 @@ public class GeometryTools
                                widget.propHeight().getValue());
     }
 
+    /** Get bounds of widgets relative to container
+     *  @param widgets Model widgets
+     *  @return {@link Rectangle2D}
+     */
+    public static Rectangle2D getBounds(final Collection<Widget> widgets)
+    {
+        return widgets.stream()
+                      .map(GeometryTools::getBounds)
+                      .reduce(null, GeometryTools::join);
+    }
+
     /** Get bounds of widget relative to display model
      *  @param widget Model widget
      *  @return {@link Rectangle2D}

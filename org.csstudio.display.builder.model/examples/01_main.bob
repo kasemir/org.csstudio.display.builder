@@ -283,6 +283,21 @@ then press &lt;SPACE&gt; to activate button.</text>
     <tooltip>$(actions)</tooltip>
   </widget>
   <widget type="action_button" version="3.0.0">
+    <name>Action Button_34</name>
+    <actions>
+      <action type="open_display">
+        <file>monitors_tank.bob</file>
+        <target>replace</target>
+        <description>Tank</description>
+      </action>
+    </actions>
+    <x>330</x>
+    <y>240</y>
+    <width>120</width>
+    <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
     <name>Action Button_27</name>
     <actions>
       <action type="open_display">
@@ -292,7 +307,7 @@ then press &lt;SPACE&gt; to activate button.</text>
       </action>
     </actions>
     <x>330</x>
-    <y>240</y>
+    <y>280</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -307,7 +322,7 @@ then press &lt;SPACE&gt; to activate button.</text>
       </action>
     </actions>
     <x>330</x>
-    <y>280</y>
+    <y>320</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -322,7 +337,7 @@ then press &lt;SPACE&gt; to activate button.</text>
       </action>
     </actions>
     <x>330</x>
-    <y>320</y>
+    <y>360</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>

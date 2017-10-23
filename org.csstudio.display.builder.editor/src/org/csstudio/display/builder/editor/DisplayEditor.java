@@ -452,7 +452,7 @@ public class DisplayEditor
             if (container instanceof ArrayWidget)
             {
                 if (target.getValue().isEmpty())
-                { //drop first widget into ArrayWidget
+                {   // Drop first widget into ArrayWidget
                     Widget widget = it.next();
                     widget.propX().setValue(widget.propX().getValue() - dx);
                     widget.propY().setValue(widget.propY().getValue() - dy);
@@ -460,11 +460,11 @@ public class DisplayEditor
                     undo.execute(new AddWidgetAction(selection, target, widget));
                 }
 
-                //hide highlight, since not adding to ArrayWidget container
+                // Hide highlight, since not adding to ArrayWidget container
                 if (it.hasNext())
                     group_handler.hide();
 
-                //re-assign target, container, etc. to use ArrayWidget's parent
+                // Re-assign target, container, etc. to use ArrayWidget's parent
                 target = ChildrenProperty.getParentsChildren(container);
                 container = target.getWidget();
                 offset = GeometryTools.getContainerOffset(container);
@@ -572,7 +572,7 @@ public class DisplayEditor
      *  @param x Desired coordinate of upper-left widget ..
      *  @param y .. when pasted
      */
-    public void pasteFromClipboard(final int x, final int y)
+    public void pasteFromClipboard(final int x, int y)
     {
         if (selection_tracker.isInlineEditorActive())
             return;
@@ -585,12 +585,21 @@ public class DisplayEditor
         if (! (xml.startsWith("<?xml")  &&
                xml.contains("<display")))
             return;
+
+        // Correct the y coordinate, measured inside this editor,
+        // by height of toolbar
+        y -= toolbar.getHeight();
+
         try
         {
             final DisplayModel model = ModelReader.parseXML(xml);
             final List<Widget> widgets = model.getChildren();
             logger.log(Level.FINE, "Pasted {0} widgets", widgets.size());
+
             GeometryTools.moveWidgets(x, y, widgets);
+            final Rectangle2D bounds = GeometryTools.getBounds(widgets);
+            // Potentially activate group at drop point
+            group_handler.locateParent(x, y, bounds.getWidth(), bounds.getHeight());
             addWidgets(widgets);
         }
         catch (Exception ex)

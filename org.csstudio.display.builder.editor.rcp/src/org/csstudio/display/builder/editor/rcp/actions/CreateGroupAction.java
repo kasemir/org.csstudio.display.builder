@@ -45,10 +45,13 @@ public class CreateGroupAction extends Action
     {
         editor.getWidgetSelectionHandler().clear();
 
+        // Create group that surrounds the original widget boundaries
         final GroupWidget group = new GroupWidget();
 
-        // Create group that surrounds the original widget boundaries
-        final Rectangle2D rect = GeometryTools.getDisplayBounds(widgets);
+        // Get bounds of widgets relative to their container,
+        // which might be a group within the display
+        // or the display itself
+        final Rectangle2D rect = GeometryTools.getBounds(widgets);
 
         // Inset depends on representation and changes with group style and font.
         // Can be obtained via group.runtimePropInsets() _after_ the group has
