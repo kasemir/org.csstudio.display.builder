@@ -82,6 +82,6 @@ public class LinearTicksTest extends TicksTestBase
         System.out.println("Ticks for " + start + " .. " + end + ":");
         final String text = ticks2text(ticks);
         System.out.println(text);
-        assertThat(text, equalTo("9600 9200 8800 8400 '8000' 7600 7200 6800 6400 '6000' 5600 5200 4800 4400 '4000' 3600 3200 2800 2400 '2000' 1600 1200 800 400 "));
+        assertThat(text, equalTo("'10000' 9600 9200 8800 8400 '8000' 7600 7200 6800 6400 '6000' 5600 5200 4800 4400 '4000' 3600 3200 2800 2400 '2000' 1600 1200 800 400 "));
     }
 }
