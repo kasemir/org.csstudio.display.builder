@@ -7,19 +7,22 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
+import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
+
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 
+import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetFactory;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.ArrayWidget;
+import org.csstudio.display.builder.model.widgets.GroupWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
 import javafx.geometry.Insets;
@@ -34,7 +37,7 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 
-@SuppressWarnings({ "nls", "static-access" })
+@SuppressWarnings("nls")
 public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget>
 {
     private final DirtyFlag dirty_number = new DirtyFlag(); //number of element widgets
@@ -42,7 +45,12 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
 
     private static final int inset = 10;
 
-    private CopyOnWriteArrayList<Widget> children = new CopyOnWriteArrayList<>();
+    // TODO Simplify handling of children
+    // Can 'children' be replaced by calls to runtimeChildren()?
+    // As array size changes, copyProperties() is called multiple times
+    // because widgets are added to 'children' and then runtimeChildren() is updated,
+    // triggering its listener.
+    private final CopyOnWriteArrayList<Widget> children = new CopyOnWriteArrayList<>();
     private volatile int numChildren = 0, width = 0, height = 0;
     private volatile boolean isArranging = false, isAddingRemoving = false;
     private volatile Widget master = null;
@@ -133,27 +141,19 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
     }
 
     private void childrenChanged(final WidgetProperty<List<Widget>> property, final List<Widget> removed,
-            final List<Widget> added)
+                                 final List<Widget> added)
     {
-        List<Widget> newval = new ArrayList<Widget>(model_widget.runtimeChildren().getValue());
+        final List<Widget> newval = new ArrayList<Widget>(model_widget.runtimeChildren().getValue());
         if (!isAddingRemoving)
         {
             numChildren = newval.size();
             dirty_number.mark();
             toolkit.scheduleUpdate(this);
-            if (added != null && !added.isEmpty() && !added.get(0).checkProperty("pv_name").isPresent())
-            {
-                toolkit.logger
-                        .warning("Element " + added.get(0) + " added to " + model_widget
-                                + " has no 'pv_name' property.");
-            }
         }
         if (added != null)
         {
             for (Widget widget : added)
-            {
                 addChildListeners(widget);
-            }
             //trigger child (element) listeners to copy properties of existing widgets
             if (!added.isEmpty()) //implies !newval.isEmpty()
             {
@@ -165,15 +165,14 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
         else //removed != null
             for (Widget widget : removed)
                 removeChildListeners(widget);
-        children = new CopyOnWriteArrayList<>(newval);
+        children.clear();
+        children.addAll(newval);
     }
 
     private void addChildListeners(Widget widget)
     {
-        Iterator<WidgetProperty<?>> it = widget.getProperties().iterator();
-        while (it.hasNext())
+        for (WidgetProperty<?> prop : widget.getProperties())
         {
-            WidgetProperty<?> prop = it.next();
             if (!prop.getCategory().equals(model_widget.runtimeChildren().getCategory())
                     && (!prop.getCategory().equals(model_widget.propHeight().getCategory())
                             || prop.getName().equals(model_widget.propVisible().getName()))
@@ -185,22 +184,16 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
             }
             else if (prop.getCategory().equals(model_widget.propHeight().getCategory())
                     && !prop.getName().equals(model_widget.propVisible().getCategory()))
-            {
                 prop.addUntypedPropertyListener(rearrange);
-            }
             if (prop.getName().equals("horizontal"))
-            {
                 prop.addUntypedPropertyListener(rearrange);
-            }
         }
     }
 
     private void removeChildListeners(Widget widget)
     {
-        Iterator<WidgetProperty<?>> it = widget.getProperties().iterator();
-        while (it.hasNext())
+        for (WidgetProperty<?> prop : widget.getProperties())
         {
-            WidgetProperty<?> prop = it.next();
             if (!prop.getCategory().equals(model_widget.runtimeChildren().getCategory())
                     && (!prop.getCategory().equals(model_widget.propHeight().getCategory())
                             || prop.getName().equals(model_widget.propVisible().getName()))
@@ -212,17 +205,13 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
             }
             else if (prop.getCategory().equals(model_widget.propHeight().getCategory())
                     && !prop.getName().equals(model_widget.propVisible().getCategory()))
-            {
                 prop.removePropertyListener(rearrange);
-            }
             if (prop.getName().equals("horizontal"))
-            {
                 prop.removePropertyListener(rearrange);
-            }
         }
     }
 
-    UntypedWidgetPropertyListener listener = (p, o, n) ->
+    private final UntypedWidgetPropertyListener listener = (p, o, n) ->
     {
         //toolkit.logger.finest("Array widget listener called: " + p.getWidget() + " " + p);
         if (!isArranging)
@@ -236,14 +225,15 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
                 try
                 {
                     w.setPropertyValue(name, value);
-                } catch (Exception ignored)
+                }
+                catch (Exception ignored)
                 {
                 }
             }
         }
     };
 
-    UntypedWidgetPropertyListener rearrange = (p, o, n) ->
+    private final UntypedWidgetPropertyListener rearrange = (p, o, n) ->
     {
         if (!isArranging)
         {
@@ -335,63 +325,94 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
         toolkit.scheduleUpdate(this);
     }
 
-    private void addChildren(List<Widget> children, int number)
+    /** Add more per-element child widgets
+     *  @param children Child widgets, must contain at least element [0] for prototype
+     *  @param number Number to add
+     */
+    private void addChildren(final List<Widget> children, final int number)
     {
-        if (number > 0 && !children.isEmpty())
+        if (children.isEmpty())
         {
-            Widget child = copyWidget(children.get(0));
+            logger.log(Level.WARNING, "Cannot add array elements, no prototype widget");
+            return;
+        }
+        for (int i=0; i<number; ++i)
+        {
+            final Widget child = copyWidget(children.get(0));
             child.propName().setValue(model_widget.getName() + "-" + child.getType() + "-" + this.children.size());
-            if (child != null)
-            {
-                model_widget.runtimeChildren().addChild(child);
-                addChildren(children, number - 1);
-            }
+            model_widget.runtimeChildren().addChild(child);
         }
     }
 
-    private void removeChildren(List<Widget> children, int number)
+    /** Remove per-element child widgets
+     *  @param children Child widgets, will retain at least one entry for prototype
+     *  @param number Number to remove
+     */
+    private void removeChildren(final List<Widget> children, int number)
     {
-        if (number > 0 && children.size() > 1)
-        {
-            Widget child = children.remove(children.size() - 1);
+        for (int i=0; i<number; ++i)
+        {   // Leave the prototype
+            if (children.size() == 1)
+                return;
+            final Widget child = children.remove(children.size() - 1);
             model_widget.runtimeChildren().removeChild(child);
-            removeChildren(children, number - 1);
         }
     }
 
-    private Widget copyWidget(Widget original)
+    private Widget copyWidget(final Widget original)
     {
         try
         {
-            Widget copy = WidgetFactory.getInstance().getWidgetDescriptor(original.getType()).createWidget();
+            final Widget copy = WidgetFactory.getInstance().getWidgetDescriptor(original.getType()).createWidget();
             copyProperties(original, copy);
             return copy;
-        } catch (Exception e)
+        }
+        catch (Exception ex)
         {
-            e.printStackTrace();
+            logger.log(Level.WARNING, "Cannot copy " + original, ex);
         }
         return null;
     }
 
-    private void copyProperties(Widget original, Widget copy)
+    private void copyProperties(final Widget original, final Widget copy)
     {
         if (original.equals(copy))
             return;
-        Iterator<WidgetProperty<?>> it = copy.getProperties().iterator();
-        while (it.hasNext())
+
+        // Copy (most) properties onto matching name in copy
+        for (WidgetProperty<?> prop : copy.getProperties())
         {
-            final WidgetProperty<?> prop = it.next();
+            // Don't change the 'name' property
             if (prop.getName().equals(original.propName().getName()))
                 continue;
+
+            // Don't copy the 'children' of a GroupWidget
+            if (prop.getName().equals(ChildrenProperty.DESCRIPTOR.getName()))
+                continue;
+
             try
             {
-                final String name = prop.getName();
-                prop.setValue(original.getPropertyValue(name));
-            } catch (Exception e)
+                final String prop_name = prop.getName();
+                prop.setValue(original.getPropertyValue(prop_name));
+            }
+            catch (Exception ex)
             {
-                toolkit.logger.log(Level.WARNING, "Cannot copy " + original + " " + prop, e);
+                logger.log(Level.WARNING, "Cannot copy " + original + " " + prop, ex);
             }
         }
-    }
 
+        // For a Group widget, copy the child widgets
+        if (original instanceof GroupWidget)
+        {
+            final GroupWidget orig_group = (GroupWidget) original;
+            final GroupWidget copy_group = (GroupWidget) copy;
+
+            // Remove existing child elements
+            while (copy_group.runtimeChildren().getValue().size() > 0)
+                copy_group.runtimeChildren().removeChild(copy_group.runtimeChildren().getValue().get(0));
+            // Set child elements from original group
+            for (Widget child : orig_group.runtimeChildren().getValue())
+                copy_group.runtimeChildren().addChild(copyWidget(child));
+        }
+    }
 }

@@ -77,7 +77,7 @@ public class ArrayWidget extends PVWidget
 
     public ArrayWidget()
     {
-        super(WIDGET_DESCRIPTOR.getType(), 400, 300);
+        super(WIDGET_DESCRIPTOR.getType(), 100, 300);
     }
 
     @Override
