@@ -16,6 +16,7 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.ToDoubleFunction;
@@ -617,11 +618,13 @@ public class ImagePlot extends PlotCanvasBase
         if (numbers != null)
         {
             // Paint the image
-            final BufferedImage unscaled = !isRGB ?
+            gc.setClip(image_area.x, image_area.y, image_area.width, image_area.height);
+            final Object image_or_error =  !isRGB ?
             		drawData(data_width, data_height, numbers, next_sample_func, min, max, color_mapping) :
         			drawDataRGB(data_width, data_height, numbers, next_rgb, type);
-            if (unscaled != null)
+            if (image_or_error instanceof BufferedImage)
             {
+                final BufferedImage unscaled = (BufferedImage) image_or_error;
                 // Transform from full axis range into data range,
                 // using the current 'zoom' state of each axis
                 final LinearScreenTransform t = new LinearScreenTransform();
@@ -662,13 +665,18 @@ public class ImagePlot extends PlotCanvasBase
                         // to avoid artifacts from statistically picking some specific nearest neighbor
                         gc.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
                 }
-                gc.setClip(image_area.x, image_area.y, image_area.width, image_area.height);
                 gc.drawImage(unscaled,
                              dst_x1, dst_y1, dst_x2, dst_y2,
                              src_x1,  src_y1,  src_x2,  src_y2,
                              /* ImageObserver */ null);
-                gc.setClip(0, 0, area_copy.width, area_copy.height);
             }
+            else
+            {
+                gc.setColor(Color.RED);
+                gc.setFont(x_axis.label_font);
+                gc.drawString(Objects.toString(image_or_error), image_area.x+10, image_area.y + 20);
+            }
+            gc.setClip(0, 0, area_copy.width, area_copy.height);
         }
 
         // Axes
@@ -787,9 +795,9 @@ public class ImagePlot extends PlotCanvasBase
      *  @param min
      *  @param max
      *  @param color_mapping
-     *  @return {@link BufferedImage}, sized to match data
+     *  @return {@link BufferedImage}, sized to match data or String with error message
      */
-    private BufferedImage drawData(final int data_width, final int data_height, final ListNumber numbers,
+    private Object drawData(final int data_width, final int data_height, final ListNumber numbers,
                                    final ToDoubleFunction<IteratorNumber> next_sample_func,
                                    double min, double max, final ColorMappingFunction color_mapping)
     {
@@ -798,24 +806,17 @@ public class ImagePlot extends PlotCanvasBase
         if (data_width <= 0  ||  data_height <= 0)
         {
             // With invalid size, cannot create a BufferedImage, not even for the error message
-            logger.log(Level.WARNING, "Cannot draw image sized {0} x {1}", new Object[] { data_width, data_height });
-            return null;
+            return "Cannot draw image sized " + data_width + " x " + data_height;
         }
 
         final BufferUtil buffer = data_buffers.getBufferedImage(data_width, data_height);
         if (buffer == null)
-            return null;
+            return "Cannot get buffer";
         final BufferedImage image = buffer.getImage();
         if (numbers.size() < data_width * data_height)
-        {
-            final String message = "Image sized " + data_width + " x " + data_height +
-                                   " received only " + numbers.size() + " data samples";
-            logger.log(Level.WARNING, message);
-            final Graphics2D gc = buffer.getGraphics();
-            gc.setColor(Color.RED);
-            gc.drawString(message, 0, 10);
-            return image;
-        }
+            return "Image sized " + data_width + " x " + data_height +
+                   " received only " + numbers.size() + " data samples";
+
         if (!  (min < max))  // Implies min and max being finite, not-NaN
         {
             logger.log(Level.WARNING, "Invalid value range {0} .. {1}", new Object[] { min, max });
@@ -883,30 +884,22 @@ public class ImagePlot extends PlotCanvasBase
      *  @param type RGB type (RGB1, RGB2, or RGB3)
      *  @return {@link BufferedImage}, sized to match data
      */
-    private BufferedImage drawDataRGB(final int data_width, final int data_height, final ListNumber numbers,
+    private Object drawDataRGB(final int data_width, final int data_height, final ListNumber numbers,
                                       final ToIntFunction<IteratorNumber> next_rgbs [], final VImageType type)
     {
         if (data_width <= 0  ||  data_height <= 0)
         {
             // With invalid size, cannot create a BufferedImage, not even for the error message
-            logger.log(Level.WARNING, "Cannot draw image sized {0} x {1}", new Object[] { data_width, data_height });
-            return null;
+            return "Cannot draw image sized " + data_width + " x " + data_height;
         }
 
         final BufferUtil buffer = data_buffers.getBufferedImage(data_width, data_height);
         if (buffer == null)
-            return null;
+            return "Cannot get buffer";
         final BufferedImage image = buffer.getImage();
         if (numbers.size() < data_width * data_height * 3)
-        {
-            final String message = "RGB image sized " + data_width + " x " + data_height +
-                                   " received only " + numbers.size() + " data samples";
-            logger.log(Level.WARNING, message);
-            final Graphics2D gc = buffer.getGraphics();
-            gc.setColor(Color.RED);
-            gc.drawString(message, 0, 10);
-            return image;
-        }
+            return "RGB image sized " + data_width + " x " + data_height +
+                   " received only " + numbers.size() + " data samples";
 
         // Using direct access to 'int' pixels in data buffer for speed. See other drawData() for details.
         final int[] data = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
