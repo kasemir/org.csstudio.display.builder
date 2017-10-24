@@ -13,6 +13,8 @@ import java.util.Objects;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.persist.NamedWidgetColors;
+import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.widgets.GaugeWidget;
 import org.csstudio.display.builder.model.widgets.GaugeWidget.Skin;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
@@ -87,17 +89,25 @@ public class GaugeRepresentation extends BaseGaugeRepresentation<GaugeWidget> {
     @Override
     protected Gauge createJFXNode ( ) throws Exception {
 
-        Gauge.SkinType skinType = Gauge.SkinType.valueOf(model_widget.propSkin().getValue().name());
-        Gauge gauge = super.createJFXNode(skinType);
+        try {
 
-        gauge.setBarBackgroundColor(JFXUtil.convert(model_widget.propBarBackgroundColor().getValue()));
-        gauge.setBarColor(JFXUtil.convert(model_widget.propBarColor().getValue()));
-        gauge.setHighlightSections(false);
-        gauge.setStartFromZero(model_widget.propStartFromZero().getValue());
-        gauge.setTickLabelColor(Color.WHITE);
+            Gauge gauge = super.createJFXNode();
 
-        return gauge;
+            gauge.setHighlightSections(false);
+            gauge.setTickLabelColor(JFXUtil.convert(WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
 
+            return gauge;
+
+        } finally {
+            dirtyLook.mark();
+            toolkit.scheduleUpdate(this);
+        }
+
+    }
+
+    @Override
+    protected Gauge.SkinType getSkin() {
+        return Gauge.SkinType.valueOf(model_widget.propSkin().getValue().name());
     }
 
     @Override

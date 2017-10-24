@@ -56,14 +56,18 @@ public abstract class BaseMeterRepresentation<W extends BaseMeterWidget> extends
     @Override
     protected Gauge createJFXNode ( ) throws Exception {
 
-        Gauge gauge = super.createJFXNode(Gauge.SkinType.LINEAR);
+        try {
 
-        gauge.setLcdDesign(LcdDesign.valueOf(model_widget.propLcdDesign().getValue().name()));
-        gauge.setLcdFont(LcdFont.valueOf(model_widget.propLcdFont().getValue().name()));
-        gauge.setLcdVisible(model_widget.propLcdVisible().getValue());
-        gauge.setNeedleBehavior(Gauge.NeedleBehavior.STANDARD);
+            Gauge gauge = super.createJFXNode();
 
-        return gauge;
+            gauge.setNeedleBehavior(Gauge.NeedleBehavior.STANDARD);
+
+            return gauge;
+
+        } finally {
+            dirtyLook.mark();
+            toolkit.scheduleUpdate(this);
+        }
 
     }
 

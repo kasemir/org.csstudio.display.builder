@@ -12,6 +12,7 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -145,6 +146,11 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
                 toolkit.fireWrite(model_widget, newValue);
             }
         });
+
+        toolkit.schedule( ( ) -> {
+            jfx_node.setPrefWidth(model_widget.propWidth().getValue());
+            jfx_node.setPrefHeight(model_widget.propHeight().getValue());
+        }, 111, TimeUnit.MILLISECONDS);
 
         dirtyContent.mark();
         dirtyGeometry.mark();

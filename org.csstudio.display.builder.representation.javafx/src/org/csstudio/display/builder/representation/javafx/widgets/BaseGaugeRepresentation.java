@@ -42,7 +42,6 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
     private final DirtyFlag               dirtyStyle    = new DirtyFlag();
     private final DirtyFlag               dirtyUnit     = new DirtyFlag();
     private final DirtyFlag               dirtyValue    = new DirtyFlag();
-    private volatile boolean              enabled       = true;
     private volatile double               high          = Double.NaN;
     private volatile double               hihi          = Double.NaN;
     private volatile double               lolo          = Double.NaN;
@@ -174,58 +173,51 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
 
     }
 
-    protected Gauge createJFXNode ( Gauge.SkinType skin ) throws Exception {
+    @Override
+    protected Gauge createJFXNode ( ) throws Exception {
 
         updateLimits();
 
-        Gauge gauge = GaugeBuilder.create()
-                .skinType(skin)
-                .prefHeight(model_widget.propHeight().getValue())
-                .prefWidth(model_widget.propWidth().getValue())
-                //--------------------------------------------------------
-                //  Previous properties must be set first.
-                //--------------------------------------------------------
-                .animated(false)
-                .autoScale(model_widget.propAutoScale().getValue())
-                .backgroundPaint(model_widget.propTransparent().getValue() ? Color.TRANSPARENT : JFXUtil.convert(model_widget.propBackgroundColor().getValue()))
-                .checkAreasForValue(false)
-                .checkSectionsForValue(false)
-                .checkThreshold(false)
-                .decimals(FormatOptionHandler.actualPrecision(model_widget.runtimePropValue().getValue(), model_widget.propPrecision().getValue()))
-                .highlightAreas(false)
-                .innerShadowEnabled(false)
-                .interactive(false)
-                .ledVisible(false)
-                .majorTickSpace(model_widget.propMajorTickSpace().getValue())
-                .maxValue(max)
-                .minValue(min)
-                .minorTickSpace(model_widget.propMinorTickSpace().getValue())
-                .returnToZero(false)
-                .sectionIconsVisible(false)
-                .sectionTextVisible(false)
-                .sections(createZones())
-                .sectionsVisible(areZonesVisible())
-                .title(model_widget.propTitle().getValue())
-                .titleColor(JFXUtil.convert(model_widget.propTitleColor().getValue()))
-                .unit(model_widget.propUnit().getValue())
-                .unitColor(JFXUtil.convert(model_widget.propUnitColor().getValue()))
-                .value(( max + min ) / 2.0)
-                .valueColor(JFXUtil.convert(model_widget.propValueColor().getValue()))
-                .valueVisible(model_widget.propValueVisible().getValue())
-                .build();
+        Gauge gauge = createJFXNode(getSkin());
 
-        enabled = model_widget.propEnabled().getValue();
-
-        Styles.update(gauge, Styles.NOT_ENABLED, !enabled);
-
-        //  TODO: CR: It should not be necessary, but it doesn't work otherwise
-        toolkit.schedule(() -> {
+        toolkit.schedule( ( ) -> {
             jfx_node.setPrefWidth(model_widget.propWidth().getValue());
             jfx_node.setPrefHeight(model_widget.propHeight().getValue());
         }, 111, TimeUnit.MILLISECONDS);
 
+        dirtyContent.mark();
+        dirtyGeometry.mark();
+        dirtyLimits.mark();
+        dirtyLook.mark();
+        dirtyStyle.mark();
+        dirtyUnit.mark();
+        dirtyValue.mark();
+        toolkit.scheduleUpdate(this);
+
         return gauge;
 
+    }
+
+    protected Gauge createJFXNode ( Gauge.SkinType skin ) throws Exception {
+        return GaugeBuilder.create()
+            .skinType(skin)
+            .prefHeight(model_widget.propHeight().getValue())
+            .prefWidth(model_widget.propWidth().getValue())
+            //--------------------------------------------------------
+            //  Previous properties must be set first.
+            //--------------------------------------------------------
+            .animated(false)
+            .checkAreasForValue(false)
+            .checkSectionsForValue(false)
+            .checkThreshold(false)
+            .highlightAreas(false)
+            .innerShadowEnabled(false)
+            .interactive(false)
+            .ledVisible(false)
+            .returnToZero(false)
+            .sectionIconsVisible(false)
+            .sectionTextVisible(false)
+            .build();
     }
 
     /**
@@ -271,6 +263,8 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         return sections.toArray(new Section[sections.size()]);
 
     }
+
+    protected abstract Gauge.SkinType getSkin();
 
     /**
      * @return The unit string to be displayed.
