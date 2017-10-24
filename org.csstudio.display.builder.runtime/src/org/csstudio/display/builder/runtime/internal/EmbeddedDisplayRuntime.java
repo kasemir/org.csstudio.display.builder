@@ -8,7 +8,7 @@
 package org.csstudio.display.builder.runtime.internal;
 
 import org.csstudio.display.builder.model.DisplayModel;
-import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.csstudio.display.builder.runtime.WidgetRuntime;
@@ -23,18 +23,7 @@ import org.csstudio.display.builder.runtime.WidgetRuntime;
  */
 public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
 {
-    /** Start: Connect to PVs, ..., then monitor the embedded model to start/stop it
-     *  @throws Exception on error
-     */
-    @Override
-    public void start() throws Exception
-    {
-        super.start();
-        widget.runtimePropEmbeddedModel().addPropertyListener(this::embeddedModelChanged);
-        embeddedModelChanged(null, null, widget.runtimePropEmbeddedModel().getValue());
-    }
-
-    private void embeddedModelChanged(final WidgetProperty<DisplayModel> property, final DisplayModel old_model, final DisplayModel new_model)
+    private final WidgetPropertyListener<DisplayModel> model_listener = (prop, old_model, new_model) ->
     {
         // Stop old model
         if (old_model != null)
@@ -42,12 +31,25 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
         // Start new model
         if (new_model != null)
             RuntimeUtil.startRuntime(new_model);
+    };
+
+    /** Start: Connect to PVs, ..., then monitor the embedded model to start/stop it
+     *  @throws Exception on error
+     */
+    @Override
+    public void start() throws Exception
+    {
+        super.start();
+        widget.runtimePropEmbeddedModel().addPropertyListener(model_listener);
+        model_listener.propertyChanged(null, null, widget.runtimePropEmbeddedModel().getValue());
     }
 
+    /** Stop: Stop embedded model, and no longer track it */
     @Override
     public void stop()
     {
-        embeddedModelChanged(null, widget.runtimePropEmbeddedModel().getValue(), null);
+        widget.runtimePropEmbeddedModel().removePropertyListener(model_listener);
+        model_listener.propertyChanged(null, widget.runtimePropEmbeddedModel().getValue(), null);
         super.stop();
     }
 }

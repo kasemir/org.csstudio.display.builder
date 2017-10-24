@@ -16,6 +16,7 @@ import org.junit.Test;
 /** JUnit test
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class LinearTicksTest extends TicksTestBase
 {
     @Override
@@ -55,7 +56,7 @@ public class LinearTicksTest extends TicksTestBase
         System.out.println("Ticks for " + start + " .. " + end + ":");
         String text = ticks2text(ticks);
         System.out.println(text);
-        assertThat(text, equalTo("2 4 6 8 '10' 12 14 16 18 '20' 22 24 26 28 '30' 32 34 36 38 '40' 42 44 46 48 '50' 52 54 56 58 '60' 62 64 66 68 '70' 72 74 76 78 '80' 82 84 86 88 '90' 92 94 96 98 "));
+        assertThat(text, equalTo("2 4 6 8 '10' 12 14 16 18 '20' 22 24 26 28 '30' 32 34 36 38 '40' 42 44 46 48 '50' 52 54 56 58 '60' 62 64 66 68 '70' 72 74 76 78 '80' 82 84 86 88 '90' 92 94 96 98 '100' "));
 
         start = -0.6;  end = +0.6;
         ticks.compute(start, end, gc, buf.getWidth());
@@ -69,7 +70,7 @@ public class LinearTicksTest extends TicksTestBase
         System.out.println("Ticks for " + start + " .. " + end + ":");
         text = ticks2text(ticks);
         System.out.println(text);
-        assertThat(text, equalTo("'0' 1000 2000 3000 4000 '5000' 6000 7000 8000 9000 '10000' 11000 12000 13000 14000 '15000' 16000 17000 18000 19000 "));
+        assertThat(text, equalTo("'0' 1000 2000 3000 4000 '5000' 6000 7000 8000 9000 '10000' 11000 12000 13000 14000 '15000' 16000 17000 18000 19000 '20000' "));
     }
 
     @Test
@@ -81,6 +82,6 @@ public class LinearTicksTest extends TicksTestBase
         System.out.println("Ticks for " + start + " .. " + end + ":");
         final String text = ticks2text(ticks);
         System.out.println(text);
-        assertThat(text, equalTo("9600 9200 8800 8400 '8000' 7600 7200 6800 6400 '6000' 5600 5200 4800 4400 '4000' 3600 3200 2800 2400 '2000' 1600 1200 800 400 "));
+        assertThat(text, equalTo("'10000' 9600 9200 8800 8400 '8000' 7600 7200 6800 6400 '6000' 5600 5200 4800 4400 '4000' 3600 3200 2800 2400 '2000' 1600 1200 800 400 "));
     }
 }

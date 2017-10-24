@@ -98,21 +98,24 @@ public class LinearMeterRepresentation extends BaseMeterRepresentation<LinearMet
     @Override
     protected Gauge createJFXNode ( ) throws Exception {
 
-        orientation = model_widget.propOrientation().getValue();
+        try {
 
-        Gauge gauge = super.createJFXNode(Gauge.SkinType.LINEAR);
+            orientation = model_widget.propOrientation().getValue();
 
-        gauge.setAreaIconsVisible(false);
-        gauge.setAreaTextVisible(false);
-        gauge.setAreas(createAreas());
-        gauge.setAreasVisible(barHighlight);
-        gauge.setBarColor(JFXUtil.convert(model_widget.propBarColor().getValue()));
-        gauge.setBarEffectEnabled(!model_widget.propFlatBar().getValue());
-        gauge.setHighlightSections(zonesHighlight);
-        gauge.setOrientation(Orientation.valueOf(orientation.name()));
-        gauge.setTickLabelLocation(TickLabelLocation.INSIDE);
+            Gauge gauge = super.createJFXNode();
 
-        return gauge;
+            gauge.setAreaIconsVisible(false);
+            gauge.setAreaTextVisible(false);
+            gauge.setOrientation(Orientation.valueOf(orientation.name()));
+            gauge.setTickLabelLocation(TickLabelLocation.INSIDE);
+
+            return gauge;
+
+        } finally {
+            dirtyLimits.mark();
+            dirtyLook.mark();
+            toolkit.scheduleUpdate(this);
+        }
 
     }
 
@@ -134,6 +137,11 @@ public class LinearMeterRepresentation extends BaseMeterRepresentation<LinearMet
             return createZone(zonesHighlight, start, end, name, color);
         }
 
+    }
+
+    @Override
+    protected Gauge.SkinType getSkin() {
+        return Gauge.SkinType.LINEAR;
     }
 
     @Override

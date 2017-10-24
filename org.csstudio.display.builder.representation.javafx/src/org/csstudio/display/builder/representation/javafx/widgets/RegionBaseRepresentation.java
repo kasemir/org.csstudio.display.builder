@@ -10,6 +10,8 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBorderAlarmSensitive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropPVValue;
 
+import java.awt.Toolkit;
+import java.awt.datatransfer.StringSelection;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
@@ -19,6 +21,7 @@ import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
+import org.csstudio.display.builder.model.widgets.PVWidget;
 import org.csstudio.display.builder.model.widgets.VisibleWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.diirt.vtype.Alarm;
@@ -26,6 +29,10 @@ import org.diirt.vtype.AlarmSeverity;
 import org.diirt.vtype.VType;
 
 import javafx.geometry.Insets;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
@@ -154,6 +161,32 @@ abstract public class RegionBaseRepresentation<JFX extends Region, MW extends Vi
 
         // Indicate 'disconnected' state
         model_widget.runtimePropConnected().addPropertyListener(this::connectionChanged);
+
+        // Allow middle-button click to copy PV name
+        if (model_widget instanceof PVWidget)
+            jfx_node.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> hookMiddleButtonCopy(event));
+    }
+
+    /** Copy PV name to clipboard when middle button clicked
+     *  @param event Mouse pressed event
+     */
+    private void hookMiddleButtonCopy(final MouseEvent event)
+    {
+        if (event.getButton() != MouseButton.MIDDLE)
+            return;
+
+        final String pv_name = ((PVWidget)model_widget).propPVName().getValue();
+
+        // Copy to copy/paste clipboard
+        final ClipboardContent content = new ClipboardContent();
+        content.putString(pv_name);
+        Clipboard.getSystemClipboard().setContent(content);
+
+        // Copy to the 'selection' buffer used by X11
+        // for middle-button copy/paste
+        // Note: This is AWT API!
+        // JavaFX has no API, https://bugs.openjdk.java.net/browse/JDK-8088117
+        Toolkit.getDefaultToolkit().getSystemSelection().setContents(new StringSelection(pv_name), null);
     }
 
     private void connectionChanged(final WidgetProperty<Boolean> property, final Boolean was_connected, final Boolean is_connected)

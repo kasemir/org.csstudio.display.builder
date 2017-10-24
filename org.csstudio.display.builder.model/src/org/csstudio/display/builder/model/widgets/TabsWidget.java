@@ -99,7 +99,7 @@ public class TabsWidget extends VisibleWidget
     };
 
     private static final ArrayWidgetProperty.Descriptor<TabItemProperty> propTabs =
-        new ArrayWidgetProperty.Descriptor<>(WidgetPropertyCategory.DISPLAY, "tabs", Messages.TabsWidget_Name,
+        new ArrayWidgetProperty.Descriptor<>(WidgetPropertyCategory.WIDGET, "tabs", Messages.TabsWidget_Name,
                 (widget, index) -> new TabItemProperty(widget, index));
 
     static final WidgetPropertyDescriptor<Integer> propTabHeight =

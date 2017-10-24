@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.WidgetProperty;
@@ -24,6 +23,7 @@ import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.TraceWidgetProperty;
 import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget;
 import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget.MarkerProperty;
+import org.csstudio.display.builder.runtime.PVNameToValueBinding;
 import org.csstudio.display.builder.runtime.RuntimeAction;
 import org.csstudio.display.builder.runtime.WidgetRuntime;
 import org.csstudio.display.builder.runtime.pv.PVFactory;
@@ -47,69 +47,7 @@ public class XYPlotWidgetRuntime  extends WidgetRuntime<XYPlotWidget>
 {
     private final List<RuntimeAction> runtime_actions = new ArrayList<>(2);
 
-    /** Binds a trace's PV name property to the corresponding value property */
-    private class PVBinding implements WidgetPropertyListener<String>
-    {
-        private final WidgetProperty<String> name;
-        private final RuntimePVListener listener;
-        private final AtomicReference<RuntimePV> pv_ref = new AtomicReference<>();
-
-        public PVBinding(final WidgetProperty<String> name, final WidgetProperty<VType> value)
-        {
-            this.name = name;
-            listener = new PropertyUpdater(value);
-            connect();
-            name.addPropertyListener(this);
-        }
-
-        @Override
-        public void propertyChanged(final WidgetProperty<String> property,
-                                    final String old_value, final String new_value)
-        {
-            // PV name changed: Disconnect existing PV
-            disconnect();
-            // and connect to new PV
-            connect();
-        }
-
-        private void connect()
-        {
-            final String pv_name = name.getValue();
-            if (pv_name.isEmpty())
-                return;
-            logger.log(Level.FINE,  "Connecting {0} {1}", new Object[] { widget, name });
-            final RuntimePV pv;
-            try
-            {
-                pv = PVFactory.getPV(pv_name);
-            }
-            catch (Exception ex)
-            {
-                logger.log(Level.WARNING, "Cannot connect to PV " + pv_name, ex);
-                return;
-            }
-            pv.addListener(listener);
-            addPV(pv);
-            pv_ref.set(pv);
-        }
-
-        private void disconnect()
-        {
-            final RuntimePV pv = pv_ref.getAndSet(null);
-            if (pv == null)
-                return;
-            pv.removeListener(listener);
-            PVFactory.releasePV(pv);
-            removePV(pv);
-        }
-
-        public void dispose()
-        {
-            disconnect();
-            name.removePropertyListener(this);
-        }
-    }
-    private final List<PVBinding> bindings = new ArrayList<>();
+    private final List<PVNameToValueBinding> bindings = new ArrayList<>();
 
     private final List<RuntimePV> marker_pvs = new CopyOnWriteArrayList<>();
     private final Map<WidgetProperty<?>, WidgetPropertyListener<?>> marker_prop_listeners = new ConcurrentHashMap<>();
@@ -136,9 +74,9 @@ public class XYPlotWidgetRuntime  extends WidgetRuntime<XYPlotWidget>
 
         for (TraceWidgetProperty trace : widget.propTraces().getValue())
         {
-            bindings.add(new PVBinding(trace.traceXPV(), trace.traceXValue()));
-            bindings.add(new PVBinding(trace.traceYPV(), trace.traceYValue()));
-            bindings.add(new PVBinding(trace.traceErrorPV(), trace.traceErrorValue()));
+            bindings.add(new PVNameToValueBinding(this, trace.traceXPV(), trace.traceXValue()));
+            bindings.add(new PVNameToValueBinding(this, trace.traceYPV(), trace.traceYValue()));
+            bindings.add(new PVNameToValueBinding(this, trace.traceErrorPV(), trace.traceErrorValue()));
         }
 
         for (MarkerProperty marker : widget.propMarkers().getValue())
@@ -221,8 +159,7 @@ public class XYPlotWidgetRuntime  extends WidgetRuntime<XYPlotWidget>
         }
         marker_pvs.clear();
 
-
-        for (PVBinding binding : bindings)
+        for (PVNameToValueBinding binding : bindings)
             binding.dispose();
         super.stop();
     }

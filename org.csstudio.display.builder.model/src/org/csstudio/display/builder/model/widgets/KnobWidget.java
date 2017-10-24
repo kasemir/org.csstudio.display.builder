@@ -12,6 +12,8 @@ package org.csstudio.display.builder.model.widgets;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newColorPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newDoublePropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newPVNamePropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newRuntimeValue;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newStringPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propColor;
@@ -38,6 +40,7 @@ import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.WidgetColor;
+import org.diirt.vtype.VType;
 import org.osgi.framework.Version;
 import org.w3c.dom.Element;
 
@@ -64,32 +67,36 @@ public class KnobWidget extends WritablePVWidget {
         }
     };
 
-    public static final WidgetPropertyDescriptor<Boolean>     propDragDisabled   = newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "drag_disabled",    Messages.WidgetProperties_DragDisabled);
-    public static final WidgetPropertyDescriptor<Boolean>     propSyncedKnob     = newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "synced_knob",      Messages.WidgetProperties_SyncedKnob);
-    public static final WidgetPropertyDescriptor<Boolean>     propUnitFromPV     = newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "unit_from_pv",     Messages.WidgetProperties_UnitFromPV);
-    public static final WidgetPropertyDescriptor<Boolean>     propWriteOnRelease = newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "write_on_release", Messages.WidgetProperties_WriteOnRelease);
+    public static final WidgetPropertyDescriptor<String>      propReadbackPVName    = newPVNamePropertyDescriptor (WidgetPropertyCategory.WIDGET,   "readback_pv_name",    Messages.WidgetProperties_ReadbackPVName);
+    public static final WidgetPropertyDescriptor<VType>       propReadbackPVValue   = newRuntimeValue             (                                 "readback_pv_value",   Messages.WidgetProperties_ReadbackPVValue);
 
-    public static final WidgetPropertyDescriptor<WidgetColor> propColorHiHi      = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "color_hihi",       Messages.WidgetProperties_ColorHiHi);
-    public static final WidgetPropertyDescriptor<WidgetColor> propColorHigh      = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "color_high",       Messages.WidgetProperties_ColorHigh);
-    public static final WidgetPropertyDescriptor<WidgetColor> propColorLoLo      = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "color_lolo",       Messages.WidgetProperties_ColorLoLo);
-    public static final WidgetPropertyDescriptor<WidgetColor> propColorLow       = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "color_low",        Messages.WidgetProperties_ColorLow);
-    public static final WidgetPropertyDescriptor<WidgetColor> propColorOK        = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "color_ok",         Messages.WidgetProperties_ColorOK);
-    public static final WidgetPropertyDescriptor<Boolean>     propExtremaVisible = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "extrema_visible",  Messages.WidgetProperties_ExtremaVisible);
-    public static final WidgetPropertyDescriptor<Double>      propLevelHiHi      = newDoublePropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "level_hihi",       Messages.WidgetProperties_LevelHiHi);
-    public static final WidgetPropertyDescriptor<Double>      propLevelHigh      = newDoublePropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "level_high",       Messages.WidgetProperties_LevelHigh);
-    public static final WidgetPropertyDescriptor<Double>      propLevelLoLo      = newDoublePropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "level_lolo",       Messages.WidgetProperties_LevelLoLo);
-    public static final WidgetPropertyDescriptor<Double>      propLevelLow       = newDoublePropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "level_low",        Messages.WidgetProperties_LevelLow);
-    public static final WidgetPropertyDescriptor<Boolean>     propShowHiHi       = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "show_hihi",        Messages.WidgetProperties_ShowHiHi);
-    public static final WidgetPropertyDescriptor<Boolean>     propShowHigh       = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "show_high",        Messages.WidgetProperties_ShowHigh);
-    public static final WidgetPropertyDescriptor<Boolean>     propShowLoLo       = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "show_lolo",        Messages.WidgetProperties_ShowLoLo);
-    public static final WidgetPropertyDescriptor<Boolean>     propShowLow        = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "show_low",         Messages.WidgetProperties_ShowLow);
-    public static final WidgetPropertyDescriptor<WidgetColor> propTagColor       = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "tag_color",        Messages.WidgetProperties_TagColor);
-    public static final WidgetPropertyDescriptor<Boolean>     propTagVisible     = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "tag_visible",      Messages.WidgetProperties_TagVisible);
-    public static final WidgetPropertyDescriptor<WidgetColor> propTextColor      = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "text_color",       Messages.WidgetProperties_TextColor);
-    public static final WidgetPropertyDescriptor<WidgetColor> propThumbColor     = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "thumb_color",      Messages.WidgetProperties_ThumbColor);
-    public static final WidgetPropertyDescriptor<String>      propUnit           = newStringPropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "unit",             Messages.WidgetProperties_Unit);
-    public static final WidgetPropertyDescriptor<WidgetColor> propValueColor     = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "value_color",      Messages.WidgetProperties_ValueColor);
-    public static final WidgetPropertyDescriptor<Boolean>     propValueVisible   = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "value_visible",    Messages.WidgetProperties_ValueVisible);
+    public static final WidgetPropertyDescriptor<Boolean>     propDragDisabled      = newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "drag_disabled",       Messages.WidgetProperties_DragDisabled);
+    public static final WidgetPropertyDescriptor<Boolean>     propSyncedKnob        = newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "synced_knob",         Messages.WidgetProperties_SyncedKnob);
+    public static final WidgetPropertyDescriptor<Boolean>     propUnitFromPV        = newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "unit_from_pv",        Messages.WidgetProperties_UnitFromPV);
+    public static final WidgetPropertyDescriptor<Boolean>     propWriteOnRelease    = newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "write_on_release",    Messages.WidgetProperties_WriteOnRelease);
+    public static final WidgetPropertyDescriptor<Boolean>     propZeroDetentEnabled = newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "zero_detent_enabled", Messages.WidgetProperties_ZeroDetentEnabled);
+
+    public static final WidgetPropertyDescriptor<WidgetColor> propColorHiHi         = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "color_hihi",          Messages.WidgetProperties_ColorHiHi);
+    public static final WidgetPropertyDescriptor<WidgetColor> propColorHigh         = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "color_high",          Messages.WidgetProperties_ColorHigh);
+    public static final WidgetPropertyDescriptor<WidgetColor> propColorLoLo         = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "color_lolo",          Messages.WidgetProperties_ColorLoLo);
+    public static final WidgetPropertyDescriptor<WidgetColor> propColorLow          = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "color_low",           Messages.WidgetProperties_ColorLow);
+    public static final WidgetPropertyDescriptor<WidgetColor> propColorOK           = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "color_ok",            Messages.WidgetProperties_ColorOK);
+    public static final WidgetPropertyDescriptor<Boolean>     propExtremaVisible    = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "extrema_visible",     Messages.WidgetProperties_ExtremaVisible);
+    public static final WidgetPropertyDescriptor<Double>      propLevelHiHi         = newDoublePropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "level_hihi",          Messages.WidgetProperties_LevelHiHi);
+    public static final WidgetPropertyDescriptor<Double>      propLevelHigh         = newDoublePropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "level_high",          Messages.WidgetProperties_LevelHigh);
+    public static final WidgetPropertyDescriptor<Double>      propLevelLoLo         = newDoublePropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "level_lolo",          Messages.WidgetProperties_LevelLoLo);
+    public static final WidgetPropertyDescriptor<Double>      propLevelLow          = newDoublePropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "level_low",           Messages.WidgetProperties_LevelLow);
+    public static final WidgetPropertyDescriptor<Boolean>     propShowHiHi          = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "show_hihi",           Messages.WidgetProperties_ShowHiHi);
+    public static final WidgetPropertyDescriptor<Boolean>     propShowHigh          = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "show_high",           Messages.WidgetProperties_ShowHigh);
+    public static final WidgetPropertyDescriptor<Boolean>     propShowLoLo          = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "show_lolo",           Messages.WidgetProperties_ShowLoLo);
+    public static final WidgetPropertyDescriptor<Boolean>     propShowLow           = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "show_low",            Messages.WidgetProperties_ShowLow);
+    public static final WidgetPropertyDescriptor<WidgetColor> propTagColor          = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "tag_color",           Messages.WidgetProperties_TagColor);
+    public static final WidgetPropertyDescriptor<Boolean>     propTagVisible        = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "tag_visible",         Messages.WidgetProperties_TagVisible);
+    public static final WidgetPropertyDescriptor<Boolean>     propTargetVisible     = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "target_visible",      Messages.WidgetProperties_TargetVisible);
+    public static final WidgetPropertyDescriptor<WidgetColor> propTextColor         = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "text_color",          Messages.WidgetProperties_TextColor);
+    public static final WidgetPropertyDescriptor<WidgetColor> propThumbColor        = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "thumb_color",         Messages.WidgetProperties_ThumbColor);
+    public static final WidgetPropertyDescriptor<String>      propUnit              = newStringPropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "unit",                Messages.WidgetProperties_Unit);
+    public static final WidgetPropertyDescriptor<WidgetColor> propValueColor        = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "value_color",         Messages.WidgetProperties_ValueColor);
 
     private volatile WidgetProperty<WidgetColor> background_color;
     private volatile WidgetProperty<WidgetColor> color;
@@ -109,6 +116,8 @@ public class KnobWidget extends WritablePVWidget {
     private volatile WidgetProperty<Double>      maximum;
     private volatile WidgetProperty<Double>      minimum;
     private volatile WidgetProperty<Integer>     precision;
+    private volatile WidgetProperty<String>      readback_pv_name;
+    private volatile WidgetProperty<VType>       readback_pv_value;
     private volatile WidgetProperty<Boolean>     show_high;
     private volatile WidgetProperty<Boolean>     show_hihi;
     private volatile WidgetProperty<Boolean>     show_lolo;
@@ -116,17 +125,22 @@ public class KnobWidget extends WritablePVWidget {
     private volatile WidgetProperty<Boolean>     synced_knob;
     private volatile WidgetProperty<WidgetColor> tag_color;
     private volatile WidgetProperty<Boolean>     tag_visible;
+    private volatile WidgetProperty<Boolean>     target_visible;
     private volatile WidgetProperty<WidgetColor> text_color;
     private volatile WidgetProperty<WidgetColor> thumb_color;
     private volatile WidgetProperty<Boolean>     transparent;
     private volatile WidgetProperty<String>      unit;
     private volatile WidgetProperty<Boolean>     unit_from_pv;
     private volatile WidgetProperty<WidgetColor> value_color;
-    private volatile WidgetProperty<Boolean>     value_visible;
     private volatile WidgetProperty<Boolean>     write_on_release;
+    private volatile WidgetProperty<Boolean>     zero_detent_enabled;
 
     public KnobWidget ( ) {
         super(WIDGET_DESCRIPTOR.getType(), 220, 220);
+    }
+
+    protected KnobWidget ( final String type, final int default_width, final int default_height ) {
+        super(type, default_width, default_height);
     }
 
     @Override
@@ -206,6 +220,14 @@ public class KnobWidget extends WritablePVWidget {
         return precision;
     }
 
+    public WidgetProperty<String> propReadbackPVName ( ) {
+        return readback_pv_name;
+    }
+
+    public WidgetProperty<VType> propReadbackPVValue ( ) {
+        return readback_pv_value;
+    }
+
     public WidgetProperty<Boolean> propShowHiHi ( ) {
         return show_hihi;
     }
@@ -234,6 +256,10 @@ public class KnobWidget extends WritablePVWidget {
         return tag_visible;
     }
 
+    public WidgetProperty<Boolean> propTargetVisible ( ) {
+        return target_visible;
+    }
+
     public WidgetProperty<WidgetColor> propTextColor ( ) {
         return text_color;
     }
@@ -258,12 +284,12 @@ public class KnobWidget extends WritablePVWidget {
         return value_color;
     }
 
-    public WidgetProperty<Boolean> propValueVisible ( ) {
-        return value_visible;
-    }
-
     public WidgetProperty<Boolean> propWriteOnRelease ( ) {
         return write_on_release;
+    }
+
+    public WidgetProperty<Boolean> propZeroDetentEnabled ( ) {
+        return zero_detent_enabled;
     }
 
     @Override
@@ -271,40 +297,44 @@ public class KnobWidget extends WritablePVWidget {
 
         super.defineProperties(properties);
 
-        properties.add(background_color = propBackgroundColor.createProperty(this, new WidgetColor(255, 254, 253)));
-        properties.add(color            = propColor.createProperty(this, new WidgetColor(66, 71, 79)));
-        properties.add(precision        = propPrecision.createProperty(this, -1));
-        properties.add(color_hihi       = propColorHiHi.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.ALARM_MAJOR)));
-        properties.add(color_high       = propColorHigh.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.ALARM_MINOR)));
-        properties.add(color_lolo       = propColorLoLo.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.ALARM_MAJOR)));
-        properties.add(color_low        = propColorLow.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.ALARM_MINOR)));
-        properties.add(color_ok         = propColorOK.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.ALARM_OK)));
-        properties.add(extrema_visible  = propExtremaVisible.createProperty(this, false));
-        properties.add(level_hihi       = propLevelHiHi.createProperty(this, 90.0));
-        properties.add(level_high       = propLevelHigh.createProperty(this, 80.0));
-        properties.add(level_lolo       = propLevelLoLo.createProperty(this, 10.0));
-        properties.add(level_low        = propLevelLow.createProperty(this, 20.0));
-        properties.add(show_hihi        = propShowHiHi.createProperty(this, true));
-        properties.add(show_high        = propShowHigh.createProperty(this, true));
-        properties.add(show_low         = propShowLow.createProperty(this, true));
-        properties.add(show_lolo        = propShowLoLo.createProperty(this, true));
-        properties.add(tag_color        = propTagColor.createProperty(this, new WidgetColor(204, 102, 80)));
-        properties.add(tag_visible      = propTagVisible.createProperty(this, false));
-        properties.add(text_color       = propTextColor.createProperty(this, new WidgetColor(255, 255, 255)));
-        properties.add(thumb_color      = propThumbColor.createProperty(this, new WidgetColor(46, 50, 55)));
-        properties.add(transparent      = propTransparent.createProperty(this, true));
-        properties.add(unit             = propUnit.createProperty(this, ""));
-        properties.add(value_color      = propValueColor.createProperty(this, new WidgetColor(0, 22, 0, 153)));
-        properties.add(value_visible    = propValueVisible.createProperty(this, true));
+        properties.add(readback_pv_name    = propReadbackPVName.createProperty(this, ""));
+        properties.add(readback_pv_value   = propReadbackPVValue.createProperty(this, RUNTIME_VALUE_NO_PV));
 
-        properties.add(drag_disabled    = propDragDisabled.createProperty(this, false));
-        properties.add(enabled          = propEnabled.createProperty(this, true));
-        properties.add(limits_from_pv   = propLimitsFromPV.createProperty(this, true));
-        properties.add(minimum          = propMinimum.createProperty(this, 0.0));
-        properties.add(maximum          = propMaximum.createProperty(this, 100.0));
-        properties.add(synced_knob      = propSyncedKnob.createProperty(this, false));
-        properties.add(unit_from_pv     = propUnitFromPV.createProperty(this, true));
-        properties.add(write_on_release = propWriteOnRelease.createProperty(this, true));
+        properties.add(background_color    = propBackgroundColor.createProperty(this, new WidgetColor(255, 254, 253)));
+        properties.add(color               = propColor.createProperty(this, new WidgetColor(66, 71, 79)));
+        properties.add(precision           = propPrecision.createProperty(this, -1));
+        properties.add(color_hihi          = propColorHiHi.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.ALARM_MAJOR)));
+        properties.add(color_high          = propColorHigh.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.ALARM_MINOR)));
+        properties.add(color_lolo          = propColorLoLo.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.ALARM_MAJOR)));
+        properties.add(color_low           = propColorLow.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.ALARM_MINOR)));
+        properties.add(color_ok            = propColorOK.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.ALARM_OK)));
+        properties.add(extrema_visible     = propExtremaVisible.createProperty(this, false));
+        properties.add(level_hihi          = propLevelHiHi.createProperty(this, 90.0));
+        properties.add(level_high          = propLevelHigh.createProperty(this, 80.0));
+        properties.add(level_lolo          = propLevelLoLo.createProperty(this, 10.0));
+        properties.add(level_low           = propLevelLow.createProperty(this, 20.0));
+        properties.add(show_hihi           = propShowHiHi.createProperty(this, true));
+        properties.add(show_high           = propShowHigh.createProperty(this, true));
+        properties.add(show_low            = propShowLow.createProperty(this, true));
+        properties.add(show_lolo           = propShowLoLo.createProperty(this, true));
+        properties.add(tag_color           = propTagColor.createProperty(this, new WidgetColor(204, 102, 80)));
+        properties.add(tag_visible         = propTagVisible.createProperty(this, false));
+        properties.add(target_visible      = propTargetVisible.createProperty(this, true));
+        properties.add(text_color          = propTextColor.createProperty(this, new WidgetColor(255, 255, 255)));
+        properties.add(thumb_color         = propThumbColor.createProperty(this, new WidgetColor(46, 50, 55)));
+        properties.add(transparent         = propTransparent.createProperty(this, true));
+        properties.add(unit                = propUnit.createProperty(this, ""));
+        properties.add(value_color         = propValueColor.createProperty(this, new WidgetColor(0, 22, 0, 153)));
+
+        properties.add(drag_disabled       = propDragDisabled.createProperty(this, false));
+        properties.add(enabled             = propEnabled.createProperty(this, true));
+        properties.add(limits_from_pv      = propLimitsFromPV.createProperty(this, true));
+        properties.add(minimum             = propMinimum.createProperty(this, 0.0));
+        properties.add(maximum             = propMaximum.createProperty(this, 100.0));
+        properties.add(synced_knob         = propSyncedKnob.createProperty(this, false));
+        properties.add(unit_from_pv        = propUnitFromPV.createProperty(this, true));
+        properties.add(write_on_release    = propWriteOnRelease.createProperty(this, true));
+        properties.add(zero_detent_enabled = propZeroDetentEnabled.createProperty(this, false));
 
     }
 

@@ -143,6 +143,7 @@ public class Messages extends NLS
     public static String WidgetProperties_AngleSize;
     public static String WidgetProperties_AngleStart;
     public static String WidgetProperties_ArrayIndex;
+    public static String WidgetProperties_AutoScale;
     public static String WidgetProperties_AutoSize;
     public static String WidgetProperties_Average;
     public static String WidgetProperties_AverageColor;
@@ -162,6 +163,8 @@ public class Messages extends NLS
     public static String WidgetProperties_ColorLow;
     public static String WidgetProperties_ColorMap;
     public static String WidgetProperties_ColorOK;
+    public static String WidgetProperties_ConfirmDialog;
+    public static String WidgetProperties_ConfirmMessage;
     public static String WidgetProperties_Connected;
     public static String WidgetProperties_CornerHeight;
     public static String WidgetProperties_CornerWidth;
@@ -226,6 +229,7 @@ public class Messages extends NLS
     public static String WidgetProperties_Locale;
     public static String WidgetProperties_Macros;
     public static String WidgetProperties_MajorTickColor;
+    public static String WidgetProperties_MajorTickSpace;
     public static String WidgetProperties_MajorTickStepHint;
     public static String WidgetProperties_MajorTickType;
     public static String WidgetProperties_MajorTickVisible;
@@ -235,6 +239,7 @@ public class Messages extends NLS
     public static String WidgetProperties_MediumTickVisible;
     public static String WidgetProperties_Minimum;
     public static String WidgetProperties_MinorTickColor;
+    public static String WidgetProperties_MinorTickSpace;
     public static String WidgetProperties_MinorTickType;
     public static String WidgetProperties_MinorTickVisible;
     public static String WidgetProperties_MinuteColor;
@@ -254,10 +259,13 @@ public class Messages extends NLS
     public static String WidgetProperties_OnLabel;
     public static String WidgetProperties_OnlyExtremaVisible;
     public static String WidgetProperties_Orientation;
+    public static String WidgetProperties_Password;
     public static String WidgetProperties_Points;
     public static String WidgetProperties_Precision;
     public static String WidgetProperties_PreserveRatio;
     public static String WidgetProperties_PVName;
+    public static String WidgetProperties_ReadbackPVName;
+    public static String WidgetProperties_ReadbackPVValue;
     public static String WidgetProperties_ResizeBehavior;
     public static String WidgetProperties_Rotation;
     public static String WidgetProperties_Rules;
@@ -289,6 +297,7 @@ public class Messages extends NLS
     public static String WidgetProperties_SyncedKnob;
     public static String WidgetProperties_TagColor;
     public static String WidgetProperties_TagVisible;
+    public static String WidgetProperties_TargetVisible;
     public static String WidgetProperties_Text;
     public static String WidgetProperties_TextColor;
     public static String WidgetProperties_TextVisible;
@@ -326,6 +335,7 @@ public class Messages extends NLS
     public static String WidgetProperties_Y;
     public static String WidgetProperties_YPVName;
     public static String WidgetProperties_ZeroColor;
+    public static String WidgetProperties_ZeroDetentEnabled;
     public static String WidgetPropertyCategory_Behavior;
     public static String WidgetPropertyCategory_Display;
     public static String WidgetPropertyCategory_Misc;

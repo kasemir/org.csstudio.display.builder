@@ -24,6 +24,7 @@ import org.csstudio.display.builder.editor.rcp.actions.CopyAction;
 import org.csstudio.display.builder.editor.rcp.actions.CreateGroupAction;
 import org.csstudio.display.builder.editor.rcp.actions.CutDeleteAction;
 import org.csstudio.display.builder.editor.rcp.actions.ExecuteDisplayAction;
+import org.csstudio.display.builder.editor.rcp.actions.ExecuteDisplayButton;
 import org.csstudio.display.builder.editor.rcp.actions.PasteAction;
 import org.csstudio.display.builder.editor.rcp.actions.RedoAction;
 import org.csstudio.display.builder.editor.rcp.actions.ReloadClassesAction;
@@ -161,6 +162,9 @@ public class DisplayEditorPart extends EditorPart
         {
             editor = new DisplayEditor(toolkit, Preferences.getUndoSize());
             final Parent root = editor.create();
+
+            editor.getToolBar().getItems().add(new ExecuteDisplayButton(this));
+
             return new Scene(root);
         });
 

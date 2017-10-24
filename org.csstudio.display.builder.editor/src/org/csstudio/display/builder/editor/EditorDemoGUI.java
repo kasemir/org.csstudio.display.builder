@@ -19,14 +19,12 @@ import org.csstudio.display.builder.editor.actions.ActionDescription;
 import org.csstudio.display.builder.editor.actions.LoadModelAction;
 import org.csstudio.display.builder.editor.actions.SaveModelAction;
 import org.csstudio.display.builder.editor.properties.PropertyPanel;
-import org.csstudio.display.builder.editor.tracker.SelectedWidgetUITracker;
 import org.csstudio.display.builder.editor.tree.WidgetTree;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.persist.ModelLoader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.util.ResourceUtil;
-import org.csstudio.display.builder.util.undo.UndoableActionManager;
 
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -36,7 +34,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.SplitPane;
-import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
@@ -104,10 +101,6 @@ public class EditorDemoGUI
     {
         editor = new DisplayEditor(toolkit, 50);
 
-        final ToolBar toolbar = createToolbar(editor.getSelectedWidgetUITracker(),
-                editor.getWidgetSelectionHandler(),
-                editor.getUndoableActionManager());
-
         tree = new WidgetTree(editor);
 
         property_panel = new PropertyPanel(editor);
@@ -130,21 +123,24 @@ public class EditorDemoGUI
 
         final VBox propertiesBox = new VBox(propertiesHeader, property_panel);
 
-        center.getItems().addAll(widgetsTree, editor.create(), propertiesBox);
+
+        final Node editor_scene = editor.create();
+        extendToolbar(editor.getToolBar());
+
+        center.getItems().addAll(widgetsTree, editor_scene, propertiesBox);
         center.setDividerPositions(0.2, 0.8);
 
-        final BorderPane toolbar_center_status = new BorderPane();
-        toolbar_center_status.setTop(toolbar);
-        toolbar_center_status.setCenter(center);
-        toolbar_center_status.setBottom(status);
+        final BorderPane layout = new BorderPane();
+        layout.setCenter(center);
+        layout.setBottom(status);
         BorderPane.setAlignment(center, Pos.TOP_LEFT);
 
-        toolbar_center_status.addEventFilter(KeyEvent.KEY_PRESSED, key_handler);
+        layout.addEventFilter(KeyEvent.KEY_PRESSED, key_handler);
 
         stage.setTitle("Editor");
         stage.setWidth(1200);
         stage.setHeight(600);
-        final Scene scene = new Scene(toolbar_center_status, 1200, 600);
+        final Scene scene = new Scene(layout, 1200, 600);
         stage.setScene(scene);
         EditorUtil.setSceneStyle(scene);
 
@@ -154,41 +150,16 @@ public class EditorDemoGUI
         stage.show();
     }
 
-    private ToolBar createToolbar(final SelectedWidgetUITracker selection_tracker,
-            final WidgetSelectionHandler selection_handler,
-            final UndoableActionManager undo)
+    private void extendToolbar(final ToolBar toolbar)
     {
         final Button debug = new Button("Debug");
         debug.setOnAction(event -> editor.debug());
 
-        final Button undo_button = createButton(ActionDescription.UNDO);
-        final Button redo_button = createButton(ActionDescription.REDO);
-        undo_button.setDisable(true);
-        redo_button.setDisable(true);
-        undo.addListener((to_undo, to_redo) ->
-        {
-            undo_button.setDisable(to_undo == null);
-            redo_button.setDisable(to_redo == null);
-        });
-
-        final Button back_button = createButton(ActionDescription.TO_BACK);
-        final Button front_button = createButton(ActionDescription.TO_FRONT);
-
-        return new ToolBar(
-                createButton(new LoadModelAction(this)),
-                createButton(new SaveModelAction(this)),
-                new Separator(),
-                createToggleButton(ActionDescription.ENABLE_GRID),
-                createToggleButton(ActionDescription.ENABLE_SNAP),
-                createToggleButton(ActionDescription.ENABLE_COORDS),
-                new Separator(),
-                back_button,
-                front_button,
-                new Separator(),
-                undo_button,
-                redo_button,
-                new Separator(),
-                debug);
+        toolbar.getItems().add(0, createButton(new LoadModelAction(this)));
+        toolbar.getItems().add(1, createButton(new SaveModelAction(this)));
+        toolbar.getItems().add(2, new Separator());
+        toolbar.getItems().add(new Separator());
+        toolbar.getItems().add(debug);
     }
 
 
@@ -207,25 +178,6 @@ public class EditorDemoGUI
         button.setOnAction(event -> action.run(editor));
         return button;
     }
-
-    private ToggleButton createToggleButton(final ActionDescription action)
-    {
-        final ToggleButton button = new ToggleButton();
-        try
-        {
-            button.setGraphic(new ImageView(new Image(ResourceUtil.openPlatformResource(action.getIconResourcePath()))));
-        }
-        catch (final Exception ex)
-        {
-            logger.log(Level.WARNING, "Cannot load action icon", ex);
-        }
-        button.setTooltip(new Tooltip(action.getToolTip()));
-        button.setSelected(true);
-        button.selectedProperty()
-              .addListener((observable, old_value, enabled) -> action.run(editor, enabled) );
-        return button;
-    }
-
 
     /** @return Currently edited file */
     public File getFile()

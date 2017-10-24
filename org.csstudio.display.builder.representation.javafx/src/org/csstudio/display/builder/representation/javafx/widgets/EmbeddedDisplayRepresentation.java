@@ -211,6 +211,10 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
         {   // Load new model (potentially slow)
             final DisplayModel new_model = loadDisplayModel(model_widget, handle);
 
+            // Stop (old) runtime
+            // EmbeddedWidgetRuntime tracks this property to start/stop the embedded model's runtime
+            model_widget.runtimePropEmbeddedModel().setValue(null);
+
             // Atomically update the 'active' model
             final DisplayModel old_model = active_content_model.getAndSet(new_model);
 
@@ -230,6 +234,8 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
                 return null;
             });
             checkCompletion(model_widget, completion, "timeout representing new content");
+
+            // Allow EmbeddedWidgetRuntime to start the new runtime
             model_widget.runtimePropEmbeddedModel().setValue(new_model);
         }
         catch (Exception ex)
@@ -299,7 +305,24 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
     @Override
     public void dispose()
     {
+        // When the file name is changed, updatePendingDisplay()
+        // will atomically update the active_content_model,
+        // represent the new model, and then set runtimePropEmbeddedModel.
+        //
+        // Fetching the embedded model from active_content_model
+        // could dispose a representation that hasn't been represented, yet.
+        // Fetching the embedded model from runtimePropEmbeddedModel
+        // could fail to dispose what's just now being represented.
+        //
+        // --> Very unlikely to happen because runtime has been stopped,
+        //     so nothing is changing the file name right now.
+        final DisplayModel em = active_content_model.getAndSet(null);
+        model_widget.runtimePropEmbeddedModel().setValue(null);
+
+        if (inner != null  &&  em != null)
+            toolkit.disposeRepresentation(em);
         inner = null;
+
         super.dispose();
     }
 }

@@ -19,6 +19,7 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.widgets.ArrayWidget;
+import org.csstudio.display.builder.model.widgets.GroupWidget;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.csstudio.display.builder.runtime.WidgetRuntime;
 import org.csstudio.display.builder.runtime.pv.ArrayPVDispatcher;
@@ -114,18 +115,15 @@ public class ArrayWidgetRuntime extends WidgetRuntime<ArrayWidget>
             }
     }
 
-    private void setPVName(Widget widget, String name)
+    private void setPVName(final Widget widget, final String name)
     {
-        final Optional<WidgetProperty<Object>> pvname = widget.checkProperty("pv_name");
-        if (!pvname.isPresent())
-            return;
-        try
-        {
-            pvname.get().setValueFromObject(name);
-        }
-        catch (Exception ex)
-        {
-            logger.log(Level.WARNING, "Unable to set pv name of " + widget, ex);
+        final Optional<WidgetProperty<String>> pvname = widget.checkProperty("pv_name");
+        if (pvname.isPresent())
+            pvname.get().setValue(name);
+        else if (widget instanceof GroupWidget)
+        {   // For group widget, set PV name of every group member
+            for (Widget child : ((GroupWidget) widget).runtimeChildren().getValue())
+                setPVName(child, name);
         }
     }
 }

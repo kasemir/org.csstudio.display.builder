@@ -9,6 +9,7 @@ package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newFilenamePropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newStringPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBit;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
@@ -36,6 +37,7 @@ import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.persist.XMLUtil;
+import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.osgi.framework.Version;
@@ -93,12 +95,47 @@ public class BoolButtonWidget extends WritablePVWidget
         }
     };
 
+    public enum ConfirmDialog
+    {
+        NONE("No"),
+        BOTH("Both"),
+        PUSH("Push"),
+        RELEASE("Release");
+
+        private final String label;
+
+        private ConfirmDialog(final String label)
+        {
+            this.label = label;
+        }
+
+        @Override
+        public String toString()
+        {
+            return label;
+        }
+    }
+
     private static final WidgetPropertyDescriptor<String> propOffImage =
         newFilenamePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "off_image", Messages.WidgetProperties_OffImage);
     private static final WidgetPropertyDescriptor<String> propOnImage =
         newFilenamePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "on_image", Messages.WidgetProperties_OnImage);
     private static final WidgetPropertyDescriptor<Boolean> propShowLED =
-            newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_led", Messages.WidgetProperties_ShowLED);
+        newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_led", Messages.WidgetProperties_ShowLED);
+    private static final WidgetPropertyDescriptor<String> propConfirmMessage =
+        newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "confirm_message", Messages.WidgetProperties_ConfirmMessage);
+    private static final WidgetPropertyDescriptor<String> propPassword =
+        newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "password", Messages.WidgetProperties_Password);
+    private static final WidgetPropertyDescriptor<ConfirmDialog> propConfirmDialog =
+        new WidgetPropertyDescriptor<ConfirmDialog>(WidgetPropertyCategory.BEHAVIOR, "show_confirm_dialog", Messages.WidgetProperties_ConfirmDialog)
+    {
+        @Override
+        public EnumWidgetProperty<ConfirmDialog> createProperty(final Widget widget,
+                                                                final ConfirmDialog default_value)
+        {
+            return new EnumWidgetProperty<ConfirmDialog>(this, widget, default_value);
+        }
+    };
 
     private volatile WidgetProperty<Integer> bit;
     private volatile WidgetProperty<String> off_label;
@@ -113,6 +150,9 @@ public class BoolButtonWidget extends WritablePVWidget
     private volatile WidgetProperty<WidgetColor> foreground;
     private volatile WidgetProperty<Boolean> labels_from_pv;
     private volatile WidgetProperty<Boolean> enabled;
+    private volatile WidgetProperty<ConfirmDialog> confirm_dialog;
+    private volatile WidgetProperty<String> confirm_message;
+    private volatile WidgetProperty<String> password;
 
     public BoolButtonWidget()
     {
@@ -143,6 +183,9 @@ public class BoolButtonWidget extends WritablePVWidget
         properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BUTTON_BACKGROUND)));
         properties.add(labels_from_pv = propLabelsFromPV.createProperty(this, false));
         properties.add(enabled = propEnabled.createProperty(this, true));
+        properties.add(confirm_dialog = propConfirmDialog.createProperty(this, ConfirmDialog.NONE));
+        properties.add(confirm_message = propConfirmMessage.createProperty(this, "Are your sure you want to do this?"));
+        properties.add(password = propPassword.createProperty(this, ""));
     }
 
     /** @return 'bit' property */
@@ -221,5 +264,23 @@ public class BoolButtonWidget extends WritablePVWidget
     public WidgetProperty<Boolean> propEnabled()
     {
         return enabled;
+    }
+
+    /** @return 'confirm_dialog' property */
+    public WidgetProperty<ConfirmDialog> propConfirmDialog()
+    {
+        return confirm_dialog;
+    }
+
+    /** @return 'confirm_message' property */
+    public WidgetProperty<String> propConfirmMessage()
+    {
+        return confirm_message;
+    }
+
+    /** @return 'password' property */
+    public WidgetProperty<String> propPassword()
+    {
+        return password;
     }
 }

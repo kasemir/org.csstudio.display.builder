@@ -143,4 +143,24 @@ public class WidgetFactoryUnitTest
         System.out.println(widget);
         assertThat(widget.getType(), equalTo("custom"));
     }
+
+    /** List all widgets, sorted by number of properties */
+    @Test
+    public void widgetStats() throws Exception
+    {
+        System.out.format("%-20s %s\n", "Widget Type", "Number of Properties");
+
+        WidgetFactory.getInstance()
+                     .getWidgetDescriptions()
+                     .stream()
+                     .filter(desc -> ! ("base".equals(desc.getType()) ||
+                                        "custom".equals(desc.getType())))
+                     .map(desc -> desc.createWidget())
+                     .sorted((a, b) -> a.getProperties().size() - b.getProperties().size())
+                     .forEach(widget ->
+                     {
+                         System.out.format("%-20s %d\n", widget.getType(), widget.getProperties().size());
+                     });
+
+    }
 }

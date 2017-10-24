@@ -42,6 +42,7 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
     private final DirtyFlag dirty_representation = new DirtyFlag();
     private final DirtyFlag dirty_enablement = new DirtyFlag();
     private final DirtyFlag dirty_value = new DirtyFlag();
+    /** State: 0 or 1 */
     private volatile int on_state = 1;
     private volatile int use_bit = 0;
     private volatile Integer rt_value = 0;
@@ -89,6 +90,32 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
     private void handlePress()
     {
         logger.log(Level.FINE, "{0} pressed", model_widget);
+
+        boolean prompt;
+        switch (model_widget.propConfirmDialog().getValue())
+        {
+        case BOTH:     prompt = true;            break;
+        case PUSH:     prompt = on_state == 0;   break;
+        case RELEASE:  prompt = on_state == 1;   break;
+        case NONE:
+        default:       prompt = false;
+        }
+        if (prompt)
+        {   // Require password, or plain prompt?
+            final String message = model_widget.propConfirmMessage().getValue();
+            final String password = model_widget.propPassword().getValue();
+            if (password.length() > 0)
+            {
+                if (toolkit.showPasswordDialog(model_widget, message, password) == null)
+                    return;
+            }
+            else
+            {
+                if (! toolkit.showConfirmationDialog(model_widget, message))
+                    return;
+            }
+        }
+
         int new_val = (rt_value ^ ((use_bit < 0) ? 1 : (1 << use_bit)) );
         toolkit.fireWrite(model_widget, new_val);
     }

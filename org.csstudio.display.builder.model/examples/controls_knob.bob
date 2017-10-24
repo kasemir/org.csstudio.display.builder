@@ -2,9 +2,27 @@
 <display version="2.0.0">
   <name>Knob Widget</name>
   <width>670</width>
-  <height>920</height>
+  <height>1105</height>
   <actions execute_as_one="true">
   </actions>
+  <widget type="rectangle" version="2.0.0">
+    <name>Rectangle_2</name>
+    <x>10</x>
+    <y>930</y>
+    <width>355</width>
+    <height>175</height>
+    <line_width>1</line_width>
+    <line_color>
+      <color red="100" green="80" blue="60" alpha="160">
+      </color>
+    </line_color>
+    <background_color>
+      <color red="200" green="180" blue="160" alpha="160">
+      </color>
+    </background_color>
+    <corner_width>5</corner_width>
+    <corner_height>5</corner_height>
+  </widget>
   <widget type="rectangle" version="2.0.0">
     <name>Rectangle_1</name>
     <x>10</x>
@@ -90,7 +108,7 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_2</name>
-    <text>Read-back (current) value</text>
+    <text>Readback (current) value</text>
     <x>20</x>
     <y>120</y>
     <width>180</width>
@@ -250,19 +268,18 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_8</name>
-    <text>Read-back value can be always visible, or displayed only when it differs
-from the knob one.
+    <text>Knob value can be always visible, or displayed only when it differs from the readback one.
 
-Knob value can be synced with the read-back one, so that the knob will 
-positioned at the read-back value.
+Knob value can be synced with the readback one, so that the knob will positioned at the read-back value.
 
-When dragged, Knob can write the new target value on mouse button release, or
-continuously.
+When dragged, Knob can write the new target value on mouse button release, or continuously.
 
-Extrema (maximum and minimum values) can be hidden.</text>
+Extrema (maximum and minimum values) can be hidden.
+
+Knob PV and readback PV can be different. Readback PV can be omitted.</text>
     <x>20</x>
     <y>510</y>
-    <width>520</width>
+    <width>630</width>
     <height>180</height>
   </widget>
   <widget type="knob" version="2.0.0">
@@ -466,6 +483,109 @@ Extrema (maximum and minimum values) can be hidden.</text>
       <color red="179" green="102" blue="26">
       </color>
     </foreground_color>
+    <horizontal_alignment>1</horizontal_alignment>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_14</name>
+    <text>Readback:</text>
+    <x>10</x>
+    <y>950</y>
+    <width>80</width>
+    <horizontal_alignment>2</horizontal_alignment>
+    <vertical_alignment>1</vertical_alignment>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_15</name>
+    <text>Knob:</text>
+    <x>10</x>
+    <y>980</y>
+    <width>80</width>
+    <horizontal_alignment>2</horizontal_alignment>
+    <vertical_alignment>1</vertical_alignment>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry</name>
+    <pv_name>loc://knob-read-pv&lt;VDouble&gt;(30.0)</pv_name>
+    <x>100</x>
+    <y>950</y>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Text Update_2</name>
+    <pv_name>loc://knob-write-pv&lt;VDouble&gt;(20.0)</pv_name>
+    <x>100</x>
+    <y>980</y>
+    <vertical_alignment>1</vertical_alignment>
+  </widget>
+  <widget type="knob" version="2.0.0">
+    <name>Knob_5</name>
+    <pv_name>loc://knob-write-pv</pv_name>
+    <readback_pv_name>loc://knob-read-pv</readback_pv_name>
+    <x>215</x>
+    <y>940</y>
+    <width>140</width>
+    <height>140</height>
+    <color>
+      <color red="153" green="0" blue="0">
+      </color>
+    </color>
+    <limits_from_pv>false</limits_from_pv>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_16</name>
+    <text>READBACK PV DIFFERENT FROM THE KNOB ONE</text>
+    <x>25</x>
+    <y>1085</y>
+    <width>330</width>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="12.0">
+      </font>
+    </font>
+    <foreground_color>
+      <color red="179" green="102" blue="26">
+      </color>
+    </foreground_color>
+    <horizontal_alignment>1</horizontal_alignment>
+  </widget>
+  <widget type="knob" version="2.0.0">
+    <name>Knob_6</name>
+    <pv_name>loc://knob-pvd&lt;VDouble&gt;(20.0)</pv_name>
+    <x>390</x>
+    <y>940</y>
+    <width>140</width>
+    <height>140</height>
+    <color>
+      <color red="26" green="77" blue="26">
+      </color>
+    </color>
+    <color_ok>
+      <color red="153" green="179" blue="255">
+      </color>
+    </color_ok>
+    <show_hihi>false</show_hihi>
+    <show_high>false</show_high>
+    <show_low>false</show_low>
+    <show_lolo>false</show_lolo>
+    <target_visible>false</target_visible>
+    <thumb_color>
+      <color red="77" green="0" blue="26" alpha="207">
+      </color>
+    </thumb_color>
+    <unit>ºC</unit>
+    <value_color>
+      <color red="179" green="26" blue="26">
+      </color>
+    </value_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+    <limits_from_pv>false</limits_from_pv>
+    <minimum>-100.0</minimum>
+    <zero_detent_enabled>true</zero_detent_enabled>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_17</name>
+    <text>zero detent enabled</text>
+    <x>385</x>
+    <y>1085</y>
+    <width>150</width>
     <horizontal_alignment>1</horizontal_alignment>
   </widget>
 </display>

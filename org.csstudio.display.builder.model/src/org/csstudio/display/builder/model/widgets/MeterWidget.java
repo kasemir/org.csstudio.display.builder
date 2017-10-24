@@ -48,6 +48,7 @@ public class MeterWidget extends BaseMeterWidget {
         "platform:/plugin/org.csstudio.display.builder.model/icons/meter.png",
         "Meter that can read a numeric PV",
         Arrays.asList(
+            "org.csstudio.opibuilder.widgets.gauge",
             "org.csstudio.opibuilder.widgets.meter"
         )
     ) {
@@ -431,15 +432,28 @@ public class MeterWidget extends BaseMeterWidget {
                 return false;
             }
 
+            MeterWidget meter = (MeterWidget) widget;
+
             if ( xml_version.getMajor() < 2 ) {
 
-                MeterWidget meter = (MeterWidget) widget;
+                switch ( xml.getAttribute("typeId") ) {
+                    case "org.csstudio.opibuilder.widgets.gauge":
+                        meter.propSkin().setValue(Skin.GAUGE);
+                        break;
+                    case "org.csstudio.opibuilder.widgets.meter":
+                    default:
+                        meter.propSkin().setValue(Skin.HORIZONTAL);
+                        break;
+                }
 
                 XMLUtil.getChildColor(xml, "foreground_color").ifPresent(c -> {
                     meter.propMajorTickColor().setValue(c);
                     meter.propMediumTickColor().setValue(c);
                     meter.propMinorTickColor().setValue(c);
                     meter.propTickLabelColor().setValue(c);
+                    meter.propTitleColor().setValue(c);
+                    meter.propUnitColor().setValue(c);
+                    meter.propValueColor().setValue(c);
                 });
                 XMLUtil.getChildBoolean(xml, "show_minor_ticks").ifPresent(s -> {
                     meter.propMediumTickVisible().setValue(s);

@@ -13,10 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.Collections;
 import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 
@@ -42,18 +39,11 @@ import org.python.util.PythonInterpreter;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-class JythonScriptSupport implements AutoCloseable
+class JythonScriptSupport extends BaseScriptSupport implements AutoCloseable
 {
     private final ScriptSupport support;
 
     final static boolean initialized = init();
-
-    /** Scripts that have been submitted, awaiting execution, to avoid queuing them again.
-     *
-     *  <p>Relies on the fact that each script is unique identified by the script itself,
-     *  they're not submitted with different widget and pvs parameters.
-     */
-    private final Set<JythonScript> queued_scripts = Collections.newSetFromMap(new ConcurrentHashMap<JythonScript, Boolean>());
 
     private final PythonInterpreter python;
 
@@ -226,21 +216,15 @@ class JythonScriptSupport implements AutoCloseable
     public Future<Object> submit(final JythonScript script, final Widget widget, final RuntimePV... pvs)
     {
         // Skip script that's already in the queue.
-        // Check-then-set, no atomic submit-unless-queued logic.
-        // Might still add some scripts twice, but good enough.
-        if (queued_scripts.contains(script))
-        {
-            logger.log(Level.FINE, "Skipping script {0}, already queued for execution", script);
+        if (! markAsScheduled(script))
             return null;
-        }
-        queued_scripts.add(script);
 
         // System.out.println("Submit on " + Thread.currentThread().getName());
         return support.submit(() ->
         {
             // System.out.println("Executing " + script + " on " + Thread.currentThread().getName());
             // Script may be queued again
-            queued_scripts.remove(script);
+            removeScheduleMarker(script);
             try
             {
                 // Executor is single-threaded.

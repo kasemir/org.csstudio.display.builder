@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2017 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -150,6 +150,7 @@ import javafx.scene.media.MediaPlayer.Status;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Line;
 import javafx.scene.transform.Scale;
+import javafx.scene.transform.Transform;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 
@@ -162,11 +163,11 @@ import javafx.stage.Window;
  *
  *  <p>General scene layout:
  *  <pre>
- *  model_root
+ *  model_root    (ScrollPane)
  *   |
- *  scroll_body
+ *  scroll_body   (Group)
  *   |
- *  widget_parent
+ *  widget_parent (Pane)
  *  </pre>
  *
  *  <p>widget_parent:
@@ -361,11 +362,61 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         Styles.setSceneStyle(scene);
     }
 
+    /** Standard zoom levels */
+    // Values and order of options similar to 'Word' on Mac
+    public static final String[] ZOOM_LEVELS = new String[]
+    {
+        "200 %",
+        "150 %",
+        "125 %",
+        "100 %",
+        " 75 %",
+        " 50 %",
+        " 25 %",
+        Messages.Zoom_Width,
+        Messages.Zoom_Height,
+        Messages.Zoom_All
+    };
+
+    /** Default zoom level */
+    public static final String DEFAULT_ZOOM_LEVEL = ZOOM_LEVELS[3];
+
+    /** @param level_spec "123 %" or Messages.Zoom_*
+     *  @return Zoom spec actually used
+     */
+    final public String requestZoom(final String level_spec)
+    {
+        double zoom;
+        if (level_spec.equalsIgnoreCase(Messages.Zoom_All))
+            zoom = ZOOM_ALL;
+        else if (level_spec.equalsIgnoreCase(Messages.Zoom_Width))
+            zoom = ZOOM_WIDTH;
+        else if (level_spec.equalsIgnoreCase(Messages.Zoom_Height))
+            zoom = ZOOM_HEIGHT;
+        else
+        {   // Parse " 123 % "
+            String number = level_spec.trim();
+            if (number.endsWith("%"))
+                number = number.substring(0, number.length()-1).trim();
+            try
+            {
+                zoom = Double.parseDouble(number) / 100.0;
+            }
+            catch (NumberFormatException ex)
+            {
+                zoom = 1.0;
+            }
+        }
+        zoom = setZoom(zoom);
+
+        return Math.round(zoom*100) + " %";
+    }
+
     /** Set zoom level
      *  @param zoom Zoom level: 1.0 for 100%, 0.5 for 50%, ZOOM_ALL, ZOOM_WIDTH, ZOOM_HEIGHT
      *  @return Zoom level actually used
      */
-    final public double setZoom(double zoom)
+    private double setZoom(double zoom)
     {
         if (zoom <= 0.0)
         {   // Determine zoom to fit outline of display into available space
@@ -392,6 +443,9 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         // (top left origin of content no longer in top left corner of window).
         // Setting a Scale() transform does not exhibit that quirk,
         // maybe because both X and Y scaling are set 'at once'?
+
+        if (isEditMode())
+            updateModelSizeIndicators();
 
         return zoom;
     }
@@ -460,8 +514,16 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     /** Update lines that indicate model's size in edit mode */
     private void updateModelSizeIndicators()
     {
-        final int width = model.propWidth().getValue();
-        final int height = model.propHeight().getValue();
+        int width = model.propWidth().getValue();
+        int height = model.propHeight().getValue();
+
+        final ObservableList<Transform> transforms = widget_parent.getTransforms();
+        if (transforms.size() > 0  &&  transforms.get(0) instanceof Scale)
+        {
+            final Scale scale = (Scale) transforms.get(0);
+            width  *= scale.getX();
+            height *= scale.getY();
+        }
 
         horiz_bound.setStartY(height);
         horiz_bound.setEndX(width);

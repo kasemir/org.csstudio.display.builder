@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2017 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,9 +7,12 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
+import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
@@ -20,6 +23,7 @@ import org.csstudio.display.builder.model.widgets.RadioWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.diirt.vtype.VEnum;
 import org.diirt.vtype.VType;
+import org.diirt.vtype.next.VNumber;
 
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Orientation;
@@ -35,6 +39,7 @@ import javafx.scene.text.Font;
 /** Creates JavaFX item for model widget
  *  @author Amanda Carpenter
  */
+@SuppressWarnings("nls")
 public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWidget>
 {
     private volatile boolean active = false;
@@ -77,9 +82,10 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
         model_widget.propItemsFromPV().addUntypedPropertyListener(this::contentChanged);
         model_widget.propItems().addUntypedPropertyListener(this::contentChanged);
 
-        toggle.selectedToggleProperty().addListener(this::valueChanged);
+        if (! toolkit.isEditMode())
+            toggle.selectedToggleProperty().addListener(this::selectionChanged);
 
-        //initially populate pane with radio buttons
+        // Initially populate pane with radio buttons
         contentChanged(null, null, null);
     }
 
@@ -89,17 +95,27 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
         return true;
     }
 
-    private void valueChanged(final ObservableValue<? extends Toggle> obs, final Toggle oldval, final Toggle newval)
+    private void selectionChanged(final ObservableValue<? extends Toggle> obs, final Toggle oldval, final Toggle newval)
     {
-        if (!active && newval != null)
+        if (!active  &&  newval != null)
         {
             active = true;
             try
             {
+                // For now reset to old value.
+                // New value will be shown if the PV accepts it and sends a value update.
                 toggle.selectToggle(oldval);
-                final Object value = FormatOptionHandler.parse(model_widget.runtimePropValue().getValue(),
-                                                               ((RadioButton) newval).getText(),
-                                                               FormatOption.DEFAULT);
+
+                final Object value;
+                final VType pv_value = model_widget.runtimePropValue().getValue();
+                if (pv_value instanceof VEnum  ||  pv_value instanceof VNumber)
+                    // PV uses enumerated or numeric type, so write the index
+                    value = toggle.getToggles().indexOf(newval);
+                else // PV uses text
+                    value = FormatOptionHandler.parse(pv_value,
+                                                      ((RadioButton) newval).getText(),
+                                                      FormatOption.DEFAULT);
+                logger.log(Level.FINE, "Writing " + value);
                 toolkit.fireWrite(model_widget, value);
             }
             finally
@@ -121,41 +137,40 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
         toolkit.scheduleUpdate(this);
     }
 
-    /**
-     * @param value Current value of PV
-     * @return list of items for each radio button
+    /** @param value Current value of PV
+     *  @param fromPV Get list of items from PV (if possible)?
+     *  @return List of radio button labels
      */
     private List<String> computeItems(final VType value, final boolean fromPV)
     {
-        if (fromPV)
-        {
-            index = ((VEnum)value).getIndex();
+        if (value instanceof VEnum  &&  fromPV)
             return ((VEnum)value).getLabels();
-        }
-        else
-        {
-            List<WidgetProperty<String>> itemProps = model_widget.propItems().getValue();
-            List<String> new_items = new ArrayList<String>(itemProps.size());
-            int new_index = -1;
-            String currValue = VTypeUtil.getValueString(value, false);
-            for (WidgetProperty<String> itemProp : itemProps)
-            {
-                new_items.add(itemProp.getValue());
-                if (itemProp.getValue().equals(currValue))
-                    new_index = new_items.size()-1;
-            }
-            index = new_index;
-            return new_items;
-        }
+
+        final List<WidgetProperty<String>> itemProps = model_widget.propItems().getValue();
+        final List<String> new_items = new ArrayList<String>(itemProps.size());
+        for (WidgetProperty<String> itemProp : itemProps)
+            new_items.add(itemProp.getValue());
+        return new_items;
     }
 
+    private int determineIndex(final List<String> labels, final VType value)
+    {
+        if (value instanceof VEnum)
+            return ((VEnum)value).getIndex();
+        if (value instanceof VNumber)
+            return ((VNumber)value).getValue().intValue();
+        return labels.indexOf(VTypeUtil.getValueString(value, false));
+    }
+
+    /** The value or how we treat the value changed */
     private void contentChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        VType value = model_widget.runtimePropValue().getValue();
-        boolean fromPV = model_widget.propItemsFromPV().getValue() && value instanceof VEnum;
-        items = computeItems(value, fromPV); //also sets index
+        final VType value = model_widget.runtimePropValue().getValue();
+        final boolean fromPV = model_widget.propItemsFromPV().getValue() && value instanceof VEnum;
+        items = computeItems(value, fromPV);
+        index = determineIndex(items, value);
         dirty_content.mark();
-        dirty_style.mark(); //adjust colors
+        dirty_style.mark(); // Adjust colors
         toolkit.scheduleUpdate(this);
     }
 
@@ -165,9 +180,9 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
         super.updateChanges();
         if (dirty_size.checkAndClear())
         {
-            //size
+            // Size
             jfx_node.setPrefSize(model_widget.propWidth().getValue(), model_widget.propHeight().getValue());
-            //horizontal
+            // Orientation seems more of a hint. JFX will chose based on width vs. height.
             jfx_node.setOrientation(
                     model_widget.propHorizontal().getValue() ? Orientation.HORIZONTAL : Orientation.VERTICAL);
         }
@@ -176,11 +191,11 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
             active = true;
             try
             {
-                //copy volatile lists before iteration
+                // Copy volatile lists before iteration
                 final List<String> save_items = new ArrayList<String>(items);
                 final List<Node> save_buttons = new ArrayList<Node>(jfx_node.getChildren());
 
-                //set text of buttons, adding new ones as needed
+                // Set text of buttons, adding new ones as needed
                 int i, save_index = index;
                 for (i = 0; i < save_items.size(); i++)
                 {
@@ -192,8 +207,10 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
                 while (i < save_buttons.size() && save_buttons.size() > 1)
                     save_buttons.remove(save_buttons.size() - 1);
 
-                //set values for JavaFX items
-                toggle.selectToggle(save_index < 0 ? null : (Toggle) save_buttons.get(save_index));
+                // Select one of the radio buttons
+                toggle.selectToggle(save_index < 0 || save_index >= save_buttons.size()
+                                    ? null
+                                    : (Toggle) save_buttons.get(save_index));
                 jfx_node.getChildren().setAll(save_buttons);
             }
             finally

@@ -11,10 +11,7 @@ import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Collections;
 import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 
@@ -31,11 +28,8 @@ import org.csstudio.display.builder.runtime.pv.RuntimePV;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-class JavaScriptSupport
+class JavaScriptSupport extends BaseScriptSupport
 {
-    // See comments on queued_scripts in JythonScriptSupport
-    private final Set<JavaScript> queued_scripts = Collections.newSetFromMap(new ConcurrentHashMap<JavaScript, Boolean>());
-
     private final ScriptSupport support;
     private final ScriptEngine engine;
     private final Bindings bindings;
@@ -71,16 +65,12 @@ class JavaScriptSupport
      */
     public Future<Object> submit(final JavaScript script, final Widget widget, final RuntimePV... pvs)
     {
-        if (queued_scripts.contains(script))
-        {
-            logger.log(Level.FINE, "Skipping script {0}, already queued for execution", script);
+        if (markAsScheduled(script))
             return null;
-        }
-        queued_scripts.add(script);
 
         return support.submit(() ->
         {
-            queued_scripts.remove(script);
+            removeScheduleMarker(script);
             try
             {
                 bindings.put("widget", widget);

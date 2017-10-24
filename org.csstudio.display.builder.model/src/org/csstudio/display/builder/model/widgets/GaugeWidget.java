@@ -12,23 +12,17 @@ package org.csstudio.display.builder.model.widgets;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newColorPropertyDescriptor;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
-import org.csstudio.display.builder.model.WidgetConfigurator;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
-import org.csstudio.display.builder.model.persist.ModelReader;
-import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
-import org.osgi.framework.Version;
-import org.w3c.dom.Element;
 
 
 /**
@@ -44,10 +38,7 @@ public class GaugeWidget extends BaseGaugeWidget {
         WidgetCategory.MONITOR,
         "Gauge",
         "platform:/plugin/org.csstudio.display.builder.model/icons/gauge.png",
-        "Gauge that can read a numeric PV",
-        Arrays.asList(
-            "org.csstudio.opibuilder.widgets.gauge"
-        )
+        "Gauge that can read a numeric PV"
     ) {
         @Override
         public Widget createWidget ( ) {
@@ -91,11 +82,6 @@ public class GaugeWidget extends BaseGaugeWidget {
         super(WIDGET_DESCRIPTOR.getType(), 160, 160);
     }
 
-    @Override
-    public WidgetConfigurator getConfigurator ( final Version persistedVersion ) throws Exception {
-        return new GaugeConfigurator(persistedVersion);
-    }
-
     public WidgetProperty<WidgetColor> propBarBackgroundColor ( ) {
         return bar_background_color;
     }
@@ -122,41 +108,6 @@ public class GaugeWidget extends BaseGaugeWidget {
         properties.add(bar_background_color = propBarBackgroundColor.createProperty(this, new WidgetColor(0, 90, 0)));
         properties.add(bar_color            = propBarColor.createProperty(this, new WidgetColor(0, 183, 0)));
         properties.add(start_from_zero      = propStartFromZero.createProperty(this, true));
-
-    }
-
-    /**
-     * Custom configurator to read legacy *.opi files.
-     */
-    protected static class GaugeConfigurator extends BaseGaugeConfigurator {
-
-        public GaugeConfigurator ( Version xmlVersion ) {
-            super(xmlVersion);
-        }
-
-        @Override
-        public boolean configureFromXML ( final ModelReader reader, final Widget widget, final Element xml ) throws Exception {
-
-            if ( !super.configureFromXML(reader, widget, xml) ) {
-                return false;
-            }
-
-            if ( xml_version.getMajor() < 2 ) {
-
-                GaugeWidget gauge = (GaugeWidget) widget;
-
-                XMLUtil.getChildColor(xml, "needle_color").ifPresent(c -> {
-                    gauge.propBarColor().setValue(c);
-                    gauge.propBarBackgroundColor().setValue(new WidgetColor(c.getRed() / 3, c.getGreen() / 3, c.getBlue() / 3));
-                });
-
-                gauge.propSkin().setValue(Skin.MODERN);
-
-            }
-
-            return true;
-
-        }
 
     }
 
