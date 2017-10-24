@@ -397,81 +397,27 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
     @Override
     protected Gauge createJFXNode ( ) throws Exception {
 
-        knobPosition = model_widget.propKnobPosition().getValue();
-        knobType = model_widget.propKnobType().getValue();
-        skin = model_widget.propSkin().getValue();
+        try {
 
-        Gauge.SkinType skinType;
+            knobPosition = model_widget.propKnobPosition().getValue();
+            knobType = model_widget.propKnobType().getValue();
+            skin = model_widget.propSkin().getValue();
 
-        switch ( skin ) {
-            case THREE_QUARTERS:
-                skinType = Gauge.SkinType.GAUGE;
-                break;
-            default:
-                skinType = Gauge.SkinType.valueOf(skin.name());
-                break;
+            Gauge gauge = super.createJFXNode();
+
+            gauge.setKnobPosition(Pos.valueOf(knobPosition.name()));
+            gauge.setKnobType(Gauge.KnobType.valueOf(knobType.name()));
+            gauge.setKnobVisible(true);
+            gauge.setMajorTickMarkLengthFactor(0.515);
+            gauge.setMediumTickMarkLengthFactor(0.475);
+
+            return gauge;
+
+        } finally {
+            dirtyLimits.mark();
+            dirtyLook.mark();
+            toolkit.scheduleUpdate(this);
         }
-
-        Gauge gauge = super.createJFXNode(skinType);
-
-        gauge.setAverageColor(JFXUtil.convert(model_widget.propAverageColor().getValue()));
-        gauge.setAverageVisible(model_widget.propAverage().getValue());
-        gauge.setAveragingEnabled(model_widget.propAverage().getValue());
-        gauge.setAveragingPeriod(model_widget.propAverageSamples().getValue());
-        gauge.setHighlightSections(zonesHighlight);
-        gauge.setKnobColor(JFXUtil.convert(model_widget.propKnobColor().getValue()));
-        gauge.setKnobPosition(Pos.valueOf(knobPosition.name()));
-        gauge.setKnobType(Gauge.KnobType.valueOf(knobType.name()));
-        gauge.setKnobVisible(true);
-        gauge.setMajorTickMarkColor(JFXUtil.convert(model_widget.propMajorTickColor().getValue()));
-        gauge.setMajorTickMarkLengthFactor(0.515);
-        gauge.setMajorTickMarkType(TickMarkType.valueOf(model_widget.propMajorTickType().getValue().name()));
-        gauge.setMajorTickMarksVisible(model_widget.propMajorTickVisible().getValue());
-        gauge.setMediumTickMarkColor(JFXUtil.convert(model_widget.propMediumTickColor().getValue()));
-        gauge.setMediumTickMarkLengthFactor(0.475);
-        gauge.setMediumTickMarkType(TickMarkType.valueOf(model_widget.propMediumTickType().getValue().name()));
-        gauge.setMediumTickMarksVisible(model_widget.propMediumTickVisible().getValue());
-        gauge.setMinorTickMarkColor(JFXUtil.convert(model_widget.propMinorTickColor().getValue()));
-        gauge.setMinorTickMarkType(TickMarkType.valueOf(model_widget.propMinorTickType().getValue().name()));
-        gauge.setMinorTickMarksVisible(model_widget.propMinorTickVisible().getValue());
-        gauge.setNeedleBorderColor(JFXUtil.convert(model_widget.propNeedleColor().getValue()).darker());
-        gauge.setNeedleColor(JFXUtil.convert(model_widget.propNeedleColor().getValue()));
-        gauge.setNeedleShape(NeedleShape.valueOf(model_widget.propNeedleShape().getValue().name()));
-        gauge.setNeedleSize(NeedleSize.valueOf(model_widget.propNeedleSize().getValue().name()));
-        gauge.setNeedleType(NeedleType.valueOf(model_widget.propNeedleType().getValue().name()));
-        gauge.setOnlyFirstAndLastTickLabelVisible(model_widget.propOnlyExtremaVisible().getValue());
-        gauge.setScaleDirection(ScaleDirection.valueOf(model_widget.propScaleDirection().getValue().name()));
-        gauge.setShadowsEnabled(model_widget.propShadowsEnabled().getValue());
-        gauge.setThreshold(model_widget.propThreshold().getValue());
-        gauge.setThresholdColor(JFXUtil.convert(model_widget.propThresholdColor().getValue()));
-        gauge.setThresholdVisible(model_widget.propThresholdVisible().getValue());
-        gauge.setTickLabelColor(JFXUtil.convert(model_widget.propTickLabelColor().getValue()));
-        gauge.setTickLabelDecimals(model_widget.propTickLabelDecimals().getValue());
-        gauge.setTickLabelsVisible(model_widget.propTickLabelsVisible().getValue());
-        gauge.setTickMarkColor(JFXUtil.convert(model_widget.propTickMarkRingColor().getValue()));
-        gauge.setTickMarkRingVisible(model_widget.propTickMarkRingVisible().getValue());
-        gauge.setZeroColor(JFXUtil.convert(model_widget.propZeroColor().getValue()));
-
-        switch ( model_widget.propSkin().getValue() ) {
-            case GAUGE:
-                switch ( model_widget.propScaleDirection().getValue() ) {
-                    case CLOCKWISE:
-                        gauge.setStartAngle(320);
-                        break;
-                    case COUNTER_CLOCKWISE:
-                        gauge.setStartAngle(40);
-                        break;
-                }
-                break;
-            case THREE_QUARTERS:
-                gauge.setAngleRange(270);
-                gauge.setStartAngle(0);
-                break;
-            default:
-                break;
-        }
-
-        return gauge;
 
     }
 
@@ -487,6 +433,24 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
     @Override
     protected Section createZone ( double start, double end, String name, Color color ) {
         return createZone(zonesHighlight, start, end, name, color);
+    }
+
+    @Override
+    protected Gauge.SkinType getSkin() {
+
+        Gauge.SkinType skinType;
+
+        switch ( skin ) {
+            case THREE_QUARTERS:
+                skinType = Gauge.SkinType.GAUGE;
+                break;
+            default:
+                skinType = Gauge.SkinType.valueOf(skin.name());
+                break;
+        }
+
+        return skinType;
+
     }
 
     @Override
