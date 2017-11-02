@@ -572,7 +572,7 @@ public class DisplayEditor
      *  @param x Desired coordinate of upper-left widget ..
      *  @param y .. when pasted
      */
-    public void pasteFromClipboard(final int x, int y)
+    public void pasteFromClipboard(int x, int y)
     {
         if (selection_tracker.isInlineEditorActive())
             return;
@@ -589,6 +589,11 @@ public class DisplayEditor
         // Correct the y coordinate, measured inside this editor,
         // by height of toolbar
         y -= toolbar.getHeight();
+
+        // Correct coordinates by zoom factor
+        final double zoom = toolkit.getZoom();
+        x = (int) Math.round(x / zoom);
+        y = (int) Math.round(y / zoom);
 
         try
         {
