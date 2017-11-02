@@ -111,10 +111,9 @@ public class RCP_JFXRepresentation extends JFXRepresentation
         // Top-level Group of the part's Scene has pointer to RuntimeViewPart.
         // For EmbeddedDisplayWidget, the parent is inside the EmbeddedDisplayWidget,
         // and has no reference to the RuntimeViewPart.
-        final RuntimeViewPart part = (RuntimeViewPart) parent.getProperties().get(RuntimeViewPart.ROOT_RUNTIME_VIEW_PART);
-        if (part != null)
+        // Only track the top-level model, not embedded models.
+        if (parent.getProperties().get(RuntimeViewPart.ROOT_RUNTIME_VIEW_PART) == part)
             part.trackCurrentModel(model);
-
         super.representModel(parent, model);
     }
 
