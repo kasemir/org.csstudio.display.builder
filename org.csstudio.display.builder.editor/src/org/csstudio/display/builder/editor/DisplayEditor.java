@@ -95,7 +95,8 @@ import javafx.scene.layout.Pane;
  *
  *  <p>widget_parent hosts representations of model widgets
  *
- *  <p>edit_tools holds GroupHandler, SelectionTracker
+ *  <p>edit_tools holds GroupHandler, SelectionTracker.
+ *  It's zoom level is updated to match the widget_parent's zoom level.
  *
  *  <p>scroll_body automatically resizes to hold all widget representations.
  *  Shows 'rubberband'
