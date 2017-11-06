@@ -103,11 +103,9 @@ public class PointsEditor
      */
     private EventHandler<MouseEvent> append_mouse_filter = event ->
     {
-        // Since filter is on scene.
         // Transform mouse coordinates from scene into handle_group.
-        final Point2D origin = handle_group.localToScene(new Point2D(0.0, 0.0));
-        final double x = event.getX() - origin.getX();
-        final double y = event.getY() - origin.getY();
+        final Point2D local = handle_group.sceneToLocal(event.getX(), event.getY());
+        final double x = local.getX(), y = local.getY();
 
         if (event.getEventType() == MouseEvent.MOUSE_MOVED)
         {
