@@ -56,10 +56,29 @@ public abstract class BaseClockRepresentation<W extends BaseClockWidget> extends
                 jfx_node.setVisible((boolean) value);
             }
 
-            jfx_node.setLayoutX(model_widget.propX().getValue());
-            jfx_node.setLayoutY(model_widget.propY().getValue());
-            jfx_node.setPrefWidth(model_widget.propWidth().getValue());
-            jfx_node.setPrefHeight(model_widget.propHeight().getValue());
+            value = model_widget.propX().getValue();
+
+            if ( !Objects.equals(value, jfx_node.getLayoutX()) ) {
+                jfx_node.setLayoutX((Integer) value);
+            }
+
+            value = model_widget.propY().getValue();
+
+            if ( !Objects.equals(value, jfx_node.getLayoutY()) ) {
+                jfx_node.setLayoutY((Integer) value);
+            }
+
+            value = model_widget.propWidth().getValue();
+
+            if ( !Objects.equals(value, jfx_node.getPrefWidth()) ) {
+                jfx_node.setPrefWidth((Integer) value);
+            }
+
+            value = model_widget.propHeight().getValue();
+
+            if ( !Objects.equals(value, jfx_node.getPrefHeight()) ) {
+                jfx_node.setPrefHeight((Integer) value);
+            }
 
         }
 
