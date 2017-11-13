@@ -1241,25 +1241,31 @@ public class ImagePlot extends PlotCanvasBase
             image_y = data_height - 1;
 
         final ListNumber data = image_data;
-        final double pixel;
-        if (data == null)
-            pixel = Double.NaN;
-        else
+        double pixel = Double.NaN;
+        if (data != null)
         {
             final int offset = image_x + image_y * data_width;
-            if (unsigned_data)
+            try
             {
-                if (data instanceof ArrayByte)
-                    pixel = Byte.toUnsignedInt(data.getByte(offset));
-                else if (data instanceof ArrayShort)
+                if (unsigned_data)
+                {
+                    if (data instanceof ArrayByte)
+                        pixel = Byte.toUnsignedInt(data.getByte(offset));
+                    else if (data instanceof ArrayShort)
                         pixel = Short.toUnsignedInt(data.getShort(offset));
-                else if (data instanceof ArrayInt)
-                    pixel = Integer.toUnsignedLong(data.getInt(offset));
+                    else if (data instanceof ArrayInt)
+                        pixel = Integer.toUnsignedLong(data.getInt(offset));
+                    else
+                        pixel = data.getDouble(offset);
+                }
                 else
                     pixel = data.getDouble(offset);
             }
-            else
-                pixel = data.getDouble(offset);
+            catch (Throwable ex)
+            {   // Catch ArrayIndexOutOfBoundsException or other internal errors of ListNumber
+                logger.log(Level.WARNING, "Error accessing pixel " + image_x + ", " + image_y + " of data with size " + data.size());
+                // leave pixel == Double.NaN;
+            }
         }
         if (listener != null)
             listener.changedCursorInfo(x_val, y_val, image_x, image_y, pixel);
