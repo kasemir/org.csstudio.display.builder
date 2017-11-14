@@ -9,6 +9,8 @@
 package org.csstudio.display.builder.representation.javafx.widgets;
 
 
+import java.util.Objects;
+
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.BaseMeterWidget;
@@ -33,10 +35,28 @@ public abstract class BaseMeterRepresentation<W extends BaseMeterWidget> extends
 
         super.updateChanges();
 
+        Object value;
+
         if ( dirtyLook.checkAndClear() ) {
-            jfx_node.setLcdDesign(LcdDesign.valueOf(model_widget.propLcdDesign().getValue().name()));
-            jfx_node.setLcdFont(LcdFont.valueOf(model_widget.propLcdFont().getValue().name()));
-            jfx_node.setLcdVisible(model_widget.propLcdVisible().getValue());
+
+            value = LcdDesign.valueOf(model_widget.propLcdDesign().getValue().name());
+
+            if ( !Objects.equals(value, jfx_node.getLcdDesign()) ) {
+                jfx_node.setLcdDesign((LcdDesign) value);
+            }
+
+            value = LcdFont.valueOf(model_widget.propLcdFont().getValue().name());
+
+            if ( !Objects.equals(value, jfx_node.getLcdFont()) ) {
+                jfx_node.setLcdFont((LcdFont) value);
+            }
+
+            value = model_widget.propLcdVisible().getValue();
+
+            if ( !Objects.equals(value, jfx_node.isLcdVisible()) ) {
+                jfx_node.setLcdVisible((boolean) value);
+            }
+
         }
 
     }

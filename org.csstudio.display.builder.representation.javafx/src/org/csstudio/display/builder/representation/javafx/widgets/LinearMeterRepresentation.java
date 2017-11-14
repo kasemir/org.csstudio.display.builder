@@ -9,6 +9,7 @@
 package org.csstudio.display.builder.representation.javafx.widgets;
 
 
+import java.util.List;
 import java.util.Objects;
 
 import org.csstudio.display.builder.model.DirtyFlag;
@@ -181,7 +182,7 @@ public class LinearMeterRepresentation extends BaseMeterRepresentation<LinearMet
 
     }
 
-    private Section[] createAreas ( ) {
+    private List<Section> createAreas ( ) {
 
         updatingAreas = true;
 

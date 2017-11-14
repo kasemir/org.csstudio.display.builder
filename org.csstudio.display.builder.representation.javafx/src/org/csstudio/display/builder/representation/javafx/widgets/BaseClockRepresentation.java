@@ -56,29 +56,10 @@ public abstract class BaseClockRepresentation<W extends BaseClockWidget> extends
                 jfx_node.setVisible((boolean) value);
             }
 
-            value = model_widget.propX().getValue();
-
-            if ( !Objects.equals(value, jfx_node.getLayoutX()) ) {
-                jfx_node.setLayoutX((Integer) value);
-            }
-
-            value = model_widget.propY().getValue();
-
-            if ( !Objects.equals(value, jfx_node.getLayoutY()) ) {
-                jfx_node.setLayoutY((Integer) value);
-            }
-
-            value = model_widget.propWidth().getValue();
-
-            if ( !Objects.equals(value, jfx_node.getPrefWidth()) ) {
-                jfx_node.setPrefWidth((Integer) value);
-            }
-
-            value = model_widget.propHeight().getValue();
-
-            if ( !Objects.equals(value, jfx_node.getPrefHeight()) ) {
-                jfx_node.setPrefHeight((Integer) value);
-            }
+            jfx_node.setLayoutX(model_widget.propX().getValue());
+            jfx_node.setLayoutY(model_widget.propY().getValue());
+            jfx_node.setPrefWidth(model_widget.propWidth().getValue());
+            jfx_node.setPrefHeight(model_widget.propHeight().getValue());
 
         }
 
@@ -94,16 +75,16 @@ public abstract class BaseClockRepresentation<W extends BaseClockWidget> extends
 
             if ( value != null ) {
 
-                Locale l = Locale.getDefault();
+                Locale locale = Locale.getDefault();
 
                 try {
-                    l = Locale.forLanguageTag(value.toString());
+                    locale = Locale.forLanguageTag(value.toString());
                 } catch ( Exception ex ) {
                     logger.log(Level.WARNING, "Unable to convert \"{0}\" to a Local instance [{1}].", new Object[] { value.toString(), ex.getMessage()});
                 }
 
-                if ( !l.equals(jfx_node.getLocale()) ) {
-                    jfx_node.setLocale(l);
+                if ( !Objects.equals(locale, jfx_node.getLocale()) ) {
+                    jfx_node.setLocale(locale);
                 }
 
             }
