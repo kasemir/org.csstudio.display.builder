@@ -12,6 +12,7 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -54,50 +55,141 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
     private final AtomicBoolean           updatingValue = new AtomicBoolean(false);
     private volatile boolean              firstUsage    = true;
 
+    @SuppressWarnings( "unchecked" )
     @Override
     public void updateChanges ( ) {
 
         super.updateChanges();
 
+        Object value;
+
         if ( dirtyContent.checkAndClear() ) {
-            jfx_node.setDecimals(FormatOptionHandler.actualPrecision(model_widget.runtimePropValue().getValue(), model_widget.propPrecision().getValue()));
+
+            value = FormatOptionHandler.actualPrecision(model_widget.runtimePropValue().getValue(), model_widget.propPrecision().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getDecimals()) ) {
+                jfx_node.setDecimals((int) value);
+            }
+
         }
 
         if ( dirtyGeometry.checkAndClear() ) {
+
+            value = model_widget.propVisible().getValue();
+
+            if ( !Objects.equals(value, jfx_node.isVisible()) ) {
+                jfx_node.setVisible((boolean) value);
+            }
+
             jfx_node.setLayoutX(model_widget.propX().getValue());
             jfx_node.setLayoutY(model_widget.propY().getValue());
             jfx_node.setPrefWidth(model_widget.propWidth().getValue());
             jfx_node.setPrefHeight(model_widget.propHeight().getValue());
-            jfx_node.setVisible(model_widget.propVisible().getValue());
+
         }
 
         if ( dirtyLook.checkAndClear() ) {
-            jfx_node.setBackgroundColor(model_widget.propTransparent().getValue() ? Color.TRANSPARENT : JFXUtil.convert(model_widget.propBackgroundColor().getValue()));
-            jfx_node.setColor(JFXUtil.convert(model_widget.propColor().getValue()));
-            jfx_node.setCurrentValueColor(JFXUtil.convert(model_widget.propValueColor().getValue()));
-            jfx_node.setExtremaVisible(model_widget.propExtremaVisible().getValue());
-            jfx_node.setIndicatorColor(JFXUtil.convert(model_widget.propThumbColor().getValue()));
-            jfx_node.setTagColor(JFXUtil.convert(model_widget.propTagColor().getValue()));
-            jfx_node.setTagVisible(model_widget.propTagVisible().getValue());
-            jfx_node.setTargetValueAlwaysVisible(model_widget.propTargetVisible().getValue());
-            jfx_node.setTextColor(JFXUtil.convert(model_widget.propTextColor().getValue()));
-            jfx_node.setZeroDetentEnabled(model_widget.propZeroDetentEnabled().getValue());
+
+            value = model_widget.propTransparent().getValue() ? Color.TRANSPARENT : JFXUtil.convert(model_widget.propBackgroundColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getBackgroundColor()) ) {
+                jfx_node.setBackgroundColor((Color) value);
+            }
+
+            value = JFXUtil.convert(model_widget.propColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getColor()) ) {
+                jfx_node.setColor((Color) value);
+            }
+
+            value = JFXUtil.convert(model_widget.propValueColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getCurrentValueColor()) ) {
+                jfx_node.setCurrentValueColor((Color) value);
+            }
+
+            value = model_widget.propExtremaVisible().getValue();
+
+            if ( !Objects.equals(value, jfx_node.isExtremaVisible()) ) {
+                jfx_node.setExtremaVisible((boolean) value);
+            }
+
+            value = JFXUtil.convert(model_widget.propThumbColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getIndicatorColor()) ) {
+                jfx_node.setIndicatorColor((Color) value);
+            }
+
+            value = JFXUtil.convert(model_widget.propTagColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getTagColor()) ) {
+                jfx_node.setTagColor((Color) value);
+            }
+
+            value = model_widget.propTagVisible().getValue();
+
+            if ( !Objects.equals(value, jfx_node.isTagVisible()) ) {
+                jfx_node.setTagVisible((boolean) value);
+            }
+
+            value = model_widget.propTargetVisible().getValue();
+
+            if ( !Objects.equals(value, jfx_node.isTargetValueAlwaysVisible()) ) {
+                jfx_node.setTargetValueAlwaysVisible((boolean) value);
+            }
+
+            value = JFXUtil.convert(model_widget.propTextColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getTextColor()) ) {
+                jfx_node.setTextColor((Color) value);
+            }
+
+            value = model_widget.propZeroDetentEnabled().getValue();
+
+            if ( !Objects.equals(value, jfx_node.isZeroDetentEnabled()) ) {
+                jfx_node.setZeroDetentEnabled((boolean) value);
+            }
 
         }
 
         if ( dirtyLimits.checkAndClear() ) {
-            jfx_node.setGradientStops(computeGradientStops());
-            jfx_node.setMinValue(min);
-            jfx_node.setMaxValue(max);
+
+            value = computeGradientStops();
+
+            if ( !Objects.equals(value, jfx_node.getGradientStops()) ) {
+                jfx_node.setGradientStops((List<Stop>) value);
+            }
+
+            if ( !Objects.equals(max, jfx_node.getMaxValue()) ) {
+                jfx_node.setMaxValue(max);
+            }
+
+            if ( !Objects.equals(min, jfx_node.getMinValue()) ) {
+                jfx_node.setMinValue(min);
+            }
+
         }
 
         if ( dirtyUnit.checkAndClear() ) {
-            jfx_node.setUnit(getUnit());
+
+            value = getUnit();
+
+            if ( !Objects.equals(value, jfx_node.getUnit()) ) {
+                jfx_node.setUnit((String) value);
+            }
+
         }
 
         if ( dirtyStyle.checkAndClear() ) {
-            jfx_node.setDragDisabled(model_widget.propDragDisabled().getValue());
+
+            value = model_widget.propDragDisabled().getValue();
+
+            if ( !Objects.equals(value, jfx_node.isDragDisabled()) ) {
+                jfx_node.setDragDisabled((boolean) value);
+            }
+
             Styles.update(jfx_node, Styles.NOT_ENABLED, !model_widget.propEnabled().getValue());
+
         }
 
         if ( dirtyValue.checkAndClear() && updatingValue.compareAndSet(false, true) ) {

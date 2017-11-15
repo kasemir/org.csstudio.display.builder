@@ -10,6 +10,7 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -35,35 +36,51 @@ import javafx.scene.paint.Color;
  */
 public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends RegionBaseRepresentation<Gauge, W> {
 
-    private final DirtyFlag               dirtyContent  = new DirtyFlag();
-    private final DirtyFlag               dirtyGeometry = new DirtyFlag();
-    private final DirtyFlag               dirtyLimits   = new DirtyFlag();
-    private final DirtyFlag               dirtyLook     = new DirtyFlag();
-    private final DirtyFlag               dirtyStyle    = new DirtyFlag();
-    private final DirtyFlag               dirtyUnit     = new DirtyFlag();
-    private final DirtyFlag               dirtyValue    = new DirtyFlag();
-    private volatile double               high          = Double.NaN;
-    private volatile double               hihi          = Double.NaN;
-    private volatile double               lolo          = Double.NaN;
-    private volatile double               low           = Double.NaN;
-    private volatile double               max           = 100.0;
-    private volatile double               min           = 0.0;
-    private final AtomicBoolean           updatingValue = new AtomicBoolean(false);
+    private final DirtyFlag     dirtyContent  = new DirtyFlag();
+    private final DirtyFlag     dirtyGeometry = new DirtyFlag();
+    private final DirtyFlag     dirtyLimits   = new DirtyFlag();
+    private final DirtyFlag     dirtyLook     = new DirtyFlag();
+    private final DirtyFlag     dirtyStyle    = new DirtyFlag();
+    private final DirtyFlag     dirtyUnit     = new DirtyFlag();
+    private final DirtyFlag     dirtyValue    = new DirtyFlag();
+    private volatile double     high          = Double.NaN;
+    private volatile double     hihi          = Double.NaN;
+    private volatile double     lolo          = Double.NaN;
+    private volatile double     low           = Double.NaN;
+    private volatile double     max           = 100.0;
+    private volatile double     min           = 0.0;
+    private final AtomicBoolean updatingValue = new AtomicBoolean(false);
 
+    @SuppressWarnings( "unchecked" )
     @Override
     public void updateChanges ( ) {
 
         super.updateChanges();
 
+        Object value;
+
         if ( dirtyGeometry.checkAndClear() ) {
-            jfx_node.setVisible(model_widget.propVisible().getValue());
+
+            value = model_widget.propVisible().getValue();
+
+            if ( !Objects.equals(value, jfx_node.isVisible()) ) {
+                jfx_node.setVisible((boolean) value);
+            }
+
             jfx_node.setLayoutX(model_widget.propX().getValue());
             jfx_node.setLayoutY(model_widget.propY().getValue());
             jfx_node.setPrefWidth(model_widget.propWidth().getValue());
             jfx_node.setPrefHeight(model_widget.propHeight().getValue());
+
         }
 
         if ( dirtyLook.checkAndClear() ) {
+
+            value = model_widget.propAutoScale().getValue();
+
+            if ( !Objects.equals(value, jfx_node.isAutoScale()) ) {
+                jfx_node.setAutoScale((boolean) value);
+            }
 
             Color bgColor = JFXUtil.convert(model_widget.propBackgroundColor().getValue());
 
@@ -71,31 +88,96 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
                 bgColor = bgColor.deriveColor(0, 1, 1, 0);
             }
 
-            jfx_node.setAutoScale(model_widget.propAutoScale().getValue());
-            jfx_node.setBackgroundPaint(bgColor);
-            jfx_node.setMajorTickSpace(model_widget.propMajorTickSpace().getValue());
-            jfx_node.setMinorTickSpace(model_widget.propMinorTickSpace().getValue());
-            jfx_node.setTitle(model_widget.propTitle().getValue());
-            jfx_node.setTitleColor(JFXUtil.convert(model_widget.propTitleColor().getValue()));
-            jfx_node.setUnitColor(JFXUtil.convert(model_widget.propUnitColor().getValue()));
-            jfx_node.setValueColor(JFXUtil.convert(model_widget.propValueColor().getValue()));
-            jfx_node.setValueVisible(model_widget.propValueVisible().getValue());
+            if ( !Objects.equals(bgColor, jfx_node.getBackgroundPaint()) ) {
+                jfx_node.setBackgroundPaint(bgColor);
+            }
+
+            value = model_widget.propMajorTickSpace().getValue();
+
+            if ( !Objects.equals(value, jfx_node.getMajorTickSpace()) ) {
+                jfx_node.setMajorTickSpace((double) value);
+            }
+
+            value = model_widget.propMinorTickSpace().getValue();
+
+            if ( !Objects.equals(value, jfx_node.getMinorTickSpace()) ) {
+                jfx_node.setMinorTickSpace((double) value);
+            }
+
+            value = model_widget.propTitle().getValue();
+
+            if ( !Objects.equals(value, jfx_node.getTitle()) ) {
+                jfx_node.setTitle((String) value);
+            }
+
+            value = JFXUtil.convert(model_widget.propTitleColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getTitleColor()) ) {
+                jfx_node.setTitleColor((Color) value);
+            }
+
+            value = JFXUtil.convert(model_widget.propUnitColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getUnitColor()) ) {
+                jfx_node.setUnitColor((Color) value);
+            }
+
+            value = JFXUtil.convert(model_widget.propValueColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getValueColor()) ) {
+                jfx_node.setValueColor((Color) value);
+            }
+
+            value = model_widget.propValueVisible().getValue();
+
+            if ( !Objects.equals(value, jfx_node.isValueVisible()) ) {
+                jfx_node.setValueVisible((boolean) value);
+            }
 
         }
 
         if ( dirtyContent.checkAndClear() ) {
-            jfx_node.setDecimals(FormatOptionHandler.actualPrecision(model_widget.runtimePropValue().getValue(), model_widget.propPrecision().getValue()));
+
+            value = FormatOptionHandler.actualPrecision(model_widget.runtimePropValue().getValue(), model_widget.propPrecision().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getDecimals()) ) {
+                jfx_node.setDecimals((int) value);
+            }
+
         }
 
         if ( dirtyLimits.checkAndClear() ) {
-            jfx_node.setMaxValue(max);
-            jfx_node.setMinValue(min);
-            jfx_node.setSectionsVisible(areZonesVisible());
-            jfx_node.setSections(createZones());
+
+            if ( !Objects.equals(max, jfx_node.getMaxValue()) ) {
+                jfx_node.setMaxValue(max);
+            }
+
+            if ( !Objects.equals(min, jfx_node.getMinValue()) ) {
+                jfx_node.setMinValue(min);
+            }
+
+            value = areZonesVisible();
+
+            if ( !Objects.equals(value, jfx_node.getSectionsVisible()) ) {
+                jfx_node.setSectionsVisible((boolean) value);
+            }
+
+            value = createZones();
+
+            if ( !Objects.equals(value, jfx_node.getSections()) ) {
+                jfx_node.setSections((List<Section>) value);
+            }
+
         }
 
         if ( dirtyUnit.checkAndClear() ) {
-            jfx_node.setUnit(getUnit());
+
+            value = getUnit();
+
+            if ( !Objects.equals(value, jfx_node.getUnit()) ) {
+                jfx_node.setUnit((String) value);
+            }
+
         }
 
         if ( dirtyStyle.checkAndClear() ) {
@@ -238,7 +320,7 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
      *
      * @return An array of {@link Section}s.
      */
-    protected final Section[] createZones ( ) {
+    protected final List<Section> createZones ( ) {
 
         boolean loloNaN = Double.isNaN(lolo);
         boolean hihiNaN = Double.isNaN(hihi);
@@ -260,7 +342,7 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
             sections.add(createZone(hihi, max, "HiHi", JFXUtil.convert(model_widget.propColorHiHi().getValue())));
         }
 
-        return sections.toArray(new Section[sections.size()]);
+        return sections;
 
     }
 
