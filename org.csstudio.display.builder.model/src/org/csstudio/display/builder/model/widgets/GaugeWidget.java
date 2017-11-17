@@ -62,16 +62,17 @@ public class GaugeWidget extends BaseGaugeWidget {
         SLIM
     }
 
-    public static final WidgetPropertyDescriptor<Skin>        propSkin               = new WidgetPropertyDescriptor<Skin>(WidgetPropertyCategory.WIDGET, "skin",                 Messages.WidgetProperties_Skin) {
+    public static final WidgetPropertyDescriptor<Skin>        propSkin               = new WidgetPropertyDescriptor<Skin>(WidgetPropertyCategory.WIDGET,   "skin",                 Messages.WidgetProperties_Skin) {
         @Override
         public EnumWidgetProperty<Skin> createProperty ( Widget widget, Skin defaultValue ) {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
 
-    public static final WidgetPropertyDescriptor<WidgetColor> propBarBackgroundColor = newColorPropertyDescriptor        (WidgetPropertyCategory.MISC,   "bar_background_color", Messages.WidgetProperties_BarBackgroundColor);
-    public static final WidgetPropertyDescriptor<WidgetColor> propBarColor           = newColorPropertyDescriptor        (WidgetPropertyCategory.MISC,   "bar_color",            Messages.WidgetProperties_BarColor);
-    public static final WidgetPropertyDescriptor<Boolean>     propStartFromZero      = newBooleanPropertyDescriptor      (WidgetPropertyCategory.MISC,   "start_from_zero",      Messages.WidgetProperties_StartFromZero);
+    public static final WidgetPropertyDescriptor<Boolean>     propStartFromZero      = newBooleanPropertyDescriptor      (WidgetPropertyCategory.BEHAVIOR, "start_from_zero",      Messages.WidgetProperties_StartFromZero);
+
+    public static final WidgetPropertyDescriptor<WidgetColor> propBarBackgroundColor = newColorPropertyDescriptor        (WidgetPropertyCategory.MISC,     "bar_background_color", Messages.WidgetProperties_BarBackgroundColor);
+    public static final WidgetPropertyDescriptor<WidgetColor> propBarColor           = newColorPropertyDescriptor        (WidgetPropertyCategory.MISC,     "bar_color",            Messages.WidgetProperties_BarColor);
 
     private volatile WidgetProperty<WidgetColor> bar_background_color;
     private volatile WidgetProperty<WidgetColor> bar_color;
