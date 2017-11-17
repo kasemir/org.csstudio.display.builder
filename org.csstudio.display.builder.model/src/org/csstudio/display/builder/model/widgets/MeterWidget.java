@@ -451,9 +451,6 @@ public class MeterWidget extends BaseMeterWidget {
                     meter.propMediumTickColor().setValue(c);
                     meter.propMinorTickColor().setValue(c);
                     meter.propTickLabelColor().setValue(c);
-                    meter.propTitleColor().setValue(c);
-                    meter.propUnitColor().setValue(c);
-                    meter.propValueColor().setValue(c);
                 });
                 XMLUtil.getChildBoolean(xml, "show_minor_ticks").ifPresent(s -> {
                     meter.propMediumTickVisible().setValue(s);

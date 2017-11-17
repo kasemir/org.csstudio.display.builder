@@ -97,6 +97,14 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
                 jfx_node.setBackgroundPaint(bgColor);
             }
 
+            value = JFXUtil.convert(model_widget.propForegroundColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getTitleColor()) ) {
+                jfx_node.setTitleColor((Color) value);
+                jfx_node.setUnitColor((Color) value);
+                jfx_node.setValueColor((Color) value);
+            }
+
             value = model_widget.propMajorTickSpace().getValue();
 
             if ( !Objects.equals(value, jfx_node.getMajorTickSpace()) ) {
@@ -113,24 +121,6 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
 
             if ( !Objects.equals(value, jfx_node.getTitle()) ) {
                 jfx_node.setTitle((String) value);
-            }
-
-            value = JFXUtil.convert(model_widget.propTitleColor().getValue());
-
-            if ( !Objects.equals(value, jfx_node.getTitleColor()) ) {
-                jfx_node.setTitleColor((Color) value);
-            }
-
-            value = JFXUtil.convert(model_widget.propUnitColor().getValue());
-
-            if ( !Objects.equals(value, jfx_node.getUnitColor()) ) {
-                jfx_node.setUnitColor((Color) value);
-            }
-
-            value = JFXUtil.convert(model_widget.propValueColor().getValue());
-
-            if ( !Objects.equals(value, jfx_node.getValueColor()) ) {
-                jfx_node.setValueColor((Color) value);
             }
 
             value = model_widget.propValueVisible().getValue();
@@ -235,6 +225,8 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         jfx_node.setPrefWidth(model_widget.propWidth().getValue());
         jfx_node.setPrefHeight(model_widget.propHeight().getValue());
 
+        Color fgColor = JFXUtil.convert(model_widget.propForegroundColor().getValue());
+
         jfx_node.setAnimated(false);
         jfx_node.setAutoScale(model_widget.propAutoScale().getValue());
         jfx_node.setBackgroundPaint(model_widget.propTransparent().getValue() ? Color.TRANSPARENT : JFXUtil.convert(model_widget.propBackgroundColor().getValue()));
@@ -252,10 +244,10 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         jfx_node.setSectionIconsVisible(false);
         jfx_node.setSectionTextVisible(false);
         jfx_node.setTitle(model_widget.propTitle().getValue());
-        jfx_node.setTitleColor(JFXUtil.convert(model_widget.propTitleColor().getValue()));
+        jfx_node.setTitleColor(fgColor);
         jfx_node.setUnit(model_widget.propUnit().getValue());
-        jfx_node.setUnitColor(JFXUtil.convert(model_widget.propUnitColor().getValue()));
-        jfx_node.setValueColor(JFXUtil.convert(model_widget.propValueColor().getValue()));
+        jfx_node.setUnitColor(fgColor);
+        jfx_node.setValueColor(fgColor);
         jfx_node.setValueVisible(model_widget.propValueVisible().getValue());
 
     }
@@ -392,13 +384,11 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
 
         model_widget.propAutoScale().addUntypedPropertyListener(this::lookChanged);
         model_widget.propBackgroundColor().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propForegroundColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propMajorTickSpace().addUntypedPropertyListener(this::lookChanged);
         model_widget.propMinorTickSpace().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTitle().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propTitleColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTransparent().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propUnitColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propValueColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propValueVisible().addUntypedPropertyListener(this::lookChanged);
 
         model_widget.propLevelHiHi().addUntypedPropertyListener(this::limitsChanged);
