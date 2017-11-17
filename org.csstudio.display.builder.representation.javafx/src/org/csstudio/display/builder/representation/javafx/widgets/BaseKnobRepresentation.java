@@ -19,6 +19,8 @@ import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.persist.NamedWidgetColors;
+import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.util.FormatOptionHandler;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.KnobWidget;
@@ -39,21 +41,25 @@ import se.ess.knobs.Knob;
  */
 public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidget> extends RegionBaseRepresentation<C, W> {
 
-    private final DirtyFlag               dirtyContent  = new DirtyFlag();
-    private final DirtyFlag               dirtyGeometry = new DirtyFlag();
-    private final DirtyFlag               dirtyLimits   = new DirtyFlag();
-    private final DirtyFlag               dirtyLook     = new DirtyFlag();
-    private final DirtyFlag               dirtyStyle    = new DirtyFlag();
-    private final DirtyFlag               dirtyUnit     = new DirtyFlag();
-    private final DirtyFlag               dirtyValue    = new DirtyFlag();
-    private volatile double               high          = Double.NaN;
-    private volatile double               hihi          = Double.NaN;
-    private volatile double               lolo          = Double.NaN;
-    private volatile double               low           = Double.NaN;
-    private volatile double               max           = 100.0;
-    private volatile double               min           = 0.0;
-    private final AtomicBoolean           updatingValue = new AtomicBoolean(false);
-    private volatile boolean              firstUsage    = true;
+    protected static final Color ALARM_MAJOR_COLOR = JFXUtil.convert(WidgetColorService.getColor(NamedWidgetColors.ALARM_MAJOR));
+    protected static final Color ALARM_MINOR_COLOR = JFXUtil.convert(WidgetColorService.getColor(NamedWidgetColors.ALARM_MINOR));
+    protected static final Color ALARM_OK_COLOR    = JFXUtil.convert(WidgetColorService.getColor(NamedWidgetColors.ALARM_OK));
+
+    private final DirtyFlag     dirtyContent  = new DirtyFlag();
+    private final DirtyFlag     dirtyGeometry = new DirtyFlag();
+    private final DirtyFlag     dirtyLimits   = new DirtyFlag();
+    private final DirtyFlag     dirtyLook     = new DirtyFlag();
+    private final DirtyFlag     dirtyStyle    = new DirtyFlag();
+    private final DirtyFlag     dirtyUnit     = new DirtyFlag();
+    private final DirtyFlag     dirtyValue    = new DirtyFlag();
+    private volatile double     high          = Double.NaN;
+    private volatile double     hihi          = Double.NaN;
+    private volatile double     lolo          = Double.NaN;
+    private volatile double     low           = Double.NaN;
+    private volatile double     max           = 100.0;
+    private volatile double     min           = 0.0;
+    private final AtomicBoolean updatingValue = new AtomicBoolean(false);
+    private volatile boolean    firstUsage    = true;
 
     @SuppressWarnings( "unchecked" )
     @Override
@@ -307,11 +313,6 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
         model_widget.propTargetVisible().addUntypedPropertyListener(this::lookChanged);
         model_widget.propZeroDetentEnabled().addUntypedPropertyListener(this::lookChanged);
 
-        model_widget.propColorHiHi().addUntypedPropertyListener(this::limitsChanged);
-        model_widget.propColorHigh().addUntypedPropertyListener(this::limitsChanged);
-        model_widget.propColorLoLo().addUntypedPropertyListener(this::limitsChanged);
-        model_widget.propColorLow().addUntypedPropertyListener(this::limitsChanged);
-        model_widget.propColorOK().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propLevelHiHi().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propLevelHigh().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propLevelLoLo().addUntypedPropertyListener(this::limitsChanged);
@@ -321,6 +322,7 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
         model_widget.propShowHigh().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propShowLoLo().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propShowLow().addUntypedPropertyListener(this::limitsChanged);
+        model_widget.propShowOK().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propMaximum().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propMinimum().addUntypedPropertyListener(this::limitsChanged);
 
@@ -350,23 +352,24 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
         double range = max - min;
         boolean loloNaN = Double.isNaN(lolo);
         boolean lowNaN = Double.isNaN(low);
+        boolean showOK = model_widget.propShowOK().getValue();
 
         if ( !loloNaN ) {
 
-            stops.add(new Stop(0.0, JFXUtil.convert(model_widget.propColorLoLo().getValue())));
+            stops.add(new Stop(0.0, ALARM_MAJOR_COLOR));
 
             if ( !lowNaN ) {
-                stops.add(new Stop(( lolo - min ) / range, JFXUtil.convert(model_widget.propColorLow().getValue())));
-                stops.add(new Stop(( low - min )  / range, JFXUtil.convert(model_widget.propColorOK().getValue())));
+                stops.add(new Stop(( lolo - min ) / range, ALARM_MINOR_COLOR));
+                stops.add(new Stop(( low - min )  / range, showOK ? ALARM_OK_COLOR : Color.TRANSPARENT));
             } else {
-                stops.add(new Stop(( lolo - min )  / range, JFXUtil.convert(model_widget.propColorOK().getValue())));
+                stops.add(new Stop(( lolo - min )  / range, showOK ? ALARM_OK_COLOR : Color.TRANSPARENT));
             }
 
         } else if ( !lowNaN ) {
-            stops.add(new Stop(0.0, JFXUtil.convert(model_widget.propColorLow().getValue())));
-            stops.add(new Stop(( low - min )  / range, JFXUtil.convert(model_widget.propColorOK().getValue())));
+            stops.add(new Stop(0.0, ALARM_MINOR_COLOR));
+            stops.add(new Stop(( low - min )  / range, showOK ? ALARM_OK_COLOR : Color.TRANSPARENT));
         } else {
-            stops.add(new Stop(0.0, JFXUtil.convert(model_widget.propColorOK().getValue())));
+            stops.add(new Stop(0.0, showOK ? ALARM_OK_COLOR : Color.TRANSPARENT));
         }
 
         boolean highNaN = Double.isNaN(high);
@@ -374,20 +377,20 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
 
         if ( !hihiNaN ) {
 
-            stops.add(new Stop(1.0, JFXUtil.convert(model_widget.propColorHiHi().getValue())));
+            stops.add(new Stop(1.0, ALARM_MAJOR_COLOR));
 
             if ( !highNaN ) {
-                stops.add(new Stop(( hihi - min )  / range, JFXUtil.convert(model_widget.propColorHigh().getValue())));
-                stops.add(new Stop(( high - min )  / range, JFXUtil.convert(model_widget.propColorOK().getValue())));
+                stops.add(new Stop(( hihi - min )  / range, ALARM_MINOR_COLOR));
+                stops.add(new Stop(( high - min )  / range, showOK ? ALARM_OK_COLOR : Color.TRANSPARENT));
             } else {
-                stops.add(new Stop(( hihi - min )  / range, JFXUtil.convert(model_widget.propColorOK().getValue())));
+                stops.add(new Stop(( hihi - min )  / range, showOK ? ALARM_OK_COLOR : Color.TRANSPARENT));
             }
 
         } else if ( !highNaN ) {
-            stops.add(new Stop(1.0, JFXUtil.convert(model_widget.propColorHigh().getValue())));
-            stops.add(new Stop(( high - min )  / range, JFXUtil.convert(model_widget.propColorOK().getValue())));
+            stops.add(new Stop(1.0, ALARM_MINOR_COLOR));
+            stops.add(new Stop(( high - min )  / range, showOK ? ALARM_OK_COLOR : Color.TRANSPARENT));
         } else {
-            stops.add(new Stop(1.0, JFXUtil.convert(model_widget.propColorOK().getValue())));
+            stops.add(new Stop(1.0, showOK ? ALARM_OK_COLOR : Color.TRANSPARENT));
         }
 
         return stops.stream().sorted(Comparator.comparingDouble(s -> s.getOffset())).collect(Collectors.toList());

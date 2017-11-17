@@ -286,6 +286,7 @@ public class Messages extends NLS
     public static String WidgetProperties_ShowLow;
     public static String WidgetProperties_ShowLoLo;
     public static String WidgetProperties_ShowMinorTicks;
+    public static String WidgetProperties_ShowOK;
     public static String WidgetProperties_ShowScale;
     public static String WidgetProperties_ShowUnits;
     public static String WidgetProperties_Skin;

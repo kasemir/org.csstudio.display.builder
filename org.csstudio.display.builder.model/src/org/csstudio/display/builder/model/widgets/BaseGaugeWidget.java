@@ -29,8 +29,6 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.persist.ModelReader;
-import org.csstudio.display.builder.model.persist.NamedWidgetColors;
-import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.osgi.framework.Version;
@@ -45,10 +43,6 @@ public abstract class BaseGaugeWidget extends PVWidget {
     public static final WidgetPropertyDescriptor<Boolean>     propAutoScale      = newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "auto_scale",       Messages.WidgetProperties_AutoScale);
     public static final WidgetPropertyDescriptor<Boolean>     propUnitFromPV     = newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "unit_from_pv",     Messages.WidgetProperties_UnitFromPV);
 
-    public static final WidgetPropertyDescriptor<WidgetColor> propColorHiHi      = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "color_hihi",       Messages.WidgetProperties_ColorHiHi);
-    public static final WidgetPropertyDescriptor<WidgetColor> propColorHigh      = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "color_high",       Messages.WidgetProperties_ColorHigh);
-    public static final WidgetPropertyDescriptor<WidgetColor> propColorLoLo      = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "color_lolo",       Messages.WidgetProperties_ColorLoLo);
-    public static final WidgetPropertyDescriptor<WidgetColor> propColorLow       = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "color_low",        Messages.WidgetProperties_ColorLow);
     public static final WidgetPropertyDescriptor<Double>      propLevelHiHi      = newDoublePropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "level_hihi",       Messages.WidgetProperties_LevelHiHi);
     public static final WidgetPropertyDescriptor<Double>      propLevelHigh      = newDoublePropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "level_high",       Messages.WidgetProperties_LevelHigh);
     public static final WidgetPropertyDescriptor<Double>      propLevelLoLo      = newDoublePropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "level_lolo",       Messages.WidgetProperties_LevelLoLo);
@@ -69,10 +63,6 @@ public abstract class BaseGaugeWidget extends PVWidget {
 
     private volatile WidgetProperty<Boolean>     auto_scale;
     private volatile WidgetProperty<WidgetColor> background_color;
-    private volatile WidgetProperty<WidgetColor> color_hihi;
-    private volatile WidgetProperty<WidgetColor> color_high;
-    private volatile WidgetProperty<WidgetColor> color_lolo;
-    private volatile WidgetProperty<WidgetColor> color_low;
     private volatile WidgetProperty<Boolean>     enabled;
     private volatile WidgetProperty<Double>      level_high;
     private volatile WidgetProperty<Double>      level_hihi;
@@ -117,22 +107,6 @@ public abstract class BaseGaugeWidget extends PVWidget {
 
     public WidgetProperty<WidgetColor> propBackgroundColor ( ) {
         return background_color;
-    }
-
-    public WidgetProperty<WidgetColor> propColorHiHi ( ) {
-        return color_hihi;
-    }
-
-    public WidgetProperty<WidgetColor> propColorHigh ( ) {
-        return color_high;
-    }
-
-    public WidgetProperty<WidgetColor> propColorLoLo ( ) {
-        return color_lolo;
-    }
-
-    public WidgetProperty<WidgetColor> propColorLow ( ) {
-        return color_low;
     }
 
     public WidgetProperty<Boolean> propEnabled ( ) {
@@ -238,10 +212,6 @@ public abstract class BaseGaugeWidget extends PVWidget {
         properties.add(transparent      = propTransparent.createProperty(this, true));
 
         properties.add(precision        = propPrecision.createProperty(this, -1));
-        properties.add(color_hihi       = propColorHiHi.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.ALARM_MAJOR)));
-        properties.add(color_high       = propColorHigh.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.ALARM_MINOR)));
-        properties.add(color_lolo       = propColorLoLo.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.ALARM_MAJOR)));
-        properties.add(color_low        = propColorLow.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.ALARM_MINOR)));
         properties.add(level_hihi       = propLevelHiHi.createProperty(this, 90.0));
         properties.add(level_high       = propLevelHigh.createProperty(this, 80.0));
         properties.add(level_low        = propLevelLow.createProperty(this, 20.0));
@@ -288,8 +258,6 @@ public abstract class BaseGaugeWidget extends PVWidget {
 
                 BaseGaugeWidget gauge = (BaseGaugeWidget) widget;
 
-                XMLUtil.getChildColor(xml, "color_hi").ifPresent(c -> gauge.propColorHigh().setValue(c));
-                XMLUtil.getChildColor(xml, "color_lo").ifPresent(c -> gauge.propColorLow().setValue(c));
                 XMLUtil.getChildColor(xml, "foreground_color").ifPresent(c -> gauge.propValueColor().setValue(c));
                 XMLUtil.getChildDouble(xml, "level_hi").ifPresent(v -> gauge.propLevelHigh().setValue(v));
                 XMLUtil.getChildDouble(xml, "level_lo").ifPresent(v -> gauge.propLevelLow().setValue(v));

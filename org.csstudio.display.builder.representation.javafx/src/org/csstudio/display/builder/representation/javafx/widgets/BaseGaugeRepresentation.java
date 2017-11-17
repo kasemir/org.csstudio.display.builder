@@ -16,6 +16,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.persist.NamedWidgetColors;
+import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.util.FormatOptionHandler;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.BaseGaugeWidget;
@@ -35,6 +37,9 @@ import javafx.scene.paint.Color;
  * @version 1.0.0 8 Feb 2017
  */
 public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends RegionBaseRepresentation<Gauge, W> {
+
+    protected static final Color ALARM_MAJOR_COLOR = JFXUtil.convert(WidgetColorService.getColor(NamedWidgetColors.ALARM_MAJOR));
+    protected static final Color ALARM_MINOR_COLOR = JFXUtil.convert(WidgetColorService.getColor(NamedWidgetColors.ALARM_MINOR));
 
     private final DirtyFlag     dirtyContent  = new DirtyFlag();
     private final DirtyFlag     dirtyGeometry = new DirtyFlag();
@@ -327,19 +332,19 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         List<Section> sections = new ArrayList<>(4);
 
         if ( !loloNaN ) {
-            sections.add(createZone(min, lolo, "LoLo", JFXUtil.convert(model_widget.propColorLoLo().getValue())));
+            sections.add(createZone(min, lolo, "LoLo", ALARM_MAJOR_COLOR));
         }
 
         if ( !Double.isNaN(low) ) {
-            sections.add(createZone(loloNaN ? min : lolo, low, "Low", JFXUtil.convert(model_widget.propColorLow().getValue())));
+            sections.add(createZone(loloNaN ? min : lolo, low, "Low", ALARM_MINOR_COLOR));
         }
 
         if ( !Double.isNaN(high) ) {
-            sections.add(createZone(high, hihiNaN ? max : hihi, "High", JFXUtil.convert(model_widget.propColorHigh().getValue())));
+            sections.add(createZone(high, hihiNaN ? max : hihi, "High", ALARM_MAJOR_COLOR));
         }
 
         if ( !hihiNaN ) {
-            sections.add(createZone(hihi, max, "HiHi", JFXUtil.convert(model_widget.propColorHiHi().getValue())));
+            sections.add(createZone(hihi, max, "HiHi", ALARM_MINOR_COLOR));
         }
 
         return sections;
@@ -396,10 +401,6 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         model_widget.propValueColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propValueVisible().addUntypedPropertyListener(this::lookChanged);
 
-        model_widget.propColorHiHi().addUntypedPropertyListener(this::limitsColorChanged);
-        model_widget.propColorHigh().addUntypedPropertyListener(this::limitsColorChanged);
-        model_widget.propColorLoLo().addUntypedPropertyListener(this::limitsColorChanged);
-        model_widget.propColorLow().addUntypedPropertyListener(this::limitsColorChanged);
         model_widget.propLevelHiHi().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propLevelHigh().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propLevelLoLo().addUntypedPropertyListener(this::limitsChanged);
@@ -513,12 +514,6 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
 
     private void geometryChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
         dirtyGeometry.mark();
-        toolkit.scheduleUpdate(this);
-    }
-
-    private void limitsColorChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
-        updateLimits();
-        dirtyLimits.mark();
         toolkit.scheduleUpdate(this);
     }
 
