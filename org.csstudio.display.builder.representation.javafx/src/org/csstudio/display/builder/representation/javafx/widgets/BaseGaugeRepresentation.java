@@ -100,9 +100,19 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
             value = JFXUtil.convert(model_widget.propForegroundColor().getValue());
 
             if ( !Objects.equals(value, jfx_node.getTitleColor()) ) {
-                jfx_node.setTitleColor((Color) value);
-                jfx_node.setUnitColor((Color) value);
-                jfx_node.setValueColor((Color) value);
+
+                Color fgColor = (Color) value;
+
+                jfx_node.setMajorTickMarkColor(fgColor);
+                jfx_node.setMediumTickMarkColor(fgColor);
+                jfx_node.setMinorTickMarkColor(fgColor);
+                jfx_node.setTickLabelColor(fgColor);
+                jfx_node.setTickMarkColor(fgColor);
+                jfx_node.setTitleColor(fgColor);
+                jfx_node.setUnitColor(fgColor);
+                jfx_node.setValueColor(fgColor);
+                jfx_node.setZeroColor(fgColor);
+
             }
 
             value = model_widget.propMajorTickSpace().getValue();
@@ -238,17 +248,23 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         jfx_node.setInnerShadowEnabled(false);
         jfx_node.setInteractive(false);
         jfx_node.setLedVisible(false);
+        jfx_node.setMajorTickMarkColor(fgColor);
         jfx_node.setMajorTickSpace(model_widget.propMajorTickSpace().getValue());
+        jfx_node.setMediumTickMarkColor(fgColor);
+        jfx_node.setMinorTickMarkColor(fgColor);
         jfx_node.setMinorTickSpace(model_widget.propMinorTickSpace().getValue());
         jfx_node.setReturnToZero(false);
         jfx_node.setSectionIconsVisible(false);
         jfx_node.setSectionTextVisible(false);
+        jfx_node.setTickLabelColor(fgColor);
+        jfx_node.setTickMarkColor(fgColor);
         jfx_node.setTitle(model_widget.propTitle().getValue());
         jfx_node.setTitleColor(fgColor);
         jfx_node.setUnit(model_widget.propUnit().getValue());
         jfx_node.setUnitColor(fgColor);
         jfx_node.setValueColor(fgColor);
         jfx_node.setValueVisible(model_widget.propValueVisible().getValue());
+        jfx_node.setZeroColor(fgColor);
 
     }
 

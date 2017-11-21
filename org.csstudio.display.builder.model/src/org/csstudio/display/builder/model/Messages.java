@@ -213,7 +213,6 @@ public class Messages extends NLS
     public static String WidgetProperties_ItemsFromPV;
     public static String WidgetProperties_KnobColor;
     public static String WidgetProperties_KnobPosition;
-    public static String WidgetProperties_KnobType;
     public static String WidgetProperties_LabelsFromPV;
     public static String WidgetProperties_LcdCrystalEnabled;
     public static String WidgetProperties_LcdDesign;
@@ -228,19 +227,13 @@ public class Messages extends NLS
     public static String WidgetProperties_LineWidth;
     public static String WidgetProperties_Locale;
     public static String WidgetProperties_Macros;
-    public static String WidgetProperties_MajorTickColor;
     public static String WidgetProperties_MajorTickSpace;
     public static String WidgetProperties_MajorTickStepHint;
-    public static String WidgetProperties_MajorTickType;
     public static String WidgetProperties_MajorTickVisible;
     public static String WidgetProperties_Maximum;
-    public static String WidgetProperties_MediumTickColor;
-    public static String WidgetProperties_MediumTickType;
     public static String WidgetProperties_MediumTickVisible;
     public static String WidgetProperties_Minimum;
-    public static String WidgetProperties_MinorTickColor;
     public static String WidgetProperties_MinorTickSpace;
-    public static String WidgetProperties_MinorTickType;
     public static String WidgetProperties_MinorTickVisible;
     public static String WidgetProperties_MinuteColor;
     public static String WidgetProperties_MinuteTickMarkColor;
@@ -248,9 +241,6 @@ public class Messages extends NLS
     public static String WidgetProperties_MultiLine;
     public static String WidgetProperties_Name;
     public static String WidgetProperties_NeedleColor;
-    public static String WidgetProperties_NeedleShape;
-    public static String WidgetProperties_NeedleSize;
-    public static String WidgetProperties_NeedleType;
     public static String WidgetProperties_OffColor;
     public static String WidgetProperties_OffImage;
     public static String WidgetProperties_OffLabel;
@@ -302,14 +292,10 @@ public class Messages extends NLS
     public static String WidgetProperties_Text;
     public static String WidgetProperties_TextColor;
     public static String WidgetProperties_TextVisible;
-    public static String WidgetProperties_Threshold;
-    public static String WidgetProperties_ThresholdColor;
-    public static String WidgetProperties_ThresholdVisible;
     public static String WidgetProperties_ThumbColor;
     public static String WidgetProperties_TickLabelColor;
     public static String WidgetProperties_TickLabelDecimals;
     public static String WidgetProperties_TickLabelsVisible;
-    public static String WidgetProperties_TickMarkRingColor;
     public static String WidgetProperties_TickMarkRingVisible;
     public static String WidgetProperties_Title;
     public static String WidgetProperties_TitleColor;
@@ -318,7 +304,6 @@ public class Messages extends NLS
     public static String WidgetProperties_Transparent;
     public static String WidgetProperties_Type;
     public static String WidgetProperties_Unit;
-    public static String WidgetProperties_UnitColor;
     public static String WidgetProperties_UnitFromPV;
     public static String WidgetProperties_UnsignedData;
     public static String WidgetProperties_Value;
@@ -335,7 +320,6 @@ public class Messages extends NLS
     public static String WidgetProperties_XPVName;
     public static String WidgetProperties_Y;
     public static String WidgetProperties_YPVName;
-    public static String WidgetProperties_ZeroColor;
     public static String WidgetProperties_ZeroDetentEnabled;
     public static String WidgetPropertyCategory_Behavior;
     public static String WidgetPropertyCategory_Display;
