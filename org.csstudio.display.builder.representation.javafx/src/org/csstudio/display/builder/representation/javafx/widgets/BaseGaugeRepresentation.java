@@ -16,6 +16,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.persist.NamedWidgetColors;
+import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.util.FormatOptionHandler;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.BaseGaugeWidget;
@@ -35,6 +37,9 @@ import javafx.scene.paint.Color;
  * @version 1.0.0 8 Feb 2017
  */
 public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends RegionBaseRepresentation<Gauge, W> {
+
+    protected static final Color ALARM_MAJOR_COLOR = JFXUtil.convert(WidgetColorService.getColor(NamedWidgetColors.ALARM_MAJOR));
+    protected static final Color ALARM_MINOR_COLOR = JFXUtil.convert(WidgetColorService.getColor(NamedWidgetColors.ALARM_MINOR));
 
     private final DirtyFlag     dirtyContent  = new DirtyFlag();
     private final DirtyFlag     dirtyGeometry = new DirtyFlag();
@@ -92,6 +97,24 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
                 jfx_node.setBackgroundPaint(bgColor);
             }
 
+            value = JFXUtil.convert(model_widget.propForegroundColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getTitleColor()) ) {
+
+                Color fgColor = (Color) value;
+
+                jfx_node.setMajorTickMarkColor(fgColor);
+                jfx_node.setMediumTickMarkColor(fgColor);
+                jfx_node.setMinorTickMarkColor(fgColor);
+                jfx_node.setTickLabelColor(fgColor);
+                jfx_node.setTickMarkColor(fgColor);
+                jfx_node.setTitleColor(fgColor);
+                jfx_node.setUnitColor(fgColor);
+                jfx_node.setValueColor(fgColor);
+                jfx_node.setZeroColor(fgColor);
+
+            }
+
             value = model_widget.propMajorTickSpace().getValue();
 
             if ( !Objects.equals(value, jfx_node.getMajorTickSpace()) ) {
@@ -108,24 +131,6 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
 
             if ( !Objects.equals(value, jfx_node.getTitle()) ) {
                 jfx_node.setTitle((String) value);
-            }
-
-            value = JFXUtil.convert(model_widget.propTitleColor().getValue());
-
-            if ( !Objects.equals(value, jfx_node.getTitleColor()) ) {
-                jfx_node.setTitleColor((Color) value);
-            }
-
-            value = JFXUtil.convert(model_widget.propUnitColor().getValue());
-
-            if ( !Objects.equals(value, jfx_node.getUnitColor()) ) {
-                jfx_node.setUnitColor((Color) value);
-            }
-
-            value = JFXUtil.convert(model_widget.propValueColor().getValue());
-
-            if ( !Objects.equals(value, jfx_node.getValueColor()) ) {
-                jfx_node.setValueColor((Color) value);
             }
 
             value = model_widget.propValueVisible().getValue();
@@ -230,6 +235,8 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         jfx_node.setPrefWidth(model_widget.propWidth().getValue());
         jfx_node.setPrefHeight(model_widget.propHeight().getValue());
 
+        Color fgColor = JFXUtil.convert(model_widget.propForegroundColor().getValue());
+
         jfx_node.setAnimated(false);
         jfx_node.setAutoScale(model_widget.propAutoScale().getValue());
         jfx_node.setBackgroundPaint(model_widget.propTransparent().getValue() ? Color.TRANSPARENT : JFXUtil.convert(model_widget.propBackgroundColor().getValue()));
@@ -241,17 +248,23 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         jfx_node.setInnerShadowEnabled(false);
         jfx_node.setInteractive(false);
         jfx_node.setLedVisible(false);
+        jfx_node.setMajorTickMarkColor(fgColor);
         jfx_node.setMajorTickSpace(model_widget.propMajorTickSpace().getValue());
+        jfx_node.setMediumTickMarkColor(fgColor);
+        jfx_node.setMinorTickMarkColor(fgColor);
         jfx_node.setMinorTickSpace(model_widget.propMinorTickSpace().getValue());
         jfx_node.setReturnToZero(false);
         jfx_node.setSectionIconsVisible(false);
         jfx_node.setSectionTextVisible(false);
+        jfx_node.setTickLabelColor(fgColor);
+        jfx_node.setTickMarkColor(fgColor);
         jfx_node.setTitle(model_widget.propTitle().getValue());
-        jfx_node.setTitleColor(JFXUtil.convert(model_widget.propTitleColor().getValue()));
+        jfx_node.setTitleColor(fgColor);
         jfx_node.setUnit(model_widget.propUnit().getValue());
-        jfx_node.setUnitColor(JFXUtil.convert(model_widget.propUnitColor().getValue()));
-        jfx_node.setValueColor(JFXUtil.convert(model_widget.propValueColor().getValue()));
+        jfx_node.setUnitColor(fgColor);
+        jfx_node.setValueColor(fgColor);
         jfx_node.setValueVisible(model_widget.propValueVisible().getValue());
+        jfx_node.setZeroColor(fgColor);
 
     }
 
@@ -327,19 +340,19 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         List<Section> sections = new ArrayList<>(4);
 
         if ( !loloNaN ) {
-            sections.add(createZone(min, lolo, "LoLo", JFXUtil.convert(model_widget.propColorLoLo().getValue())));
+            sections.add(createZone(min, lolo, "LoLo", ALARM_MAJOR_COLOR));
         }
 
         if ( !Double.isNaN(low) ) {
-            sections.add(createZone(loloNaN ? min : lolo, low, "Low", JFXUtil.convert(model_widget.propColorLow().getValue())));
+            sections.add(createZone(loloNaN ? min : lolo, low, "Low", ALARM_MINOR_COLOR));
         }
 
         if ( !Double.isNaN(high) ) {
-            sections.add(createZone(high, hihiNaN ? max : hihi, "High", JFXUtil.convert(model_widget.propColorHigh().getValue())));
+            sections.add(createZone(high, hihiNaN ? max : hihi, "High", ALARM_MAJOR_COLOR));
         }
 
         if ( !hihiNaN ) {
-            sections.add(createZone(hihi, max, "HiHi", JFXUtil.convert(model_widget.propColorHiHi().getValue())));
+            sections.add(createZone(hihi, max, "HiHi", ALARM_MINOR_COLOR));
         }
 
         return sections;
@@ -387,19 +400,13 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
 
         model_widget.propAutoScale().addUntypedPropertyListener(this::lookChanged);
         model_widget.propBackgroundColor().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propForegroundColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propMajorTickSpace().addUntypedPropertyListener(this::lookChanged);
         model_widget.propMinorTickSpace().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTitle().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propTitleColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTransparent().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propUnitColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propValueColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propValueVisible().addUntypedPropertyListener(this::lookChanged);
 
-        model_widget.propColorHiHi().addUntypedPropertyListener(this::limitsColorChanged);
-        model_widget.propColorHigh().addUntypedPropertyListener(this::limitsColorChanged);
-        model_widget.propColorLoLo().addUntypedPropertyListener(this::limitsColorChanged);
-        model_widget.propColorLow().addUntypedPropertyListener(this::limitsColorChanged);
         model_widget.propLevelHiHi().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propLevelHigh().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propLevelLoLo().addUntypedPropertyListener(this::limitsChanged);
@@ -513,12 +520,6 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
 
     private void geometryChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
         dirtyGeometry.mark();
-        toolkit.scheduleUpdate(this);
-    }
-
-    private void limitsColorChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
-        updateLimits();
-        dirtyLimits.mark();
         toolkit.scheduleUpdate(this);
     }
 
