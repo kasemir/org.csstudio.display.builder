@@ -41,11 +41,13 @@ import org.csstudio.display.builder.model.properties.ScriptsWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetClassProperty;
 import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
 import org.csstudio.display.builder.representation.javafx.FilenameSupport;
+import org.csstudio.display.builder.util.ResourceUtil;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.DialogHelper;
 import org.csstudio.javafx.MultiLineInputDialog;
 
 import javafx.geometry.HPos;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -54,9 +56,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -244,16 +248,45 @@ public class PropertyPanelSection extends GridPane
         }
         else if (property instanceof BooleanWidgetProperty)
         {
+
             final ComboBox<String> combo = new ComboBox<>();
+
             combo.setPromptText(property.getDefaultValue().toString());
-            combo.setEditable(true);
             combo.getItems().addAll("true", "false");
             combo.setMaxWidth(Double.MAX_VALUE);
-            final BooleanWidgetPropertyBinding binding =
-                    new BooleanWidgetPropertyBinding(undo, combo, (BooleanWidgetProperty)property, other);
+            combo.setMaxHeight(Double.MAX_VALUE);
+
+            ToggleButton macroButton = null;
+
+            try {
+                macroButton = new ToggleButton("", new ImageView(new Image(ResourceUtil.openPlatformResource("platform:/plugin/org.csstudio.display.builder.editor/icons/macro-edit.png"))));
+            } catch ( Exception ex ) {
+                logger.log(Level.WARNING, "Cannot load macro edit image.", ex);
+                macroButton = new ToggleButton("$");
+            }
+
+            BorderPane.setMargin(macroButton, new Insets(0, 0, 0, 3));
+
+            final BorderPane pane = new BorderPane(combo, null, macroButton, null, null);
+            final BooleanWidgetPropertyBinding binding = new BooleanWidgetPropertyBinding(undo, combo, (BooleanWidgetProperty) property, other);
+
+            macroButton.prefHeightProperty().bind(combo.heightProperty());
+            macroButton.selectedProperty().addListener(( observable, oldValue, newValue ) -> {
+
+                int selectedIndex = combo.getSelectionModel().getSelectedIndex();
+
+                combo.setEditable(newValue);
+                combo.getSelectionModel().clearAndSelect(selectedIndex);
+
+            });
+
+            macroButton.setSelected(((BooleanWidgetProperty) property).getSpecification().contains("$"));
+
             bindings.add(binding);
             binding.bind();
-            field = combo;
+
+            field = pane;
+
         }
         else if (property instanceof ColorMapWidgetProperty)
         {
