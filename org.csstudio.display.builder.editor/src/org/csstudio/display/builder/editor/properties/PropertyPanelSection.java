@@ -113,7 +113,7 @@ public class PropertyPanelSection extends GridPane
         getColumnConstraints().add(new ColumnConstraints( 6));                                                                          //  column 0 is 3 pixels wide
         getColumnConstraints().add(new ColumnConstraints( 6));                                                                          //  column 1 is 3 pixels wide
         getColumnConstraints().add(new ColumnConstraints(32, USE_COMPUTED_SIZE, Integer.MAX_VALUE, Priority.ALWAYS, HPos.LEFT, true));  //  column 2
-        getColumnConstraints().add(new ColumnConstraints( 3, USE_COMPUTED_SIZE, 16));                                                   //  column 3 is 3 pixels wide
+        getColumnConstraints().add(new ColumnConstraints( 0, USE_COMPUTED_SIZE, Integer.MAX_VALUE));                                    //  column 3 is 3 pixels wide
         getColumnConstraints().add(new ColumnConstraints(32, USE_COMPUTED_SIZE, Integer.MAX_VALUE, Priority.ALWAYS, HPos.LEFT, true));  //  column 4
         getColumnConstraints().add(new ColumnConstraints( 6));                                                                          //  column 5 is 3 pixels wide
         getColumnConstraints().add(new ColumnConstraints( 6));                                                                          //  column 6 is 3 pixels wide
@@ -240,7 +240,6 @@ public class PropertyPanelSection extends GridPane
             final ComboBox<String> combo = new ComboBox<>();
 
             combo.setPromptText(property.getDefaultValue().toString());
-//            combo.setEditable(true);
             combo.getItems().addAll(enum_prop.getLabels());
             combo.setMaxWidth(Double.MAX_VALUE);
             combo.setMaxHeight(Double.MAX_VALUE);
