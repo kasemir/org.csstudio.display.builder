@@ -48,6 +48,7 @@ import org.csstudio.javafx.MultiLineInputDialog;
 
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -234,21 +235,54 @@ public class PropertyPanelSection extends GridPane
         }
         else if (property instanceof EnumWidgetProperty<?>)
         {
+
             final EnumWidgetProperty<?> enum_prop = (EnumWidgetProperty<?>) property;
             final ComboBox<String> combo = new ComboBox<>();
+
             combo.setPromptText(property.getDefaultValue().toString());
-            combo.setEditable(true);
+//            combo.setEditable(true);
             combo.getItems().addAll(enum_prop.getLabels());
             combo.setMaxWidth(Double.MAX_VALUE);
-            final EnumWidgetPropertyBinding binding =
-                    new EnumWidgetPropertyBinding(undo, combo, enum_prop, other);
+            combo.setMaxHeight(Double.MAX_VALUE);
+
+            ToggleButton macroButton = null;
+
+            try {
+                macroButton = new ToggleButton("", new ImageView(new Image(ResourceUtil.openPlatformResource("platform:/plugin/org.csstudio.display.builder.editor/icons/macro-edit.png"))));
+            } catch ( Exception ex ) {
+                logger.log(Level.WARNING, "Cannot load macro edit image.", ex);
+                macroButton = new ToggleButton("$");
+            }
+
+            macroButton.getStyleClass().add("macro_button");
+            BorderPane.setMargin(macroButton, new Insets(0, 0, 0, 3));
+            BorderPane.setAlignment(macroButton, Pos.CENTER);
+
+            final BorderPane pane = new BorderPane(combo, null, macroButton, null, null);
+            final EnumWidgetPropertyBinding binding = new EnumWidgetPropertyBinding(undo, combo, enum_prop, other);
+
+            macroButton.selectedProperty().addListener(( observable, oldValue, newValue ) -> {
+
+                int selectedIndex = combo.getSelectionModel().getSelectedIndex();
+
+                binding.unbind();
+                combo.setEditable(newValue);
+                combo.getSelectionModel().clearAndSelect(selectedIndex);
+                binding.bind();
+
+            });
+            macroButton.setSelected(enum_prop.getSpecification().contains("$"));
+
             bindings.add(binding);
             binding.bind();
-            field = combo;
+
+            field = pane;
+
         }
         else if (property instanceof BooleanWidgetProperty)
         {
 
+            final BooleanWidgetProperty bool_prop = (BooleanWidgetProperty) property;
             final ComboBox<String> combo = new ComboBox<>();
 
             combo.setPromptText(property.getDefaultValue().toString());
@@ -265,22 +299,24 @@ public class PropertyPanelSection extends GridPane
                 macroButton = new ToggleButton("$");
             }
 
+            macroButton.getStyleClass().add("macro_button");
             BorderPane.setMargin(macroButton, new Insets(0, 0, 0, 3));
+            BorderPane.setAlignment(macroButton, Pos.CENTER);
 
             final BorderPane pane = new BorderPane(combo, null, macroButton, null, null);
-            final BooleanWidgetPropertyBinding binding = new BooleanWidgetPropertyBinding(undo, combo, (BooleanWidgetProperty) property, other);
+            final BooleanWidgetPropertyBinding binding = new BooleanWidgetPropertyBinding(undo, combo, bool_prop, other);
 
-            macroButton.prefHeightProperty().bind(combo.heightProperty());
             macroButton.selectedProperty().addListener(( observable, oldValue, newValue ) -> {
 
                 int selectedIndex = combo.getSelectionModel().getSelectedIndex();
 
+                binding.unbind();
                 combo.setEditable(newValue);
                 combo.getSelectionModel().clearAndSelect(selectedIndex);
+                binding.bind();
 
             });
-
-            macroButton.setSelected(((BooleanWidgetProperty) property).getSpecification().contains("$"));
+            macroButton.setSelected(bool_prop.getSpecification().contains("$"));
 
             bindings.add(binding);
             binding.bind();
