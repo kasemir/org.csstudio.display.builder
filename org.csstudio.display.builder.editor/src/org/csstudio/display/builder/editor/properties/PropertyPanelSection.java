@@ -255,6 +255,7 @@ public class PropertyPanelSection extends GridPane
             }
 
             macroButton.getStyleClass().add("macro_button");
+            macroButton.setTooltip(new Tooltip(Messages.MacroEditButton));
             BorderPane.setMargin(macroButton, new Insets(0, 0, 0, 3));
             BorderPane.setAlignment(macroButton, Pos.CENTER);
 
@@ -300,6 +301,7 @@ public class PropertyPanelSection extends GridPane
             }
 
             macroButton.getStyleClass().add("macro_button");
+            macroButton.setTooltip(new Tooltip(Messages.MacroEditButton));
             BorderPane.setMargin(macroButton, new Insets(0, 0, 0, 3));
             BorderPane.setAlignment(macroButton, Pos.CENTER);
 
