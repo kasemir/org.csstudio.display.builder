@@ -24,6 +24,7 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetFactory;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
+import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.persist.WidgetClassesService;
 import org.csstudio.display.builder.model.properties.ActionsWidgetProperty;
 import org.csstudio.display.builder.model.properties.BooleanWidgetProperty;
@@ -271,7 +272,7 @@ public class PropertyPanelSection extends GridPane
                 binding.bind();
 
             });
-            macroButton.setSelected(enum_prop.getSpecification().contains("$"));
+            macroButton.setSelected(MacroHandler.containsMacros(enum_prop.getSpecification()));
 
             bindings.add(binding);
             binding.bind();
@@ -317,7 +318,7 @@ public class PropertyPanelSection extends GridPane
                 binding.bind();
 
             });
-            macroButton.setSelected(bool_prop.getSpecification().contains("$"));
+            macroButton.setSelected(MacroHandler.containsMacros(bool_prop.getSpecification()));
 
             bindings.add(binding);
             binding.bind();
