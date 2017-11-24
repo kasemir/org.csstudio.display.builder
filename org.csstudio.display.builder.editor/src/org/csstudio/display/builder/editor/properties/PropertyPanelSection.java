@@ -24,6 +24,7 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetFactory;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
+import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.persist.WidgetClassesService;
 import org.csstudio.display.builder.model.properties.ActionsWidgetProperty;
 import org.csstudio.display.builder.model.properties.BooleanWidgetProperty;
@@ -41,11 +42,14 @@ import org.csstudio.display.builder.model.properties.ScriptsWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetClassProperty;
 import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
 import org.csstudio.display.builder.representation.javafx.FilenameSupport;
+import org.csstudio.display.builder.util.ResourceUtil;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.DialogHelper;
 import org.csstudio.javafx.MultiLineInputDialog;
 
 import javafx.geometry.HPos;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -54,9 +58,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -108,7 +114,7 @@ public class PropertyPanelSection extends GridPane
         getColumnConstraints().add(new ColumnConstraints( 6));                                                                          //  column 0 is 3 pixels wide
         getColumnConstraints().add(new ColumnConstraints( 6));                                                                          //  column 1 is 3 pixels wide
         getColumnConstraints().add(new ColumnConstraints(32, USE_COMPUTED_SIZE, Integer.MAX_VALUE, Priority.ALWAYS, HPos.LEFT, true));  //  column 2
-        getColumnConstraints().add(new ColumnConstraints( 3, USE_COMPUTED_SIZE, 16));                                                   //  column 3 is 3 pixels wide
+        getColumnConstraints().add(new ColumnConstraints( 0, USE_COMPUTED_SIZE, Integer.MAX_VALUE));                                    //  column 3 is 3 pixels wide
         getColumnConstraints().add(new ColumnConstraints(32, USE_COMPUTED_SIZE, Integer.MAX_VALUE, Priority.ALWAYS, HPos.LEFT, true));  //  column 4
         getColumnConstraints().add(new ColumnConstraints( 6));                                                                          //  column 5 is 3 pixels wide
         getColumnConstraints().add(new ColumnConstraints( 6));                                                                          //  column 6 is 3 pixels wide
@@ -230,30 +236,95 @@ public class PropertyPanelSection extends GridPane
         }
         else if (property instanceof EnumWidgetProperty<?>)
         {
+
             final EnumWidgetProperty<?> enum_prop = (EnumWidgetProperty<?>) property;
             final ComboBox<String> combo = new ComboBox<>();
+
             combo.setPromptText(property.getDefaultValue().toString());
-            combo.setEditable(true);
             combo.getItems().addAll(enum_prop.getLabels());
             combo.setMaxWidth(Double.MAX_VALUE);
-            final EnumWidgetPropertyBinding binding =
-                    new EnumWidgetPropertyBinding(undo, combo, enum_prop, other);
+            combo.setMaxHeight(Double.MAX_VALUE);
+
+            ToggleButton macroButton = null;
+
+            try {
+                macroButton = new ToggleButton("", new ImageView(new Image(ResourceUtil.openPlatformResource("platform:/plugin/org.csstudio.display.builder.editor/icons/macro-edit.png"))));
+            } catch ( Exception ex ) {
+                logger.log(Level.WARNING, "Cannot load macro edit image.", ex);
+                macroButton = new ToggleButton("$");
+            }
+
+            macroButton.getStyleClass().add("macro_button");
+            macroButton.setTooltip(new Tooltip(Messages.MacroEditButton));
+            BorderPane.setMargin(macroButton, new Insets(0, 0, 0, 3));
+            BorderPane.setAlignment(macroButton, Pos.CENTER);
+
+            final BorderPane pane = new BorderPane(combo, null, macroButton, null, null);
+            final EnumWidgetPropertyBinding binding = new EnumWidgetPropertyBinding(undo, combo, enum_prop, other);
+
+            macroButton.selectedProperty().addListener(( observable, oldValue, newValue ) -> {
+
+                int selectedIndex = combo.getSelectionModel().getSelectedIndex();
+
+                binding.unbind();
+                combo.setEditable(newValue);
+                combo.getSelectionModel().clearAndSelect(selectedIndex);
+                binding.bind();
+
+            });
+            macroButton.setSelected(MacroHandler.containsMacros(enum_prop.getSpecification()));
+
             bindings.add(binding);
             binding.bind();
-            field = combo;
+
+            field = pane;
+
         }
         else if (property instanceof BooleanWidgetProperty)
         {
+
+            final BooleanWidgetProperty bool_prop = (BooleanWidgetProperty) property;
             final ComboBox<String> combo = new ComboBox<>();
+
             combo.setPromptText(property.getDefaultValue().toString());
-            combo.setEditable(true);
             combo.getItems().addAll("true", "false");
             combo.setMaxWidth(Double.MAX_VALUE);
-            final BooleanWidgetPropertyBinding binding =
-                    new BooleanWidgetPropertyBinding(undo, combo, (BooleanWidgetProperty)property, other);
+            combo.setMaxHeight(Double.MAX_VALUE);
+
+            ToggleButton macroButton = null;
+
+            try {
+                macroButton = new ToggleButton("", new ImageView(new Image(ResourceUtil.openPlatformResource("platform:/plugin/org.csstudio.display.builder.editor/icons/macro-edit.png"))));
+            } catch ( Exception ex ) {
+                logger.log(Level.WARNING, "Cannot load macro edit image.", ex);
+                macroButton = new ToggleButton("$");
+            }
+
+            macroButton.getStyleClass().add("macro_button");
+            macroButton.setTooltip(new Tooltip(Messages.MacroEditButton));
+            BorderPane.setMargin(macroButton, new Insets(0, 0, 0, 3));
+            BorderPane.setAlignment(macroButton, Pos.CENTER);
+
+            final BorderPane pane = new BorderPane(combo, null, macroButton, null, null);
+            final BooleanWidgetPropertyBinding binding = new BooleanWidgetPropertyBinding(undo, combo, bool_prop, other);
+
+            macroButton.selectedProperty().addListener(( observable, oldValue, newValue ) -> {
+
+                int selectedIndex = combo.getSelectionModel().getSelectedIndex();
+
+                binding.unbind();
+                combo.setEditable(newValue);
+                combo.getSelectionModel().clearAndSelect(selectedIndex);
+                binding.bind();
+
+            });
+            macroButton.setSelected(MacroHandler.containsMacros(bool_prop.getSpecification()));
+
             bindings.add(binding);
             binding.bind();
-            field = combo;
+
+            field = pane;
+
         }
         else if (property instanceof ColorMapWidgetProperty)
         {
