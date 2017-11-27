@@ -14,6 +14,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.controlsfx.control.textfield.TextFields;
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
@@ -48,7 +49,7 @@ public class PropertyPanel extends BorderPane
         this.editor = editor;
         section = new PropertyPanelSection();
 
-        final TextField searchField = new TextField();
+        final TextField searchField = TextFields.createClearableTextField();
         searchField.setPromptText("Search");
         searchField.textProperty().addListener( ( observable, oldValue, newValue ) -> filterProperties(newValue));
         HBox.setHgrow(searchField, Priority.NEVER);
