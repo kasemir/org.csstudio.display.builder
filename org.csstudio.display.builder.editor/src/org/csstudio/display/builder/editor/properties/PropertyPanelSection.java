@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2017 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -47,6 +47,8 @@ import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.DialogHelper;
 import org.csstudio.javafx.MultiLineInputDialog;
 
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -67,6 +69,7 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 
 /** Section of Property panel
  *
@@ -199,7 +202,6 @@ public class PropertyPanelSection extends GridPane
                 {
                     final Image image = new Image(WidgetFactory.getInstance().getWidgetDescriptor(type).getIconStream());
                     final ImageView icon = new ImageView(image);
-
                     field = new Label(String.valueOf(property.getValue()), icon);
                 }
                 catch (Exception ex)
@@ -236,95 +238,76 @@ public class PropertyPanelSection extends GridPane
         }
         else if (property instanceof EnumWidgetProperty<?>)
         {
-
             final EnumWidgetProperty<?> enum_prop = (EnumWidgetProperty<?>) property;
             final ComboBox<String> combo = new ComboBox<>();
-
             combo.setPromptText(property.getDefaultValue().toString());
             combo.getItems().addAll(enum_prop.getLabels());
             combo.setMaxWidth(Double.MAX_VALUE);
             combo.setMaxHeight(Double.MAX_VALUE);
 
-            ToggleButton macroButton = null;
-
-            try {
-                macroButton = new ToggleButton("", new ImageView(new Image(ResourceUtil.openPlatformResource("platform:/plugin/org.csstudio.display.builder.editor/icons/macro-edit.png"))));
-            } catch ( Exception ex ) {
-                logger.log(Level.WARNING, "Cannot load macro edit image.", ex);
-                macroButton = new ToggleButton("$");
+            final ToggleButton macroButton = new ToggleButton("$");
+            try
+            {
+                macroButton.setGraphic(new ImageView(new Image(ResourceUtil.openPlatformResource("platform:/plugin/org.csstudio.display.builder.editor/icons/macro-edit.png"))));
             }
-
+            catch (Exception ex)
+            {
+                logger.log(Level.WARNING, "Cannot load macro edit image.", ex);
+            }
             macroButton.getStyleClass().add("macro_button");
             macroButton.setTooltip(new Tooltip(Messages.MacroEditButton));
             BorderPane.setMargin(macroButton, new Insets(0, 0, 0, 3));
             BorderPane.setAlignment(macroButton, Pos.CENTER);
 
-            final BorderPane pane = new BorderPane(combo, null, macroButton, null, null);
-            final EnumWidgetPropertyBinding binding = new EnumWidgetPropertyBinding(undo, combo, enum_prop, other);
-
-            macroButton.selectedProperty().addListener(( observable, oldValue, newValue ) -> {
-
-                int selectedIndex = combo.getSelectionModel().getSelectedIndex();
-
-                binding.unbind();
-                combo.setEditable(newValue);
-                combo.getSelectionModel().clearAndSelect(selectedIndex);
-                binding.bind();
-
-            });
+            final EventHandler<ActionEvent> macro_handler = event ->
+            {
+                final boolean use_macro = macroButton.isSelected() ||
+                                          MacroHandler.containsMacros(enum_prop.getSpecification());
+                combo.setEditable(use_macro);
+            };
+            macroButton.setOnAction(macro_handler);
             macroButton.setSelected(MacroHandler.containsMacros(enum_prop.getSpecification()));
+            macro_handler.handle(null);
 
+            final EnumWidgetPropertyBinding binding = new EnumWidgetPropertyBinding(undo, combo, enum_prop, other);
             bindings.add(binding);
             binding.bind();
 
-            field = pane;
-
+            field = new BorderPane(combo, null, macroButton, null, null);
         }
         else if (property instanceof BooleanWidgetProperty)
         {
-
             final BooleanWidgetProperty bool_prop = (BooleanWidgetProperty) property;
             final ComboBox<String> combo = new ComboBox<>();
-
             combo.setPromptText(property.getDefaultValue().toString());
             combo.getItems().addAll("true", "false");
             combo.setMaxWidth(Double.MAX_VALUE);
             combo.setMaxHeight(Double.MAX_VALUE);
+            combo.setEditable(true);
 
-            ToggleButton macroButton = null;
-
-            try {
-                macroButton = new ToggleButton("", new ImageView(new Image(ResourceUtil.openPlatformResource("platform:/plugin/org.csstudio.display.builder.editor/icons/macro-edit.png"))));
-            } catch ( Exception ex ) {
-                logger.log(Level.WARNING, "Cannot load macro edit image.", ex);
-                macroButton = new ToggleButton("$");
+            // BooleanWidgetPropertyBinding makes either check or combo visible
+            // for plain boolean vs. macro-based value
+            final CheckBox check = new CheckBox();
+            StackPane.setAlignment(check, Pos.CENTER_LEFT);
+            final ToggleButton macroButton = new ToggleButton("$");
+            try
+            {
+                macroButton.setGraphic(new ImageView(new Image(ResourceUtil.openPlatformResource("platform:/plugin/org.csstudio.display.builder.editor/icons/macro-edit.png"))));
             }
-
+            catch (Exception ex)
+            {
+                logger.log(Level.WARNING, "Cannot load macro edit image.", ex);
+            }
             macroButton.getStyleClass().add("macro_button");
             macroButton.setTooltip(new Tooltip(Messages.MacroEditButton));
             BorderPane.setMargin(macroButton, new Insets(0, 0, 0, 3));
             BorderPane.setAlignment(macroButton, Pos.CENTER);
 
-            final BorderPane pane = new BorderPane(combo, null, macroButton, null, null);
-            final BooleanWidgetPropertyBinding binding = new BooleanWidgetPropertyBinding(undo, combo, bool_prop, other);
-
-            macroButton.selectedProperty().addListener(( observable, oldValue, newValue ) -> {
-
-                int selectedIndex = combo.getSelectionModel().getSelectedIndex();
-
-                binding.unbind();
-                combo.setEditable(newValue);
-                combo.getSelectionModel().clearAndSelect(selectedIndex);
-                binding.bind();
-
-            });
-            macroButton.setSelected(MacroHandler.containsMacros(bool_prop.getSpecification()));
-
+            final BooleanWidgetPropertyBinding binding = new BooleanWidgetPropertyBinding(undo, check, combo, macroButton, bool_prop, other);
             bindings.add(binding);
             binding.bind();
 
-            field = pane;
-
+            field = new BorderPane(new StackPane(combo, check), null, macroButton, null, null);
         }
         else if (property instanceof ColorMapWidgetProperty)
         {
