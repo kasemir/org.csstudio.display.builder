@@ -139,7 +139,7 @@ public class PropertyPanel extends BorderPane
                 if (prop.getDescription().toLowerCase().contains(search.toLowerCase()))
                     filtered.add(prop);
 
-            updatePropertiesView(properties, other);
+            updatePropertiesView(filtered, other);
         }
     }
 
