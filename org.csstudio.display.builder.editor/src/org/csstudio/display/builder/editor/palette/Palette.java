@@ -20,16 +20,21 @@ import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetFactory;
 
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
+import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 
@@ -78,7 +83,44 @@ public class Palette
         // Using 2*PREFERRED_WIDTH was determined by trial and error
         palette_scroll.setMinWidth(PREFERRED_WIDTH + 12);
         palette_scroll.setPrefWidth(PREFERRED_WIDTH);
-        return palette_scroll;
+
+        final TextField searchField = new TextField();
+        searchField.setPromptText("Search");
+        searchField.setPrefColumnCount(9);
+        searchField.textProperty().addListener( ( observable, oldValue, newValue ) -> {
+            palette_groups.values().stream().forEach(group -> {
+                group.getChildren().stream().forEach(button -> {
+
+                    ToggleButton tbutton = (ToggleButton) button;
+                    String search = searchField.getText();
+
+                    tbutton.setVisible(
+                           search == null
+                        || search.trim().isEmpty()
+                        || tbutton.getText().toLowerCase().contains(search.toLowerCase())
+                    );
+//                    tbutton.setDisable(
+//                           search != null
+//                        && ! search.trim().isEmpty()
+//                        && ! tbutton.getText().toLowerCase().contains(search.toLowerCase())
+//                    );
+
+                });
+            });
+        });
+        HBox.setHgrow(searchField, Priority.NEVER);
+
+        final HBox toolsPane = new HBox(6);
+        toolsPane.setAlignment(Pos.CENTER_RIGHT);
+        toolsPane.setPadding(new Insets(6));
+        toolsPane.getChildren().add(searchField);
+
+        BorderPane paletteContainer = new BorderPane();
+        paletteContainer.setTop(toolsPane);
+        paletteContainer.setCenter(palette_scroll);
+
+        return paletteContainer;
+
     }
 
     /** Create a TilePane for each WidgetCategory
@@ -97,6 +139,7 @@ public class Palette
             palette_groups.put(category, palette_group);
             palette_group.setHgap(2);
             palette_group.setVgap(2);
+//            palette_group.
             final TitledPane pane = new TitledPane(category.getDescription(), palette_group);
             pane.getStyleClass().add("palette_category");
             parent.getChildren().add(pane);
