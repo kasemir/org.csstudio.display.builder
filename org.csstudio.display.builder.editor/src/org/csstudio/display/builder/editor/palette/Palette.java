@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.Messages;
@@ -34,6 +35,7 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -96,20 +98,31 @@ public class Palette
         final TextField searchField = new TextField();
         searchField.setPromptText(Messages.SearchTextField);
         searchField.setPrefColumnCount(9);
-        searchField.textProperty().addListener( ( observable, oldValue, newValue ) ->
+        searchField.setOnKeyPressed(event ->
         {
+            if (event.getCode() == KeyCode.ESCAPE)
+            {
+                searchField.setText("");
+                event.consume();
+            }
+        });
+        searchField.textProperty().addListener( ( observable, oldValue, search_text ) ->
+        {
+            final String search = search_text.toLowerCase().trim();
             palette_groups.values().stream().forEach(group ->
             {
                 group.getChildren().clear();
                 final List<Node> all_widgets = (List<Node>)group.getUserData();
-                all_widgets.forEach(node ->
-                {
-                    String search = searchField.getText().toLowerCase();
-                    String text = ((ToggleButton) node).getText().toLowerCase();
-
-                    if ( search == null || search.trim().isEmpty() || text.contains(search) )
-                        group.getChildren().add(node);
-                });
+                if (search.isEmpty())
+                    group.getChildren().setAll(all_widgets);
+                else
+                    group.getChildren().setAll(all_widgets.stream()
+                                                          .filter(node ->
+                                                          {
+                                                             final String text = ((ToggleButton) node).getText().toLowerCase();
+                                                             return text.contains(search);
+                                                          })
+                                                         .collect(Collectors.toList()));
             });
         });
         HBox.setHgrow(searchField, Priority.NEVER);
