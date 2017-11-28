@@ -8,23 +8,32 @@
 package org.csstudio.display.builder.editor.properties;
 
 
+import static org.csstudio.display.builder.editor.Plugin.logger;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
 
 import org.controlsfx.control.textfield.TextFields;
 import org.csstudio.display.builder.editor.DisplayEditor;
+import org.csstudio.display.builder.editor.Messages;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
+import org.csstudio.display.builder.util.ResourceUtil;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -39,6 +48,7 @@ public class PropertyPanel extends BorderPane
 {
     private final DisplayEditor        editor;
     private final PropertyPanelSection section;
+    private final ToggleButton         pinSearchButton;
 
     /** @param selection Selection handler
      *  @param undo 'Undo' manager
@@ -47,7 +57,18 @@ public class PropertyPanel extends BorderPane
     {
 
         this.editor = editor;
-        section = new PropertyPanelSection();
+        this.section = new PropertyPanelSection();
+        this.pinSearchButton = new ToggleButton("P");
+
+        try {
+            pinSearchButton.setGraphic(new ImageView(new Image(ResourceUtil.openPlatformResource("platform:/plugin/org.csstudio.display.builder.editor/icons/pin.png"))));
+        } catch ( Exception ex ) {
+            logger.log(Level.WARNING, "Cannot load macro edit image.", ex);
+        }
+        pinSearchButton.getStyleClass().add("macro_button");
+        pinSearchButton.setDisable(true);
+        pinSearchButton.setTooltip(new Tooltip(Messages.PinSearchButton));
+        HBox.setHgrow(pinSearchButton, Priority.NEVER);
 
         final TextField searchField = TextFields.createClearableTextField();
         searchField.setPromptText("Search");
@@ -57,7 +78,7 @@ public class PropertyPanel extends BorderPane
         final HBox toolsPane = new HBox(6);
         toolsPane.setAlignment(Pos.CENTER_RIGHT);
         toolsPane.setPadding(new Insets(6));
-        toolsPane.getChildren().add(searchField);
+        toolsPane.getChildren().addAll(pinSearchButton, searchField);
 
         final ScrollPane scrollPane = new ScrollPane();
         scrollPane.setFitToWidth(true);
@@ -68,11 +89,17 @@ public class PropertyPanel extends BorderPane
         setCenter(scrollPane);
 
         // Track currently selected widgets
-        editor.getWidgetSelectionHandler().addListener(this::setSelectedWidgets);
-        editor.getWidgetSelectionHandler().addListener(widgets ->
-        {
+        editor.getWidgetSelectionHandler().addListener(widgets -> {
+
             searchField.setDisable(widgets.isEmpty() && editor.getModel() == null);
-            searchField.setText(null);
+
+            if ( !pinSearchButton.isSelected() ) {
+                searchField.setText(null);
+                filterProperties(null);
+            } else {
+                filterProperties(searchField.getText());
+            }
+
         });
 
         setMinHeight(0);
@@ -110,9 +137,16 @@ public class PropertyPanel extends BorderPane
         final List<Widget> selection = editor.getWidgetSelectionHandler().getSelection();
 
         if (search == null || search.trim().isEmpty())
+        {
             setSelectedWidgets(selection);
+            pinSearchButton.setSelected(false);
+            pinSearchButton.setDisable(true);
+        }
         else
         {
+
+            pinSearchButton.setDisable(false);
+
             List<Widget> other;
             Set<WidgetProperty<?>> properties;
             final DisplayModel model = editor.getModel();
@@ -141,6 +175,7 @@ public class PropertyPanel extends BorderPane
                     filtered.add(prop);
 
             updatePropertiesView(filtered, other);
+
         }
     }
 
