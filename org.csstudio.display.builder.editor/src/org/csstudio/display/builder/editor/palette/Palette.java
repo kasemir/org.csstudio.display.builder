@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.palette;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -89,21 +90,15 @@ public class Palette
         searchField.setPrefColumnCount(9);
         searchField.textProperty().addListener( ( observable, oldValue, newValue ) -> {
             palette_groups.values().stream().forEach(group -> {
-                group.getChildren().stream().forEach(button -> {
+                group.getChildren().clear();
+                ((ArrayList<Node>) group.getUserData()).stream().forEach(node -> {
 
-                    ToggleButton tbutton = (ToggleButton) button;
-                    String search = searchField.getText();
+                    String search = searchField.getText().toLowerCase();
+                    String text = ((ToggleButton) node).getText().toLowerCase();
 
-                    tbutton.setVisible(
-                           search == null
-                        || search.trim().isEmpty()
-                        || tbutton.getText().toLowerCase().contains(search.toLowerCase())
-                    );
-//                    tbutton.setDisable(
-//                           search != null
-//                        && ! search.trim().isEmpty()
-//                        && ! tbutton.getText().toLowerCase().contains(search.toLowerCase())
-//                    );
+                    if ( search == null || search.trim().isEmpty() || text.contains(search) ) {
+                        group.getChildren().add(node);
+                    }
 
                 });
             });
@@ -139,7 +134,6 @@ public class Palette
             palette_groups.put(category, palette_group);
             palette_group.setHgap(2);
             palette_group.setVgap(2);
-//            palette_group.
             final TitledPane pane = new TitledPane(category.getDescription(), palette_group);
             pane.getStyleClass().add("palette_category");
             parent.getChildren().add(pane);
@@ -184,6 +178,9 @@ public class Palette
             palette_groups.get(desc.getCategory()).getChildren().add(button);
             WidgetTransfer.addDragSupport(button, editor, this, desc, icon);
         });
+
+        palette_groups.values().stream().forEach(pgroup -> pgroup.setUserData(new ArrayList<Node>(pgroup.getChildren())));
+
     }
 
     /** @return Selected widget type or <code>null</code> */
