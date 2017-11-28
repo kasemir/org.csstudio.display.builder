@@ -8,24 +8,12 @@
 package org.csstudio.display.builder.editor.properties;
 
 
-import static org.csstudio.display.builder.editor.Plugin.logger;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
-
-import org.controlsfx.control.textfield.TextFields;
-import org.csstudio.display.builder.editor.DisplayEditor;
-import org.csstudio.display.builder.editor.Messages;
-import org.csstudio.display.builder.model.DisplayModel;
-import org.csstudio.display.builder.model.Widget;
-import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
-import org.csstudio.display.builder.util.ResourceUtil;
-
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ScrollPane;
@@ -37,6 +25,14 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import org.controlsfx.control.textfield.TextFields;
+import org.csstudio.display.builder.editor.DisplayEditor;
+import org.csstudio.display.builder.editor.Messages;
+import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
+import org.csstudio.display.builder.util.ResourceUtil;
 
 /** Property UI
  *
@@ -71,7 +67,7 @@ public class PropertyPanel extends BorderPane
         HBox.setHgrow(pinSearchButton, Priority.NEVER);
 
         final TextField searchField = TextFields.createClearableTextField();
-        searchField.setPromptText("Search");
+        searchField.setPromptText(Messages.SearchTextField);
         searchField.textProperty().addListener( ( observable, oldValue, newValue ) -> filterProperties(newValue));
         HBox.setHgrow(searchField, Priority.NEVER);
 
