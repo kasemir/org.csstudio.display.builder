@@ -12,7 +12,7 @@ Require-Bundle: org.eclipse.osgi,
  org.csstudio.display.builder.representation;bundle-version="1.0.0",
  org.csstudio.display.builder.representation.javafx;bundle-version="1.0.0",
  org.csstudio.display.builder.util;bundle-version="1.0.0",
- org.csstudio.platform.libs.gauges;bundle-version="10.0.13"
+ org.csstudio.platform.libs.gauges
 Bundle-Vendor: Kay Kasemir - SNS
 Export-Package: org.csstudio.display.builder.editor,
  org.csstudio.display.builder.editor.actions,
