@@ -10,10 +10,12 @@ package org.csstudio.display.builder.editor.palette;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.csstudio.display.builder.editor.DisplayEditor;
+import org.csstudio.display.builder.editor.Messages;
 import org.csstudio.display.builder.editor.Preferences;
 import org.csstudio.display.builder.editor.util.WidgetIcons;
 import org.csstudio.display.builder.editor.util.WidgetTransfer;
@@ -68,6 +70,7 @@ public class Palette
     /** Create UI elements
      *  @return Top-level Node of the UI
      */
+    @SuppressWarnings("unchecked")
     public Node create()
     {
         final VBox palette = new VBox();
@@ -85,21 +88,27 @@ public class Palette
         palette_scroll.setMinWidth(PREFERRED_WIDTH + 12);
         palette_scroll.setPrefWidth(PREFERRED_WIDTH);
 
-        final TextField searchField = new TextField();
-        searchField.setPromptText("Search");
-        searchField.setPrefColumnCount(9);
-        searchField.textProperty().addListener( ( observable, oldValue, newValue ) -> {
-            palette_groups.values().stream().forEach(group -> {
-                group.getChildren().clear();
-                ((ArrayList<Node>) group.getUserData()).stream().forEach(node -> {
+        // Copy the widgets, i.e. the children of each palette_group,
+        // to the userData.
+        // Actual children are now updated based on search by widget name
+        palette_groups.values().forEach(group -> group.setUserData(new ArrayList<Node>(group.getChildren())));
 
+        final TextField searchField = new TextField();
+        searchField.setPromptText(Messages.SearchTextField);
+        searchField.setPrefColumnCount(9);
+        searchField.textProperty().addListener( ( observable, oldValue, newValue ) ->
+        {
+            palette_groups.values().stream().forEach(group ->
+            {
+                group.getChildren().clear();
+                final List<Node> all_widgets = (List<Node>)group.getUserData();
+                all_widgets.forEach(node ->
+                {
                     String search = searchField.getText().toLowerCase();
                     String text = ((ToggleButton) node).getText().toLowerCase();
 
-                    if ( search == null || search.trim().isEmpty() || text.contains(search) ) {
+                    if ( search == null || search.trim().isEmpty() || text.contains(search) )
                         group.getChildren().add(node);
-                    }
-
                 });
             });
         });
@@ -115,7 +124,6 @@ public class Palette
         paletteContainer.setCenter(palette_scroll);
 
         return paletteContainer;
-
     }
 
     /** Create a TilePane for each WidgetCategory
@@ -178,9 +186,6 @@ public class Palette
             palette_groups.get(desc.getCategory()).getChildren().add(button);
             WidgetTransfer.addDragSupport(button, editor, this, desc, icon);
         });
-
-        palette_groups.values().stream().forEach(pgroup -> pgroup.setUserData(new ArrayList<Node>(pgroup.getChildren())));
-
     }
 
     /** @return Selected widget type or <code>null</code> */
