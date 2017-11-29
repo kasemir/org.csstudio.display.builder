@@ -38,7 +38,6 @@ public class Messages extends NLS
     public static String MoveToBack;
     public static String MoveToFront;
     public static String MoveUp;
-    public static String PinSearchButton;
     public static String PointCount_Fmt;
     public static String Redo_TT;
     public static String RemoveElement;
