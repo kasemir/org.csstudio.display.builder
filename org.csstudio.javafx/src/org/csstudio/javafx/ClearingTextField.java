@@ -7,6 +7,7 @@
  ******************************************************************************/
 package org.csstudio.javafx;
 
+// With Java 9, TextFieldSkin becomes public API
 import com.sun.javafx.scene.control.skin.TextFieldSkin;
 
 import javafx.scene.Group;
@@ -26,6 +27,7 @@ import javafx.scene.shape.Line;
  *
  *  @author Kay Kasemir
  */
+@SuppressWarnings({"restriction", "nls"})
 public class ClearingTextField extends TextField
 {
     private class CustomSkin extends TextFieldSkin
