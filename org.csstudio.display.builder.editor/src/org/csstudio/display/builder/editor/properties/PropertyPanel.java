@@ -68,6 +68,12 @@ public class PropertyPanel extends BorderPane
 
         final TextField searchField = TextFields.createClearableTextField();
         searchField.setPromptText(Messages.SearchTextField);
+        searchField.setOnKeyPressed(event -> {
+            if ( event.getCode() == KeyCode.ESCAPE ) {
+                searchField.setText(null);
+                event.consume();
+            }
+        });
         searchField.textProperty().addListener( ( observable, oldValue, newValue ) -> filterProperties(newValue));
         HBox.setHgrow(searchField, Priority.NEVER);
 
