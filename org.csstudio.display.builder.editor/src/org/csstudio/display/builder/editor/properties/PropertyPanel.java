@@ -14,6 +14,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.controlsfx.control.textfield.TextFields;
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.Messages;
 import org.csstudio.display.builder.model.DisplayModel;
@@ -48,14 +49,12 @@ public class PropertyPanel extends BorderPane
     {
 
         this.editor = editor;
-        section = new PropertyPanelSection();
+        this.section = new PropertyPanelSection();
 
-        final TextField searchField = new TextField();
+        final TextField searchField = TextFields.createClearableTextField();
         searchField.setPromptText(Messages.SearchTextField);
-        searchField.setOnKeyPressed(event ->
-        {
-            if (event.getCode() == KeyCode.ESCAPE)
-            {
+        searchField.setOnKeyPressed(event -> {
+            if ( event.getCode() == KeyCode.ESCAPE ) {
                 searchField.setText("");
                 event.consume();
             }
@@ -77,11 +76,9 @@ public class PropertyPanel extends BorderPane
         setCenter(scrollPane);
 
         // Track currently selected widgets
-        editor.getWidgetSelectionHandler().addListener(this::setSelectedWidgets);
-        editor.getWidgetSelectionHandler().addListener(widgets ->
-        {
+        editor.getWidgetSelectionHandler().addListener(widgets -> {
             searchField.setDisable(widgets.isEmpty() && editor.getModel() == null);
-            searchField.setText(null);
+            filterProperties(searchField.getText());
         });
 
         setMinHeight(0);
@@ -119,9 +116,12 @@ public class PropertyPanel extends BorderPane
         final List<Widget> selection = editor.getWidgetSelectionHandler().getSelection();
 
         if (search == null || search.trim().isEmpty())
+        {
             setSelectedWidgets(selection);
+        }
         else
         {
+
             List<Widget> other;
             Set<WidgetProperty<?>> properties;
             final DisplayModel model = editor.getModel();
@@ -150,6 +150,7 @@ public class PropertyPanel extends BorderPane
                     filtered.add(prop);
 
             updatePropertiesView(filtered, other);
+
         }
     }
 

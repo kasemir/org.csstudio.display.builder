@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.controlsfx.control.textfield.TextFields;
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.Messages;
 import org.csstudio.display.builder.editor.Preferences;
@@ -95,34 +96,30 @@ public class Palette
         // Actual children are now updated based on search by widget name
         palette_groups.values().forEach(group -> group.setUserData(new ArrayList<Node>(group.getChildren())));
 
-        final TextField searchField = new TextField();
+        final TextField searchField = TextFields.createClearableTextField();
         searchField.setPromptText(Messages.SearchTextField);
         searchField.setPrefColumnCount(9);
-        searchField.setOnKeyPressed(event ->
-        {
-            if (event.getCode() == KeyCode.ESCAPE)
-            {
+        searchField.setOnKeyPressed(event -> {
+            if ( event.getCode() == KeyCode.ESCAPE ) {
                 searchField.setText("");
                 event.consume();
             }
         });
-        searchField.textProperty().addListener( ( observable, oldValue, search_text ) ->
-        {
+        searchField.textProperty().addListener(( observable, oldValue, search_text ) -> {
             final String search = search_text.toLowerCase().trim();
-            palette_groups.values().stream().forEach(group ->
-            {
+            palette_groups.values().stream().forEach(group -> {
                 group.getChildren().clear();
-                final List<Node> all_widgets = (List<Node>)group.getUserData();
-                if (search.isEmpty())
+                final List<Node> all_widgets = (List<Node>) group.getUserData();
+                if ( search.isEmpty() ) {
                     group.getChildren().setAll(all_widgets);
-                else
+                } else {
                     group.getChildren().setAll(all_widgets.stream()
-                                                          .filter(node ->
-                                                          {
-                                                             final String text = ((ToggleButton) node).getText().toLowerCase();
-                                                             return text.contains(search);
-                                                          })
-                                                         .collect(Collectors.toList()));
+                        .filter(node -> {
+                            final String text = ( (ToggleButton) node ).getText().toLowerCase();
+                            return text.contains(search);
+                        })
+                        .collect(Collectors.toList()));
+                }
             });
         });
         HBox.setHgrow(searchField, Priority.NEVER);
