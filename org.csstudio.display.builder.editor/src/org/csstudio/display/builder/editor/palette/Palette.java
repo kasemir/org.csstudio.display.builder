@@ -14,6 +14,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.controlsfx.control.textfield.TextFields;
+import org.csstudio.display.builder.editor.DisplayEditor;
+import org.csstudio.display.builder.editor.Messages;
+import org.csstudio.display.builder.editor.Preferences;
+import org.csstudio.display.builder.editor.util.WidgetIcons;
+import org.csstudio.display.builder.editor.util.WidgetTransfer;
+import org.csstudio.display.builder.model.WidgetCategory;
+import org.csstudio.display.builder.model.WidgetDescriptor;
+import org.csstudio.display.builder.model.WidgetFactory;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -32,14 +43,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
-import org.csstudio.display.builder.editor.DisplayEditor;
-import org.csstudio.display.builder.editor.Messages;
-import org.csstudio.display.builder.editor.Preferences;
-import org.csstudio.display.builder.editor.util.WidgetIcons;
-import org.csstudio.display.builder.editor.util.WidgetTransfer;
-import org.csstudio.display.builder.model.WidgetCategory;
-import org.csstudio.display.builder.model.WidgetDescriptor;
-import org.csstudio.display.builder.model.WidgetFactory;
 
 /** Palette of all available widgets
  *  @author Kay Kasemir
@@ -93,12 +96,12 @@ public class Palette
         // Actual children are now updated based on search by widget name
         palette_groups.values().forEach(group -> group.setUserData(new ArrayList<Node>(group.getChildren())));
 
-        final TextField searchField = new TextField();
+        final TextField searchField = TextFields.createClearableTextField();
         searchField.setPromptText(Messages.SearchTextField);
         searchField.setPrefColumnCount(9);
         searchField.setOnKeyPressed(event -> {
             if ( event.getCode() == KeyCode.ESCAPE ) {
-                searchField.setText(null);
+                searchField.setText("");
                 event.consume();
             }
         });
