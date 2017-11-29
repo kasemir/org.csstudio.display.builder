@@ -31,6 +31,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.SplitPane;
@@ -41,6 +42,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -105,35 +107,31 @@ public class EditorDemoGUI
 
         property_panel = new PropertyPanel(editor);
 
-        final Label status = new Label("Status");
+        // Left: Widget tree
+        Label header = new Label("Widgets");
+        header.setMaxWidth(Double.MAX_VALUE);
+        header.getStyleClass().add("header");
 
-        final SplitPane center = new SplitPane();
-        final Node widgetsTree = tree.create();
-        final Label widgetsHeader = new Label("Widgets");
+        final Control tree_control = tree.create();
+        VBox.setVgrow(tree_control, Priority.ALWAYS);
+        final VBox tree_box = new VBox(header, tree_control);
 
-        widgetsHeader.setMaxWidth(Double.MAX_VALUE);
-        widgetsHeader.getStyleClass().add("header");
-
-        ((VBox) widgetsTree).getChildren().add(0, widgetsHeader);
-
-        final Label propertiesHeader = new Label("Properties");
-
-        propertiesHeader.setMaxWidth(Double.MAX_VALUE);
-        propertiesHeader.getStyleClass().add("header");
-
-        final VBox propertiesBox = new VBox(propertiesHeader, property_panel);
-
-
+        // Center: Editor
         final Node editor_scene = editor.create();
         extendToolbar(editor.getToolBar());
 
-        center.getItems().addAll(widgetsTree, editor_scene, propertiesBox);
-        center.setDividerPositions(0.2, 0.8);
+        // Right: Properties
+        header = new Label("Properties");
+        header.setMaxWidth(Double.MAX_VALUE);
+        header.getStyleClass().add("header");
+        final VBox properties_box = new VBox(header, property_panel);
+
+        final SplitPane center_split = new SplitPane(tree_box, editor_scene, properties_box);
+        center_split.setDividerPositions(0.2, 0.8);
 
         final BorderPane layout = new BorderPane();
-        layout.setCenter(center);
-        layout.setBottom(status);
-        BorderPane.setAlignment(center, Pos.TOP_LEFT);
+        layout.setCenter(center_split);
+        BorderPane.setAlignment(center_split, Pos.TOP_LEFT);
 
         layout.addEventFilter(KeyEvent.KEY_PRESSED, key_handler);
 
@@ -161,7 +159,6 @@ public class EditorDemoGUI
         toolbar.getItems().add(new Separator());
         toolbar.getItems().add(debug);
     }
-
 
     private Button createButton(final ActionDescription action)
     {
