@@ -37,7 +37,8 @@ public class WidgetColorPropertyBinding
     {
 
         try {
-            WidgetColorPopOver.getPopOver(widget_property.getDescription()).show(jfx_node);
+            WidgetColorPopOver.getPopOver(widget_property.getDescription()).show(jfx_node.getChildren().get(1));
+//            WidgetColorPopOver.getPopOver(widget_property.getDescription()).show(jfx_node);
         } catch ( IOException e ) {
             // TODO Auto-generated catch block
             e.printStackTrace();
