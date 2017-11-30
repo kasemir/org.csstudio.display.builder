@@ -23,6 +23,7 @@ import org.csstudio.display.builder.editor.util.WidgetTransfer;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetFactory;
+import org.csstudio.javafx.ClearingTextField;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -35,7 +36,6 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -95,17 +95,10 @@ public class Palette
         // Actual children are now updated based on search by widget name
         palette_groups.values().forEach(group -> group.setUserData(new ArrayList<Node>(group.getChildren())));
 
-        final TextField searchField = new TextField();
+        final TextField searchField = new ClearingTextField();
         searchField.setPromptText(Messages.SearchTextField);
+        searchField.setTooltip(new Tooltip(Messages.WidgetFilterTT));
         searchField.setPrefColumnCount(9);
-        searchField.setOnKeyPressed(event ->
-        {
-            if (event.getCode() == KeyCode.ESCAPE)
-            {
-                searchField.setText("");
-                event.consume();
-            }
-        });
         searchField.textProperty().addListener( ( observable, oldValue, search_text ) ->
         {
             final String search = search_text.toLowerCase().trim();

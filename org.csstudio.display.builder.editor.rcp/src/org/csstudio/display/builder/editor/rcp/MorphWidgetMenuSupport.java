@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.editor.DisplayEditor;
+import org.csstudio.display.builder.editor.Preferences;
 import org.csstudio.display.builder.editor.WidgetSelectionHandler;
 import org.csstudio.display.builder.editor.undo.AddWidgetAction;
 import org.csstudio.display.builder.editor.undo.RemoveWidgetsAction;
@@ -187,7 +188,10 @@ public class MorphWidgetMenuSupport
             {   // Create menu that lists all widget types
                 WidgetCategory category = null;
                 for (WidgetDescriptor descr : WidgetFactory.getInstance().getWidgetDescriptions())
-                {   // Header for start of each category
+                {
+                    if (Preferences.getHiddenWidgets().contains(descr.getType()))
+                            continue;
+                    // Header for start of each category
                     if (descr.getCategory() != category)
                     {
                         category = descr.getCategory();
