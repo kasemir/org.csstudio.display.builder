@@ -7,18 +7,15 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.properties;
 
+import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
-import org.csstudio.display.builder.editor.undo.SetWidgetPropertyAction;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
-import org.csstudio.display.builder.representation.javafx.ModalityHack;
-import org.csstudio.display.builder.representation.javafx.WidgetColorDialog;
+import org.csstudio.display.builder.representation.javafx.WidgetColorPopOver;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
-import org.csstudio.javafx.DialogHelper;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -38,20 +35,33 @@ public class WidgetColorPropertyBinding
     /** Update model from user input */
     private EventHandler<ActionEvent> action_handler = event ->
     {
-        final WidgetColorDialog dialog = new WidgetColorDialog(widget_property.getValue());
-        DialogHelper.positionDialog(dialog, DialogHelper.getContainer(jfx_node), -200, -200);
-        ModalityHack.forDialog(dialog);
-        final Optional<WidgetColor> result = dialog.showAndWait();
-        if (result.isPresent())
-        {
-            undo.execute(new SetWidgetPropertyAction<WidgetColor>(widget_property, result.get()));
-            final String path = widget_property.getPath();
-            for (Widget w : other)
-            {
-                final ColorWidgetProperty other_prop = (ColorWidgetProperty) w.getProperty(path);
-                undo.execute(new SetWidgetPropertyAction<WidgetColor>(other_prop, result.get()));
-            }
+
+        try {
+            WidgetColorPopOver.getPopOver(widget_property.getDescription()).show(jfx_node);
+        } catch ( IOException e ) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
+
+
+
+
+
+
+//        final WidgetColorDialog dialog = new WidgetColorDialog(widget_property.getValue());
+//        DialogHelper.positionDialog(dialog, DialogHelper.getContainer(jfx_node), -200, -200);
+//        ModalityHack.forDialog(dialog);
+//        final Optional<WidgetColor> result = dialog.showAndWait();
+//        if (result.isPresent())
+//        {
+//            undo.execute(new SetWidgetPropertyAction<WidgetColor>(widget_property, result.get()));
+//            final String path = widget_property.getPath();
+//            for (Widget w : other)
+//            {
+//                final ColorWidgetProperty other_prop = (ColorWidgetProperty) w.getProperty(path);
+//                undo.execute(new SetWidgetPropertyAction<WidgetColor>(other_prop, result.get()));
+//            }
+//        }
     };
 
     public WidgetColorPropertyBinding(final UndoableActionManager undo,
