@@ -8,41 +8,44 @@
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.TilePane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
-<GridPane hgap="12.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="396.0" prefWidth="637.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.csstudio.display.builder.representation.javafx.WidgetColorPopOver">
+<GridPane hgap="12.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="429.0" prefWidth="637.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.csstudio.display.builder.representation.javafx.WidgetColorPopOver">
   <columnConstraints>
     <ColumnConstraints hgrow="NEVER" percentWidth="50.0" />
     <ColumnConstraints hgrow="NEVER" percentWidth="50.0" />
   </columnConstraints>
   <rowConstraints>
       <RowConstraints fillHeight="false" vgrow="NEVER" />
-    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-      <RowConstraints fillHeight="false" maxHeight="18.0" minHeight="18.0" prefHeight="18.0" vgrow="NEVER" />
-      <RowConstraints fillHeight="false" vgrow="NEVER" />
+    <RowConstraints fillHeight="false" valignment="TOP" vgrow="NEVER" />
+      <RowConstraints fillHeight="false" maxHeight="69.0" minHeight="12.0" prefHeight="12.0" vgrow="NEVER" />
+      <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" prefHeight="96.0" vgrow="ALWAYS" />
   </rowConstraints>
    <padding>
       <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
    </padding>
    <children>
-      <TitledPane alignment="CENTER" animated="false" collapsible="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="%WidgetColorPopup_PredefinedColors" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
+      <TitledPane alignment="CENTER" animated="false" collapsible="false" maxWidth="1.7976931348623157E308" text="%WidgetColorPopup_PredefinedColors" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.rowSpan="2147483647" GridPane.vgrow="ALWAYS">
          <content>
-            <BorderPane>
-               <center>
-                  <ListView fx:id="color_names" BorderPane.alignment="CENTER" />
-               </center>
+            <VBox>
+               <children>
+                  <ListView fx:id="colorNames" />
+               </children>
                <padding>
                   <Insets bottom="-1.0" left="-1.0" right="-1.0" top="-1.0" />
                </padding>
-            </BorderPane>
+            </VBox>
          </content>
       </TitledPane>
-      <TitledPane alignment="CENTER" animated="false" collapsible="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="%WidgetColorPopup_CustomColor" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
+      <TitledPane alignment="CENTER" animated="false" collapsible="false" text="%WidgetColorPopup_CustomColor" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="NEVER">
          <content>
             <GridPane hgap="6.0" vgap="6.0">
               <columnConstraints>
@@ -58,36 +61,29 @@
                   <RowConstraints fillHeight="false" vgrow="NEVER" />
                   <RowConstraints fillHeight="false" vgrow="NEVER" />
                   <RowConstraints fillHeight="false" vgrow="NEVER" />
-                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <padding>
                   <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
                </padding>
                <children>
                   <Label text="%WidgetColorPopup_Color" GridPane.halignment="RIGHT" />
-                  <ColorPicker fx:id="picker" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.hgrow="ALWAYS" />
+                  <ColorPicker fx:id="picker" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" />
                   <Label text="%WidgetColorPopup_Red" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
-                  <Slider fx:id="red_slider" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                  <Spinner fx:id="red_spinner" editable="true" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                  <Slider fx:id="redSlider" max="255.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                  <Spinner fx:id="redSpinner" editable="true" GridPane.columnIndex="2" GridPane.rowIndex="2" />
                   <Label text="%WidgetColorPopup_Green" GridPane.halignment="RIGHT" GridPane.rowIndex="3" />
-                  <Slider fx:id="green_slider" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                  <Spinner fx:id="green_spinner" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                  <Slider fx:id="greenSlider" max="255.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                  <Spinner fx:id="greenSpinner" editable="true" GridPane.columnIndex="2" GridPane.rowIndex="3" />
                   <Label text="%WidgetColorPopup_Blue" GridPane.halignment="RIGHT" GridPane.rowIndex="4" />
-                  <Slider fx:id="blue_slider" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                  <Spinner fx:id="blue_spinner" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+                  <Slider fx:id="blueSlider" max="255.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                  <Spinner fx:id="blueSpinner" editable="true" GridPane.columnIndex="2" GridPane.rowIndex="4" />
                   <Label text="%WidgetColorPopup_Alpha" GridPane.halignment="RIGHT" GridPane.rowIndex="6" />
-                  <Slider fx:id="alpha_slider" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-                  <Spinner fx:id="alpha_spinner" GridPane.columnIndex="2" GridPane.rowIndex="6" />
+                  <Slider fx:id="alphaSlider" max="255.0" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                  <Spinner fx:id="alphaSpinner" editable="true" GridPane.columnIndex="2" GridPane.rowIndex="6" />
                </children>
             </GridPane>
          </content>
       </TitledPane>
-      <TilePane alignment="CENTER" hgap="6.0" GridPane.columnSpan="2" GridPane.rowIndex="3">
-         <children>
-            <Button fx:id="cancel_button" cancelButton="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#cancelPressed" text="%WidgetColorPopup_Cancel" />
-            <Button fx:id="ok_button" defaultButton="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#okPressed" text="%WidgetColorPopup_OK" />
-         </children>
-      </TilePane>
       <Label text="%WidgetColorPopup_Info" GridPane.columnSpan="2147483647">
          <font>
             <Font size="18.0" />
@@ -96,5 +92,31 @@
             <Insets bottom="12.0" />
          </GridPane.margin>
       </Label>
+      <BorderPane GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS">
+         <bottom>
+            <TilePane alignment="CENTER_RIGHT" hgap="6.0" BorderPane.alignment="CENTER">
+               <children>
+                  <Button fx:id="restoreButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#restorePressed" text="%WidgetColorPopup_Restore">
+                     <TilePane.margin>
+                        <Insets right="6.0" />
+                     </TilePane.margin>
+                  </Button>
+                  <Button fx:id="cancelButton" cancelButton="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#cancelPressed" text="%WidgetColorPopup_Cancel" />
+                  <Button fx:id="okButton" defaultButton="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#okPressed" text="%WidgetColorPopup_OK" />
+               </children>
+            </TilePane>
+         </bottom>
+         <center>
+            <AnchorPane BorderPane.alignment="CENTER">
+               <BorderPane.margin>
+                  <Insets bottom="12.0" />
+               </BorderPane.margin>
+               <children>
+                  <Circle fx:id="restoreColorCircle" fill="#abaaaa" layoutX="120.0" layoutY="45.0" radius="45.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="85.0" AnchorPane.topAnchor="0.0" />
+                  <Circle fx:id="currentColorCircle" fill="#c6c5c5" layoutX="163.0" layoutY="46.0" radius="45.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="85.0" AnchorPane.topAnchor="0.0" />
+               </children>
+            </AnchorPane>
+         </center>
+      </BorderPane>
    </children>
 </GridPane>

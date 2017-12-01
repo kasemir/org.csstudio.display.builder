@@ -15,9 +15,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.text.MessageFormat;
+import java.util.Map;
 import java.util.Optional;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
+import java.util.WeakHashMap;
 import java.util.logging.Level;
 
 import org.controlsfx.control.PopOver;
@@ -27,8 +29,10 @@ import org.csstudio.display.builder.model.properties.WidgetColor;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
+import javafx.stage.Screen;
 
 
 /**
@@ -39,63 +43,118 @@ import javafx.scene.layout.Pane;
  */
 public class PopOvers {
 
-    public static Optional<WidgetColor> editColor ( ColorWidgetProperty property, Pane field ) {
+    private static final Map<Node, PopOver> POP_OVERS = new WeakHashMap<>();
+
+    public static Optional<WidgetColor> editColor ( ColorWidgetProperty property, Node field ) {
 
         Optional<WidgetColor> result = Optional.empty();
+        PopOver popOver = POP_OVERS.get(field);
 
-        try {
+        if ( popOver != null && popOver.isShowing() ) {
+            popOver.hide();
+            POP_OVERS.remove(field);
+        } else {
+            try {
 
-            URL fxml = PopOvers.class.getResource("WidgetColorPopOver.fxml");
-            InputStream iStream = PopOvers.class.getResourceAsStream("messages.properties");
-            ResourceBundle bundle = new PropertyResourceBundle(iStream);
-            FXMLLoader fxmlLoader = new FXMLLoader(fxml, bundle);
-            Node content = (Node) fxmlLoader.load();
-            PopOver popOver = new PopOver();
+                URL fxml = PopOvers.class.getResource("WidgetColorPopOver.fxml");
+                InputStream iStream = PopOvers.class.getResourceAsStream("messages.properties");
+                ResourceBundle bundle = new PropertyResourceBundle(iStream);
+                FXMLLoader fxmlLoader = new FXMLLoader(fxml, bundle);
+                Node content = (Node) fxmlLoader.load();
+                Node target = ( field instanceof Pane ) ? ((Pane) field).getChildren().get(1) : field;
 
-            popOver.setContentNode(content);
-            popOver.setDetachable(false);
-            popOver.setDetached(false);
-            popOver.setArrowLocation(PopOver.ArrowLocation.TOP_RIGHT);
-            popOver.setHeaderAlwaysVisible(true);
-            popOver.setTitle(MessageFormat.format(Messages.WidgetColorPopup_Title, property.getDescription()));
-            popOver.setAnimated(true);
-            popOver.setAutoHide(true);
-            popOver.setCloseButtonEnabled(true);
+                popOver = new PopOver();
 
+                popOver.setAnimated(true);
+                popOver.setArrowLocation(getBestArrowLocation(target));
+                popOver.setAutoHide(false);
+                popOver.setCloseButtonEnabled(false);
+                popOver.setContentNode(content);
+                popOver.setDetachable(false);
+                popOver.setDetached(false);
+                popOver.setHideOnEscape(true);
+                popOver.setHeaderAlwaysVisible(true);
+                popOver.setTitle(MessageFormat.format(Messages.WidgetColorPopup_Title, property.getDescription()));
 
-            Node node = field.getChildren().get(1);
-            Bounds bound = node.localToScreen(node.getBoundsInLocal());
-            Point2D bottomAnchor = new Point2D(( bound.getMinX() + bound.getMaxX() ) / 2.0, bound.getMaxY());
+                fxmlLoader.<WidgetColorPopOver>getController().setInitialConditions(popOver, property.getValue());
+                POP_OVERS.put(field, popOver);
+                popOver.show(target, getBestArrowOffset(target));
 
-            content.
-
-//            Screen.getScreens().stream().filter(screen -> screen.getVisualBounds().contains(bottomAnchor)).forEach(screen -> );
-
-
-
-            popOver.show(field.getChildren().get(1));
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//            WidgetColorPopOver.getPopOver(widget_property.getDescription()).show(jfx_node.getChildren().get(1));
-//            WidgetColorPopOver.getPopOver(widget_property.getDescription()).show(jfx_node);
-        } catch ( IOException ex ) {
-            // TODO Auto-generated catch block
-            logger.log(Level.WARNING, "Unable to edit color.", ex);
+            } catch ( IOException ex ) {
+                logger.log(Level.WARNING, "Unable to edit color.", ex);
+            }
         }
 
         return result;
+
+    }
+
+    private static PopOver.ArrowLocation getBestArrowLocation ( Node target ) {
+
+        Bounds bounds = target.localToScreen(target.getBoundsInLocal());
+        Point2D center = new Point2D(
+            ( bounds.getMinX() + bounds.getMaxX() ) / 2.0,
+            ( bounds.getMinY() + bounds.getMaxY() ) / 2.0
+        );
+        Optional<Screen> screen = Screen.getScreens().stream().filter(s -> s.getVisualBounds().contains(center)).findFirst();
+
+        if ( screen.isPresent() ) {
+
+            Rectangle2D screenBounds = screen.get().getVisualBounds();
+            double screenCenterX = ( screenBounds.getMinX() + screenBounds.getMaxX() ) / 2.0;
+            double screenCenterY = ( screenBounds.getMinY() + screenBounds.getMaxY() ) / 2.0;
+
+            if ( center.getY() < screenCenterY ) {
+                //  More space below the target.
+                if ( center.getX() < screenCenterX ) {
+                    //  More space on the target's right side.
+                    return PopOver.ArrowLocation.TOP_LEFT;
+                } else {
+                    //  More space on the target's left side.
+                    return PopOver.ArrowLocation.TOP_RIGHT;
+                }
+            } else {
+                //  More space above the target.
+                if ( center.getX() < screenCenterX ) {
+                    //  More space on the target's right side.
+                    return PopOver.ArrowLocation.BOTTOM_LEFT;
+                } else {
+                    //  More space on the target's left side.
+                    return PopOver.ArrowLocation.BOTTOM_RIGHT;
+                }
+            }
+
+        } else {
+            return PopOver.ArrowLocation.TOP_CENTER;
+        }
+
+    }
+
+    private static double getBestArrowOffset ( Node target ) {
+
+        Bounds bounds = target.localToScreen(target.getBoundsInLocal());
+        Point2D center = new Point2D(
+            ( bounds.getMinX() + bounds.getMaxX() ) / 2.0,
+            ( bounds.getMinY() + bounds.getMaxY() ) / 2.0
+        );
+        Optional<Screen> screen = Screen.getScreens().stream().filter(s -> s.getVisualBounds().contains(center)).findFirst();
+
+        if ( screen.isPresent() ) {
+
+            Rectangle2D screenBounds = screen.get().getVisualBounds();
+            double screenCenterY = ( screenBounds.getMinY() + screenBounds.getMaxY() ) / 2.0;
+
+            if ( center.getY() < screenCenterY ) {
+                //  More space below the target.
+                return 1.5;
+            } else {
+                //  More space above the target.
+                return -2.5;
+            }
+
+        } else {
+            return 1.5;
+        }
 
     }
 
