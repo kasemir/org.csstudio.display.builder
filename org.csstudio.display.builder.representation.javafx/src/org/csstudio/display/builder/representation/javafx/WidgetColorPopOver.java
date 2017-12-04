@@ -23,6 +23,7 @@ import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
 
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
@@ -37,6 +38,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
@@ -100,8 +102,6 @@ public class WidgetColorPopOver {
 
             if ( col == null ) {
                 set(Color.GOLDENROD);
-            } else {
-                currentColorCircle.setFill(col);
             }
 
         }
@@ -125,6 +125,8 @@ public class WidgetColorPopOver {
     public void initialize() {
 
         picker.valueProperty().bindBidirectional(colorProperty());
+        currentColorCircle.fillProperty().bind(colorProperty());
+        restoreButton.disableProperty().bind(Bindings.createBooleanBinding(() -> getColor().equals(restoreColor), colorProperty()));
 
         redSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 255));
         redSpinner.valueProperty().addListener(this::updateFromSpinner);
@@ -134,6 +136,11 @@ public class WidgetColorPopOver {
         blueSpinner.valueProperty().addListener(this::updateFromSpinner);
         alphaSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 255));
         alphaSpinner.valueProperty().addListener(this::updateFromSpinner);
+
+        redSlider.valueProperty().addListener(this::updateFromSlider);
+        greenSlider.valueProperty().addListener(this::updateFromSlider);
+        blueSlider.valueProperty().addListener(this::updateFromSlider);
+        alphaSlider.valueProperty().addListener(this::updateFromSlider);
 
         colorProperty().addListener(( observable, oldValue, newValue ) -> {
 
@@ -223,6 +230,11 @@ public class WidgetColorPopOver {
     }
 
     @FXML
+    void restoreColorClicked ( MouseEvent event ) {
+        setColor(restoreColor);
+    }
+
+    @FXML
     void restorePressed ( ActionEvent event ) {
         setColor(restoreColor);
     }
@@ -263,6 +275,12 @@ public class WidgetColorPopOver {
             Math.max(0, Math.min(255, blueSpinner.getValue())),
             Math.max(0, Math.min(255, alphaSpinner.getValue() / 255.0))
         );
+    }
+
+    private void updateFromSlider ( ObservableValue<? extends Number> observable, Number oldValue, Number newValue ) {
+        if ( !updating ) {
+            setColor(getSliderColor());
+        }
     }
 
     private void updateFromSpinner ( ObservableValue<? extends Integer> observable, Integer oldValue, Integer newValue ) {
