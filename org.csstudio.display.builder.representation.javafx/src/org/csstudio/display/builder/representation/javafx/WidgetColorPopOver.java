@@ -9,10 +9,12 @@
 package org.csstudio.display.builder.representation.javafx;
 
 
+import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -31,6 +33,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
@@ -49,7 +52,7 @@ import javafx.scene.shape.Circle;
  * @author claudiorosati, European Spallation Source ERIC
  * @version 1.0.0 29 Nov 2017
  */
-public class WidgetColorPopOver {
+public class WidgetColorPopOver implements Initializable {
 
     @FXML
     private ListView<NamedWidgetColor> colorNames;
@@ -125,7 +128,8 @@ public class WidgetColorPopOver {
     /*
      * -------------------------------------------------------------------------
      */
-    public void initialize() {
+    @Override
+    public void initialize( URL location, ResourceBundle resources ) {
 
         picker.valueProperty().bindBidirectional(colorProperty());
         currentColorCircle.fillProperty().bind(colorProperty());
