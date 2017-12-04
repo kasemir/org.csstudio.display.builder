@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 import java.util.WeakHashMap;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 
 import org.controlsfx.control.PopOver;
@@ -45,9 +46,8 @@ public class PopOvers {
 
     private static final Map<Node, PopOver> POP_OVERS = new WeakHashMap<>();
 
-    public static Optional<WidgetColor> editColor ( ColorWidgetProperty property, Node field ) {
+    public static void editColor ( ColorWidgetProperty property, Node field, final Consumer<WidgetColor> consumer ) {
 
-        Optional<WidgetColor> result = Optional.empty();
         PopOver popOver = POP_OVERS.get(field);
 
         if ( popOver != null && popOver.isShowing() ) {
@@ -76,7 +76,9 @@ public class PopOvers {
                 popOver.setHeaderAlwaysVisible(true);
                 popOver.setTitle(MessageFormat.format(Messages.WidgetColorPopup_Title, property.getDescription()));
 
-                fxmlLoader.<WidgetColorPopOver>getController().setInitialConditions(popOver, property.getValue());
+                WidgetColorPopOver controller = fxmlLoader.<WidgetColorPopOver>getController();
+
+                controller.setInitialConditions(popOver, property, consumer);
                 POP_OVERS.put(field, popOver);
                 popOver.show(target, getBestArrowOffset(target));
 
@@ -84,8 +86,6 @@ public class PopOvers {
                 logger.log(Level.WARNING, "Unable to edit color.", ex);
             }
         }
-
-        return result;
 
     }
 

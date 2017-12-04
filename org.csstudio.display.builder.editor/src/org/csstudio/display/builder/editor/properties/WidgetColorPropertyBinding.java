@@ -8,7 +8,6 @@
 package org.csstudio.display.builder.editor.properties;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.csstudio.display.builder.editor.undo.SetWidgetPropertyAction;
 import org.csstudio.display.builder.model.Widget;
@@ -34,23 +33,24 @@ public class WidgetColorPropertyBinding
     };
 
     /** Update model from user input */
-    private EventHandler<ActionEvent> action_handler = event ->
-    {
-//        final WidgetColorDialog dialog = new WidgetColorDialog(widget_property.getValue());
-//        DialogHelper.positionDialog(dialog, DialogHelper.getContainer(jfx_node), -200, -200);
-//        ModalityHack.forDialog(dialog);
-//        final Optional<WidgetColor> result = dialog.showAndWait();
-        final Optional<WidgetColor> result = PopOvers.editColor(widget_property, jfx_node);
-        if (result.isPresent())
-        {
-            undo.execute(new SetWidgetPropertyAction<WidgetColor>(widget_property, result.get()));
+    private EventHandler<ActionEvent> action_handler = event -> {
+
+        PopOvers.editColor(widget_property, jfx_node, wColor -> {
+
+            undo.execute(new SetWidgetPropertyAction<WidgetColor>(widget_property, wColor));
+
             final String path = widget_property.getPath();
-            for (Widget w : other)
-            {
+
+            for ( Widget w : other ) {
+
                 final ColorWidgetProperty other_prop = (ColorWidgetProperty) w.getProperty(path);
-                undo.execute(new SetWidgetPropertyAction<WidgetColor>(other_prop, result.get()));
+
+                undo.execute(new SetWidgetPropertyAction<WidgetColor>(other_prop, wColor));
+
             }
-        }
+
+        });
+
     };
 
     public WidgetColorPropertyBinding(final UndoableActionManager undo,

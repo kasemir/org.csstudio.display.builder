@@ -14,10 +14,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 import org.controlsfx.control.PopOver;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
+import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.NamedWidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
@@ -85,6 +87,7 @@ public class WidgetColorPopOver {
     @FXML
     private Button okButton;
 
+    private Consumer<WidgetColor> colorChangeConsumer;
     private PopOver popOver;
     private final AtomicBoolean namesLoaded = new AtomicBoolean(false);
     private final Map<Color, NamedWidgetColor> namedColors = Collections.synchronizedMap(new HashMap<>());
@@ -92,7 +95,7 @@ public class WidgetColorPopOver {
     private boolean updating = false;
 
     /*
-     * ---- color --------------------------------------------------------------
+     * ---- color property -----------------------------------------------------
      */
     private final ObjectProperty<Color> color = new SimpleObjectProperty<Color>(this, "color", Color.GOLDENROD) {
         @Override
@@ -107,15 +110,15 @@ public class WidgetColorPopOver {
         }
     };
 
-    public ObjectProperty<Color> colorProperty() {
+    ObjectProperty<Color> colorProperty() {
         return color;
     }
 
-    public Color getColor() {
+    Color getColor() {
         return color.get();
     }
 
-    public void setColor( Color color ) {
+    void setColor( Color color ) {
         this.color.set(color);
     }
 
@@ -126,6 +129,7 @@ public class WidgetColorPopOver {
 
         picker.valueProperty().bindBidirectional(colorProperty());
         currentColorCircle.fillProperty().bind(colorProperty());
+        okButton.disableProperty().bind(Bindings.createBooleanBinding(() -> getColor().equals(restoreColor), colorProperty()));
         restoreButton.disableProperty().bind(Bindings.createBooleanBinding(() -> getColor().equals(restoreColor), colorProperty()));
 
         redSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 255));
@@ -190,8 +194,39 @@ public class WidgetColorPopOver {
 
     }
 
-    public void setInitialConditions ( PopOver popOver, WidgetColor widgetColor ) {
+    @FXML
+    void cancelPressed ( ActionEvent event ) {
+        if ( popOver != null ) {
+            popOver.hide();
+        }
+    }
 
+    @FXML
+    void okPressed ( ActionEvent event ) {
+
+        if ( colorChangeConsumer != null ) {
+            colorChangeConsumer.accept(JFXUtil.convert(getColor()));
+        }
+
+        cancelPressed(event);
+
+    }
+
+    @FXML
+    void restoreColorClicked ( MouseEvent event ) {
+        setColor(restoreColor);
+    }
+
+    @FXML
+    void restorePressed ( ActionEvent event ) {
+        setColor(restoreColor);
+    }
+
+    void setInitialConditions ( final PopOver popOver, final ColorWidgetProperty property, final Consumer<WidgetColor> colorChangeConsumer ) {
+
+        WidgetColor widgetColor = property.getValue();
+
+        this.colorChangeConsumer = colorChangeConsumer;
         this.popOver = popOver;
         this.restoreColor = JFXUtil.convert(widgetColor);
 
@@ -213,30 +248,6 @@ public class WidgetColorPopOver {
 
         });
 
-    }
-
-    @FXML
-    void cancelPressed ( ActionEvent event ) {
-        if ( popOver != null ) {
-            popOver.hide();
-        }
-    }
-
-    @FXML
-    void okPressed ( ActionEvent event ) {
-        if ( popOver != null ) {
-            popOver.hide();
-        }
-    }
-
-    @FXML
-    void restoreColorClicked ( MouseEvent event ) {
-        setColor(restoreColor);
-    }
-
-    @FXML
-    void restorePressed ( ActionEvent event ) {
-        setColor(restoreColor);
     }
 
     private int getAlpha() {
