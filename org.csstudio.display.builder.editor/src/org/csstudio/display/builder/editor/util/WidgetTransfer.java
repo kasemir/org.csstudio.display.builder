@@ -668,7 +668,7 @@ public class WidgetTransfer {
             widget.propText().setValue(text);
             widgets.add(widget);
 
-        } else {   // Parse choice back into widget descriptor
+        } else {   // Parse selection back into widget descriptor
 
             final MessageFormat msgf = new MessageFormat(format);
             final String descriptorName;
