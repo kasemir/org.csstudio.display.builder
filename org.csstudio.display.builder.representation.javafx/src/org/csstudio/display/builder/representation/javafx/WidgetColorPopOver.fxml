@@ -95,8 +95,14 @@
       </Label>
       <BorderPane GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS">
          <bottom>
-            <TilePane alignment="CENTER_RIGHT" hgap="6.0" BorderPane.alignment="CENTER">
+            <TilePane alignment="CENTER" hgap="6.0" BorderPane.alignment="CENTER">
                <children>
+                  <Button fx:id="originalButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#originalPressed" text="%WidgetColorPopOver_OriginalButton" />
+                  <Button fx:id="defaultButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#defaultPressed" text="%WidgetColorPopOver_DefaultButton">
+                     <TilePane.margin>
+                        <Insets />
+                     </TilePane.margin>
+                  </Button>
                   <Button fx:id="cancelButton" cancelButton="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#cancelPressed" text="%WidgetColorPopOver_Cancel" />
                   <Button fx:id="okButton" defaultButton="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#okPressed" text="%WidgetColorPopOver_OK" />
                </children>

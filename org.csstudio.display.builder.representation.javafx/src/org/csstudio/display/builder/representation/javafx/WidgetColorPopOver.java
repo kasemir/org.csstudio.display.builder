@@ -54,41 +54,28 @@ import javafx.scene.shape.Circle;
  */
 public class WidgetColorPopOver implements Initializable {
 
-    @FXML
-    private ListView<NamedWidgetColor> colorNames;
+    @FXML private ListView<NamedWidgetColor> colorNames;
 
-    @FXML
-    private ColorPicker picker;
+    @FXML private ColorPicker picker;
 
-    @FXML
-    private Slider redSlider;
-    @FXML
-    private Slider greenSlider;
-    @FXML
-    private Slider blueSlider;
-    @FXML
-    private Slider alphaSlider;
+    @FXML private Slider redSlider;
+    @FXML private Slider greenSlider;
+    @FXML private Slider blueSlider;
+    @FXML private Slider alphaSlider;
 
-    @FXML
-    private Spinner<Integer> redSpinner;
-    @FXML
-    private Spinner<Integer> greenSpinner;
-    @FXML
-    private Spinner<Integer> blueSpinner;
-    @FXML
-    private Spinner<Integer> alphaSpinner;
+    @FXML private Spinner<Integer> redSpinner;
+    @FXML private Spinner<Integer> greenSpinner;
+    @FXML private Spinner<Integer> blueSpinner;
+    @FXML private Spinner<Integer> alphaSpinner;
 
-    @FXML
-    private Circle currentColorCircle;
-    @FXML
-    private Circle defaultColorCircle;
-    @FXML
-    private Circle originalColorCircle;
+    @FXML private Circle currentColorCircle;
+    @FXML private Circle defaultColorCircle;
+    @FXML private Circle originalColorCircle;
 
-    @FXML
-    private Button cancelButton;
-    @FXML
-    private Button okButton;
+    @FXML private Button originalButton;
+    @FXML private Button defaultButton;
+    @FXML private Button cancelButton;
+    @FXML private Button okButton;
 
     private Consumer<WidgetColor> colorChangeConsumer;
     private PopOver popOver;
@@ -134,6 +121,8 @@ public class WidgetColorPopOver implements Initializable {
 
         picker.valueProperty().bindBidirectional(colorProperty());
         currentColorCircle.fillProperty().bind(colorProperty());
+        originalButton.disableProperty().bind(Bindings.createBooleanBinding(() -> getColor().equals(originalColor), colorProperty()));
+        defaultButton.disableProperty().bind(Bindings.createBooleanBinding(() -> getColor().equals(defaultColor), colorProperty()));
         okButton.disableProperty().bind(Bindings.createBooleanBinding(() -> getColor().equals(originalColor), colorProperty()));
 
         redSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 255));
@@ -216,6 +205,11 @@ public class WidgetColorPopOver implements Initializable {
     }
 
     @FXML
+    void defaultPressed(ActionEvent event) {
+        setColor(defaultColor);
+    }
+
+    @FXML
     void okPressed ( ActionEvent event ) {
 
         if ( colorChangeConsumer != null ) {
@@ -227,6 +221,11 @@ public class WidgetColorPopOver implements Initializable {
     }
     @FXML
     void originalColorClicked ( MouseEvent event ) {
+        setColor(originalColor);
+    }
+
+    @FXML
+    void originalPressed(ActionEvent event) {
         setColor(originalColor);
     }
 
