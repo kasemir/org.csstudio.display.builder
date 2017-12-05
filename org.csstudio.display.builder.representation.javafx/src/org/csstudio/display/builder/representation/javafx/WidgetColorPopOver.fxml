@@ -19,7 +19,7 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
-<GridPane hgap="12.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="429.0" prefWidth="637.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.csstudio.display.builder.representation.javafx.WidgetColorPopOver">
+<GridPane hgap="12.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="435.0" prefWidth="637.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.csstudio.display.builder.representation.javafx.WidgetColorPopOver">
   <columnConstraints>
     <ColumnConstraints hgrow="NEVER" percentWidth="50.0" />
     <ColumnConstraints hgrow="NEVER" percentWidth="50.0" />
@@ -106,6 +106,9 @@
                   <Button fx:id="cancelButton" cancelButton="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#cancelPressed" text="%WidgetColorPopOver_Cancel" />
                   <Button fx:id="okButton" defaultButton="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#okPressed" text="%WidgetColorPopOver_OK" />
                </children>
+               <BorderPane.margin>
+                  <Insets top="6.0" />
+               </BorderPane.margin>
             </TilePane>
          </bottom>
          <center>
