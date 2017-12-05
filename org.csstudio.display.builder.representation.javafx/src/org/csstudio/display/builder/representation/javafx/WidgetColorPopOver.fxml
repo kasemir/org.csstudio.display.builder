@@ -137,6 +137,9 @@
                      <cursor>
                         <Cursor fx:constant="HAND" />
                      </cursor>
+                     <font>
+                        <Font size="11.0" />
+                     </font>
                   </Label>
                </children>
             </AnchorPane>
