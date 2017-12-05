@@ -155,7 +155,11 @@ public class WidgetColorPopOver implements Initializable {
             updating = true;
 
             if ( namedColors.containsKey(newValue) ) {
-                colorNames.getSelectionModel().select(namedColors.get(newValue));
+
+                NamedWidgetColor nwc = namedColors.get(newValue);
+
+                colorNames.getSelectionModel().select(nwc);
+                colorNames.scrollTo(nwc);
             }
 
             redSlider.setValue(getRed());
