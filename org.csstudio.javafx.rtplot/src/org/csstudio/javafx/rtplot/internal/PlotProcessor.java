@@ -35,6 +35,7 @@ import org.csstudio.javafx.rtplot.internal.undo.ChangeAxisRanges;
 import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 import org.csstudio.javafx.rtplot.internal.util.Log10;
 
+import javafx.application.Platform;
 import javafx.geometry.Point2D;
 
 /** Helper for processing traces of a plot
@@ -428,11 +429,16 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
                 data.getLock().unlock();
             }
             if (location != null)
-                plot.getUndoableActionManager().execute(
-                    new AddAnnotationAction<XTYPE>(plot,
-                                                   new AnnotationImpl<XTYPE>(false, trace, location, value,
-                                                                             new Point2D(20, -20),
-                                                                             text)));
+            {
+                final XTYPE the_location = location;
+                final double the_value = value;
+                Platform.runLater(() ->
+                    plot.getUndoableActionManager().execute(
+                        new AddAnnotationAction<XTYPE>(plot,
+                                                       new AnnotationImpl<XTYPE>(false, trace, the_location, the_value,
+                                                                                 new Point2D(20, -20),
+                                                                                 text))));
+            }
             return null;
         });
     }
@@ -463,7 +469,8 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
             {
                 data.getLock().unlock();
             }
-            plot.updateAnnotation(annotation, position, value, info, annotation.getOffset());
+            Platform.runLater(() ->
+                plot.updateAnnotation(annotation, position, value, info, annotation.getOffset()));
             return null;
         });
     }
