@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.sandbox;
 
+import org.csstudio.javafx.PopOver;
+
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
