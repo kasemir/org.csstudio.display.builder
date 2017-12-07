@@ -19,7 +19,7 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
-<GridPane hgap="12.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="435.0" prefWidth="637.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.csstudio.display.builder.representation.javafx.WidgetColorPopOver">
+<GridPane hgap="12.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="455.0" prefWidth="637.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.csstudio.display.builder.representation.javafx.WidgetColorPopOver">
   <columnConstraints>
     <ColumnConstraints hgrow="NEVER" percentWidth="50.0" />
     <ColumnConstraints hgrow="NEVER" percentWidth="50.0" />
@@ -133,7 +133,7 @@
                   </Circle>
                   <Circle fill="#abaaaa" layoutX="140.0" layoutY="65.0" radius="43.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" style="-fx-fill: repeating-image-pattern(&quot;com/sun/javafx/scene/control/skin/modena/pattern-transparent.png&quot;);" AnchorPane.leftAnchor="107.0" AnchorPane.rightAnchor="107.0" AnchorPane.topAnchor="2.0" />
                   <Circle fx:id="currentColorCircle" fill="#f2f2f2" layoutX="160.0" layoutY="85.0" radius="44.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" AnchorPane.leftAnchor="106.0" AnchorPane.rightAnchor="106.0" AnchorPane.topAnchor="1.0" />
-                  <Label alignment="TOP_RIGHT" layoutX="1.0" layoutY="61.0" onMouseClicked="#originalColorClicked" prefWidth="45.0" text="%WidgetColorPopOver_Original" AnchorPane.bottomAnchor="2.0" AnchorPane.leftAnchor="2.0">
+                  <Label alignment="TOP_CENTER" layoutX="36.0" layoutY="95.0" onMouseClicked="#originalColorClicked" prefWidth="100.0" text="%WidgetColorPopOver_Original" AnchorPane.bottomAnchor="2.0" AnchorPane.leftAnchor="36.0">
                      <font>
                         <Font size="10.0" />
                      </font>
@@ -141,7 +141,7 @@
                         <Cursor fx:constant="HAND" />
                      </cursor>
                   </Label>
-                  <Label alignment="TOP_LEFT" layoutX="261.0" layoutY="68.0" onMouseClicked="#defaultColorClicked" prefWidth="45.0" text="%WidgetColorPopOver_Default" AnchorPane.bottomAnchor="2.0" AnchorPane.rightAnchor="2.0">
+                  <Label alignment="TOP_CENTER" layoutX="164.0" layoutY="95.0" onMouseClicked="#defaultColorClicked" prefWidth="100.0" text="%WidgetColorPopOver_Default" AnchorPane.bottomAnchor="2.0" AnchorPane.rightAnchor="36.0">
                      <cursor>
                         <Cursor fx:constant="HAND" />
                      </cursor>

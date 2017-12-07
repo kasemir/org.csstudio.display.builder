@@ -73,7 +73,7 @@ public class PopOvers {
             popOver.setAnimated(true);
             popOver.setArrowLocation(getBestArrowLocation(target));
             popOver.setAutoHide(true);
-            popOver.setCloseButtonEnabled(false);
+            popOver.setCloseButtonEnabled(true);
             popOver.setContentNode(content);
             popOver.setDetachable(false);
             popOver.setDetached(false);
