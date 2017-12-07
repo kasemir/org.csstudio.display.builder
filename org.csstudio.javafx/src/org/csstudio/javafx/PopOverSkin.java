@@ -8,6 +8,7 @@
 package org.csstudio.javafx;
 
 import javafx.beans.InvalidationListener;
+import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.control.Skin;
 import javafx.scene.effect.DropShadow;
@@ -48,13 +49,15 @@ public class PopOverSkin implements Skin<PopOver>
 
    private final InvalidationListener update_background = prop ->
    {
-       final double w = root.getWidth(),  h = root.getHeight();
+       final Bounds owner_bounds = popover.getActiveOwner().localToScreen(popover.getActiveOwner().getBoundsInLocal());
+       final Bounds content_bounds = popover.getContentNode().localToScreen(popover.getContentNode().getBoundsInLocal());
+       final double w = content_bounds.getWidth(),  h = content_bounds.getHeight();
 
        switch (popover.getSideProperty().get())
        {
        case TOP:
            {   // popup is on top of owner, reference point is on bottom
-               final double ref_x = popover.getContentNode().getBoundsInLocal().getWidth() / 2;
+               final double ref_x = owner_bounds.getWidth()/2 + owner_bounds.getMinX()  - content_bounds.getMinX();
                background.getElements().setAll(
                        new MoveTo(0, -BORDER_SIZE),
                        new HLineTo(w),
@@ -72,7 +75,7 @@ public class PopOverSkin implements Skin<PopOver>
            break;
        case BOTTOM:
            {   // popup is on bottom of owner, reference point is on top
-               final double ref_x = popover.getContentNode().getBoundsInLocal().getWidth() / 2;
+               final double ref_x = owner_bounds.getWidth()/2 + owner_bounds.getMinX()  - content_bounds.getMinX();
                background.getElements().setAll(
                        new MoveTo(0, -BORDER_SIZE),
                        new HLineTo(ref_x - BORDER_SIZE),
@@ -90,7 +93,7 @@ public class PopOverSkin implements Skin<PopOver>
            break;
        case LEFT:
            {   // popup is left of owner, reference point is on right
-               final double ref_y = popover.getContentNode().getBoundsInLocal().getHeight() / 2;
+               final double ref_y = owner_bounds.getHeight()/2 + owner_bounds.getMinY()  - content_bounds.getMinY();
                background.getElements().setAll(
                        new MoveTo(0, -BORDER_SIZE),
                        new HLineTo(w),
@@ -108,7 +111,7 @@ public class PopOverSkin implements Skin<PopOver>
            break;
        default:
            {   // popup is right of owner, reference point is on left
-               final double ref_y = popover.getContentNode().getBoundsInLocal().getHeight() / 2;
+               final double ref_y = owner_bounds.getHeight()/2 + owner_bounds.getMinY()  - content_bounds.getMinY();
                background.getElements().setAll(
                        new MoveTo(0, -BORDER_SIZE),
                        new HLineTo(w),

@@ -93,10 +93,16 @@ public class PopOver extends PopupControl
        return side;
    }
 
-   // Content node. For PopOverSkin.
-   Node getContentNode()
+   Node getActiveOwner()
    {
-       return content;
+       return active_owner;
+   }
+
+   /** @return Content node */
+   @SuppressWarnings("unchecked")
+   protected <N extends Node> N getContentNode()
+   {
+       return (N) content;
    }
 
    @Override
