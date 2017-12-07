@@ -8,17 +8,14 @@
 package org.csstudio.display.builder.editor.properties;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.csstudio.display.builder.editor.undo.SetWidgetPropertyAction;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.FontWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetFont;
-import org.csstudio.display.builder.representation.javafx.ModalityHack;
-import org.csstudio.display.builder.representation.javafx.WidgetFontDialog;
+import org.csstudio.display.builder.representation.javafx.WidgetFontPopOver;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
-import org.csstudio.javafx.DialogHelper;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -30,6 +27,8 @@ import javafx.scene.control.Button;
 public class WidgetFontPropertyBinding
        extends WidgetPropertyBinding<Button, FontWidgetProperty>
 {
+    private WidgetFontPopOver popover;
+
     /** Update property panel field as model changes */
     private final WidgetPropertyListener<WidgetFont> model_listener = (p, o, n) ->
     {
@@ -39,20 +38,22 @@ public class WidgetFontPropertyBinding
     /** Update model from user input */
     private EventHandler<ActionEvent> action_handler = event ->
     {
-        final WidgetFontDialog dialog = new WidgetFontDialog(widget_property.getValue());
-        DialogHelper.positionDialog(dialog, DialogHelper.getContainer(jfx_node), -200, -200);
-        ModalityHack.forDialog(dialog);
-        final Optional<WidgetFont> result = dialog.showAndWait();
-        if (result.isPresent())
-        {
-            undo.execute(new SetWidgetPropertyAction<WidgetFont>(widget_property, result.get()));
-            final String path = widget_property.getPath();
-            for (Widget w : other)
+        if (popover == null)
+            popover = new WidgetFontPopOver(widget_property.getValue(), font ->
             {
-                final FontWidgetProperty other_prop = (FontWidgetProperty) w.getProperty(path);
-                undo.execute(new SetWidgetPropertyAction<WidgetFont>(other_prop, result.get()));
-            }
-        }
+                undo.execute(new SetWidgetPropertyAction<WidgetFont>(widget_property, font));
+                final String path = widget_property.getPath();
+                for (Widget w : other)
+                {
+                    final FontWidgetProperty other_prop = (FontWidgetProperty) w.getProperty(path);
+                    undo.execute(new SetWidgetPropertyAction<WidgetFont>(other_prop, font));
+                }
+            });
+
+        if (popover.isShowing())
+            popover.hide();
+        else
+            popover.show(jfx_node);
     };
 
     public WidgetFontPropertyBinding(final UndoableActionManager undo,
