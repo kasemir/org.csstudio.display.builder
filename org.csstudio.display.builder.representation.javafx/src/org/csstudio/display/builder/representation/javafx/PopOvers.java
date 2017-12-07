@@ -24,7 +24,6 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 
 import org.controlsfx.control.PopOver;
-import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 
 import javafx.fxml.FXMLLoader;
@@ -46,45 +45,56 @@ public class PopOvers {
 
     private static final Map<Node, PopOver> POP_OVERS = new WeakHashMap<>();
 
-    public static void editColor ( ColorWidgetProperty property, Node field, final Consumer<WidgetColor> consumer ) {
+    public static void editColor (
+        final String propertyName,
+        final WidgetColor originalWidgetColor,
+        final WidgetColor defaultWidgetColor,
+        final Node propertyEditor,
+        final Consumer<WidgetColor> colorChangeConsumer
+    ) {
 
-        PopOver popOver = POP_OVERS.get(field);
+        PopOver popOver = POP_OVERS.get(propertyEditor);
 
         if ( popOver != null && popOver.isShowing() ) {
             popOver.hide();
-            POP_OVERS.remove(field);
-        } else {
-            try {
+        }
 
-                URL fxml = PopOvers.class.getResource("WidgetColorPopOver.fxml");
-                InputStream iStream = PopOvers.class.getResourceAsStream("messages.properties");
-                ResourceBundle bundle = new PropertyResourceBundle(iStream);
-                FXMLLoader fxmlLoader = new FXMLLoader(fxml, bundle);
-                Node content = (Node) fxmlLoader.load();
-                Node target = ( field instanceof Pane ) ? ((Pane) field).getChildren().get(1) : field;
+        try {
 
-                popOver = new PopOver();
+            URL fxml = PopOvers.class.getResource("WidgetColorPopOver.fxml");
+            InputStream iStream = PopOvers.class.getResourceAsStream("messages.properties");
+            ResourceBundle bundle = new PropertyResourceBundle(iStream);
+            FXMLLoader fxmlLoader = new FXMLLoader(fxml, bundle);
+            Node content = (Node) fxmlLoader.load();
+            Node target = ( propertyEditor instanceof Pane ) ? ((Pane) propertyEditor).getChildren().get(1) : propertyEditor;
 
-                popOver.setAnimated(true);
-                popOver.setArrowLocation(getBestArrowLocation(target));
-                popOver.setAutoHide(false);
-                popOver.setCloseButtonEnabled(false);
-                popOver.setContentNode(content);
-                popOver.setDetachable(false);
-                popOver.setDetached(false);
-                popOver.setHideOnEscape(true);
-                popOver.setHeaderAlwaysVisible(true);
-                popOver.setTitle(MessageFormat.format(Messages.WidgetColorPopOver_Title, property.getDescription()));
+            popOver = new PopOver();
 
-                WidgetColorPopOver controller = fxmlLoader.<WidgetColorPopOver>getController();
+            popOver.setAnimated(true);
+            popOver.setArrowLocation(getBestArrowLocation(target));
+            popOver.setAutoHide(true);
+            popOver.setCloseButtonEnabled(false);
+            popOver.setContentNode(content);
+            popOver.setDetachable(false);
+            popOver.setDetached(false);
+            popOver.setHideOnEscape(true);
+            popOver.setHeaderAlwaysVisible(true);
+            popOver.setTitle(MessageFormat.format(Messages.WidgetColorPopOver_Title, propertyName));
 
-                controller.setInitialConditions(popOver, property, consumer);
-                POP_OVERS.put(field, popOver);
-                popOver.show(target, getBestArrowOffset(target));
+            final PopOver fPopOver = popOver;
 
-            } catch ( IOException ex ) {
-                logger.log(Level.WARNING, "Unable to edit color.", ex);
-            }
+            propertyEditor.getScene().getWindow().focusedProperty().addListener(( observer, wasFocused, isFocused ) -> {
+                fPopOver.hide();
+            });
+
+            WidgetColorPopOver controller = fxmlLoader.<WidgetColorPopOver>getController();
+
+            controller.setInitialConditions(popOver, originalWidgetColor, defaultWidgetColor, colorChangeConsumer);
+            POP_OVERS.put(propertyEditor, popOver);
+            popOver.show(target, getBestArrowOffset(target));
+
+        } catch ( IOException ex ) {
+            logger.log(Level.WARNING, "Unable to edit color.", ex);
         }
 
     }

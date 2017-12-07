@@ -21,7 +21,6 @@ import java.util.function.Consumer;
 import org.controlsfx.control.PopOver;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
-import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.NamedWidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
@@ -233,14 +232,12 @@ public class WidgetColorPopOver implements Initializable {
         setColor(originalColor);
     }
 
-    void setInitialConditions ( final PopOver popOver, final ColorWidgetProperty property, final Consumer<WidgetColor> colorChangeConsumer ) {
-
-        WidgetColor widgetColor = property.getValue();
+    void setInitialConditions ( final PopOver popOver, WidgetColor originalWidgetColor, final WidgetColor defaultWidgetColor, final Consumer<WidgetColor> colorChangeConsumer ) {
 
         this.colorChangeConsumer = colorChangeConsumer;
         this.popOver = popOver;
-        this.originalColor = JFXUtil.convert(widgetColor);
-        this.defaultColor = JFXUtil.convert(property.getDefaultValue());
+        this.originalColor = JFXUtil.convert(originalWidgetColor);
+        this.defaultColor = JFXUtil.convert(defaultWidgetColor);
 
         originalColorCircle.setFill(originalColor);
         defaultColorCircle.setFill(defaultColor);
@@ -253,8 +250,8 @@ public class WidgetColorPopOver implements Initializable {
             }
 
             Platform.runLater(() -> {
-                if ( widgetColor instanceof NamedWidgetColor ) {
-                    colorNames.getSelectionModel().select((NamedWidgetColor) widgetColor);
+                if ( originalWidgetColor instanceof NamedWidgetColor ) {
+                    colorNames.getSelectionModel().select((NamedWidgetColor) originalWidgetColor);
                     colorNames.scrollTo(colorNames.getSelectionModel().getSelectedIndex());
                 }
             });

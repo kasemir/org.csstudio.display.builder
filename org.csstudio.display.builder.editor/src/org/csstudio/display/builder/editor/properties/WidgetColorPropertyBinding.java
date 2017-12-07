@@ -8,8 +8,7 @@
 package org.csstudio.display.builder.editor.properties;
 
 import java.util.List;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+
 import org.csstudio.display.builder.editor.undo.SetWidgetPropertyAction;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
@@ -17,6 +16,9 @@ import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.representation.javafx.PopOvers;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
+
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 
 /** Bidirectional binding between a color property in model and Java FX Node in the property panel
  *  @author Kay Kasemir
@@ -32,23 +34,27 @@ public class WidgetColorPropertyBinding
 
     /** Update model from user input */
     private EventHandler<ActionEvent> action_handler = event -> {
+        PopOvers.editColor(
+            widget_property.getDescription(),
+            widget_property.getValue(),
+            widget_property.getDefaultValue(),
+            jfx_node,
+            wColor -> {
 
-        PopOvers.editColor(widget_property, jfx_node, wColor -> {
+                undo.execute(new SetWidgetPropertyAction<WidgetColor>(widget_property, wColor));
 
-            undo.execute(new SetWidgetPropertyAction<WidgetColor>(widget_property, wColor));
+                final String path = widget_property.getPath();
 
-            final String path = widget_property.getPath();
+                for ( Widget w : other ) {
 
-            for ( Widget w : other ) {
+                    final ColorWidgetProperty other_prop = (ColorWidgetProperty) w.getProperty(path);
 
-                final ColorWidgetProperty other_prop = (ColorWidgetProperty) w.getProperty(path);
+                    undo.execute(new SetWidgetPropertyAction<WidgetColor>(other_prop, wColor));
 
-                undo.execute(new SetWidgetPropertyAction<WidgetColor>(other_prop, wColor));
+                }
 
             }
-
-        });
-
+        );
     };
 
     public WidgetColorPropertyBinding(final UndoableActionManager undo,
