@@ -72,7 +72,6 @@ public class WidgetColorPopOver implements Initializable {
     @FXML private Circle defaultColorCircle;
     @FXML private Circle originalColorCircle;
 
-    @FXML private Button originalButton;
     @FXML private Button defaultButton;
     @FXML private Button cancelButton;
     @FXML private Button okButton;
@@ -121,7 +120,6 @@ public class WidgetColorPopOver implements Initializable {
 
         picker.valueProperty().bindBidirectional(colorProperty());
         currentColorCircle.fillProperty().bind(colorProperty());
-        originalButton.disableProperty().bind(Bindings.createBooleanBinding(() -> getColor().equals(originalColor), colorProperty()));
         defaultButton.disableProperty().bind(Bindings.createBooleanBinding(() -> getColor().equals(defaultColor), colorProperty()));
         okButton.disableProperty().bind(Bindings.createBooleanBinding(() -> getColor().equals(originalColor), colorProperty()));
 
@@ -206,7 +204,13 @@ public class WidgetColorPopOver implements Initializable {
 
     @FXML
     void defaultPressed(ActionEvent event) {
-        setColor(defaultColor);
+
+        if ( colorChangeConsumer != null ) {
+            colorChangeConsumer.accept(JFXUtil.convert(defaultColor));
+        }
+
+        cancelPressed(event);
+
     }
 
     @FXML

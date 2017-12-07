@@ -95,9 +95,8 @@
       </Label>
       <BorderPane GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS">
          <bottom>
-            <TilePane alignment="CENTER" hgap="6.0" BorderPane.alignment="CENTER">
+            <TilePane alignment="CENTER_RIGHT" hgap="6.0" BorderPane.alignment="CENTER">
                <children>
-                  <Button fx:id="originalButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#originalPressed" text="%WidgetColorPopOver_OriginalButton" />
                   <Button fx:id="defaultButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#defaultPressed" text="%WidgetColorPopOver_DefaultButton">
                      <TilePane.margin>
                         <Insets />
@@ -136,7 +135,7 @@
                   <Circle fx:id="currentColorCircle" fill="#f2f2f2" layoutX="160.0" layoutY="85.0" radius="44.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" AnchorPane.leftAnchor="106.0" AnchorPane.rightAnchor="106.0" AnchorPane.topAnchor="1.0" />
                   <Label alignment="TOP_RIGHT" layoutX="1.0" layoutY="61.0" onMouseClicked="#originalColorClicked" prefWidth="45.0" text="%WidgetColorPopOver_Original" AnchorPane.bottomAnchor="2.0" AnchorPane.leftAnchor="2.0">
                      <font>
-                        <Font size="11.0" />
+                        <Font size="10.0" />
                      </font>
                      <cursor>
                         <Cursor fx:constant="HAND" />
@@ -147,7 +146,7 @@
                         <Cursor fx:constant="HAND" />
                      </cursor>
                      <font>
-                        <Font size="11.0" />
+                        <Font size="10.0" />
                      </font>
                   </Label>
                </children>
