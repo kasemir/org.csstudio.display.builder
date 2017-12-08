@@ -33,15 +33,6 @@ public class Messages extends NLS
     public static String ActionsDialog_URL;
     public static String ActionsDialog_Value;
     public static String Add;
-    public static String Alpha;
-    public static String Blue;
-    public static String ColorDialog_Current;
-    public static String ColorDialog_Custom;
-    public static String ColorDialog_Default;
-    public static String ColorDialog_Info;
-    public static String ColorDialog_Original;
-    public static String ColorDialog_Predefined;
-    public static String ColorDialog_Title_FMT;
     public static String ColorMap_Custom;
     public static String ColorMapDialog_Add;
     public static String ColorMapDialog_Color;
@@ -62,7 +53,6 @@ public class Messages extends NLS
     public static String FontDialog_Preview;
     public static String FontDialog_Size;
     public static String FontDialog_Style;
-    public static String Green;
     public static String MacrosDialog_Info;
     public static String MacrosDialog_NameCol;
     public static String MacrosDialog_Title;
@@ -80,7 +70,6 @@ public class Messages extends NLS
     public static String PointsTable_Empty;
     public static String PointsTable_X;
     public static String PointsTable_Y;
-    public static String Red;
     public static String Remove;
     public static String Row;
     public static String RulesDialog_ColName;
