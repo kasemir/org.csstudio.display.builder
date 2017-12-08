@@ -37,24 +37,29 @@ public class WidgetColorPropertyBinding
     /** Update model from user input */
     private EventHandler<ActionEvent> action_handler = event ->
     {
-        if (popover == null)
-            popover = new WidgetColorPopOver(widget_property.getValue(),
-                                             widget_property.getDefaultValue(),
-                                             wColor ->
+        final WidgetColorPopOver previous = popover;
+        popover = null;
+        if (previous != null)
+        {
+            if (previous.isShowing())
             {
-                undo.execute(new SetWidgetPropertyAction<WidgetColor>(widget_property, wColor));
-                final String path = widget_property.getPath();
-                for (Widget w : other)
-                {
-                    final ColorWidgetProperty other_prop = (ColorWidgetProperty) w.getProperty(path);
-                    undo.execute(new SetWidgetPropertyAction<WidgetColor>(other_prop, wColor));
-                }
+                previous.hide();
+                return;
             }
-        );
-        if (popover.isShowing())
-            popover.hide();
-        else
-            popover.show(jfx_node);
+        }
+        popover = new WidgetColorPopOver(widget_property.getValue(),
+                                         widget_property.getDefaultValue(),
+                                         wColor ->
+        {
+            undo.execute(new SetWidgetPropertyAction<WidgetColor>(widget_property, wColor));
+            final String path = widget_property.getPath();
+            for (Widget w : other)
+            {
+                final ColorWidgetProperty other_prop = (ColorWidgetProperty) w.getProperty(path);
+                undo.execute(new SetWidgetPropertyAction<WidgetColor>(other_prop, wColor));
+            }
+        });
+        popover.show(jfx_node);
     };
 
     public WidgetColorPropertyBinding(final UndoableActionManager undo,
