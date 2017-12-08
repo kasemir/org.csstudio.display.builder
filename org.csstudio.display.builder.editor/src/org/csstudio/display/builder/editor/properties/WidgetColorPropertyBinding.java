@@ -59,7 +59,7 @@ public class WidgetColorPropertyBinding
                 undo.execute(new SetWidgetPropertyAction<WidgetColor>(other_prop, wColor));
             }
         });
-        popover.show(jfx_node);
+        popover.show(jfx_node.getButton());
     };
 
     public WidgetColorPropertyBinding(final UndoableActionManager undo,

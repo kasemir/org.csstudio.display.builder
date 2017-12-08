@@ -160,6 +160,8 @@ public class WidgetFontPopOver extends PopOver
             try
             {
                 final String family = families.getSelectionModel().getSelectedItem();
+                if (family == null)
+                    return;
                 final WidgetFontStyle font_style = styles.getSelectionModel().getSelectedItem();
                 double font_size;
                 try

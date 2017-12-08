@@ -51,9 +51,15 @@ public class WidgetFontPropertyBinding
             });
 
         if (popover.isShowing())
+        {
+            System.out.println("Hide font");
             popover.hide();
+        }
         else
+        {
+            System.out.println("Show font");
             popover.show(jfx_node);
+        }
     };
 
     public WidgetFontPropertyBinding(final UndoableActionManager undo,

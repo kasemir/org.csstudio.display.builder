@@ -11,10 +11,13 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.WeakInvalidationListener;
 import javafx.beans.property.ObjectPropertyBase;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.WeakChangeListener;
 import javafx.geometry.Bounds;
 import javafx.geometry.Rectangle2D;
 import javafx.geometry.Side;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.PopupControl;
 import javafx.scene.control.Skin;
 import javafx.scene.layout.Region;
@@ -77,6 +80,14 @@ public class PopOver extends PopupControl
        }
    };
    private final WeakInvalidationListener weak_update_position = new WeakInvalidationListener(update_position);
+
+   /** Hide popup when active owner looses focus */
+   private final ChangeListener<Boolean> focus_listener = (p, old, focus) ->
+   {
+       if (! focus)
+           hide();
+   };
+   private final WeakChangeListener<Boolean> weak_focus_listener = new WeakChangeListener<>(focus_listener);
 
    /** Create popover
    *
@@ -177,6 +188,9 @@ public class PopOver extends PopupControl
     *  <p>Moving the node or window will result
     *  in move of the PopOver.
     *
+    *  <p>When the owner looses focus,
+    *  the popup will hide.
+    *
     *  @param owner Owner node relative to which the PopOver will be located
     *  @see {@link PopupControl#hide()}
     */
@@ -193,6 +207,7 @@ public class PopOver extends PopupControl
            window.yProperty().removeListener(weak_update_position);
            active_owner.layoutXProperty().removeListener(weak_update_position);
            active_owner.layoutYProperty().removeListener(weak_update_position);
+           active_owner.focusedProperty().removeListener(weak_focus_listener);
        }
 
        // Track movement of owner resp. its window
@@ -202,10 +217,11 @@ public class PopOver extends PopupControl
        window.yProperty().addListener(weak_update_position);
        owner.layoutXProperty().addListener(weak_update_position);
        owner.layoutYProperty().addListener(weak_update_position);
+       owner.focusedProperty().addListener(weak_focus_listener);
 
        // Show relative to owner
        update_position.invalidated(null);
-       show(window);
+       show(owner, getAnchorX(), getAnchorY());
    }
 }
 

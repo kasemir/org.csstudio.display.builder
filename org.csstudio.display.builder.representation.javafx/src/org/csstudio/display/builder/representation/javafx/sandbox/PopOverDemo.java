@@ -15,6 +15,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 /** {@link PopOver} demo
@@ -26,20 +27,33 @@ public class PopOverDemo extends Application
     @Override
     public void start(final Stage stage)
     {
-        final BorderPane content = new BorderPane(new TextField("Center"), new Label("Top"), new Label("Right"), new Label("Bottom"), new Label("Left"));
-        final PopOver popover = new PopOver(content);
+        final BorderPane content1 = new BorderPane(new TextField("Center"), new Label("Top"), new Label("Right"), new Label("Bottom"), new Label("Left"));
+        final PopOver popover1 = new PopOver(content1);
 
-        final Button toggle_popup = new Button("Popup");
-        toggle_popup.setOnAction(event ->
+        final Button toggle_popup1 = new Button("Popup 1");
+        toggle_popup1.setOnAction(event ->
         {
-            if (popover.isShowing())
-                popover.hide();
+            if (popover1.isShowing())
+                popover1.hide();
             else
-                popover.show(toggle_popup);
+                popover1.show(toggle_popup1);
 
         });
 
-        final BorderPane layout = new BorderPane(toggle_popup);
+        final BorderPane content2 = new BorderPane(new TextField("Center"), new Label("Top"), new Label("Right"), new Label("Bottom"), new Label("Left"));
+        final PopOver popover2 = new PopOver(content2);
+
+        final Button toggle_popup2 = new Button("Popup 2");
+        toggle_popup2.setOnAction(event ->
+        {
+            if (popover2.isShowing())
+                popover2.hide();
+            else
+                popover2.show(toggle_popup2);
+
+        });
+
+        final HBox layout = new HBox(10, toggle_popup1, toggle_popup2);
         stage.setScene(new Scene(layout, 400, 300));
         stage.show();
     }
