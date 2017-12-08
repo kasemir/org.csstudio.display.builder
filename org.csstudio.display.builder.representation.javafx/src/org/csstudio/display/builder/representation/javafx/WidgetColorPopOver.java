@@ -14,10 +14,8 @@ import static org.csstudio.display.builder.representation.ToolkitRepresentation.
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Map;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
-import java.util.WeakHashMap;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
@@ -26,7 +24,7 @@ import org.csstudio.javafx.PopOver;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.layout.Region;
+import javafx.scene.control.Label;
 
 
 /**
@@ -35,52 +33,31 @@ import javafx.scene.layout.Region;
  * @author claudiorosati, European Spallation Source ERIC
  * @version 1.0.0 30 Nov 2017
  */
-public class PopOvers {
-
-    private static final Map<Region, PopOver> POP_OVERS = new WeakHashMap<>();
-
-    public static void editColor (
-        final String propertyName,
-        final WidgetColor originalWidgetColor,
-        final WidgetColor defaultWidgetColor,
-        final Region owner,
-        final Consumer<WidgetColor> colorChangeConsumer
-    ) {
-        PopOver popOver = POP_OVERS.remove(owner);
-
-        if (popOver != null)
-        {   // Toggle existing popover
-            if (popOver.isShowing())
-                popOver.hide();
-            else
-                popOver.show(owner);
-            return;
-        }
-
-        // Create popover
+@SuppressWarnings("nls")
+public class WidgetColorPopOver extends PopOver
+{
+    public WidgetColorPopOver(final WidgetColor originalWidgetColor,
+                              final WidgetColor defaultWidgetColor,
+                              final Consumer<WidgetColor> colorChangeConsumer)
+    {
         try
         {
-            URL fxml = PopOvers.class.getResource("WidgetColorPopOver.fxml");
-            InputStream iStream = PopOvers.class.getResourceAsStream("messages.properties");
+            URL fxml = WidgetColorPopOver.class.getResource("WidgetColorPopOver.fxml");
+            InputStream iStream = WidgetColorPopOver.class.getResourceAsStream("messages.properties");
             ResourceBundle bundle = new PropertyResourceBundle(iStream);
             FXMLLoader fxmlLoader = new FXMLLoader(fxml, bundle);
             Node content = (Node) fxmlLoader.load();
 
-            final PopOver fPopOver = new PopOver(content);
+            setContent(content);
 
             WidgetColorPopOverController controller = fxmlLoader.<WidgetColorPopOverController>getController();
 
-            controller.setInitialConditions(fPopOver, originalWidgetColor, defaultWidgetColor, colorChangeConsumer);
-            POP_OVERS.put(owner, fPopOver);
-            fPopOver.show(owner);
-
+            controller.setInitialConditions(this, originalWidgetColor, defaultWidgetColor, colorChangeConsumer);
         }
         catch (IOException ex)
         {
             logger.log(Level.WARNING, "Unable to edit color.", ex);
+            setContent(new Label("Unable to edit color."));
         }
-    }
-
-    private PopOvers ( ) {
     }
 }

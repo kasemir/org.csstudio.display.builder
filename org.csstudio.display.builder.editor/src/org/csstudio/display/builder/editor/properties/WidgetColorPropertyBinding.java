@@ -14,7 +14,7 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
-import org.csstudio.display.builder.representation.javafx.PopOvers;
+import org.csstudio.display.builder.representation.javafx.WidgetColorPopOver;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 
 import javafx.event.ActionEvent;
@@ -26,6 +26,8 @@ import javafx.event.EventHandler;
 public class WidgetColorPropertyBinding
        extends WidgetPropertyBinding<WidgetColorPropertyField, ColorWidgetProperty>
 {
+    private WidgetColorPopOver popover;
+
     /** Update property panel field as model changes */
     private final WidgetPropertyListener<WidgetColor> model_listener = (p, o, n) ->
     {
@@ -35,12 +37,10 @@ public class WidgetColorPropertyBinding
     /** Update model from user input */
     private EventHandler<ActionEvent> action_handler = event ->
     {
-        PopOvers.editColor(
-            widget_property.getDescription(),
-            widget_property.getValue(),
-            widget_property.getDefaultValue(),
-            jfx_node,
-            wColor ->
+        if (popover == null)
+            popover = new WidgetColorPopOver(widget_property.getValue(),
+                                             widget_property.getDefaultValue(),
+                                             wColor ->
             {
                 undo.execute(new SetWidgetPropertyAction<WidgetColor>(widget_property, wColor));
                 final String path = widget_property.getPath();
@@ -51,6 +51,10 @@ public class WidgetColorPropertyBinding
                 }
             }
         );
+        if (popover.isShowing())
+            popover.hide();
+        else
+            popover.show(jfx_node);
     };
 
     public WidgetColorPropertyBinding(final UndoableActionManager undo,

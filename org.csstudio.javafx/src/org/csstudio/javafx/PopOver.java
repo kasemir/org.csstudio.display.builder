@@ -31,6 +31,7 @@ import javafx.stage.Window;
  *
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class PopOver extends PopupControl
 {
    /** Root of content scene graph */
@@ -78,11 +79,36 @@ public class PopOver extends PopupControl
    private final WeakInvalidationListener weak_update_position = new WeakInvalidationListener(update_position);
 
    /** Create popover
+   *
+   *   <p>Derived class must call {@link #setContent(Node)}
+   *   in its constructor!
+   */
+  public PopOver()
+  {
+  }
+
+  /** Create popover
     *
     *  @param content Root of content scene graph
     */
    public PopOver(final Node content)
    {
+       setContent(content);
+   }
+
+   /** Derived class must either use the
+    *  {@link PopOver#PopOver(Node)} constructor
+    *  or call this to set the content.
+    *
+    *  <p>Must not be called to change the content
+    *  at a later time.
+    *
+    *  @param content
+    */
+   protected void setContent(final Node content)
+   {
+       if (this.content != null)
+           throw new IllegalStateException("Must set content exactly once");
        this.content = content;
        content.boundsInLocalProperty().addListener(weak_update_position);
    }
@@ -156,6 +182,9 @@ public class PopOver extends PopupControl
     */
    public void show(final Region owner)
    {
+       if (content == null)
+           throw new IllegalStateException("Must set content exactly once");
+
        // Unhook from previous owner
        if (active_owner != null)
        {
