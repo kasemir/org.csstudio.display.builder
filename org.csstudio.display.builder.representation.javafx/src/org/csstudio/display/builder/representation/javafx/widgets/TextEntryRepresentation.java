@@ -53,7 +53,7 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
     {
     	value_text = computeText(null);
 
-    	// Note implementation choice:
+    	// Note implementation selection:
     	// "multi_line" and "wrap_words" cannot change at runtime.
     	// In editor, there is no visible difference,
     	// and at runtime changes are simply not supported.
