@@ -33,26 +33,22 @@ public class WidgetColorPropertyBinding
     };
 
     /** Update model from user input */
-    private EventHandler<ActionEvent> action_handler = event -> {
+    private EventHandler<ActionEvent> action_handler = event ->
+    {
         PopOvers.editColor(
             widget_property.getDescription(),
             widget_property.getValue(),
             widget_property.getDefaultValue(),
             jfx_node,
-            wColor -> {
-
+            wColor ->
+            {
                 undo.execute(new SetWidgetPropertyAction<WidgetColor>(widget_property, wColor));
-
                 final String path = widget_property.getPath();
-
-                for ( Widget w : other ) {
-
+                for (Widget w : other)
+                {
                     final ColorWidgetProperty other_prop = (ColorWidgetProperty) w.getProperty(path);
-
                     undo.execute(new SetWidgetPropertyAction<WidgetColor>(other_prop, wColor));
-
                 }
-
             }
         );
     };
