@@ -3,6 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
 <?import javafx.scene.control.ColorPicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
@@ -19,7 +20,7 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
-<GridPane hgap="12.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="455.0" prefWidth="637.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.csstudio.display.builder.representation.javafx.WidgetColorPopOverController">
+<GridPane fx:id="root" hgap="12.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="455.0" prefWidth="637.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.csstudio.display.builder.representation.javafx.WidgetColorPopOverController">
   <columnConstraints>
     <ColumnConstraints hgrow="NEVER" percentWidth="50.0" />
     <ColumnConstraints hgrow="NEVER" percentWidth="50.0" />
@@ -95,20 +96,16 @@
       </Label>
       <BorderPane GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS">
          <bottom>
-            <TilePane alignment="CENTER_RIGHT" hgap="6.0" BorderPane.alignment="CENTER">
-               <children>
-                  <Button fx:id="defaultButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#defaultPressed" text="%WidgetColorPopOver_DefaultButton">
-                     <TilePane.margin>
-                        <Insets />
-                     </TilePane.margin>
-                  </Button>
-                  <Button fx:id="cancelButton" cancelButton="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#cancelPressed" text="%WidgetColorPopOver_Cancel" />
-                  <Button fx:id="okButton" defaultButton="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#okPressed" text="%WidgetColorPopOver_OK" />
-               </children>
+            <ButtonBar fx:id="buttonBar" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">   
                <BorderPane.margin>
                   <Insets top="6.0" />
                </BorderPane.margin>
-            </TilePane>
+               <buttons>
+                  <Button fx:id="defaultButton" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#defaultPressed" text="D" />
+                  <Button fx:id="cancelButton" alignment="CENTER" cancelButton="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#cancelPressed" text="C" />
+                  <Button fx:id="okButton" alignment="CENTER" defaultButton="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#okPressed" text="O" />
+               </buttons>
+            </ButtonBar>
          </bottom>
          <center>
             <AnchorPane BorderPane.alignment="CENTER">

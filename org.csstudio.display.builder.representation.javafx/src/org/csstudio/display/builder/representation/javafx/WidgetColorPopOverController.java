@@ -37,6 +37,9 @@ import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -44,7 +47,10 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
@@ -54,6 +60,8 @@ import javafx.scene.shape.Circle;
  * @version 1.0.0 29 Nov 2017
  */
 public class WidgetColorPopOverController implements Initializable {
+
+    @FXML private GridPane root;
 
     @FXML private Label infoLabel;
 
@@ -75,6 +83,7 @@ public class WidgetColorPopOverController implements Initializable {
     @FXML private Circle defaultColorCircle;
     @FXML private Circle originalColorCircle;
 
+    @FXML private ButtonBar buttonBar;
     @FXML private Button defaultButton;
     @FXML private Button cancelButton;
     @FXML private Button okButton;
@@ -120,6 +129,18 @@ public class WidgetColorPopOverController implements Initializable {
      */
     @Override
     public void initialize( URL location, ResourceBundle resources ) {
+
+        updateButton(okButton, ButtonType.OK);
+        updateButton(cancelButton, ButtonType.CANCEL);
+        updateButton(defaultButton, new ButtonType(Messages.WidgetColorPopOver_DefaultButton, ButtonData.LEFT));
+
+        okButton.setText(ButtonType.OK.getText());
+        ButtonBar.setButtonData(okButton, ButtonType.OK.getButtonData());
+        root.addEventFilter(KeyEvent.KEY_PRESSED, event ->
+        {
+            if (event.getCode() == KeyCode.ENTER)
+                okPressed(null);
+        });
 
         picker.valueProperty().bindBidirectional(colorProperty());
         currentColorCircle.fillProperty().bind(colorProperty());
@@ -334,6 +355,13 @@ public class WidgetColorPopOverController implements Initializable {
             Math.max(0, Math.min(255, blueSpinner.getValue())),
             Math.max(0, Math.min(255, alphaSpinner.getValue() / 255.0))
         );
+    }
+
+    private void updateButton ( final Button button, final ButtonType buttonType ) {
+        button.setText(buttonType.getText());
+        ButtonBar.setButtonData(button, buttonType.getButtonData());
+        button.setDefaultButton(buttonType.getButtonData().isDefaultButton());
+        button.setCancelButton(buttonType.getButtonData().isCancelButton());
     }
 
     private void updateFromSlider ( ObservableValue<? extends Number> observable, Number oldValue, Number newValue ) {
