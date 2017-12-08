@@ -10,6 +10,7 @@ package org.csstudio.display.builder.representation.javafx;
 
 
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -18,12 +19,13 @@ import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
-import org.controlsfx.control.PopOver;
+//import org.controlsfx.control.PopOver;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.properties.NamedWidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
+import org.csstudio.javafx.PopOver;
 
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -36,7 +38,11 @@ import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
@@ -52,6 +58,8 @@ import javafx.scene.shape.Circle;
  * @version 1.0.0 29 Nov 2017
  */
 public class WidgetColorPopOverController implements Initializable {
+
+    @FXML private Label infoLabel;
 
     @FXML private ListView<NamedWidgetColor> colorNames;
 
@@ -71,6 +79,7 @@ public class WidgetColorPopOverController implements Initializable {
     @FXML private Circle defaultColorCircle;
     @FXML private Circle originalColorCircle;
 
+    @FXML private ButtonBar buttonBar;
     @FXML private Button defaultButton;
     @FXML private Button cancelButton;
     @FXML private Button okButton;
@@ -116,6 +125,13 @@ public class WidgetColorPopOverController implements Initializable {
      */
     @Override
     public void initialize( URL location, ResourceBundle resources ) {
+
+        updateButton(okButton, ButtonType.OK);
+        updateButton(cancelButton, ButtonType.CANCEL);
+        updateButton(defaultButton, new ButtonType(Messages.WidgetColorPopOver_DefaultButton, ButtonData.LEFT));
+
+        okButton.setText(ButtonType.OK.getText());
+        ButtonBar.setButtonData(okButton, ButtonType.OK.getButtonData());
 
         picker.valueProperty().bindBidirectional(colorProperty());
         currentColorCircle.fillProperty().bind(colorProperty());
@@ -259,12 +275,20 @@ public class WidgetColorPopOverController implements Initializable {
         setColor(originalColor);
     }
 
-    void setInitialConditions ( final PopOver popOver, WidgetColor originalWidgetColor, final WidgetColor defaultWidgetColor, final Consumer<WidgetColor> colorChangeConsumer ) {
+    void setInitialConditions (
+        final PopOver popOver,
+        final WidgetColor originalWidgetColor,
+        final WidgetColor defaultWidgetColor,
+        final Consumer<WidgetColor> colorChangeConsumer,
+        final String propertyName
+    ) {
 
         this.colorChangeConsumer = colorChangeConsumer;
         this.popOver = popOver;
         this.originalColor = JFXUtil.convert(originalWidgetColor);
         this.defaultColor = JFXUtil.convert(defaultWidgetColor);
+
+        infoLabel.setText(MessageFormat.format(Messages.WidgetColorPopOver_Info, propertyName));
 
         originalColorCircle.setFill(originalColor);
         defaultColorCircle.setFill(defaultColor);
@@ -323,6 +347,13 @@ public class WidgetColorPopOverController implements Initializable {
             Math.max(0, Math.min(255, blueSpinner.getValue())),
             Math.max(0, Math.min(255, alphaSpinner.getValue() / 255.0))
         );
+    }
+
+    private void updateButton ( final Button button, final ButtonType buttonType ) {
+        button.setText(buttonType.getText());
+        ButtonBar.setButtonData(button, buttonType.getButtonData());
+        button.setDefaultButton(buttonType.getButtonData().isDefaultButton());
+        button.setCancelButton(buttonType.getButtonData().isCancelButton());
     }
 
     private void updateFromSlider ( ObservableValue<? extends Number> observable, Number oldValue, Number newValue ) {

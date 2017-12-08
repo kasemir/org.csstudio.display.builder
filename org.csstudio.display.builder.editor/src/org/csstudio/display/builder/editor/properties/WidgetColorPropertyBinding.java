@@ -14,8 +14,9 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
-import org.csstudio.display.builder.representation.javafx.PopOvers;
+import org.csstudio.display.builder.representation.javafx.WidgetColorPopOver;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
+import org.csstudio.javafx.PopOver;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -26,6 +27,9 @@ import javafx.event.EventHandler;
 public class WidgetColorPropertyBinding
        extends WidgetPropertyBinding<WidgetColorPropertyField, ColorWidgetProperty>
 {
+
+    private PopOver popOver = null;
+
     /** Update property panel field as model changes */
     private final WidgetPropertyListener<WidgetColor> model_listener = (p, o, n) ->
     {
@@ -34,27 +38,36 @@ public class WidgetColorPropertyBinding
 
     /** Update model from user input */
     private EventHandler<ActionEvent> action_handler = event -> {
-        PopOvers.editColor(
-            widget_property.getDescription(),
-            widget_property.getValue(),
-            widget_property.getDefaultValue(),
-            jfx_node,
-            wColor -> {
 
-                undo.execute(new SetWidgetPropertyAction<WidgetColor>(widget_property, wColor));
+        if ( popOver == null ) {
+            popOver = WidgetColorPopOver.createPopOver(
+                widget_property.getDescription(),
+                widget_property.getValue(),
+                widget_property.getDefaultValue(),
+                wColor -> {
 
-                final String path = widget_property.getPath();
+                    undo.execute(new SetWidgetPropertyAction<WidgetColor>(widget_property, wColor));
 
-                for ( Widget w : other ) {
+                    final String path = widget_property.getPath();
 
-                    final ColorWidgetProperty other_prop = (ColorWidgetProperty) w.getProperty(path);
+                    for ( Widget w : other ) {
 
-                    undo.execute(new SetWidgetPropertyAction<WidgetColor>(other_prop, wColor));
+                        final ColorWidgetProperty other_prop = (ColorWidgetProperty) w.getProperty(path);
+
+                        undo.execute(new SetWidgetPropertyAction<WidgetColor>(other_prop, wColor));
+
+                    }
 
                 }
+            );
+        }
 
-            }
-        );
+        if ( popOver.isShowing() ) {
+            popOver.hide();
+        } else {
+            popOver.show(jfx_node);
+        }
+
     };
 
     public WidgetColorPropertyBinding(final UndoableActionManager undo,
