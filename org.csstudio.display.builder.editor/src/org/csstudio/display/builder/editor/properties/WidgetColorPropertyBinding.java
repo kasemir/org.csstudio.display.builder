@@ -47,8 +47,7 @@ public class WidgetColorPropertyBinding
                 return;
             }
         }
-        popover = new WidgetColorPopOver(widget_property.getValue(),
-                                         widget_property.getDefaultValue(),
+        popover = new WidgetColorPopOver(widget_property,
                                          wColor ->
         {
             undo.execute(new SetWidgetPropertyAction<WidgetColor>(widget_property, wColor));

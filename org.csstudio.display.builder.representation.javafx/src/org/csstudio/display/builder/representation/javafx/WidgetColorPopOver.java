@@ -19,6 +19,7 @@ import java.util.ResourceBundle;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
+import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.javafx.PopOver;
 
@@ -36,8 +37,7 @@ import javafx.scene.control.Label;
 @SuppressWarnings("nls")
 public class WidgetColorPopOver extends PopOver
 {
-    public WidgetColorPopOver(final WidgetColor originalWidgetColor,
-                              final WidgetColor defaultWidgetColor,
+    public WidgetColorPopOver(final ColorWidgetProperty color_prop,
                               final Consumer<WidgetColor> colorChangeConsumer)
     {
         try
@@ -52,7 +52,7 @@ public class WidgetColorPopOver extends PopOver
 
             WidgetColorPopOverController controller = fxmlLoader.<WidgetColorPopOverController>getController();
 
-            controller.setInitialConditions(this, originalWidgetColor, defaultWidgetColor, colorChangeConsumer);
+            controller.setInitialConditions(this, color_prop.getValue(), color_prop.getDefaultValue(), color_prop.getDescription(), colorChangeConsumer);
         }
         catch (IOException ex)
         {

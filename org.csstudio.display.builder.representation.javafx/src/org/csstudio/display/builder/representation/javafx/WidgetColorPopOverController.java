@@ -10,6 +10,7 @@ package org.csstudio.display.builder.representation.javafx;
 
 
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,6 +38,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
@@ -52,6 +54,8 @@ import javafx.scene.shape.Circle;
  * @version 1.0.0 29 Nov 2017
  */
 public class WidgetColorPopOverController implements Initializable {
+
+    @FXML private Label infoLabel;
 
     @FXML private ListView<NamedWidgetColor> colorNames;
 
@@ -259,12 +263,19 @@ public class WidgetColorPopOverController implements Initializable {
         setColor(originalColor);
     }
 
-    void setInitialConditions ( final PopOver popOver, WidgetColor originalWidgetColor, final WidgetColor defaultWidgetColor, final Consumer<WidgetColor> colorChangeConsumer ) {
+    void setInitialConditions (
+            final PopOver popOver,
+            WidgetColor originalWidgetColor,
+            final WidgetColor defaultWidgetColor,
+            final String propertyName,
+            final Consumer<WidgetColor> colorChangeConsumer ) {
 
         this.colorChangeConsumer = colorChangeConsumer;
         this.popOver = popOver;
         this.originalColor = JFXUtil.convert(originalWidgetColor);
         this.defaultColor = JFXUtil.convert(defaultWidgetColor);
+
+        infoLabel.setText(MessageFormat.format(Messages.WidgetColorPopOver_Info, propertyName));
 
         originalColorCircle.setFill(originalColor);
         defaultColorCircle.setFill(defaultColor);

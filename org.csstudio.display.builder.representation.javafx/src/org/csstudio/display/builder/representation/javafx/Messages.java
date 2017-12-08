@@ -98,6 +98,7 @@ public class Messages extends NLS
     public static String ScriptsDialog_ScriptsTT;
     public static String ScriptsDialog_SelectScript;
     public static String ScriptsDialog_Title;
+    public static String WidgetColorPopOver_Info;
     public static String WidgetInfoDialog_Category;
     public static String WidgetInfoDialog_Disconnected;
     public static String WidgetInfoDialog_Info_Fmt;

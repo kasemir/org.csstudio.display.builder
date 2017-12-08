@@ -85,7 +85,7 @@
             </GridPane>
          </content>
       </TitledPane>
-      <Label text="%WidgetColorPopOver_Info" GridPane.columnSpan="2147483647">
+      <Label fx:id="infoLabel" text="%WidgetColorPopOver_Info" GridPane.columnSpan="2147483647">
          <font>
             <Font size="18.0" />
          </font>
