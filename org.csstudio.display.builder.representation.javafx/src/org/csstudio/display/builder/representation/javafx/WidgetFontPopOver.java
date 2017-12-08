@@ -29,6 +29,8 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -207,6 +209,13 @@ public class WidgetFontPopOver extends PopOver
             hide();
         });
         cancel.setOnAction(event -> hide());
+
+        // OK button is the 'default' button
+        layout.addEventFilter(KeyEvent.KEY_PRESSED, event ->
+        {
+            if (event.getCode() == KeyCode.ENTER)
+                ok.getOnAction().handle(null);
+        });
     }
 
     private static Button createButton(final ButtonType type)
