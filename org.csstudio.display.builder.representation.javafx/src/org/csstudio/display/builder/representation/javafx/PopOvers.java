@@ -26,6 +26,7 @@ import java.util.logging.Level;
 import org.controlsfx.control.PopOver;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 
+import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
@@ -33,6 +34,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.stage.Screen;
+import javafx.stage.Window;
 
 
 /**
@@ -53,10 +55,15 @@ public class PopOvers {
         final Consumer<WidgetColor> colorChangeConsumer
     ) {
 
-        PopOver popOver = POP_OVERS.get(propertyEditor);
+        PopOver popOver = POP_OVERS.remove(propertyEditor);
 
-        if ( popOver != null && popOver.isShowing() ) {
-            popOver.hide();
+        if ( popOver != null ) {
+            if ( popOver.isShowing() ) {
+                POP_OVERS.put(propertyEditor, popOver);
+                return;
+            } else {
+                popOver = null;
+            }
         }
 
         try {
@@ -68,30 +75,30 @@ public class PopOvers {
             Node content = (Node) fxmlLoader.load();
             Node target = ( propertyEditor instanceof Pane ) ? ((Pane) propertyEditor).getChildren().get(1) : propertyEditor;
 
-            popOver = new PopOver();
+            final PopOver fPopOver = new PopOver();
 
-            popOver.setAnimated(true);
-            popOver.setArrowLocation(getBestArrowLocation(target));
-            popOver.setAutoHide(true);
-            popOver.setCloseButtonEnabled(true);
-            popOver.setContentNode(content);
-            popOver.setDetachable(false);
-            popOver.setDetached(false);
-            popOver.setHideOnEscape(true);
-            popOver.setHeaderAlwaysVisible(true);
-            popOver.setTitle(MessageFormat.format(Messages.WidgetColorPopOver_Title, propertyName));
+            fPopOver.setAnimated(true);
+            fPopOver.setArrowLocation(getBestArrowLocation(target));
+            fPopOver.setAutoHide(true);
+            fPopOver.setCloseButtonEnabled(true);
+            fPopOver.setContentNode(content);
+            fPopOver.setDetachable(false);
+            fPopOver.setDetached(false);
+            fPopOver.setHideOnEscape(true);
+            fPopOver.setHeaderAlwaysVisible(true);
+            fPopOver.setTitle(MessageFormat.format(Messages.WidgetColorPopOver_Title, propertyName));
 
-            final PopOver fPopOver = popOver;
+            final Window ownerWindow = propertyEditor.getScene().getWindow();
+            final ChangeListener<? super Boolean> ownerFocusChangedListener = ( observer, wasFocused, isFocused ) -> fPopOver.hide();
 
-            propertyEditor.getScene().getWindow().focusedProperty().addListener(( observer, wasFocused, isFocused ) -> {
-                fPopOver.hide();
-            });
+            ownerWindow.focusedProperty().addListener(ownerFocusChangedListener);
+            fPopOver.onHidingProperty().addListener(( observer, oldValue, newValue ) -> ownerWindow.focusedProperty().removeListener(ownerFocusChangedListener));
 
-            WidgetColorPopOver controller = fxmlLoader.<WidgetColorPopOver>getController();
+            WidgetColorPopOverController controller = fxmlLoader.<WidgetColorPopOverController>getController();
 
-            controller.setInitialConditions(popOver, originalWidgetColor, defaultWidgetColor, colorChangeConsumer);
-            POP_OVERS.put(propertyEditor, popOver);
-            popOver.show(target, getBestArrowOffset(target));
+            controller.setInitialConditions(fPopOver, originalWidgetColor, defaultWidgetColor, colorChangeConsumer);
+            POP_OVERS.put(propertyEditor, fPopOver);
+            fPopOver.show(target, getBestArrowOffset(target));
 
         } catch ( IOException ex ) {
             logger.log(Level.WARNING, "Unable to edit color.", ex);

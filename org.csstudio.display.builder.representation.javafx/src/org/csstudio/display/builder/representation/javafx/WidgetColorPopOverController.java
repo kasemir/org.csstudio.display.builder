@@ -51,7 +51,7 @@ import javafx.scene.shape.Circle;
  * @author claudiorosati, European Spallation Source ERIC
  * @version 1.0.0 29 Nov 2017
  */
-public class WidgetColorPopOver implements Initializable {
+public class WidgetColorPopOverController implements Initializable {
 
     @FXML private ListView<NamedWidgetColor> colorNames;
 
@@ -75,13 +75,13 @@ public class WidgetColorPopOver implements Initializable {
     @FXML private Button cancelButton;
     @FXML private Button okButton;
 
-    private Consumer<WidgetColor> colorChangeConsumer;
-    private PopOver popOver;
-    private final AtomicBoolean namesLoaded = new AtomicBoolean(false);
-    private final Map<Color, NamedWidgetColor> namedColors = Collections.synchronizedMap(new HashMap<>());
-    private Color defaultColor = null;
-    private Color originalColor = null;
-    private boolean updating = false;
+    private Consumer<WidgetColor>              colorChangeConsumer;
+    private PopOver                            popOver;
+    private final AtomicBoolean                namesLoaded   = new AtomicBoolean(false);
+    private final Map<Color, NamedWidgetColor> namedColors   = Collections.synchronizedMap(new HashMap<>());
+    private Color                              defaultColor  = null;
+    private Color                              originalColor = null;
+    private boolean                            updating      = false;
 
     /*
      * ---- color property -----------------------------------------------------
