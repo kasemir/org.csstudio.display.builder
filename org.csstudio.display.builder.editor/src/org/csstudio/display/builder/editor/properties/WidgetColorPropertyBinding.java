@@ -16,7 +16,6 @@ import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.representation.javafx.WidgetColorPopOver;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
-
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 
