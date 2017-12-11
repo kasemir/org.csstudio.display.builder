@@ -92,35 +92,35 @@ public class WidgetColorPopOverController implements Initializable {
     private PopOver                            popOver;
     private final AtomicBoolean                namesLoaded   = new AtomicBoolean(false);
     private final Map<Color, NamedWidgetColor> namedColors   = Collections.synchronizedMap(new HashMap<>());
-    private Color                              defaultColor  = null;
-    private Color                              originalColor = null;
+    private WidgetColor                        defaultColor  = null;
+    private WidgetColor                        originalColor = null;
     private boolean                            updating      = false;
 
     /*
      * ---- color property -----------------------------------------------------
      */
-    private final ObjectProperty<Color> color = new SimpleObjectProperty<Color>(this, "color", Color.GOLDENROD) {
+    private final ObjectProperty<WidgetColor> color = new SimpleObjectProperty<WidgetColor>(this, "color", WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)) {
         @Override
         protected void invalidated() {
 
-            Color col = get();
+            WidgetColor col = get();
 
             if ( col == null ) {
-                set(Color.GOLDENROD);
+                set(WidgetColorService.getColor(NamedWidgetColors.BACKGROUND));
             }
 
         }
     };
 
-    ObjectProperty<Color> colorProperty() {
+    ObjectProperty<WidgetColor> colorProperty() {
         return color;
     }
 
-    Color getColor() {
+    WidgetColor getColor() {
         return color.get();
     }
 
-    void setColor( Color color ) {
+    void setColor( WidgetColor color ) {
         this.color.set(color);
     }
 
@@ -142,8 +142,11 @@ public class WidgetColorPopOverController implements Initializable {
                 okPressed(null);
         });
 
-        picker.valueProperty().bindBidirectional(colorProperty());
-        currentColorCircle.fillProperty().bind(colorProperty());
+        picker.valueProperty().addListener(( observable, oldColor, newColor ) -> {
+            if ( !updating ) {
+                setColor(JFXUtil.convert(newColor));
+            }
+        });
         defaultButton.disableProperty().bind(Bindings.createBooleanBinding(() -> getColor().equals(defaultColor), colorProperty()));
         okButton.disableProperty().bind(Bindings.createBooleanBinding(() -> getColor().equals(originalColor), colorProperty()));
 
@@ -161,17 +164,14 @@ public class WidgetColorPopOverController implements Initializable {
         blueSlider.valueProperty().addListener(this::updateFromSlider);
         alphaSlider.valueProperty().addListener(this::updateFromSlider);
 
-        colorProperty().addListener(( observable, oldValue, newValue ) -> {
+        colorProperty().addListener(( observable, oldColor, newColor ) -> {
 
             updating = true;
 
-            if ( namedColors.containsKey(newValue) ) {
+            Color jfxColor = JFXUtil.convert(getColor());
 
-                NamedWidgetColor nwc = namedColors.get(newValue);
-
-                colorNames.getSelectionModel().select(nwc);
-                colorNames.scrollTo(nwc);
-            }
+            picker.setValue(jfxColor);
+            currentColorCircle.setFill(jfxColor);
 
             redSlider.setValue(getRed());
             redSpinner.getValueFactory().setValue(getRed());
@@ -189,7 +189,7 @@ public class WidgetColorPopOverController implements Initializable {
         colorNames.setCellFactory(view -> new NamedWidgetColorCell());
         colorNames.getSelectionModel().selectedItemProperty().addListener(( observable, oldValue, newValue ) -> {
             if ( newValue != null ) {
-                setColor(JFXUtil.convert(newValue));
+                setColor(newValue);
             }
         });
 
@@ -257,7 +257,7 @@ public class WidgetColorPopOverController implements Initializable {
     void defaultPressed(ActionEvent event) {
 
         if ( colorChangeConsumer != null ) {
-            colorChangeConsumer.accept(JFXUtil.convert(defaultColor));
+            colorChangeConsumer.accept(defaultColor);
         }
 
         cancelPressed(event);
@@ -268,7 +268,7 @@ public class WidgetColorPopOverController implements Initializable {
     void okPressed ( ActionEvent event ) {
 
         if ( colorChangeConsumer != null ) {
-            colorChangeConsumer.accept(JFXUtil.convert(getColor()));
+            colorChangeConsumer.accept(getColor());
         }
 
         cancelPressed(event);
@@ -293,13 +293,13 @@ public class WidgetColorPopOverController implements Initializable {
 
         this.colorChangeConsumer = colorChangeConsumer;
         this.popOver = popOver;
-        this.originalColor = JFXUtil.convert(originalWidgetColor);
-        this.defaultColor = JFXUtil.convert(defaultWidgetColor);
+        this.originalColor = originalWidgetColor;
+        this.defaultColor = defaultWidgetColor;
 
         infoLabel.setText(MessageFormat.format(Messages.WidgetColorPopOver_Info, propertyName));
 
-        originalColorCircle.setFill(originalColor);
-        defaultColorCircle.setFill(defaultColor);
+        originalColorCircle.setFill(JFXUtil.convert(originalColor));
+        defaultColorCircle.setFill(JFXUtil.convert(defaultColor));
         setColor(originalColor);
 
         ModelThreadPool.getExecutor().execute( ( ) -> {
@@ -320,41 +320,37 @@ public class WidgetColorPopOverController implements Initializable {
     }
 
     private int getAlpha() {
-
-        Color c = getColor();
-
-        return c.isOpaque() ? 255 : (int) ( 255 * c.getOpacity() );
-
+        return getColor().getAlpha();
     }
 
     private int getBlue() {
-        return (int) ( 255 * getColor().getBlue() );
+        return getColor().getBlue();
     }
 
     private int getGreen() {
-        return (int) ( 255 * getColor().getGreen() );
+        return getColor().getGreen();
     }
 
     private int getRed() {
-        return (int) ( 255 * getColor().getRed() );
+        return getColor().getRed();
     }
 
-    private Color getSliderColor ( ) {
-        return Color.rgb(
+    private WidgetColor getSliderColor ( ) {
+        return JFXUtil.convert(Color.rgb(
             (int) redSlider.getValue(),
             (int) greenSlider.getValue(),
             (int) blueSlider.getValue(),
             (int) alphaSlider.getValue() / 255.0
-        );
+        ));
     }
 
-    private Color getSpinnerColor ( ) {
-        return Color.rgb(
+    private WidgetColor getSpinnerColor ( ) {
+        return JFXUtil.convert(Color.rgb(
             Math.max(0, Math.min(255, redSpinner.getValue())),
             Math.max(0, Math.min(255, greenSpinner.getValue())),
             Math.max(0, Math.min(255, blueSpinner.getValue())),
             Math.max(0, Math.min(255, alphaSpinner.getValue() / 255.0))
-        );
+        ));
     }
 
     private void updateButton ( final Button button, final ButtonType buttonType ) {

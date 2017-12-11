@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.properties;
 
+
 import java.util.List;
 
 import org.csstudio.display.builder.editor.undo.SetWidgetPropertyAction;
@@ -16,72 +17,75 @@ import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.representation.javafx.WidgetColorPopOver;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
-import org.csstudio.javafx.PopOver;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 
-/** Bidirectional binding between a color property in model and Java FX Node in the property panel
- *  @author Kay Kasemir
+
+/**
+ * Bidirectional binding between a color property in model and Java FX Node in
+ * the property panel
+ *
+ * @author Kay Kasemir
  */
-public class WidgetColorPropertyBinding
-       extends WidgetPropertyBinding<WidgetColorPropertyField, ColorWidgetProperty>
-{
+public class WidgetColorPropertyBinding extends WidgetPropertyBinding<WidgetColorPropertyField, ColorWidgetProperty> {
+
     private WidgetColorPopOver popover;
 
     /** Update property panel field as model changes */
-    private final WidgetPropertyListener<WidgetColor> model_listener = (p, o, n) ->
-    {
+    private final WidgetPropertyListener<WidgetColor> model_listener = ( p, o, n ) -> {
         jfx_node.setColor(widget_property.getValue());
     };
 
     /** Update model from user input */
-    private EventHandler<ActionEvent> action_handler = event ->
-    {
+    private EventHandler<ActionEvent> action_handler = event -> {
+
         final WidgetColorPopOver previous = popover;
+
         popover = null;
-        if (previous != null)
-        {
-            if (previous.isShowing())
-            {
+
+        if ( previous != null ) {
+            if ( previous.isShowing() ) {
                 previous.hide();
                 return;
             }
         }
-        popover = new WidgetColorPopOver(widget_property,
-                                         wColor ->
-        {
+
+        popover = new WidgetColorPopOver(widget_property, wColor -> {
+
             undo.execute(new SetWidgetPropertyAction<WidgetColor>(widget_property, wColor));
+
             final String path = widget_property.getPath();
-            for (Widget w : other)
-            {
+
+            for ( Widget w : other ) {
+
                 final ColorWidgetProperty other_prop = (ColorWidgetProperty) w.getProperty(path);
+
                 undo.execute(new SetWidgetPropertyAction<WidgetColor>(other_prop, wColor));
+
             }
+
         });
+
         popover.show(jfx_node.getButton());
+
     };
 
-    public WidgetColorPropertyBinding(final UndoableActionManager undo,
-                                      final WidgetColorPropertyField field,
-                                      final ColorWidgetProperty widget_property,
-                                      final List<Widget> other)
-    {
+    public WidgetColorPropertyBinding ( final UndoableActionManager undo, final WidgetColorPropertyField field, final ColorWidgetProperty widget_property, final List<Widget> other ) {
         super(undo, field, widget_property, other);
     }
 
     @Override
-    public void bind()
-    {
+    public void bind ( ) {
         widget_property.addPropertyListener(model_listener);
         jfx_node.setOnAction(action_handler);
         jfx_node.setColor(widget_property.getValue());
     }
 
     @Override
-    public void unbind()
-    {
+    public void unbind ( ) {
         jfx_node.setOnAction(null);
         widget_property.removePropertyListener(model_listener);
     }
+
 }
