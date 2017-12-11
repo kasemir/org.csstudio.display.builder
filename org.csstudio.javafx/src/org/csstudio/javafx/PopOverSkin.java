@@ -12,6 +12,8 @@ import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.control.Skin;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.ArcTo;
@@ -155,6 +157,13 @@ public class PopOverSkin implements Skin<PopOver>
 
        root.getChildren().setAll(background, popover.getContentNode());
        root.setPickOnBounds(false);
+
+       // Hide on escape
+       root.addEventFilter(KeyEvent.KEY_PRESSED, event ->
+       {
+           if (event.getCode() == KeyCode.ESCAPE  &&  popover.isHideOnEscape())
+               popover.hide();
+       });
    }
 
    @Override

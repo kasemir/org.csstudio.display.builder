@@ -19,7 +19,6 @@ import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
-//import org.controlsfx.control.PopOver;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.properties.NamedWidgetColor;
@@ -48,7 +47,10 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
@@ -58,6 +60,8 @@ import javafx.scene.shape.Circle;
  * @version 1.0.0 29 Nov 2017
  */
 public class WidgetColorPopOverController implements Initializable {
+
+    @FXML private GridPane root;
 
     @FXML private Label infoLabel;
 
@@ -132,6 +136,11 @@ public class WidgetColorPopOverController implements Initializable {
 
         okButton.setText(ButtonType.OK.getText());
         ButtonBar.setButtonData(okButton, ButtonType.OK.getButtonData());
+        root.addEventFilter(KeyEvent.KEY_PRESSED, event ->
+        {
+            if (event.getCode() == KeyCode.ENTER)
+                okPressed(null);
+        });
 
         picker.valueProperty().bindBidirectional(colorProperty());
         currentColorCircle.fillProperty().bind(colorProperty());
@@ -276,12 +285,11 @@ public class WidgetColorPopOverController implements Initializable {
     }
 
     void setInitialConditions (
-        final PopOver popOver,
-        final WidgetColor originalWidgetColor,
-        final WidgetColor defaultWidgetColor,
-        final Consumer<WidgetColor> colorChangeConsumer,
-        final String propertyName
-    ) {
+            final PopOver popOver,
+            WidgetColor originalWidgetColor,
+            final WidgetColor defaultWidgetColor,
+            final String propertyName,
+            final Consumer<WidgetColor> colorChangeConsumer ) {
 
         this.colorChangeConsumer = colorChangeConsumer;
         this.popOver = popOver;

@@ -21,4 +21,3 @@ Export-Package: org.csstudio.display.builder.editor,
  org.csstudio.display.builder.editor.tree,
  org.csstudio.display.builder.editor.undo,
  org.csstudio.display.builder.editor.util
-Import-Package: org.controlsfx.control

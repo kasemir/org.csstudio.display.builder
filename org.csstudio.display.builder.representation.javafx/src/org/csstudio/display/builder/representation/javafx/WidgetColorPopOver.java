@@ -19,12 +19,13 @@ import java.util.ResourceBundle;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
-//import org.controlsfx.control.PopOver;
+import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.javafx.PopOver;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 
 
 /**
@@ -33,39 +34,30 @@ import javafx.scene.Node;
  * @author claudiorosati, European Spallation Source ERIC
  * @version 1.0.0 30 Nov 2017
  */
-public class WidgetColorPopOver {
-
-    public static PopOver createPopOver (
-        final String propertyName,
-        final WidgetColor originalWidgetColor,
-        final WidgetColor defaultWidgetColor,
-        final Consumer<WidgetColor> colorChangeConsumer
-    ) {
-
-        try {
-
+@SuppressWarnings("nls")
+public class WidgetColorPopOver extends PopOver
+{
+    public WidgetColorPopOver(final ColorWidgetProperty color_prop,
+                              final Consumer<WidgetColor> colorChangeConsumer)
+    {
+        try
+        {
             URL fxml = WidgetColorPopOver.class.getResource("WidgetColorPopOver.fxml");
             InputStream iStream = WidgetColorPopOver.class.getResourceAsStream("messages.properties");
             ResourceBundle bundle = new PropertyResourceBundle(iStream);
             FXMLLoader fxmlLoader = new FXMLLoader(fxml, bundle);
             Node content = (Node) fxmlLoader.load();
 
-            final PopOver popOver = new PopOver(content);
-
-            popOver.setAutoHide(true);
-            popOver.setHideOnEscape(true);
+            setContent(content);
 
             WidgetColorPopOverController controller = fxmlLoader.<WidgetColorPopOverController>getController();
 
-            controller.setInitialConditions(popOver, originalWidgetColor, defaultWidgetColor, colorChangeConsumer, propertyName);
-
-            return popOver;
-
-        } catch ( IOException ex ) {
-            logger.log(Level.WARNING, "Unable to edit color.", ex);
-            return null;
+            controller.setInitialConditions(this, color_prop.getValue(), color_prop.getDefaultValue(), color_prop.getDescription(), colorChangeConsumer);
         }
-
+        catch (IOException ex)
+        {
+            logger.log(Level.WARNING, "Unable to edit color.", ex);
+            setContent(new Label("Unable to edit color."));
+        }
     }
-
 }
