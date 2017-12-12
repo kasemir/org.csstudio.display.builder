@@ -807,9 +807,9 @@ if ScriptUtil.showConfirmationDialog(widget, "Dude, this was just meant as an ex
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_39</name>
-    <text>PV to write:</text>
-    <x>800</x>
+    <text>Value:</text>
+    <x>810</x>
     <y>850</y>
-    <width>80</width>
+    <width>60</width>
   </widget>
 </display>
