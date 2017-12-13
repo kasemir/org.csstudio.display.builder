@@ -59,6 +59,7 @@ import org.csstudio.display.builder.model.widgets.TextEntryWidget;
 import org.csstudio.display.builder.model.widgets.TextSymbolWidget;
 import org.csstudio.display.builder.model.widgets.TextUpdateWidget;
 import org.csstudio.display.builder.model.widgets.ThermometerWidget;
+import org.csstudio.display.builder.model.widgets.ThumbWheelWidget;
 import org.csstudio.display.builder.model.widgets.WebBrowserWidget;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget;
 import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget;
@@ -178,6 +179,7 @@ public class WidgetFactory
         addWidgetType(TextSymbolWidget.WIDGET_DESCRIPTOR);
         addWidgetType(TextUpdateWidget.WIDGET_DESCRIPTOR);
         addWidgetType(ThermometerWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(ThumbWheelWidget.WIDGET_DESCRIPTOR);
         addWidgetType(WebBrowserWidget.WIDGET_DESCRIPTOR);
         addWidgetType(XYPlotWidget.WIDGET_DESCRIPTOR);
     }

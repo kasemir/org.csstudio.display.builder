@@ -156,6 +156,10 @@
             type="thermometer">
       </representation>
       <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.ThumbWheelRepresentation"
+            type="thumbwheel">
+      </representation>
+      <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.WebBrowserRepresentation"
             type="webbrowser">
       </representation>
