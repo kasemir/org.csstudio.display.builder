@@ -177,6 +177,8 @@ public class Messages extends NLS
     public static String WidgetProperties_DataWidth;
     public static String WidgetProperties_DateColor;
     public static String WidgetProperties_DateVisible;
+    public static String WidgetProperties_DecimalDigits;
+    public static String WidgetProperties_DecrementButtonsColor;
     public static String WidgetProperties_Direction;
     public static String WidgetProperties_DiscreteHours;
     public static String WidgetProperties_DiscreteMinutes;
@@ -206,10 +208,13 @@ public class Messages extends NLS
     public static String WidgetProperties_HourTickMarkColor;
     public static String WidgetProperties_HourTickMarkVisible;
     public static String WidgetProperties_Increment;
+    public static String WidgetProperties_IncrementButtonsColor;
     public static String WidgetProperties_InitialIndex;
     public static String WidgetProperties_Insets;
+    public static String WidgetProperties_IntegerDigits;
     public static String WidgetProperties_Interactive;
     public static String WidgetProperties_Interpolation;
+    public static String WidgetProperties_InvalidColor;
     public static String WidgetProperties_ItemsFromPV;
     public static String WidgetProperties_KnobColor;
     public static String WidgetProperties_KnobPosition;
@@ -263,9 +268,10 @@ public class Messages extends NLS
     public static String WidgetProperties_ScaleFactor;
     public static String WidgetProperties_ScaleFormat;
     public static String WidgetProperties_ScaleDirection;
+    public static String WidgetProperties_Scripts;
+    public static String WidgetProperties_ScrollEnabled;
     public static String WidgetProperties_SecondColor;
     public static String WidgetProperties_SecondVisible;
-    public static String WidgetProperties_Scripts;
     public static String WidgetProperties_Selection;
     public static String WidgetProperties_SelectionPV;
     public static String WidgetProperties_ShadowsEnabled;
