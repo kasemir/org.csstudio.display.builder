@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2017 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -129,13 +129,17 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         model_widget.propMajorTickStepHint().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propLimitsFromPV().addUntypedPropertyListener(this::limitsChanged);
 
+
         // Since both the widget's PV value and the JFX node's value property might be
         // written to independently during runtime, both must have listeners.
         slider.valueProperty().addListener(this::handleSliderMove);
         if (toolkit.isEditMode())
             dirty_value.checkAndClear();
         else
+        {
             model_widget.runtimePropValue().addPropertyListener(this::valueChanged);
+            model_widget.runtimePropConfigure().addPropertyListener((p, o, n) -> openConfigurationPanel());
+        }
         enablementChanged(null, null, null);
         limitsChanged(null, null, null);
         layoutChanged(null, null, null);
@@ -430,5 +434,17 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
                 active = false;
             }
         }
+    }
+
+    private SliderConfigPopOver config_popover = null;
+
+    private void openConfigurationPanel()
+    {
+        if (config_popover == null)
+            config_popover = new SliderConfigPopOver(model_widget.propIncrement());
+        if (config_popover.isShowing())
+            config_popover.hide();
+        else
+            config_popover.show(slider);
     }
 }
