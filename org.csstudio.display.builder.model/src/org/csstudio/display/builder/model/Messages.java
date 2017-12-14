@@ -194,6 +194,7 @@ public class Messages extends NLS
     public static String WidgetProperties_Font;
     public static String WidgetProperties_ForegroundColor;
     public static String WidgetProperties_Format;
+    public static String WidgetProperties_GraphicInButtons;
     public static String WidgetProperties_GridColor;
     public static String WidgetProperties_GridStepX;
     public static String WidgetProperties_GridStepY;
@@ -286,6 +287,7 @@ public class Messages extends NLS
     public static String WidgetProperties_ShowScale;
     public static String WidgetProperties_ShowUnits;
     public static String WidgetProperties_Skin;
+    public static String WidgetProperties_SpinnerShaped;
     public static String WidgetProperties_Square;
     public static String WidgetProperties_StartFromZero;
     public static String WidgetProperties_StretchToFit;

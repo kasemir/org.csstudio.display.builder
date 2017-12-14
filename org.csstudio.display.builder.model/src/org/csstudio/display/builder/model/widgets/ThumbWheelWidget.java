@@ -61,8 +61,10 @@ public class ThumbWheelWidget extends WritablePVWidget {
     public static final WidgetPropertyDescriptor<Integer>     propIntegerDigits         = newIntegerPropertyDescriptor(WidgetPropertyCategory.WIDGET,  "integer_digits",          Messages.WidgetProperties_IntegerDigits, 1, Integer.MAX_VALUE);
 
     public static final WidgetPropertyDescriptor<WidgetColor> propDecrementButtonsColor = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY, "decrement_buttons_color", Messages.WidgetProperties_DecrementButtonsColor);
+    public static final WidgetPropertyDescriptor<Boolean>     propGraphicInButtons      = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "graphic_in_buttons",      Messages.WidgetProperties_GraphicInButtons);
     public static final WidgetPropertyDescriptor<WidgetColor> propIncrementButtonsColor = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY, "increment_buttons_color", Messages.WidgetProperties_IncrementButtonsColor);
     public static final WidgetPropertyDescriptor<WidgetColor> propInvalidColor          = newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY, "invalid_color",           Messages.WidgetProperties_InvalidColor);
+    public static final WidgetPropertyDescriptor<Boolean>     propSpinnerShaped         = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "spinner_shaped",          Messages.WidgetProperties_SpinnerShaped);
 
     public static final WidgetPropertyDescriptor<Boolean>     propScrollEnabled         = newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "scroll_enabled",         Messages.WidgetProperties_ScrollEnabled);
 
@@ -72,6 +74,7 @@ public class ThumbWheelWidget extends WritablePVWidget {
     private volatile WidgetProperty<Boolean>     enabled;
     private volatile WidgetProperty<WidgetFont>  font;
     private volatile WidgetProperty<WidgetColor> foreground;
+    private volatile WidgetProperty<Boolean>     graphic_in_buttons;
     private volatile WidgetProperty<WidgetColor> increment_buttons_color;
     private volatile WidgetProperty<Integer>     integer_digits;
     private volatile WidgetProperty<WidgetColor> invalid_color;
@@ -79,6 +82,7 @@ public class ThumbWheelWidget extends WritablePVWidget {
     private volatile WidgetProperty<Double>      maximum;
     private volatile WidgetProperty<Double>      minimum;
     private volatile WidgetProperty<Boolean>     scroll_enabled;
+    private volatile WidgetProperty<Boolean>     spinner_shaped;
 
     public ThumbWheelWidget ( ) {
         super(WIDGET_DESCRIPTOR.getType(), 120, 50);
@@ -106,6 +110,10 @@ public class ThumbWheelWidget extends WritablePVWidget {
 
     public WidgetProperty<WidgetColor> propForegroundColor ( ) {
         return foreground;
+    }
+
+    public WidgetProperty<Boolean> propGraphicInButtons ( ) {
+        return graphic_in_buttons;
     }
 
     public WidgetProperty<WidgetColor> propIncrementButtonsColor ( ) {
@@ -136,6 +144,10 @@ public class ThumbWheelWidget extends WritablePVWidget {
         return scroll_enabled;
     }
 
+    public WidgetProperty<Boolean> propSpinnerShaped ( ) {
+        return spinner_shaped;
+    }
+
     @Override
     protected void defineProperties ( final List<WidgetProperty<?>> properties ) {
 
@@ -148,8 +160,10 @@ public class ThumbWheelWidget extends WritablePVWidget {
         properties.add(decrement_buttons_color = propDecrementButtonsColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BUTTON_BACKGROUND)));
         properties.add(font                    = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(foreground              = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
+        properties.add(graphic_in_buttons      = propGraphicInButtons.createProperty(this, true));
         properties.add(increment_buttons_color = propIncrementButtonsColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BUTTON_BACKGROUND)));
         properties.add(invalid_color           = propInvalidColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.ALARM_MAJOR)));
+        properties.add(spinner_shaped          = propSpinnerShaped.createProperty(this, true));
 
         properties.add(enabled                 = propEnabled.createProperty(this, true));
         properties.add(limits_from_pv          = propLimitsFromPV.createProperty(this, true));

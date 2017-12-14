@@ -150,6 +150,18 @@ public class ThumbWheelRepresentation extends RegionBaseRepresentation<ThumbWhee
                 jfx_node.setScrollEnabled((boolean) value);
             }
 
+            value = model_widget.propGraphicInButtons().getValue();
+
+            if ( !Objects.equals(value, jfx_node.isGraphicVisible()) ) {
+                jfx_node.setGraphicVisible((boolean) value);
+            }
+
+            value = model_widget.propSpinnerShaped().getValue();
+
+            if ( !Objects.equals(value, jfx_node.isSpinnerShaped()) ) {
+                jfx_node.setSpinnerShaped((boolean) value);
+            }
+
         }
 
         if ( dirtyValue.checkAndClear() && updatingValue.compareAndSet(false, true) ) {
@@ -227,7 +239,9 @@ public class ThumbWheelRepresentation extends RegionBaseRepresentation<ThumbWhee
         model_widget.propMinimum().addUntypedPropertyListener(this::limitsChanged);
 
         model_widget.propEnabled().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propGraphicInButtons().addUntypedPropertyListener(this::styleChanged);
         model_widget.propScrollEnabled().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propSpinnerShaped().addUntypedPropertyListener(this::styleChanged);
 
         if ( toolkit.isEditMode() ) {
             dirtyValue.checkAndClear();
