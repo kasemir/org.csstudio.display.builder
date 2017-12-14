@@ -175,7 +175,7 @@ public class ThumbWheelRepresentation extends RegionBaseRepresentation<ThumbWhee
         ThumbWheel thumbwheel = new ThumbWheel();
 
         thumbwheel.setGraphicVisible(true);
-        thumbwheel.setSpinnerShaped(true);
+        thumbwheel.setSpinnerShaped(false);
 
         thumbwheel.valueProperty().addListener((observable, oldValue, newValue) -> {
             if ( !toolkit.isEditMode() && !updatingValue.get() ) {
