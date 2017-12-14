@@ -96,10 +96,13 @@ public class ThumbWheelRepresentation extends RegionBaseRepresentation<ThumbWhee
                 jfx_node.setBackgroundColor((Color) value);
             }
 
-            value = JFXUtil.convert(model_widget.propDecrementButtonsColor().getValue());
+            value = JFXUtil.convert(model_widget.propButtonsColor().getValue());
 
             if ( !Objects.equals(value, jfx_node.getDecrementButtonsColor()) ) {
                 jfx_node.setDecrementButtonsColor((Color) value);
+            }
+            if ( !Objects.equals(value, jfx_node.getIncrementButtonsColor()) ) {
+                jfx_node.setIncrementButtonsColor((Color) value);
             }
 
             value = JFXUtil.convert(model_widget.propFont().getValue());
@@ -112,12 +115,6 @@ public class ThumbWheelRepresentation extends RegionBaseRepresentation<ThumbWhee
 
             if ( !Objects.equals(value, jfx_node.getForegroundColor()) ) {
                 jfx_node.setForegroundColor((Color) value);
-            }
-
-            value = JFXUtil.convert(model_widget.propIncrementButtonsColor().getValue());
-
-            if ( !Objects.equals(value, jfx_node.getIncrementButtonsColor()) ) {
-                jfx_node.setIncrementButtonsColor((Color) value);
             }
 
             value = JFXUtil.convert(model_widget.propInvalidColor().getValue());
@@ -150,18 +147,6 @@ public class ThumbWheelRepresentation extends RegionBaseRepresentation<ThumbWhee
                 jfx_node.setScrollEnabled((boolean) value);
             }
 
-            value = model_widget.propGraphicInButtons().getValue();
-
-            if ( !Objects.equals(value, jfx_node.isGraphicVisible()) ) {
-                jfx_node.setGraphicVisible((boolean) value);
-            }
-
-            value = model_widget.propSpinnerShaped().getValue();
-
-            if ( !Objects.equals(value, jfx_node.isSpinnerShaped()) ) {
-                jfx_node.setSpinnerShaped((boolean) value);
-            }
-
         }
 
         if ( dirtyValue.checkAndClear() && updatingValue.compareAndSet(false, true) ) {
@@ -188,6 +173,9 @@ public class ThumbWheelRepresentation extends RegionBaseRepresentation<ThumbWhee
         updateLimits();
 
         ThumbWheel thumbwheel = new ThumbWheel();
+
+        thumbwheel.setGraphicVisible(true);
+        thumbwheel.setSpinnerShaped(true);
 
         thumbwheel.valueProperty().addListener((observable, oldValue, newValue) -> {
             if ( !toolkit.isEditMode() && !updatingValue.get() ) {
@@ -228,10 +216,9 @@ public class ThumbWheelRepresentation extends RegionBaseRepresentation<ThumbWhee
         model_widget.propHeight().addUntypedPropertyListener(this::geometryChanged);
 
         model_widget.propBackgroundColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propDecrementButtonsColor().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propButtonsColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propFont().addUntypedPropertyListener(this::lookChanged);
         model_widget.propForegroundColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propIncrementButtonsColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propInvalidColor().addUntypedPropertyListener(this::lookChanged);
 
         model_widget.propLimitsFromPV().addUntypedPropertyListener(this::limitsChanged);
@@ -239,9 +226,7 @@ public class ThumbWheelRepresentation extends RegionBaseRepresentation<ThumbWhee
         model_widget.propMinimum().addUntypedPropertyListener(this::limitsChanged);
 
         model_widget.propEnabled().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propGraphicInButtons().addUntypedPropertyListener(this::styleChanged);
         model_widget.propScrollEnabled().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propSpinnerShaped().addUntypedPropertyListener(this::styleChanged);
 
         if ( toolkit.isEditMode() ) {
             dirtyValue.checkAndClear();
