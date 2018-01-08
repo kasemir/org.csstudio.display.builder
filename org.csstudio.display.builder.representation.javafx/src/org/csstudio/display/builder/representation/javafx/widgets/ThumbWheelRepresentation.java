@@ -177,11 +177,11 @@ public class ThumbWheelRepresentation extends RegionBaseRepresentation<ThumbWhee
         thumbwheel.setGraphicVisible(true);
         thumbwheel.setSpinnerShaped(true);
 
-        thumbwheel.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if ( !toolkit.isEditMode() && !updatingValue.get() ) {
-                toolkit.fireWrite(model_widget, newValue);
-            }
-        });
+        if (! toolkit.isEditMode())
+            thumbwheel.valueProperty().addListener((observable, oldValue, newValue) -> {
+                if ( !updatingValue.get() )
+                    toolkit.fireWrite(model_widget, newValue);
+            });
 
         toolkit.schedule( ( ) -> {
             jfx_node.setPrefWidth(model_widget.propWidth().getValue());
@@ -198,6 +198,12 @@ public class ThumbWheelRepresentation extends RegionBaseRepresentation<ThumbWhee
 
         return thumbwheel;
 
+    }
+
+    @Override
+    protected boolean isFilteringEditModeClicks()
+    {
+        return true;
     }
 
     @Override
