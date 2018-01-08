@@ -22,6 +22,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.RGB;
 import org.w3c.dom.Element;
+
 import javafx.scene.paint.Color;
 
 /** Information about configuration of an axis
@@ -310,8 +311,12 @@ public class AxisConfig
         XMLWriter.XML(writer, 3, XMLPersistence.TAG_USE_TRACE_NAMES, Boolean.toString(use_trace_names));
         XMLWriter.XML(writer, 3, XMLPersistence.TAG_RIGHT, Boolean.toString(is_right));
         if (color != null)
-            XMLPersistence.writeColor(writer, 3, XMLPersistence.TAG_COLOR, new RGB((int)color.getRed(), (int)color.getGreen(), (int)color.getBlue()));
-
+        {
+            final RGB rgb = new RGB((int)(color.getRed()*255),
+                                    (int)(color.getGreen()*255),
+                                    (int)(color.getBlue()*255));
+            XMLPersistence.writeColor(writer, 3, XMLPersistence.TAG_COLOR, rgb);
+        }
         XMLWriter.XML(writer, 3, XMLPersistence.TAG_MIN, min);
         XMLWriter.XML(writer, 3, XMLPersistence.TAG_MAX, max);
         XMLWriter.XML(writer, 3, XMLPersistence.TAG_GRID, Boolean.toString(show_grid));
