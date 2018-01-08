@@ -155,6 +155,7 @@ public class Messages extends NLS
     public static String WidgetProperties_BorderAlarmSensitive;
     public static String WidgetProperties_BorderColor;
     public static String WidgetProperties_BorderWidth;
+    public static String WidgetProperties_ButtonsColor;
     public static String WidgetProperties_CellColors;
     public static String WidgetProperties_Class;
     public static String WidgetProperties_ColorHiHi;
@@ -178,7 +179,6 @@ public class Messages extends NLS
     public static String WidgetProperties_DateColor;
     public static String WidgetProperties_DateVisible;
     public static String WidgetProperties_DecimalDigits;
-    public static String WidgetProperties_DecrementButtonsColor;
     public static String WidgetProperties_Direction;
     public static String WidgetProperties_DiscreteHours;
     public static String WidgetProperties_DiscreteMinutes;
@@ -194,6 +194,7 @@ public class Messages extends NLS
     public static String WidgetProperties_Font;
     public static String WidgetProperties_ForegroundColor;
     public static String WidgetProperties_Format;
+    public static String WidgetProperties_GraphicInButtons;
     public static String WidgetProperties_GridColor;
     public static String WidgetProperties_GridStepX;
     public static String WidgetProperties_GridStepY;
@@ -208,7 +209,6 @@ public class Messages extends NLS
     public static String WidgetProperties_HourTickMarkColor;
     public static String WidgetProperties_HourTickMarkVisible;
     public static String WidgetProperties_Increment;
-    public static String WidgetProperties_IncrementButtonsColor;
     public static String WidgetProperties_InitialIndex;
     public static String WidgetProperties_Insets;
     public static String WidgetProperties_IntegerDigits;
@@ -286,6 +286,7 @@ public class Messages extends NLS
     public static String WidgetProperties_ShowScale;
     public static String WidgetProperties_ShowUnits;
     public static String WidgetProperties_Skin;
+    public static String WidgetProperties_SpinnerShaped;
     public static String WidgetProperties_Square;
     public static String WidgetProperties_StartFromZero;
     public static String WidgetProperties_StretchToFit;
