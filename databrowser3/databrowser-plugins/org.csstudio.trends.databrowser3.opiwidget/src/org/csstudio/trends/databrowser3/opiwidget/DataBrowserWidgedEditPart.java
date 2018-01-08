@@ -181,10 +181,10 @@ public class DataBrowserWidgedEditPart extends AbstractWidgetEditPart
                 // Add context menu to the SWT control
                 // for opening full data browser
                 final MenuManager mm = new MenuManager();
-                //TODO: toolbar and legend actions
-                //mm.add(plot_widget.getPlot().getToolbarAction());
-                //mm.add(plot_widget.getPlot().getLegendAction());
                 mm.add(new OpenDataBrowserAction(this));
+                mm.add(new ShowToolbarAction(this));
+                //TODO: legend action
+                //mm.add(plot_widget.getPlot().getLegendAction());
 
                 final Control control = gui.getSWTWidget();
                 final Menu menu = mm.createContextMenu(control);
