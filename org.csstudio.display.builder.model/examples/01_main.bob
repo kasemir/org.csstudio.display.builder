@@ -489,6 +489,21 @@ then press &lt;SPACE&gt; to activate button.</text>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
   </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_34</name>
+    <actions>
+      <action type="open_display">
+        <file>controls_thumbwheel.bob</file>
+        <target>replace</target>
+        <description>Thumb Wheel</description>
+      </action>
+    </actions>
+    <x>470</x>
+    <y>440</y>
+    <width>120</width>
+    <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
   <widget type="label" version="2.0.0">
     <name>Plots</name>
     <text>Plots</text>
@@ -686,21 +701,6 @@ then press &lt;SPACE&gt; to activate button.</text>
     </actions>
     <x>890</x>
     <y>200</y>
-    <width>120</width>
-    <height>26</height>
-    <tooltip>$(actions)</tooltip>
-  </widget>
-  <widget type="action_button" version="3.0.0">
-    <name>Action Button_34</name>
-    <actions>
-      <action type="open_display">
-        <file>controls_thumbwheel.bob</file>
-        <target>replace</target>
-        <description>Thumb Wheel</description>
-      </action>
-    </actions>
-    <x>470</x>
-    <y>440</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
