@@ -61,7 +61,7 @@ public class LabelWidget extends VisibleWidget
     };
 
 
-    /** Handle legacy widged config */
+    /** Handle legacy widget config */
     static class CustomConfigurator extends WidgetConfigurator
     {
         public CustomConfigurator(final Version xml_version)
