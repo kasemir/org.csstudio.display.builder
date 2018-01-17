@@ -134,7 +134,6 @@
       <plugin id="org.eclipse.ui.cocoa" fragment="true"/>
       <plugin id="org.eclipse.ui.ide"/>
       <plugin id="org.eclipse.ui.workbench"/>
-      <plugin id="org.epics.caj"/>
       <plugin id="org.epics.jca"/>
       <plugin id="org.epics.pvAccessJava"/>
       <plugin id="org.epics.pvDataJava"/>
