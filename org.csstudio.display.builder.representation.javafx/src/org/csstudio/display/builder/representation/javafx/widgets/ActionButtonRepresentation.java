@@ -22,6 +22,7 @@ import org.csstudio.display.builder.model.properties.ActionInfos;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
 import org.csstudio.display.builder.model.properties.RotationStep;
 import org.csstudio.display.builder.model.properties.StringWidgetProperty;
+import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.Messages;
@@ -309,7 +310,13 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
     private void updateColors()
     {
         foreground = JFXUtil.convert(model_widget.propForegroundColor().getValue());
-        background = JFXUtil.shadedStyle(model_widget.propBackgroundColor().getValue());
+        // If background color is transparent (alpha is zero),
+        // make the complete button transparent
+        final WidgetColor back_col = model_widget.propBackgroundColor().getValue();
+        if (back_col.getAlpha() > 0)
+            background = JFXUtil.shadedStyle(back_col);
+        else
+            background = "-fx-background: transparent; -fx-color: transparent";
     }
 
     @Override
