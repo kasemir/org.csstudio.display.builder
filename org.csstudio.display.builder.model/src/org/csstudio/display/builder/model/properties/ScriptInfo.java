@@ -36,6 +36,7 @@ public class ScriptInfo
     /** Script 'path' used to indicate an embedded python script */
     public final static String EMBEDDED_PYTHON = "EmbeddedPy";
 
+    /** Example python script */
     public static final String EXAMPLE_PYTHON =
         "from org.csstudio.display.builder.runtime.script import PVUtil, ScriptUtil\n" +
         "print 'Hello'";
