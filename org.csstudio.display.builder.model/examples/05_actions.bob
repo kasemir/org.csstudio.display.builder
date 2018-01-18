@@ -298,12 +298,13 @@ ScriptUtil.showMessageDialog(widget, message)]]></text>
     <text></text>
     <x>590</x>
     <y>400</y>
-    <width>180</width>
+    <width>190</width>
     <height>70</height>
     <background_color>
       <color red="210" green="210" blue="210" alpha="0">
       </color>
     </background_color>
+    <transparent>true</transparent>
     <tooltip>$(actions)</tooltip>
   </widget>
 </display>
