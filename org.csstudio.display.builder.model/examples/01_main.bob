@@ -322,7 +322,7 @@ then press &lt;SPACE&gt; to activate button.</text>
       </action>
     </actions>
     <x>330</x>
-    <y>240</y>
+    <y>320</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -337,7 +337,7 @@ then press &lt;SPACE&gt; to activate button.</text>
       </action>
     </actions>
     <x>330</x>
-    <y>280</y>
+    <y>360</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -352,7 +352,7 @@ then press &lt;SPACE&gt; to activate button.</text>
       </action>
     </actions>
     <x>330</x>
-    <y>320</y>
+    <y>400</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
