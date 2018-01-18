@@ -19,11 +19,11 @@ then press &lt;SPACE&gt; to activate button.</text>
     <width>640</width>
     <height>80</height>
     <font use_class="true">
-      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
+      <font name="Comment" family="Source Sans Pro" style="ITALIC" size="16.0">
       </font>
     </font>
     <foreground_color use_class="true">
-      <color name="Text" red="0" green="0" blue="0">
+      <color name="Text" red="25" green="25" blue="25">
       </color>
     </foreground_color>
     <transparent use_class="true">true</transparent>
@@ -38,11 +38,11 @@ then press &lt;SPACE&gt; to activate button.</text>
     <width>280</width>
     <height>30</height>
     <font use_class="true">
-      <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
+      <font name="Header 1" family="Source Sans Pro" style="BOLD_ITALIC" size="36.0">
       </font>
     </font>
     <foreground_color use_class="true">
-      <color name="Text" red="0" green="0" blue="0">
+      <color name="Text" red="25" green="25" blue="25">
       </color>
     </foreground_color>
     <transparent use_class="true">true</transparent>
@@ -54,7 +54,7 @@ then press &lt;SPACE&gt; to activate button.</text>
     <width>120</width>
     <height>30</height>
     <font>
-      <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
+      <font name="Header 2" family="Source Sans Pro" style="BOLD_ITALIC" size="21.0">
       </font>
     </font>
   </widget>
@@ -164,7 +164,7 @@ then press &lt;SPACE&gt; to activate button.</text>
     <width>120</width>
     <height>30</height>
     <font>
-      <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
+      <font name="Header 2" family="Source Sans Pro" style="BOLD_ITALIC" size="21.0">
       </font>
     </font>
   </widget>
@@ -176,7 +176,7 @@ then press &lt;SPACE&gt; to activate button.</text>
     <width>120</width>
     <height>30</height>
     <font>
-      <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
+      <font name="Header 3" family="Source Sans Pro" style="BOLD_ITALIC" size="16.0">
       </font>
     </font>
   </widget>
@@ -233,7 +233,7 @@ then press &lt;SPACE&gt; to activate button.</text>
     <width>120</width>
     <height>30</height>
     <font>
-      <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
+      <font name="Header 3" family="Source Sans Pro" style="BOLD_ITALIC" size="16.0">
       </font>
     </font>
   </widget>
@@ -322,7 +322,7 @@ then press &lt;SPACE&gt; to activate button.</text>
       </action>
     </actions>
     <x>330</x>
-    <y>240</y>
+    <y>320</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -337,7 +337,7 @@ then press &lt;SPACE&gt; to activate button.</text>
       </action>
     </actions>
     <x>330</x>
-    <y>280</y>
+    <y>360</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -352,7 +352,7 @@ then press &lt;SPACE&gt; to activate button.</text>
       </action>
     </actions>
     <x>330</x>
-    <y>320</y>
+    <y>400</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>
@@ -365,7 +365,7 @@ then press &lt;SPACE&gt; to activate button.</text>
     <width>120</width>
     <height>30</height>
     <font>
-      <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
+      <font name="Header 3" family="Source Sans Pro" style="BOLD_ITALIC" size="16.0">
       </font>
     </font>
   </widget>
@@ -512,7 +512,7 @@ then press &lt;SPACE&gt; to activate button.</text>
     <width>120</width>
     <height>30</height>
     <font>
-      <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
+      <font name="Header 3" family="Source Sans Pro" style="BOLD_ITALIC" size="16.0">
       </font>
     </font>
   </widget>
@@ -569,7 +569,7 @@ then press &lt;SPACE&gt; to activate button.</text>
     <width>120</width>
     <height>30</height>
     <font>
-      <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
+      <font name="Header 3" family="Source Sans Pro" style="BOLD_ITALIC" size="16.0">
       </font>
     </font>
   </widget>
@@ -656,7 +656,7 @@ then press &lt;SPACE&gt; to activate button.</text>
     <width>120</width>
     <height>30</height>
     <font>
-      <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
+      <font name="Header 3" family="Source Sans Pro" style="BOLD_ITALIC" size="16.0">
       </font>
     </font>
   </widget>
