@@ -28,6 +28,7 @@ import org.csstudio.display.builder.representation.javafx.Messages;
 import org.csstudio.javafx.Styles;
 import org.eclipse.osgi.util.NLS;
 
+import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.MenuButton;
@@ -187,6 +188,8 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
 
         // Need to attach TT to the specific button, not the common jfx_node Pane
         TooltipSupport.attach(result, model_widget.propTooltip());
+
+        result.setCursor(Cursor.HAND);
 
         return result;
     }
