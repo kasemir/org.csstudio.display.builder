@@ -44,6 +44,11 @@ public class ScriptInfo
     /** Script 'path' used to indicate an embedded java script */
     public final static String EMBEDDED_JAVASCRIPT = "EmbeddedJs";
 
+    /** Example java script */
+    public static final String EXAMPLE_JAVASCRIPT =
+        "logger = org.csstudio.display.builder.runtime.script.ScriptUtil.getLogger();\n" +
+        "logger.info(\"Hello\");";
+
     private final String path, text;
     private final boolean check_connections;
     private final List<ScriptPV> pvs;
