@@ -724,7 +724,7 @@ public class TraceTableHandler implements IStructuredContentProvider
             protected void setValue(final Object element, final Object value)
             {
                 final PointType point_type =
-                        PointType.fromOrdinal(((Integer)value).intValue());
+                        PointType.values()[((Integer)value).intValue()];
                 final ModelItem item = (ModelItem)element;
                 if (point_type != item.getPointType())
                     new ChangePointTypeCommand(operations_manager, item, point_type);
