@@ -90,8 +90,6 @@ public class Messages extends NLS
     public static String ScriptsDialog_ColPV;
     public static String ScriptsDialog_ColScript;
     public static String ScriptsDialog_ColTrigger;
-    public static String ScriptsDialog_DefaultEmbeddedJavaScript;
-    public static String ScriptsDialog_DefaultEmbeddedPython;
     public static String ScriptsDialog_DefaultScriptFile;
     public static String ScriptsDialog_Info;
     public static String ScriptsDialog_PVsTT;
