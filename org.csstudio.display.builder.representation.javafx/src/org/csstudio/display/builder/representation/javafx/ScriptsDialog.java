@@ -322,37 +322,49 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         btn_embed_py = new Button(Messages.ScriptsDialog_BtnEmbedPy, JFXUtil.getIcon("embedded_script.png"));
         btn_embed_py.setMaxWidth(Double.MAX_VALUE);
         btn_embed_py.setDisable(true);
-        btn_embed_py.setOnAction(event ->
-        {
-            if (selected_script_item.text == null  ||  selected_script_item.text.trim().isEmpty())
-                selected_script_item.text = Messages.ScriptsDialog_DefaultEmbeddedPython;
+        btn_embed_py.setOnAction(event -> {
+
+            if ( selected_script_item.text == null
+              || selected_script_item.text.trim().isEmpty()
+              || selected_script_item.text.trim().equals(ScriptInfo.EXAMPLE_JAVASCRIPT) ) {
+                selected_script_item.text = ScriptInfo.EXAMPLE_PYTHON;
+            }
 
             final MultiLineInputDialog dlg = new MultiLineInputDialog(scripts_table, selected_script_item.text);
+
             DialogHelper.positionDialog(dlg, btn_embed_py, -300, -200);
+
             final Optional<String> result = dlg.showAndWait();
-            if (result.isPresent())
-            {
+
+            if ( result.isPresent() ) {
                 selected_script_item.file.set(ScriptInfo.EMBEDDED_PYTHON);
                 selected_script_item.text = result.get();
             }
+
         });
 
         btn_embed_js = new Button(Messages.ScriptsDialog_BtnEmbedJS, JFXUtil.getIcon("embedded_script.png"));
         btn_embed_js.setMaxWidth(Double.MAX_VALUE);
         btn_embed_js.setDisable(true);
-        btn_embed_js.setOnAction(event ->
-        {
-            if (selected_script_item.text == null  ||  selected_script_item.text.trim().isEmpty())
-                selected_script_item.text = Messages.ScriptsDialog_DefaultEmbeddedJavaScript;
+        btn_embed_js.setOnAction(event -> {
+
+            if ( selected_script_item.text == null
+              || selected_script_item.text.trim().isEmpty()
+              || selected_script_item.text.trim().equals(ScriptInfo.EXAMPLE_PYTHON) ) {
+                selected_script_item.text = ScriptInfo.EXAMPLE_JAVASCRIPT;
+            }
 
             final MultiLineInputDialog dlg = new MultiLineInputDialog(scripts_table, selected_script_item.text);
+
             DialogHelper.positionDialog(dlg, btn_embed_js, -300, -200);
+
             final Optional<String> result = dlg.showAndWait();
-            if (result.isPresent())
-            {
+
+            if ( result.isPresent() ) {
                 selected_script_item.file.set(ScriptInfo.EMBEDDED_JAVASCRIPT);
                 selected_script_item.text = result.get();
             }
+
         });
 
         final VBox buttons = new VBox(10, add, remove,
