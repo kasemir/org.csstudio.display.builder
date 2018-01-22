@@ -9,7 +9,6 @@ package org.csstudio.display.builder.representation.javafx;
 
 import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -218,21 +217,22 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 					           .collect(Collectors.toList());
         });
 
-        setOnHidden(event -> {
-
-            Preferences pref = Preferences.userNodeForPackage(getClass());
-
+        setOnHidden(event ->
+        {
+            final Preferences pref = Preferences.userNodeForPackage(getClass());
             pref.putDouble("content.width", content.getWidth());
             pref.putDouble("content.height", content.getHeight());
             pref.putDouble("pvs_table.pvs_name_col.width", pvs_name_col.getWidth());
             pref.putDouble("pvs_table.pvs_trigger_col.width", pvs_trigger_col.getWidth());
 
-            try {
+            try
+            {
                 pref.flush();
-            } catch ( BackingStoreException ex ) {
-                logger.warning(MessageFormat.format("Unable to flush preferences: {0}", ex.getMessage()));
             }
-
+            catch (BackingStoreException ex)
+            {
+                logger.log(Level.WARNING, "Unable to flush preferences", ex);
+            }
         });
     }
 
