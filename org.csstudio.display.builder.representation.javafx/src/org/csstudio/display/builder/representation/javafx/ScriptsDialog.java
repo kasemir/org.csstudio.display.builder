@@ -12,6 +12,7 @@ import static org.csstudio.display.builder.representation.ToolkitRepresentation.
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.ScriptPV;
+import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.javafx.DialogHelper;
 import org.csstudio.javafx.MultiLineInputDialog;
 import org.csstudio.javafx.TableHelper;
@@ -319,31 +321,33 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         name_col.setCellValueFactory(new PropertyValueFactory<ScriptItem, String>("file"));
         name_col.setCellFactory(list -> new TextFieldTableCell<ScriptItem, String>(new DefaultStringConverter()) {
 
-            private final ChangeListener<? super Boolean> focusedListener = (ob, o, n) -> {
-                if ( !n ) {
+            private final ChangeListener<? super Boolean> focusedListener = (ob, o, n) ->
+            {
+                if (!n)
                     cancelEdit();
-                }
             };
 
             @Override
-            public void cancelEdit ( ) {
+            public void cancelEdit()
+            {
                 ((TextField) getGraphic()).focusedProperty().removeListener(focusedListener);
                 super.cancelEdit();
             }
 
             @Override
-            public void startEdit ( ) {
+            public void startEdit()
+            {
                 super.startEdit();
                 ((TextField) getGraphic()).focusedProperty().addListener(focusedListener);
             }
 
             @Override
-            public void commitEdit ( String newValue ) {
+            public void commitEdit (final String newValue)
+            {
                 ((TextField) getGraphic()).focusedProperty().removeListener(focusedListener);
                 super.commitEdit(newValue);
                 Platform.runLater(() -> btn_pv_add.requestFocus());
             }
-
         });
         name_col.setOnEditCommit(event ->
         {
@@ -361,23 +365,18 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         // Buttons
         final Button add = new Button(Messages.Add, JFXUtil.getIcon("add.png"));
         add.setMaxWidth(Double.MAX_VALUE);
-        add.setOnAction(event -> {
-
-            ScriptItem newItem = new ScriptItem();
+        add.setOnAction(event ->
+        {
+            final ScriptItem newItem = new ScriptItem();
 
             script_items.add(newItem);
             scripts_table.getSelectionModel().select(newItem);
 
             final int newRow = scripts_table.getSelectionModel().getSelectedIndex();
-
-            new Thread(() -> {
-                try {
-                    Thread.sleep(123L);
-                } catch ( InterruptedException e ) {
-                }
+            ModelThreadPool.getTimer().schedule( () ->
+            {
                 Platform.runLater(() -> scripts_table.edit(newRow, name_col));
-            }).start();
-
+            }, 123, TimeUnit.MILLISECONDS);
         });
 
         btn_script_remove = new Button(Messages.Remove, JFXUtil.getIcon("delete.png"));
@@ -498,10 +497,10 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         }
 
         @Override
-        public void startEdit ( ) {
-
-            if ( !isEmpty() ) {
-
+        public void startEdit()
+        {
+            if (!isEmpty())
+            {
                 super.startEdit();
 
                 createTextField();
@@ -510,11 +509,8 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
                 menu.attachField(textField);
                 textField.selectAll();
-
             }
-
-            Platform.runLater( ( ) -> textField.requestFocus());
-
+            Platform.runLater(() -> textField.requestFocus());
         }
 
         @Override
@@ -548,39 +544,35 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
             }
         }
 
-        private void createTextField ( ) {
-
-            if ( textField == null ) {
-
+        private void createTextField()
+        {
+            if (textField == null)
+            {
                 textField = new TextField(getItem() == null ? "" : getItem());
-
                 textField.setOnAction(event -> commitEdit(textField.getText()));
-                textField.focusedProperty().addListener((ob, o, n) -> {
-                    if ( !n ) {
+                textField.focusedProperty().addListener((ob, o, n) ->
+                {
+                    if (!n)
                         cancelEdit();
-                    }
                 });
 
-            } else {
-                textField.setText(getItem() == null ? "" : getItem());
             }
-
+            else
+                textField.setText(getItem() == null ? "" : getItem());
             textField.setMinWidth(getWidth() - getGraphicTextGap() * 2);
-
         }
 
         @Override
-        public void commitEdit ( String newValue ) {
+        public void commitEdit (String newValue)
+        {
             super.commitEdit(newValue);
             Platform.runLater(() -> btn_pv_add.requestFocus());
         }
-
     }
 
     /** @return Node for UI elements that edit the PVs of a script */
     private Node createPVsTable()
     {
-
         // Create table with editable 'name' column
         pvs_name_col = new TableColumn<>(Messages.ScriptsDialog_ColPV);
         pvs_name_col.setCellValueFactory(new PropertyValueFactory<PVItem, String>("name"));
@@ -596,18 +588,14 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         pvs_trigger_col.setCellValueFactory(new PropertyValueFactory<PVItem, Boolean>("trigger"));
         pvs_trigger_col.setCellFactory(CheckBoxTableCell.<PVItem>forTableColumn(pvs_trigger_col));
 
-        Preferences pref = Preferences.userNodeForPackage(getClass());
-        double nameColumnWidth = pref.getDouble("pvs_table.pvs_name_col.width", -1);
-
-        if ( nameColumnWidth > 0 ) {
+        final Preferences pref = Preferences.userNodeForPackage(getClass());
+        final double nameColumnWidth = pref.getDouble("pvs_table.pvs_name_col.width", -1);
+        if (nameColumnWidth > 0)
             pvs_name_col.setPrefWidth(nameColumnWidth);
-        }
 
-        double triggerColumnWidth = pref.getDouble("pvs_table.pvs_trigger_col.width", -1);
-
-        if ( triggerColumnWidth > 0 ) {
+        final double triggerColumnWidth = pref.getDouble("pvs_table.pvs_trigger_col.width", -1);
+        if (triggerColumnWidth > 0)
             pvs_trigger_col.setPrefWidth(triggerColumnWidth);
-        }
 
         // Table column for 'trigger' uses CheckBoxTableCell that directly modifies the Observable Property
         pvs_table = new TableView<>(pv_items);
@@ -621,23 +609,17 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         // Buttons
         btn_pv_add = new Button(Messages.Add, JFXUtil.getIcon("add.png"));
         btn_pv_add.setMaxWidth(Double.MAX_VALUE);
-        btn_pv_add.setOnAction(event -> {
-
-            PVItem newItem = new PVItem("", true);
-
+        btn_pv_add.setOnAction(event ->
+        {
+            final PVItem newItem = new PVItem("", true);
             pv_items.add(newItem);
             pvs_table.getSelectionModel().select(newItem);
 
             final int newRow = pvs_table.getSelectionModel().getSelectedIndex();
-
-            new Thread(() -> {
-                try {
-                    Thread.sleep(123L);
-                } catch ( InterruptedException e ) {
-                }
+            ModelThreadPool.getTimer().schedule(() ->
+            {
                 Platform.runLater(() -> pvs_table.edit(newRow, pvs_name_col));
-            }).start();
-
+            }, 123, TimeUnit.MILLISECONDS);
         });
 
         btn_pv_remove = new Button(Messages.Remove, JFXUtil.getIcon("delete.png"));
