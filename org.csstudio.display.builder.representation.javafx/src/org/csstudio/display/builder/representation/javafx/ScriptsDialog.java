@@ -9,10 +9,13 @@ package org.csstudio.display.builder.representation.javafx;
 
 import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.model.Widget;
@@ -49,6 +52,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.util.converter.DefaultStringConverter;
 
@@ -167,6 +171,8 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
     /** Table for PVs of currently selected script */
     private TableView<PVItem> pvs_table;
+    private TableColumn<PVItem, String> pvs_name_col;
+    private TableColumn<PVItem, Boolean> pvs_trigger_col;
 
     private Button btn_script_remove, btn_file, btn_embed_py, btn_embed_js;
     private Button btn_pv_add, btn_pv_remove, btn_pv_up, btn_py_down;
@@ -195,7 +201,9 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         scripts.forEach(script -> script_items.add(ScriptItem.forInfo(script)));
         fixupScripts(0);
 
-        getDialogPane().setContent(createContent());
+        final Region content = createContent();
+
+        getDialogPane().setContent(content);
         getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
         getDialogPane().getStylesheets().add(getClass().getResource("opibuilder.css").toExternalForm());
         setResizable(true);
@@ -209,9 +217,26 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 					           .map(ScriptItem::getScriptInfo)
 					           .collect(Collectors.toList());
         });
+
+        setOnHidden(event -> {
+
+            Preferences pref = Preferences.userNodeForPackage(getClass());
+
+            pref.putDouble("content.width", content.getWidth());
+            pref.putDouble("content.height", content.getHeight());
+            pref.putDouble("pvs_table.pvs_name_col.width", pvs_name_col.getWidth());
+            pref.putDouble("pvs_table.pvs_trigger_col.width", pvs_trigger_col.getWidth());
+
+            try {
+                pref.flush();
+            } catch ( BackingStoreException ex ) {
+                logger.warning(MessageFormat.format("Unable to flush preferences: {0}", ex.getMessage()));
+            }
+
+        });
     }
 
-    private Node createContent()
+    private Region createContent()
     {
         final Node scripts = createScriptsTable();
         final Node pvs = createPVsTable();
@@ -273,6 +298,14 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         final HBox box = new HBox(10, scripts, pvs);
         HBox.setHgrow(scripts, Priority.ALWAYS);
         HBox.setHgrow(pvs, Priority.ALWAYS);
+
+        Preferences pref = Preferences.userNodeForPackage(getClass());
+        double prefWidth = pref.getDouble("content.width", -1);
+        double prefHeight = pref.getDouble("content.height", -1);
+
+        if ( prefWidth > 0 && prefHeight > 0 ) {
+            box.setPrefSize(prefWidth, prefHeight);
+        }
 
         // box.setStyle("-fx-background-color: rgb(255, 100, 0, 0.2);"); // For debugging
         return box;
@@ -547,25 +580,39 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
     /** @return Node for UI elements that edit the PVs of a script */
     private Node createPVsTable()
     {
+
         // Create table with editable 'name' column
-        final TableColumn<PVItem, String> name_col = new TableColumn<>(Messages.ScriptsDialog_ColPV);
-        name_col.setCellValueFactory(new PropertyValueFactory<PVItem, String>("name"));
-        name_col.setCellFactory((col) -> new AutoCompletedTableCell(menu));
-        name_col.setOnEditCommit(event ->
+        pvs_name_col = new TableColumn<>(Messages.ScriptsDialog_ColPV);
+        pvs_name_col.setCellValueFactory(new PropertyValueFactory<PVItem, String>("name"));
+        pvs_name_col.setCellFactory((col) -> new AutoCompletedTableCell(menu));
+        pvs_name_col.setOnEditCommit(event ->
         {
             final int row = event.getTablePosition().getRow();
             pv_items.get(row).nameProperty().set(event.getNewValue());
             fixupPVs(row);
         });
 
-        // Table column for 'trigger' uses CheckBoxTableCell that directly modifies the Observable Property
-        final TableColumn<PVItem, Boolean> trigger_col = new TableColumn<>(Messages.ScriptsDialog_ColTrigger);
-        trigger_col.setCellValueFactory(new PropertyValueFactory<PVItem, Boolean>("trigger"));
-        trigger_col.setCellFactory(CheckBoxTableCell.<PVItem>forTableColumn(trigger_col));
+        pvs_trigger_col = new TableColumn<>(Messages.ScriptsDialog_ColTrigger);
+        pvs_trigger_col.setCellValueFactory(new PropertyValueFactory<PVItem, Boolean>("trigger"));
+        pvs_trigger_col.setCellFactory(CheckBoxTableCell.<PVItem>forTableColumn(pvs_trigger_col));
 
+        Preferences pref = Preferences.userNodeForPackage(getClass());
+        double nameColumnWidth = pref.getDouble("pvs_table.pvs_name_col.width", -1);
+
+        if ( nameColumnWidth > 0 ) {
+            pvs_name_col.setPrefWidth(nameColumnWidth);
+        }
+
+        double triggerColumnWidth = pref.getDouble("pvs_table.pvs_trigger_col.width", -1);
+
+        if ( triggerColumnWidth > 0 ) {
+            pvs_trigger_col.setPrefWidth(triggerColumnWidth);
+        }
+
+        // Table column for 'trigger' uses CheckBoxTableCell that directly modifies the Observable Property
         pvs_table = new TableView<>(pv_items);
-        pvs_table.getColumns().add(name_col);
-        pvs_table.getColumns().add(trigger_col);
+        pvs_table.getColumns().add(pvs_name_col);
+        pvs_table.getColumns().add(pvs_trigger_col);
         pvs_table.setEditable(true);
         pvs_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         pvs_table.setTooltip(new Tooltip(Messages.ScriptsDialog_PVsTT));
@@ -588,7 +635,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
                     Thread.sleep(123L);
                 } catch ( InterruptedException e ) {
                 }
-                Platform.runLater(() -> pvs_table.edit(newRow, name_col));
+                Platform.runLater(() -> pvs_table.edit(newRow, pvs_name_col));
             }).start();
 
         });
