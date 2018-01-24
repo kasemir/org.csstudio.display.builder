@@ -35,14 +35,15 @@ import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -202,7 +203,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         scripts.forEach(script -> script_items.add(ScriptItem.forInfo(script)));
         fixupScripts(0);
 
-        final Region content = createContent();
+        final SplitPane content = createContent();
 
         getDialogPane().setContent(content);
         getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
@@ -224,8 +225,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
             final Preferences pref = Preferences.userNodeForPackage(getClass());
             pref.putDouble("content.width", content.getWidth());
             pref.putDouble("content.height", content.getHeight());
-            pref.putDouble("pvs_table.pvs_name_col.width", pvs_name_col.getWidth());
-            pref.putDouble("pvs_table.pvs_trigger_col.width", pvs_trigger_col.getWidth());
+            pref.putDouble("content.divider.position", content.getDividerPositions()[0]);
 
             try
             {
@@ -238,10 +238,10 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         });
     }
 
-    private Region createContent()
+    private SplitPane createContent()
     {
-        final Node scripts = createScriptsTable();
-        final Node pvs = createPVsTable();
+        final Region scripts = createScriptsTable();
+        final Region pvs = createPVsTable();
 
         // Display PVs of currently selected script
         scripts_table.getSelectionModel().selectedItemProperty().addListener((prop, old, selected) ->
@@ -297,24 +297,28 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
         Platform.runLater(() -> scripts_table.requestFocus());
 
-        final HBox box = new HBox(10, scripts, pvs);
-        HBox.setHgrow(scripts, Priority.ALWAYS);
-        HBox.setHgrow(pvs, Priority.ALWAYS);
+        scripts.setPadding(new Insets(0, 10, 0, 0));
+        pvs.setPadding(new Insets(0, 0, 0, 10));
 
         Preferences pref = Preferences.userNodeForPackage(getClass());
         double prefWidth = pref.getDouble("content.width", -1);
         double prefHeight = pref.getDouble("content.height", -1);
+        double prefDividerPosition = pref.getDouble("content.divider.position", 0.4);
+        SplitPane splitPane = new SplitPane(scripts, pvs);
+
+        splitPane.setOrientation(Orientation.HORIZONTAL);
+        splitPane.setDividerPositions(prefDividerPosition);
 
         if ( prefWidth > 0 && prefHeight > 0 ) {
-            box.setPrefSize(prefWidth, prefHeight);
+            splitPane.setPrefSize(prefWidth, prefHeight);
         }
 
-        // box.setStyle("-fx-background-color: rgb(255, 100, 0, 0.2);"); // For debugging
-        return box;
+        return splitPane;
+
     }
 
     /** @return Node for UI elements that edit the scripts */
-    private Node createScriptsTable()
+    private Region createScriptsTable()
     {
         // Create table with editable script 'file' column
         final TableColumn<ScriptItem, String> name_col = new TableColumn<>(Messages.ScriptsDialog_ColScript);
@@ -571,7 +575,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
     }
 
     /** @return Node for UI elements that edit the PVs of a script */
-    private Node createPVsTable()
+    private Region createPVsTable()
     {
         // Create table with editable 'name' column
         pvs_name_col = new TableColumn<>(Messages.ScriptsDialog_ColPV);
@@ -593,15 +597,6 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         pvs_trigger_col.setMaxWidth(70);
         pvs_trigger_col.setMinWidth(70);
         pvs_trigger_col.setPrefWidth(70);
-
-//        final Preferences pref = Preferences.userNodeForPackage(getClass());
-//        final double nameColumnWidth = pref.getDouble("pvs_table.pvs_name_col.width", -1);
-//        if (nameColumnWidth > 0)
-//            pvs_name_col.setPrefWidth(nameColumnWidth);
-//
-//        final double triggerColumnWidth = pref.getDouble("pvs_table.pvs_trigger_col.width", -1);
-//        if (triggerColumnWidth > 0)
-//            pvs_trigger_col.setPrefWidth(triggerColumnWidth);
 
         // Table column for 'trigger' uses CheckBoxTableCell that directly modifies the Observable Property
         pvs_table = new TableView<>(pv_items);
