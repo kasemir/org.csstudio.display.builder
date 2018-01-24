@@ -589,15 +589,19 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         pvs_trigger_col.setSortable(false);
         pvs_trigger_col.setCellValueFactory(new PropertyValueFactory<PVItem, Boolean>("trigger"));
         pvs_trigger_col.setCellFactory(CheckBoxTableCell.<PVItem>forTableColumn(pvs_trigger_col));
+        pvs_trigger_col.setResizable(false);
+        pvs_trigger_col.setMaxWidth(70);
+        pvs_trigger_col.setMinWidth(70);
+        pvs_trigger_col.setPrefWidth(70);
 
-        final Preferences pref = Preferences.userNodeForPackage(getClass());
-        final double nameColumnWidth = pref.getDouble("pvs_table.pvs_name_col.width", -1);
-        if (nameColumnWidth > 0)
-            pvs_name_col.setPrefWidth(nameColumnWidth);
-
-        final double triggerColumnWidth = pref.getDouble("pvs_table.pvs_trigger_col.width", -1);
-        if (triggerColumnWidth > 0)
-            pvs_trigger_col.setPrefWidth(triggerColumnWidth);
+//        final Preferences pref = Preferences.userNodeForPackage(getClass());
+//        final double nameColumnWidth = pref.getDouble("pvs_table.pvs_name_col.width", -1);
+//        if (nameColumnWidth > 0)
+//            pvs_name_col.setPrefWidth(nameColumnWidth);
+//
+//        final double triggerColumnWidth = pref.getDouble("pvs_table.pvs_trigger_col.width", -1);
+//        if (triggerColumnWidth > 0)
+//            pvs_trigger_col.setPrefWidth(triggerColumnWidth);
 
         // Table column for 'trigger' uses CheckBoxTableCell that directly modifies the Observable Property
         pvs_table = new TableView<>(pv_items);
