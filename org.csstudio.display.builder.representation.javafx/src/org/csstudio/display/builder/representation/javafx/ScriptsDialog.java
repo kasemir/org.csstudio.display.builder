@@ -584,6 +584,15 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
     /** @return Node for UI elements that edit the PVs of a script */
     private Region createPVsTable()
     {
+
+        final TableColumn<PVItem, Integer> indexColumn = new TableColumn<>("#");
+
+        indexColumn.setEditable(false);
+        indexColumn.setSortable(false);
+        indexColumn.setCellFactory(new LineNumberCellFactory<>(true));
+        indexColumn.setMaxWidth(26);
+        indexColumn.setMinWidth(26);
+
         // Create table with editable 'name' column
         pvs_name_col = new TableColumn<>(Messages.ScriptsDialog_ColPV);
         pvs_name_col.setSortable(false);
@@ -603,10 +612,10 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         pvs_trigger_col.setResizable(false);
         pvs_trigger_col.setMaxWidth(70);
         pvs_trigger_col.setMinWidth(70);
-        pvs_trigger_col.setPrefWidth(70);
 
         // Table column for 'trigger' uses CheckBoxTableCell that directly modifies the Observable Property
         pvs_table = new TableView<>(pv_items);
+        pvs_table.getColumns().add(indexColumn);
         pvs_table.getColumns().add(pvs_name_col);
         pvs_table.getColumns().add(pvs_trigger_col);
         pvs_table.setEditable(true);
