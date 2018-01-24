@@ -37,6 +37,7 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
@@ -369,6 +370,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         // Buttons
         final Button add = new Button(Messages.Add, JFXUtil.getIcon("add.png"));
         add.setMaxWidth(Double.MAX_VALUE);
+        add.setAlignment(Pos.CENTER_LEFT);
         add.setOnAction(event ->
         {
             final ScriptItem newItem = new ScriptItem();
@@ -385,6 +387,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
         btn_script_remove = new Button(Messages.Remove, JFXUtil.getIcon("delete.png"));
         btn_script_remove.setMaxWidth(Double.MAX_VALUE);
+        btn_script_remove.setAlignment(Pos.CENTER_LEFT);
         btn_script_remove.setDisable(true);
         btn_script_remove.setOnAction(event ->
         {
@@ -398,6 +401,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
         btn_file = new Button(Messages.ScriptsDialog_BtnFile, JFXUtil.getIcon("open_file.png"));
         btn_file.setMaxWidth(Double.MAX_VALUE);
+        btn_file.setAlignment(Pos.CENTER_LEFT);
         btn_file.setDisable(true);
         btn_file.setOnAction(event ->
         {
@@ -425,6 +429,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
         btn_embed_py = new Button(Messages.ScriptsDialog_BtnEmbedPy, JFXUtil.getIcon("embedded_script.png"));
         btn_embed_py.setMaxWidth(Double.MAX_VALUE);
+        btn_embed_py.setAlignment(Pos.CENTER_LEFT);
         btn_embed_py.setDisable(true);
         btn_embed_py.setOnAction(event ->
         {
@@ -445,6 +450,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
         btn_embed_js = new Button(Messages.ScriptsDialog_BtnEmbedJS, JFXUtil.getIcon("embedded_script.png"));
         btn_embed_js.setMaxWidth(Double.MAX_VALUE);
+        btn_embed_js.setAlignment(Pos.CENTER_LEFT);
         btn_embed_js.setDisable(true);
         btn_embed_js.setOnAction(event ->
         {
@@ -468,6 +474,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
                                           btn_file, btn_embed_py, btn_embed_js);
         final HBox content = new HBox(10, scripts_table, buttons);
         HBox.setHgrow(scripts_table, Priority.ALWAYS);
+        HBox.setHgrow(buttons, Priority.NEVER);
         return content;
     }
 
@@ -610,6 +617,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         // Buttons
         btn_pv_add = new Button(Messages.Add, JFXUtil.getIcon("add.png"));
         btn_pv_add.setMaxWidth(Double.MAX_VALUE);
+        btn_pv_add.setAlignment(Pos.CENTER_LEFT);
         btn_pv_add.setOnAction(event ->
         {
             final PVItem newItem = new PVItem("", true);
@@ -625,6 +633,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
         btn_pv_remove = new Button(Messages.Remove, JFXUtil.getIcon("delete.png"));
         btn_pv_remove.setMaxWidth(Double.MAX_VALUE);
+        btn_pv_remove.setAlignment(Pos.CENTER_LEFT);
         btn_pv_remove.setDisable(true);
         btn_pv_remove.setOnAction(event ->
         {
@@ -638,11 +647,13 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
         btn_pv_up = new Button(Messages.MoveUp, JFXUtil.getIcon("up.png"));
         btn_pv_up.setMaxWidth(Double.MAX_VALUE);
+        btn_pv_up.setAlignment(Pos.CENTER_LEFT);
         btn_pv_up.setDisable(true);
         btn_pv_up.setOnAction(event -> TableHelper.move_item_up(pvs_table, pv_items));
 
         btn_py_down = new Button(Messages.MoveDown, JFXUtil.getIcon("down.png"));
         btn_py_down.setMaxWidth(Double.MAX_VALUE);
+        btn_py_down.setAlignment(Pos.CENTER_LEFT);
         btn_py_down.setDisable(true);
         btn_py_down.setOnAction(event -> TableHelper.move_item_down(pvs_table, pv_items));
 
@@ -656,6 +667,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         final VBox buttons = new VBox(10, btn_pv_add, btn_pv_remove, btn_pv_up, btn_py_down);
         final HBox pvs_buttons = new HBox(10, pvs_table, buttons);
         HBox.setHgrow(pvs_table, Priority.ALWAYS);
+        HBox.setHgrow(buttons, Priority.NEVER);
 
         final VBox content = new VBox(10, pvs_buttons, btn_check_connections);
         VBox.setVgrow(pvs_buttons, Priority.ALWAYS);
