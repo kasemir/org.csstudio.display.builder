@@ -575,6 +575,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
     {
         // Create table with editable 'name' column
         pvs_name_col = new TableColumn<>(Messages.ScriptsDialog_ColPV);
+        pvs_name_col.setSortable(false);
         pvs_name_col.setCellValueFactory(new PropertyValueFactory<PVItem, String>("name"));
         pvs_name_col.setCellFactory((col) -> new AutoCompletedTableCell(menu));
         pvs_name_col.setOnEditCommit(event ->
@@ -585,6 +586,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         });
 
         pvs_trigger_col = new TableColumn<>(Messages.ScriptsDialog_ColTrigger);
+        pvs_trigger_col.setSortable(false);
         pvs_trigger_col.setCellValueFactory(new PropertyValueFactory<PVItem, Boolean>("trigger"));
         pvs_trigger_col.setCellFactory(CheckBoxTableCell.<PVItem>forTableColumn(pvs_trigger_col));
 
