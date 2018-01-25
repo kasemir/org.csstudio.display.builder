@@ -221,7 +221,13 @@ public class DisplayEditorPart extends EditorPart
 
             final DisplayModel model = editor.getModel();
             if (model != null  &&  !model.isClassModel())
+            {
                 manager.add(new ReloadClassesAction(this));
+
+                if (selection.isEmpty())
+                    manager.add(new SetDisplaySize(editor));
+            }
+
 
             manager.add(perspective);
         });
