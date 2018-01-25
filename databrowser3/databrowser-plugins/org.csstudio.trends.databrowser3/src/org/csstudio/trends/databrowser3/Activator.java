@@ -10,6 +10,9 @@ package org.csstudio.trends.databrowser3;
 import java.util.Dictionary;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -47,8 +50,19 @@ public class Activator extends AbstractUIPlugin
     /** Logger for this plugin */
     public static final Logger logger = Logger.getLogger(PLUGIN_ID);
 
-    /** Thread pool, mostly for fetching archived data */
-    private static final ExecutorService thread_pool = Executors.newCachedThreadPool(new NamedThreadFactory("DataBrowserJobs"));
+    /** Thread pool, mostly for fetching archived data
+    *
+    *  <p>No upper limit for threads.
+    *  Removes all threads after 10 seconds
+    */
+   public static final ScheduledExecutorService thread_pool;
+
+   static
+   {
+       // After 10 seconds, delete all idle threads
+       thread_pool = Executors.newScheduledThreadPool(0, new NamedThreadFactory("DataBrowser"));
+      ((ThreadPoolExecutor)thread_pool).setKeepAliveTime(10, TimeUnit.SECONDS);
+   }
 
     /** {@inheritDoc} */
     @Override
