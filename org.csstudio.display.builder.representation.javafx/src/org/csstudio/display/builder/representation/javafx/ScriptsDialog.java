@@ -43,7 +43,10 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.SplitMenuButton;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -368,6 +371,67 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         scripts_table.setTooltip(new Tooltip(Messages.ScriptsDialog_ScriptsTT));
 
         // Buttons
+        MenuButton addMenuButton = new MenuButton(
+            Messages.Add,
+            JFXUtil.getIcon("add.png"),
+            new MenuItem("Add Python File…", JFXUtil.getIcon("python.png")) {{
+                setOnAction(e -> addPythonFile());
+            }},
+            new MenuItem("Add Jython File…", JFXUtil.getIcon("jython.png")) {{
+                setOnAction(e -> addJythonFile());
+            }},
+            new MenuItem("Add JavaScript File…", JFXUtil.getIcon("javascript.png")) {{
+                setOnAction(e -> addJavaScriptFile());
+            }},
+            new SeparatorMenuItem(),
+            new MenuItem("Add Embedded Jython…", JFXUtil.getIcon("jython.png")) {{
+                setOnAction(e -> addEmbeddedJython());
+            }},
+            new MenuItem("Add Embedded JavaScript…", JFXUtil.getIcon("javascript.png")) {{
+                setOnAction(e -> addEmbeddedJavaScript());
+            }}
+        );
+        addMenuButton.setMaxWidth(Double.MAX_VALUE);
+        addMenuButton.setAlignment(Pos.CENTER_LEFT);
+
+        btn_script_remove = new Button(Messages.Remove, JFXUtil.getIcon("delete.png"));
+        btn_script_remove.setMaxWidth(Double.MAX_VALUE);
+        btn_script_remove.setAlignment(Pos.CENTER_LEFT);
+        btn_script_remove.setDisable(true);
+        btn_script_remove.setOnAction(event ->
+        {
+            final int sel = scripts_table.getSelectionModel().getSelectedIndex();
+            if (sel >= 0)
+            {
+                script_items.remove(sel);
+                fixupScripts(sel);
+            }
+        });
+
+        SplitMenuButton editMenuButton = new SplitMenuButton(
+            new MenuItem("Convert to Python File…", JFXUtil.getIcon("python.png")) {{
+                setOnAction(e -> convertPythonFile());
+            }},
+            new MenuItem("Convert to Jython File…", JFXUtil.getIcon("jython.png")) {{
+                setOnAction(e -> convertJythonFile());
+            }},
+            new MenuItem("Convert to JavaScript File…", JFXUtil.getIcon("javascript.png")) {{
+                setOnAction(e -> convertJavaScriptFile());
+            }},
+            new SeparatorMenuItem(),
+            new MenuItem("Convert to Embedded Jython…", JFXUtil.getIcon("jython.png")) {{
+                setOnAction(e -> convertEmbeddedJython());
+            }},
+            new MenuItem("Convert to Embedded JavaScript…", JFXUtil.getIcon("javascript.png")) {{
+                setOnAction(e -> convertEmbeddedJavaScript());
+            }}
+        );
+        editMenuButton.setMaxWidth(Double.MAX_VALUE);
+        editMenuButton.setAlignment(Pos.CENTER_LEFT);
+
+
+
+
         final Button add = new Button(Messages.Add, JFXUtil.getIcon("add.png"));
         add.setMaxWidth(Double.MAX_VALUE);
         add.setAlignment(Pos.CENTER_LEFT);
@@ -383,20 +447,6 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
             {
                 Platform.runLater(() -> scripts_table.edit(newRow, name_col));
             }, 123, TimeUnit.MILLISECONDS);
-        });
-
-        btn_script_remove = new Button(Messages.Remove, JFXUtil.getIcon("delete.png"));
-        btn_script_remove.setMaxWidth(Double.MAX_VALUE);
-        btn_script_remove.setAlignment(Pos.CENTER_LEFT);
-        btn_script_remove.setDisable(true);
-        btn_script_remove.setOnAction(event ->
-        {
-            final int sel = scripts_table.getSelectionModel().getSelectedIndex();
-            if (sel >= 0)
-            {
-                script_items.remove(sel);
-                fixupScripts(sel);
-            }
         });
 
         btn_file = new Button(Messages.ScriptsDialog_BtnFile, JFXUtil.getIcon("open_file.png"));
@@ -469,9 +519,10 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
             }
         });
 
-        final VBox buttons = new VBox(10, add, btn_script_remove,
-                                          new Separator(Orientation.HORIZONTAL),
-                                          btn_file, btn_embed_py, btn_embed_js);
+        final VBox buttons = new VBox(10, addMenuButton, btn_script_remove, editMenuButton);
+//        final VBox buttons = new VBox(10, add, btn_script_remove,
+//                                          new Separator(Orientation.HORIZONTAL),
+//                                          btn_file, btn_embed_py, btn_embed_js);
         final HBox content = new HBox(10, scripts_table, buttons);
         HBox.setHgrow(scripts_table, Priority.ALWAYS);
         HBox.setHgrow(buttons, Priority.NEVER);
@@ -699,4 +750,45 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
                 pv_items.remove(changed_row);
         }
     }
+
+    private void addEmbeddedJavaScript() {
+
+    }
+
+    private void addEmbeddedJython() {
+
+    }
+
+    private void addJavaScriptFile() {
+
+    }
+
+    private void addJythonFile() {
+
+    }
+
+    private void addPythonFile() {
+
+    }
+
+    private void convertEmbeddedJavaScript() {
+
+    }
+
+    private void convertEmbeddedJython() {
+
+    }
+
+    private void convertJavaScriptFile() {
+
+    }
+
+    private void convertJythonFile() {
+
+    }
+
+    private void convertPythonFile() {
+
+    }
+
 }
