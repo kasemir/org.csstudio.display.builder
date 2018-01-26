@@ -19,8 +19,6 @@ import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -31,7 +29,6 @@ import org.csstudio.apputil.time.PeriodFormat;
 import org.csstudio.apputil.time.RelativeTime;
 import org.csstudio.javafx.rtplot.Annotation;
 import org.csstudio.javafx.rtplot.Trace;
-import org.csstudio.javafx.rtplot.util.NamedThreadFactory;
 import org.csstudio.trends.databrowser3.Activator;
 import org.csstudio.trends.databrowser3.Messages;
 import org.csstudio.trends.databrowser3.SWTMediaPool;
@@ -75,10 +72,6 @@ public abstract class ControllerBase
 
     /** Prevent loop between model and plot when changing their annotations */
     private boolean changing_annotations = false;
-
-    /** Timer that triggers scrolling or trace redraws */
-    final private static ScheduledExecutorService update_timer =
-            Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("DataBrowserUpdates"));
 
     /** Task executed by update_timer.
      *  Only changed on UI thread
@@ -451,7 +444,7 @@ public abstract class ControllerBase
         // Compiler error "schedule(Runnable, long, TimeUnit) is ambiguous"
         // unless specifically casting getArchivedData to Runnable.
         final Runnable fetch = this::getArchivedData;
-        archive_fetch_delay_task = update_timer.schedule(fetch, archive_fetch_delay, TimeUnit.MILLISECONDS);
+        archive_fetch_delay_task = Activator.thread_pool.schedule(fetch, archive_fetch_delay, TimeUnit.MILLISECONDS);
     }
 
     /** Start model items and initiate scrolling/updates
@@ -513,7 +506,7 @@ public abstract class ControllerBase
         }
 
         final long update_delay = (long) (model.getUpdatePeriod() * 1000);
-        update_task = update_timer.scheduleAtFixedRate(this::doUpdate, update_delay, update_delay, TimeUnit.MILLISECONDS);
+        update_task = Activator.thread_pool.scheduleAtFixedRate(this::doUpdate, update_delay, update_delay, TimeUnit.MILLISECONDS);
     }
 
     private void doUpdate()
