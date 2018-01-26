@@ -27,6 +27,7 @@ import org.csstudio.javafx.MultiLineInputDialog;
 import org.csstudio.javafx.TableHelper;
 
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -174,6 +175,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
     /** Table for all scripts */
     private TableView<ScriptItem> scripts_table;
     private TableColumn<ScriptItem, String> scripts_name_col;
+    private TableColumn<ScriptItem, ImageView> scripts_icon_col;
 
     /** Data that is linked to the pvs_table */
     private final ObservableList<PVItem> pv_items = FXCollections.observableArrayList();
@@ -275,7 +277,15 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
                 fixupPVs(0);
 
-                scripts_table.setEditable(!ScriptInfo.isEmbedded(selected.getScriptInfo().getPath()));
+                if ( ScriptInfo.isEmbedded(selected.getScriptInfo().getPath()) ) {
+                    scripts_table.setEditable(false);
+                    btn_edit.setText(Messages.Edit);
+                    btn_edit.setGraphic(JFXUtil.getIcon("edit.png"));
+                } else {
+                    scripts_table.setEditable(true);
+                    btn_edit.setText(Messages.Select);
+                    btn_edit.setGraphic(JFXUtil.getIcon("select-file.png"));
+                }
 
             }
 
@@ -315,7 +325,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         Preferences pref = Preferences.userNodeForPackage(getClass());
         double prefWidth = pref.getDouble("content.width", -1);
         double prefHeight = pref.getDouble("content.height", -1);
-        double prefDividerPosition = pref.getDouble("content.divider.position", 0.4);
+        double prefDividerPosition = pref.getDouble("content.divider.position", 0.5);
         SplitPane splitPane = new SplitPane(scripts, pvs);
 
         splitPane.setOrientation(Orientation.HORIZONTAL);
@@ -333,11 +343,14 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
     private Region createScriptsTable()
     {
 
-        TableColumn<ScriptItem, ImageView> icon_col = new TableColumn<>();
-        icon_col.setCellValueFactory(cdf-> new SimpleObjectProperty<ImageView>(getScriptImage(cdf.getValue())));
-        icon_col.setEditable(false);
-        icon_col.setMaxWidth(25);
-        icon_col.setMinWidth(25);
+        scripts_icon_col = new TableColumn<>();
+        scripts_icon_col.setCellValueFactory(cdf-> new SimpleObjectProperty<ImageView>(getScriptImage(cdf.getValue())) {{
+            bind(Bindings.createObjectBinding(() -> getScriptImage(cdf.getValue()), cdf.getValue().fileProperty()));
+        }});
+        scripts_icon_col.setEditable(false);
+        scripts_icon_col.setSortable(false);
+        scripts_icon_col.setMaxWidth(25);
+        scripts_icon_col.setMinWidth(25);
 
         // Create table with editable script 'file' column
         scripts_name_col = new TableColumn<>(Messages.ScriptsDialog_ColScript);
@@ -378,7 +391,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         });
 
         scripts_table = new TableView<>(script_items);
-        scripts_table.getColumns().add(icon_col);
+        scripts_table.getColumns().add(scripts_icon_col);
         scripts_table.getColumns().add(scripts_name_col);
         scripts_table.setEditable(true);
         scripts_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -437,6 +450,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         btn_edit.setText(Messages.Select);
         btn_edit.setGraphic(JFXUtil.getIcon("select-file.png"));
         btn_edit.setMaxWidth(Double.MAX_VALUE);
+        btn_edit.setMinWidth(120);
         btn_edit.setAlignment(Pos.CENTER_LEFT);
         btn_edit.setDisable(true);
         btn_edit.setOnAction(e -> editOrSelect());
@@ -612,6 +626,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
         btn_pv_remove = new Button(Messages.Remove, JFXUtil.getIcon("delete.png"));
         btn_pv_remove.setMaxWidth(Double.MAX_VALUE);
+        btn_pv_remove.setMinWidth(96);
         btn_pv_remove.setAlignment(Pos.CENTER_LEFT);
         btn_pv_remove.setDisable(true);
         btn_pv_remove.setOnAction(event ->
@@ -719,13 +734,35 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
     private void convertToEmbeddedJavaScript() {
 
+        if ( selected_script_item.text == null
+          || selected_script_item.text.trim().isEmpty()
+          || selected_script_item.text.trim().equals(ScriptInfo.EXAMPLE_PYTHON) ) {
+            selected_script_item.text = ScriptInfo.EXAMPLE_JAVASCRIPT;
+        }
+
+        selected_script_item.file.set(ScriptInfo.EMBEDDED_JAVASCRIPT);
+
     }
 
     private void convertToEmbeddedJython() {
 
+        if ( selected_script_item.text == null
+          || selected_script_item.text.trim().isEmpty()
+          || selected_script_item.text.trim().equals(ScriptInfo.EXAMPLE_JAVASCRIPT) ) {
+            selected_script_item.text = ScriptInfo.EXAMPLE_PYTHON;
+        }
+
+        selected_script_item.file.set(ScriptInfo.EMBEDDED_PYTHON);
+
     }
 
     private void convertToJavaScriptFile() {
+
+//        String path = selected_script_item.file.get();
+//
+//        if ( path.toLowerCase().endsWith(".py") ) {
+//            selected_script_item.file.set();
+//        }
 
     }
 
@@ -734,6 +771,45 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
     }
 
     private void editOrSelect() {
+
+        if ( Messages.Select.equals(btn_edit.getText()) ) {
+
+            try {
+                // Use the script file name, except if that's the example name,
+                // because it doesn't exist and file dialog will then start
+                // in some random directory instead of the display file's dir.
+                String initial = selected_script_item.file.get();
+
+                if ( Messages.ScriptsDialog_DefaultScriptFile.equals(initial) ) {
+                    initial = "";
+                }
+
+                final String path = FilenameSupport.promptForRelativePath(widget, initial);
+
+                if ( path != null ) {
+                    selected_script_item.file.set(path);
+                    selected_script_item.text = null;
+                }
+
+            } catch ( Exception ex ) {
+                logger.log(Level.WARNING, "Cannot prompt for filename", ex);
+            }
+
+            FilenameSupport.performMostAwfulTerribleNoGoodHack(scripts_table);
+
+        } else {
+
+            final MultiLineInputDialog dlg = new MultiLineInputDialog(scripts_table, selected_script_item.text);
+
+            DialogHelper.positionDialog(dlg, btn_edit, -300, -200);
+
+            final Optional<String> result = dlg.showAndWait();
+
+            if ( result.isPresent() ) {
+                selected_script_item.text = result.get();
+            }
+
+        }
 
     }
 
