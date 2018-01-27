@@ -34,7 +34,7 @@ public class Messages extends NLS
     public static String ActionsDialog_Value;
     public static String Add;
     public static String AddEmbeddedJavaScript;
-    public static String AddEmbeddedJython;
+    public static String AddEmbeddedPython;
     public static String AddJavaScriptFile;
     public static String AddPythonFile;
     public static String ColorMap_Custom;
@@ -48,9 +48,8 @@ public class Messages extends NLS
     public static String ColorMapDialog_Value;
     public static String Column;
     public static String ConvertToEmbeddedJavaScript;
-    public static String ConvertToEmbeddedJython;
-    public static String ConvertToJavaScriptFile;
-    public static String ConvertToPythonFile;
+    public static String ConvertToEmbeddedPython;
+    public static String ConvertToScriptFile;
     public static String Copy;
     public static String Edit;
     public static String FileTypeAll;

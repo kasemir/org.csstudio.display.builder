@@ -176,6 +176,15 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
     private TableView<ScriptItem> scripts_table;
     private TableColumn<ScriptItem, String> scripts_name_col;
     private TableColumn<ScriptItem, ImageView> scripts_icon_col;
+    private MenuItem convertToFileMenuItem = new MenuItem(Messages.ConvertToScriptFile, JFXUtil.getIcon("file.png")) {{
+        setOnAction(e -> convertToScriptFile());
+    }};
+    private MenuItem convertToEmbeddedPythonMenuItem = new MenuItem(Messages.ConvertToEmbeddedPython, JFXUtil.getIcon("python.png")) {{
+        setOnAction(e -> convertToEmbeddedPython());
+    }};
+    private MenuItem convertToEmbeddedJavaScriptMenuItem = new MenuItem(Messages.ConvertToEmbeddedJavaScript, JFXUtil.getIcon("javascript.png")) {{
+        setOnAction(e -> convertToEmbeddedJavaScript());
+    }};
 
     /** Data that is linked to the pvs_table */
     private final ObservableList<PVItem> pv_items = FXCollections.observableArrayList();
@@ -278,13 +287,32 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
                 fixupPVs(0);
 
                 if ( ScriptInfo.isEmbedded(selected.getScriptInfo().getPath()) ) {
+
                     scripts_table.setEditable(false);
                     btn_edit.setText(Messages.Edit);
                     btn_edit.setGraphic(JFXUtil.getIcon("edit.png"));
+
+                    if ( ScriptInfo.isJython(selected.getScriptInfo().getPath()) ) {
+                        convertToFileMenuItem.setDisable(false);
+                        convertToEmbeddedPythonMenuItem.setDisable(true);
+                        convertToEmbeddedJavaScriptMenuItem.setDisable(false);
+                    } else if ( ScriptInfo.isJavaScript(selected.getScriptInfo().getPath()) ) {
+                        convertToFileMenuItem.setDisable(false);
+                        convertToEmbeddedPythonMenuItem.setDisable(false);
+                        convertToEmbeddedJavaScriptMenuItem.setDisable(true);
+                    } else {
+                        convertToFileMenuItem.setDisable(true);
+                        convertToEmbeddedPythonMenuItem.setDisable(true);
+                        convertToEmbeddedJavaScriptMenuItem.setDisable(true);
+                    }
+
                 } else {
                     scripts_table.setEditable(true);
                     btn_edit.setText(Messages.Select);
                     btn_edit.setGraphic(JFXUtil.getIcon("select-file.png"));
+                    convertToFileMenuItem.setDisable(true);
+                    convertToEmbeddedPythonMenuItem.setDisable(false);
+                    convertToEmbeddedJavaScriptMenuItem.setDisable(false);
                 }
 
             }
@@ -401,14 +429,14 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         MenuButton addMenuButton = new MenuButton(
             Messages.Add,
             JFXUtil.getIcon("add.png"),
-            new MenuItem(Messages.AddPythonFile, JFXUtil.getIcon("python.png")) {{
+            new MenuItem(Messages.AddPythonFile, JFXUtil.getIcon("file-python.png")) {{
                 setOnAction(e -> addPythonFile());
             }},
-            new MenuItem(Messages.AddJavaScriptFile, JFXUtil.getIcon("javascript.png")) {{
+            new MenuItem(Messages.AddJavaScriptFile, JFXUtil.getIcon("file-javascript.png")) {{
                 setOnAction(e -> addJavaScriptFile());
             }},
             new SeparatorMenuItem(),
-            new MenuItem(Messages.AddEmbeddedJython, JFXUtil.getIcon("jython.png")) {{
+            new MenuItem(Messages.AddEmbeddedPython, JFXUtil.getIcon("python.png")) {{
                 setOnAction(e -> addEmbeddedJython());
             }},
             new MenuItem(Messages.AddEmbeddedJavaScript, JFXUtil.getIcon("javascript.png")) {{
@@ -433,19 +461,10 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         });
 
         btn_edit = new SplitMenuButton(
-            new MenuItem(Messages.ConvertToPythonFile, JFXUtil.getIcon("python.png")) {{
-                setOnAction(e -> convertToPythonFile());
-            }},
-            new MenuItem(Messages.ConvertToJavaScriptFile, JFXUtil.getIcon("javascript.png")) {{
-                setOnAction(e -> convertToJavaScriptFile());
-            }},
+            convertToFileMenuItem,
             new SeparatorMenuItem(),
-            new MenuItem(Messages.ConvertToEmbeddedJython, JFXUtil.getIcon("jython.png")) {{
-                setOnAction(e -> convertToEmbeddedJython());
-            }},
-            new MenuItem(Messages.ConvertToEmbeddedJavaScript, JFXUtil.getIcon("javascript.png")) {{
-                setOnAction(e -> convertToEmbeddedJavaScript());
-            }}
+            convertToEmbeddedPythonMenuItem,
+            convertToEmbeddedJavaScriptMenuItem
         );
         btn_edit.setText(Messages.Select);
         btn_edit.setGraphic(JFXUtil.getIcon("select-file.png"));
@@ -741,10 +760,15 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         }
 
         selected_script_item.file.set(ScriptInfo.EMBEDDED_JAVASCRIPT);
+        btn_edit.setText(Messages.Edit);
+        btn_edit.setGraphic(JFXUtil.getIcon("edit.png"));
+        convertToFileMenuItem.setDisable(false);
+        convertToEmbeddedPythonMenuItem.setDisable(false);
+        convertToEmbeddedJavaScriptMenuItem.setDisable(true);
 
     }
 
-    private void convertToEmbeddedJython() {
+    private void convertToEmbeddedPython() {
 
         if ( selected_script_item.text == null
           || selected_script_item.text.trim().isEmpty()
@@ -753,20 +777,31 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         }
 
         selected_script_item.file.set(ScriptInfo.EMBEDDED_PYTHON);
+        btn_edit.setText(Messages.Edit);
+        btn_edit.setGraphic(JFXUtil.getIcon("edit.png"));
+        convertToFileMenuItem.setDisable(false);
+        convertToEmbeddedPythonMenuItem.setDisable(true);
+        convertToEmbeddedJavaScriptMenuItem.setDisable(false);
 
     }
 
-    private void convertToJavaScriptFile() {
+    private void convertToScriptFile() {
 
-//        String path = selected_script_item.file.get();
-//
-//        if ( path.toLowerCase().endsWith(".py") ) {
-//            selected_script_item.file.set();
-//        }
+        if ( ScriptInfo.isEmbedded(selected_script_item.getScriptInfo().getPath()) ) {
 
-    }
+            if ( ScriptInfo.isJython(selected_script_item.getScriptInfo().getPath()) ) {
+                selected_script_item.fileProperty().set(Messages.ScriptsDialog_PythonScriptFile);
+            } else {
+                selected_script_item.fileProperty().set(Messages.ScriptsDialog_JavaScriptScriptFile);
+            }
 
-    private void convertToPythonFile() {
+            btn_edit.setText(Messages.Select);
+            btn_edit.setGraphic(JFXUtil.getIcon("select-file.png"));
+            convertToFileMenuItem.setDisable(true);
+            convertToEmbeddedPythonMenuItem.setDisable(false);
+            convertToEmbeddedJavaScriptMenuItem.setDisable(false);
+
+        }
 
     }
 
@@ -831,19 +866,19 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
             if ( ScriptInfo.isJavaScript(path) ) {
                 return JFXUtil.getIcon("javascript.png");
             } else if ( ScriptInfo.isJython(path) ) {
-                return JFXUtil.getIcon("jython.png");
+                return JFXUtil.getIcon("python.png");
             } else {
                 //  It should never happen.
                 return JFXUtil.getIcon("unknown.png");
             }
         } else {
             if ( ScriptInfo.isJavaScript(path) ) {
-                return JFXUtil.getIcon("javascript.png");
+                return JFXUtil.getIcon("file-javascript.png");
             } else if ( ScriptInfo.isJython(path) ) {
-                return JFXUtil.getIcon("python.png");
+                return JFXUtil.getIcon("file-python.png");
             } else {
                 //  It should never happen.
-                return JFXUtil.getIcon("unknown.png");
+                return JFXUtil.getIcon("file-unknown.png");
             }
         }
 
