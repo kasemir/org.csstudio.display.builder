@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -275,8 +275,8 @@ public class EmbeddedDisplayWidget extends VisibleWidget
         properties.add(resize = propResize.createProperty(this, Resize.None));
         properties.add(group_name = propGroupName.createProperty(this, ""));
         properties.add(embedded_model = runtimeModel.createProperty(this, null));
-        BorderSupport.addBorderProperties(this, properties);
         properties.add(transparent = propTransparent.createProperty(this, false));
+        BorderSupport.addBorderProperties(this, properties);
 
         // Initial size
         propWidth().setValue(300);
@@ -313,6 +313,12 @@ public class EmbeddedDisplayWidget extends VisibleWidget
         return embedded_model;
     }
 
+    /** @return 'transparent' property */
+    public WidgetProperty<Boolean> propTransparent()
+    {
+        return transparent;
+    }
+
     @Override
     public WidgetConfigurator getConfigurator(Version persisted_version)
             throws Exception
@@ -329,11 +335,5 @@ public class EmbeddedDisplayWidget extends VisibleWidget
         final Macros base = super.getEffectiveMacros();
         final Macros my_macros = propMacros().getValue();
         return base == null ? my_macros : Macros.merge(base, my_macros);
-    }
-
-    /** @return 'transparent' property */
-    public WidgetProperty<Boolean> propTransparent()
-    {
-        return transparent;
     }
 }
