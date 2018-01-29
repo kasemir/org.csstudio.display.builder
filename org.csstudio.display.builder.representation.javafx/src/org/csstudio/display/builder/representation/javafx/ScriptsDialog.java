@@ -23,6 +23,7 @@ import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.ScriptPV;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.javafx.DialogHelper;
+import org.csstudio.javafx.LineNumberTableCellFactory;
 import org.csstudio.javafx.MultiLineInputDialog;
 import org.csstudio.javafx.TableHelper;
 
@@ -592,7 +593,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
         indexColumn.setEditable(false);
         indexColumn.setSortable(false);
-        indexColumn.setCellFactory(new LineNumberCellFactory<>(true));
+        indexColumn.setCellFactory(new LineNumberTableCellFactory<>(true));
         indexColumn.setMaxWidth(26);
         indexColumn.setMinWidth(26);
 
