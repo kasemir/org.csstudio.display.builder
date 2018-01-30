@@ -202,7 +202,8 @@ public class PropertyPanelSection extends GridPane
                 {
                     final Image image = new Image(WidgetFactory.getInstance().getWidgetDescriptor(type).getIconStream());
                     final ImageView icon = new ImageView(image);
-                    field = new Label(String.valueOf(property.getValue()), icon);
+                    final String name = WidgetFactory.getInstance().getWidgetDescriptor(type).getName();
+                    field = new Label(name, icon);
                 }
                 catch (Exception ex)
                 {   //  Some widgets have no icon (e.g. DisplayModel).
