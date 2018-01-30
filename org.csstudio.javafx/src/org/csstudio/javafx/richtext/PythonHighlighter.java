@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
@@ -39,7 +40,7 @@ public class PythonHighlighter implements LanguageHighlighter {
     private static final String BRACE_PATTERN = "\\{|\\}";
     private static final String BRACKET_PATTERN = "\\[|\\]";
     private static final String COLON_PATTERN = "\\:";
-    private static final String STRING_PATTERN = "\"\"\"(.|\\R)*?\"\"\"" + "|" + "'''(.|\\R)*?'''" + "|" + "\"([^\"\\\\]|\\\\.)*\"" + "|" + "\'([^\"\\\\]|\\\\.)*\'";
+    private static final String STRING_PATTERN = "\"\"\"(.|\\R)*?\"\"\"" + "|" + "'''(.|\\R)*?'''" + "|" + "\"([^\"\\\\]|\\\\.)*\"" + "|" + "\'([^\'\\\\]|\\\\.)*\'";
     private static final String COMMENT_PATTERN = "#[^\n]*";
 
     private static final Pattern PATTERN = Pattern.compile(
@@ -67,7 +68,7 @@ public class PythonHighlighter implements LanguageHighlighter {
                               : matcher.group("BRACKET") != null ? "bracket"
                               : matcher.group("COLON") != null ? "colon"
                               : matcher.group("STRING") != null ? "string"
-                              : matcher.group("COMMENT") != null ? "comment"
+                                      : matcher.group("COMMENT") != null ? "comment"
                               : null;
 
             //  It should never happen.
@@ -88,12 +89,12 @@ public class PythonHighlighter implements LanguageHighlighter {
 
     @Override
     public void installStylesheets( CodeArea area ) {
-        area.getStylesheets().add("/styles/python-keywords.css");
+        area.getStylesheets().add(PythonHighlighter.class.getResource("python-keywords.css").toExternalForm());
     }
 
     @Override
     public void uninstallStylesheets( CodeArea area ) {
-        area.getStylesheets().remove("/styles/python-keywords.css");
+        area.getStylesheets().remove(PythonHighlighter.class.getResource("python-keywords.css").toExternalForm());
     }
 
 }

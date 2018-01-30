@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
@@ -91,12 +92,12 @@ public class JavaHighlighter implements LanguageHighlighter {
 
     @Override
     public void installStylesheets( CodeArea area ) {
-        area.getStylesheets().add("/styles/java-keywords.css");
+        area.getStylesheets().add(JavaHighlighter.class.getResource("java-keywords.css").toExternalForm());
     }
 
     @Override
     public void uninstallStylesheets( CodeArea area ) {
-        area.getStylesheets().remove("/styles/java-keywords.css");
+        area.getStylesheets().remove(JavaHighlighter.class.getResource("java-keywords.css").toExternalForm());
     }
 
 }

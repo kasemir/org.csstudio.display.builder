@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
@@ -43,7 +44,7 @@ public class JavaScriptHighlighter implements LanguageHighlighter {
     private static final String BRACE_PATTERN = "\\{|\\}";
     private static final String BRACKET_PATTERN = "\\[|\\]";
     private static final String SEMICOLON_PATTERN = "\\;";
-    private static final String STRING_PATTERN = "\"([^\"\\\\]|\\\\.)*\"" + "|" + "\'([^\"\\\\]|\\\\.)*\'";
+    private static final String STRING_PATTERN = "\"([^\"\\\\]|\\\\.)*\"" + "|" + "\'([^\'\\\\]|\\\\.)*\'";
     private static final String COMMENT_PATTERN = "//[^\n]*" + "|" + "/\\*(.|\\R)*?\\*/";
 
     private static final Pattern PATTERN = Pattern.compile(
@@ -92,12 +93,12 @@ public class JavaScriptHighlighter implements LanguageHighlighter {
 
     @Override
     public void installStylesheets( CodeArea area ) {
-        area.getStylesheets().add("/styles/java-keywords.css");
+        area.getStylesheets().add(JavaScriptHighlighter.class.getResource("javascript-keywords.css").toExternalForm());
     }
 
     @Override
     public void uninstallStylesheets( CodeArea area ) {
-        area.getStylesheets().remove("/styles/java-keywords.css");
+        area.getStylesheets().remove(JavaScriptHighlighter.class.getResource("javascript-keywords.css").toExternalForm());
     }
 
 }

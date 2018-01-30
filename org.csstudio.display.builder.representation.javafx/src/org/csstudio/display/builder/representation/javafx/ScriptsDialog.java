@@ -24,7 +24,8 @@ import org.csstudio.display.builder.model.properties.ScriptPV;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.javafx.DialogHelper;
 import org.csstudio.javafx.LineNumberTableCellFactory;
-import org.csstudio.javafx.MultiLineInputDialog;
+import org.csstudio.javafx.SyntaxHighlightedMultiLineInputDialog;
+import org.csstudio.javafx.SyntaxHighlightedMultiLineInputDialog.Language;
 import org.csstudio.javafx.TableHelper;
 
 import javafx.application.Platform;
@@ -242,7 +243,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
         setOnHidden(event ->
         {
-            final Preferences pref = Preferences.userNodeForPackage(getClass());
+            final Preferences pref = Preferences.userNodeForPackage(ScriptsDialog.class);
             pref.putDouble("content.width", content.getWidth());
             pref.putDouble("content.height", content.getHeight());
             pref.putDouble("content.divider.position", content.getDividerPositions()[0]);
@@ -351,7 +352,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         scripts.setPadding(new Insets(0, 10, 0, 0));
         pvs.setPadding(new Insets(0, 0, 0, 10));
 
-        Preferences pref = Preferences.userNodeForPackage(getClass());
+        Preferences pref = Preferences.userNodeForPackage(ScriptsDialog.class);
         double prefWidth = pref.getDouble("content.width", -1);
         double prefHeight = pref.getDouble("content.height", -1);
         double prefDividerPosition = pref.getDouble("content.divider.position", 0.5);
@@ -719,7 +720,19 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
             if ( ScriptInfo.isEmbedded(file) ) {
                 Platform.runLater( ( ) ->  {
 
-                    final MultiLineInputDialog dlg = new MultiLineInputDialog(scripts_table, selected_script_item.text);
+                    final Language language;
+
+                    if ( ScriptInfo.isJython(selected_script_item.getScriptInfo().getPath()) ) {
+                        language = Language.Python;
+                    } else {
+                        language = Language.JavaScript;
+                    }
+
+                    final SyntaxHighlightedMultiLineInputDialog dlg = new SyntaxHighlightedMultiLineInputDialog(
+                        scripts_table,
+                        selected_script_item.text,
+                        language
+                    );
 
                     DialogHelper.positionDialog(dlg, btn_edit, -300, -200);
 
@@ -728,6 +741,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
                     if ( result.isPresent() ) {
                         selected_script_item.text = result.get();
                     }
+
                 });
             } else {
                 Platform.runLater( ( ) -> scripts_table.edit(newRow, scripts_name_col));
@@ -835,7 +849,19 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
         } else {
 
-            final MultiLineInputDialog dlg = new MultiLineInputDialog(scripts_table, selected_script_item.text);
+            final Language language;
+
+            if ( ScriptInfo.isJython(selected_script_item.getScriptInfo().getPath()) ) {
+                language = Language.Python;
+            } else {
+                language = Language.JavaScript;
+            }
+
+            final SyntaxHighlightedMultiLineInputDialog dlg = new SyntaxHighlightedMultiLineInputDialog(
+                scripts_table,
+                selected_script_item.text,
+                language
+            );
 
             DialogHelper.positionDialog(dlg, btn_edit, -300, -200);
 
