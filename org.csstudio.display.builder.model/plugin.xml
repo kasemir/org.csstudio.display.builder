@@ -441,6 +441,17 @@
          </alternates>
       </widget>
       <widget
+            category="CONTROL"
+            class="org.csstudio.display.builder.model.widgets.ThumbWheelWidget"
+            description="%ThumbWheelWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/thumbwheel.png"
+            name="%ThumbWheelWidget_Name"
+            type="thumbwheel">
+         <alternates
+               type="org.csstudio.opibuilder.widgets.ThumbWheel">
+         </alternates>
+      </widget>
+      <widget
             category="MISC"
             class="org.csstudio.display.builder.model.widgets.WebBrowserWidget"
             description="%WebBrowserWidget_Description"

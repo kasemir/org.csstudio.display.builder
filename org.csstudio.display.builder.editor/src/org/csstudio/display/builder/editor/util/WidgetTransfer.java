@@ -34,8 +34,6 @@ import javax.swing.text.Document;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.rtf.RTFEditorKit;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.EditorUtil;
 import org.csstudio.display.builder.editor.Messages;
@@ -160,7 +158,7 @@ public class WidgetTransfer {
             final int width = widget.propWidth().getValue();
             final int height = widget.propHeight().getValue();
 
-            db.setDragView(createDragImage(widget, image, width, height), width / 2, -height / 2);
+            db.setDragView(createDragImage(widget, image, width, height), 0, 0);
             event.consume();
 
         });
@@ -249,6 +247,26 @@ public class WidgetTransfer {
 
     }
 
+    /** @param file File
+     *  @return File extension or ""
+     */
+    private static String getExtension(final File file)
+    {
+        return getExtension(file.getName());
+    }
+
+    /** @param name File name
+     *  @return File extension or ""
+     */
+    private static String getExtension(final String name)
+    {
+        final int sep = name.lastIndexOf('.');
+        if (sep >= 0)
+            return name.substring(sep+1);
+        return "";
+    }
+
+
     /**
      * Return {@code true} if there is a {@link File} in {@code files}
      * whose extension is one of the {@link #SUPPORTED_EXTENSIONS}.
@@ -263,12 +281,11 @@ public class WidgetTransfer {
      */
     private static boolean canAcceptFiles ( final List<File> files ) {
 
-        if ( files != null && !files.isEmpty() ) {
-            return files.stream().anyMatch(f -> SUPPORTED_EXTENSIONS.contains(FilenameUtils.getExtension(f.toString()).toUpperCase()));
-        }
+        for (File file : files)
+            if (SUPPORTED_EXTENSIONS.contains(getExtension(file).toUpperCase()))
+                return true;
 
         return false;
-
     }
 
     /**
@@ -499,7 +516,7 @@ public class WidgetTransfer {
 
         final List<File> files = db.getFiles();
 
-        if ( files.size() > 1 && files.stream().allMatch(f -> IMAGE_FILE_EXTENSIONS.contains(FilenameUtils.getExtension(f.toString()).toUpperCase())) ) {
+        if ( files.size() > 1 && files.stream().allMatch(f -> IMAGE_FILE_EXTENSIONS.contains(getExtension(f.toString()).toUpperCase())) ) {
 
             final List<String> fileNames = new ArrayList<>(files.size());
 
@@ -510,7 +527,7 @@ public class WidgetTransfer {
             for ( int i = 0; i < files.size(); i++ ) {
 
                 final String fileName = resolveFile(files.get(i), selection_tracker.getModel());
-                final String extension = FilenameUtils.getExtension(fileName).toUpperCase();
+                final String extension = getExtension(fileName).toUpperCase();
 
                 if ( IMAGE_FILE_EXTENSIONS.contains(extension) ) {
                     installPictureWidgetFromFile(fileName, selection_tracker, widgets, updates);
@@ -651,7 +668,7 @@ public class WidgetTransfer {
             widget.propText().setValue(text);
             widgets.add(widget);
 
-        } else {   // Parse choice back into widget descriptor
+        } else {   // Parse selection back into widget descriptor
 
             final MessageFormat msgf = new MessageFormat(format);
             final String descriptorName;
@@ -756,7 +773,7 @@ public class WidgetTransfer {
             dialog.setY(event.getScreenY());
 
             dialog.setTitle(Messages.WT_FromURL_dialog_title);
-            dialog.setHeaderText(NLS.bind(Messages.WT_FromURL_dialog_headerFMT, reduceURL(url)));
+            dialog.setHeaderText(NLS.bind(Messages.WT_FromURL_dialog_headerFMT, reduceString(url)));
             dialog.setContentText(Messages.WT_FromURL_dialog_content);
 
             final Optional<String> result = dialog.showAndWait();
@@ -815,7 +832,7 @@ public class WidgetTransfer {
         if ( text.length() <= 64 ) {
             return text;
         } else {
-            return StringUtils.join(StringUtils.left(text, 32), "...", StringUtils.right(text, 32));
+            return text.substring(0, 32) + "..." + text.substring(text.length() - 32);
         }
     }
 
@@ -846,73 +863,6 @@ public class WidgetTransfer {
         builder.deleteCharAt(builder.length() - 1);
 
         return builder.toString();
-
-    }
-
-    /**
-     * Return a reduced version of the given {@code url}.
-     *
-     * @param url An URL string that, if long, must be reduced
-     *            to a shorter version to be displayed.
-     * @return A reduced version of the given {@code url}.
-     */
-    private static String reduceURL ( String url ) {
-
-        if ( url.length() > 64 ) {
-
-            String shortURL = url;
-            int leftSlash = 2;
-            int rightSlash = 2;
-
-            if ( url.contains("://") ) {
-                leftSlash += 2;
-            } else if ( url.startsWith("/") ) {
-                leftSlash += 1;
-            }
-
-            if ( StringUtils.countMatches(url, '/') > ( leftSlash + rightSlash ) ) {
-
-                shortURL = reduceURL(url, leftSlash, rightSlash);
-
-                if ( shortURL.length() <= 80 ) {
-                    return shortURL;
-                }
-
-            }
-
-            if ( shortURL.length() > 64 ) {
-
-                leftSlash--;
-                rightSlash--;
-
-                if ( StringUtils.countMatches(url, '/') > ( leftSlash + rightSlash ) ) {
-
-                    shortURL = reduceURL(url, leftSlash, rightSlash);
-
-                    if ( shortURL.length() <= 80 ) {
-                        return shortURL;
-                    }
-
-                }
-
-            }
-
-            if ( shortURL.length() > 64 ) {
-                return StringUtils.join(StringUtils.left(url, 32), "...", StringUtils.right(url, 32));
-            }
-
-        }
-
-        return url;
-
-    }
-
-    private static String reduceURL ( String url, int leftSlash, int rightSlash ) {
-
-        int leftSlashIndex = StringUtils.ordinalIndexOf(url, "/", leftSlash);
-        int rightSlashIndex = StringUtils.ordinalIndexOf(StringUtils.reverse(url), "/", rightSlash);
-
-        return StringUtils.join(StringUtils.left(url, leftSlashIndex + 1), "...", StringUtils.right(url, rightSlashIndex + 1));
 
     }
 

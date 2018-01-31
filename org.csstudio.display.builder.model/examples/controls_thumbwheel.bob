@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="2.0.0">
+  <name>Thumb Wheel Widget</name>
+  <width>630</width>
+  <height>420</height>
+  <actions execute_as_one="true">
+  </actions>
+  <widget type="thumbwheel" version="2.0.0">
+    <name>Thumb Wheel_1</name>
+    <pv_name>loc://thumb-wheel-pv&lt;VDouble&gt;(12.345)</pv_name>
+    <x>20</x>
+    <y>170</y>
+    <width>390</width>
+    <height>100</height>
+    <font>
+      <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
+      </font>
+    </font>
+    <limits_from_pv>false</limits_from_pv>
+    <minimum>-10000.0</minimum>
+    <maximum>10000.0</maximum>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label</name>
+    <class>TITLE</class>
+    <text>Knob Widget</text>
+    <x use_class="true">0</x>
+    <y use_class="true">0</y>
+    <width>550</width>
+    <height>31</height>
+    <font use_class="true">
+      <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
+      </font>
+    </font>
+    <foreground_color use_class="true">
+      <color name="Text" red="0" green="0" blue="0">
+      </color>
+    </foreground_color>
+    <transparent use_class="true">true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_1</name>
+    <text>Knob widgets allow to write in a PV and monitorig the current value.</text>
+    <y>50</y>
+    <width>620</width>
+  </widget>
+  <widget type="polyline" version="2.0.0">
+    <name>Polyline_4</name>
+    <x>204</x>
+    <y>118</y>
+    <width>61</width>
+    <height>60</height>
+    <arrows>2</arrows>
+    <points>
+      <point x="61.0" y="0.0">
+      </point>
+      <point x="0.0" y="60.0">
+      </point>
+    </points>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_4</name>
+    <text>Background Color</text>
+    <x>230</x>
+    <y>98</y>
+    <width>121</width>
+  </widget>
+  <widget type="polyline" version="2.0.0">
+    <name>Polyline_5</name>
+    <x>395</x>
+    <y>220</y>
+    <width>65</width>
+    <height>1</height>
+    <arrows>2</arrows>
+    <points>
+      <point x="65.0" y="0.0">
+      </point>
+      <point x="0.0" y="1.0">
+      </point>
+    </points>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_5</name>
+    <text>Font, Foreground Color</text>
+    <x>467</x>
+    <y>212</y>
+    <width>163</width>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_8</name>
+    <text>When the current value cannot be represented, 'x' are displayed using the Invalid Color property.
+
+Use SHIFT+Arrow Keys to navigate the buttons, pressing SPACE to operate on it.
+</text>
+    <y>340</y>
+    <width>630</width>
+    <height>60</height>
+  </widget>
+  <widget type="polyline" version="2.0.0">
+    <name>Polyline_7</name>
+    <x>55</x>
+    <y>280</y>
+    <width>120</width>
+    <height>1</height>
+    <points>
+      <point x="130.0" y="0.0">
+      </point>
+      <point x="0.0" y="1.0">
+      </point>
+    </points>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_7</name>
+    <text>Integer Digits</text>
+    <x>55</x>
+    <y>290</y>
+    <width>130</width>
+    <horizontal_alignment>1</horizontal_alignment>
+  </widget>
+  <widget type="polyline" version="2.0.0">
+    <name>Polyline_8</name>
+    <x>215</x>
+    <y>280</y>
+    <width>180</width>
+    <height>1</height>
+    <points>
+      <point x="195.0" y="0.0">
+      </point>
+      <point x="0.0" y="1.0">
+      </point>
+    </points>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_18</name>
+    <text>Decimal Digits</text>
+    <x>215</x>
+    <y>290</y>
+    <width>195</width>
+    <horizontal_alignment>1</horizontal_alignment>
+  </widget>
+</display>

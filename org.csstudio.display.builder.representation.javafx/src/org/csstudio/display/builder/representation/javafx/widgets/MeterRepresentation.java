@@ -17,6 +17,7 @@ import org.csstudio.display.builder.model.widgets.MeterWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
 import eu.hansolo.medusa.Gauge;
+import eu.hansolo.medusa.Gauge.KnobType;
 import eu.hansolo.medusa.Gauge.NeedleShape;
 import eu.hansolo.medusa.Gauge.NeedleSize;
 import eu.hansolo.medusa.Gauge.NeedleType;
@@ -37,7 +38,6 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
     private final DirtyFlag          dirtyLook      = new DirtyFlag();
     private MeterWidget.Skin         skin           = null;
     private MeterWidget.KnobPosition knobPosition   = null;
-    private MeterWidget.KnobType     knobType       = null;
     private volatile boolean         zonesHighlight = true;
 
     @Override
@@ -124,62 +124,16 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
 
             }
 
-            value = model_widget.propKnobType().getValue();
-
-            if ( !Objects.equals(value,  knobType) ) {
-
-                knobType = (MeterWidget.KnobType) value;
-
-                jfx_node.setKnobType(Gauge.KnobType.valueOf(knobType.name()));
-
-            }
-
-            value = JFXUtil.convert(model_widget.propMajorTickColor().getValue());
-
-            if ( !Objects.equals(value, jfx_node.getMajorTickMarkColor()) ) {
-                jfx_node.setMajorTickMarkColor((Color) value);
-            }
-
-            value = TickMarkType.valueOf(model_widget.propMajorTickType().getValue().name());
-
-            if ( !Objects.equals(value, jfx_node.getMajorTickMarkType()) ) {
-                jfx_node.setMajorTickMarkType((TickMarkType) value);
-            }
-
             value = model_widget.propMajorTickVisible().getValue();
 
             if ( !Objects.equals(value, jfx_node.getMajorTickMarksVisible()) ) {
                 jfx_node.setMajorTickMarksVisible((boolean) value);
             }
 
-            value = JFXUtil.convert(model_widget.propMediumTickColor().getValue());
-
-            if ( !Objects.equals(value, jfx_node.getMediumTickMarkColor()) ) {
-                jfx_node.setMediumTickMarkColor((Color) value);
-            }
-
-            value = TickMarkType.valueOf(model_widget.propMediumTickType().getValue().name());
-
-            if ( !Objects.equals(value, jfx_node.getMediumTickMarkType()) ) {
-                jfx_node.setMediumTickMarkType((TickMarkType) value);
-            }
-
             value = model_widget.propMediumTickVisible().getValue();
 
             if ( !Objects.equals(value, jfx_node.getMediumTickMarksVisible()) ) {
                 jfx_node.setMediumTickMarksVisible((boolean) value);
-            }
-
-            value = JFXUtil.convert(model_widget.propMinorTickColor().getValue());
-
-            if ( !Objects.equals(value, jfx_node.getMinorTickMarkColor()) ) {
-                jfx_node.setMinorTickMarkColor((Color) value);
-            }
-
-            value = TickMarkType.valueOf(model_widget.propMinorTickType().getValue().name());
-
-            if ( !Objects.equals(value, jfx_node.getMinorTickMarkType()) ) {
-                jfx_node.setMinorTickMarkType((TickMarkType) value);
             }
 
             value = model_widget.propMinorTickVisible().getValue();
@@ -193,24 +147,6 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
             if ( !Objects.equals(value, jfx_node.getNeedleColor()) ) {
                 jfx_node.setNeedleColor((Color) value);
                 jfx_node.setNeedleBorderColor(((Color) value).darker());
-            }
-
-            value = NeedleShape.valueOf(model_widget.propNeedleShape().getValue().name());
-
-            if ( !Objects.equals(value, jfx_node.getNeedleShape()) ) {
-                jfx_node.setNeedleShape((NeedleShape) value);
-            }
-
-            value = NeedleSize.valueOf(model_widget.propNeedleSize().getValue().name());
-
-            if ( !Objects.equals(value, jfx_node.getNeedleSize()) ) {
-                jfx_node.setNeedleSize((NeedleSize) value);
-            }
-
-            value = NeedleType.valueOf(model_widget.propNeedleType().getValue().name());
-
-            if ( !Objects.equals(value, jfx_node.getNeedleType()) ) {
-                jfx_node.setNeedleType((NeedleType) value);
             }
 
             value = model_widget.propOnlyExtremaVisible().getValue();
@@ -246,36 +182,6 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
 
             }
 
-            value = model_widget.propShadowsEnabled().getValue();
-
-            if ( !Objects.equals(value, jfx_node.isShadowsEnabled()) ) {
-                jfx_node.setShadowsEnabled((boolean) value);
-            }
-
-            value = model_widget.propThreshold().getValue();
-
-            if ( !Objects.equals(value, jfx_node.getThreshold()) ) {
-                jfx_node.setThreshold((double) value);
-            }
-
-            value = JFXUtil.convert(model_widget.propThresholdColor().getValue());
-
-            if ( !Objects.equals(value, jfx_node.getThresholdColor()) ) {
-                jfx_node.setThresholdColor((Color) value);
-            }
-
-            value = model_widget.propThresholdVisible().getValue();
-
-            if ( !Objects.equals(value, jfx_node.isThresholdVisible()) ) {
-                jfx_node.setThresholdVisible((boolean) value);
-            }
-
-            value = JFXUtil.convert(model_widget.propTickLabelColor().getValue());
-
-            if ( !Objects.equals(value, jfx_node.getTickLabelColor()) ) {
-                jfx_node.setTickLabelColor((Color) value);
-            }
-
             value = model_widget.propTickLabelDecimals().getValue();
 
             if ( !Objects.equals(value, jfx_node.getTickLabelDecimals()) ) {
@@ -288,22 +194,10 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
                 jfx_node.setTickLabelsVisible((boolean) value);
             }
 
-            value = JFXUtil.convert(model_widget.propTickMarkRingColor().getValue());
-
-            if ( !Objects.equals(value, jfx_node.getTickMarkColor()) ) {
-                jfx_node.setTickMarkColor((Color) value);
-            }
-
             value = model_widget.propTickMarkRingVisible().getValue();
 
             if ( !Objects.equals(value, jfx_node.isTickMarkRingVisible()) ) {
                 jfx_node.setTickMarkRingVisible((boolean) value);
-            }
-
-            value = JFXUtil.convert(model_widget.propZeroColor().getValue());
-
-            if ( !Objects.equals(value, jfx_node.getZeroColor()) ) {
-                jfx_node.setZeroColor((Color) value);
             }
 
         }
@@ -327,36 +221,28 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
         jfx_node.setHighlightSections(zonesHighlight);
         jfx_node.setKnobColor(JFXUtil.convert(model_widget.propKnobColor().getValue()));
         jfx_node.setKnobPosition(Pos.valueOf(knobPosition.name()));
-        jfx_node.setKnobType(Gauge.KnobType.valueOf(knobType.name()));
+        jfx_node.setKnobType(KnobType.STANDARD);
         jfx_node.setKnobVisible(true);
-        jfx_node.setMajorTickMarkColor(JFXUtil.convert(model_widget.propMajorTickColor().getValue()));
         jfx_node.setMajorTickMarkLengthFactor(0.515);
-        jfx_node.setMajorTickMarkType(TickMarkType.valueOf(model_widget.propMajorTickType().getValue().name()));
+        jfx_node.setMajorTickMarkType(TickMarkType.LINE);
         jfx_node.setMajorTickMarksVisible(model_widget.propMajorTickVisible().getValue());
-        jfx_node.setMediumTickMarkColor(JFXUtil.convert(model_widget.propMediumTickColor().getValue()));
         jfx_node.setMediumTickMarkLengthFactor(0.475);
-        jfx_node.setMediumTickMarkType(TickMarkType.valueOf(model_widget.propMediumTickType().getValue().name()));
+        jfx_node.setMediumTickMarkType(TickMarkType.LINE);
         jfx_node.setMediumTickMarksVisible(model_widget.propMediumTickVisible().getValue());
-        jfx_node.setMinorTickMarkColor(JFXUtil.convert(model_widget.propMinorTickColor().getValue()));
-        jfx_node.setMinorTickMarkType(TickMarkType.valueOf(model_widget.propMinorTickType().getValue().name()));
+        jfx_node.setMinorTickMarkType(TickMarkType.LINE);
         jfx_node.setMinorTickMarksVisible(model_widget.propMinorTickVisible().getValue());
         jfx_node.setNeedleBorderColor(JFXUtil.convert(model_widget.propNeedleColor().getValue()).darker());
         jfx_node.setNeedleColor(JFXUtil.convert(model_widget.propNeedleColor().getValue()));
-        jfx_node.setNeedleShape(NeedleShape.valueOf(model_widget.propNeedleShape().getValue().name()));
-        jfx_node.setNeedleSize(NeedleSize.valueOf(model_widget.propNeedleSize().getValue().name()));
-        jfx_node.setNeedleType(NeedleType.valueOf(model_widget.propNeedleType().getValue().name()));
+        jfx_node.setNeedleShape(NeedleShape.ANGLED);
+        jfx_node.setNeedleSize(NeedleSize.THIN);
+        jfx_node.setNeedleType(NeedleType.STANDARD);
         jfx_node.setOnlyFirstAndLastTickLabelVisible(model_widget.propOnlyExtremaVisible().getValue());
         jfx_node.setScaleDirection(ScaleDirection.valueOf(model_widget.propScaleDirection().getValue().name()));
-        jfx_node.setShadowsEnabled(model_widget.propShadowsEnabled().getValue());
-        jfx_node.setThreshold(model_widget.propThreshold().getValue());
-        jfx_node.setThresholdColor(JFXUtil.convert(model_widget.propThresholdColor().getValue()));
-        jfx_node.setThresholdVisible(model_widget.propThresholdVisible().getValue());
-        jfx_node.setTickLabelColor(JFXUtil.convert(model_widget.propTickLabelColor().getValue()));
+        jfx_node.setShadowsEnabled(true);
+        jfx_node.setThresholdVisible(false);
         jfx_node.setTickLabelDecimals(model_widget.propTickLabelDecimals().getValue());
         jfx_node.setTickLabelsVisible(model_widget.propTickLabelsVisible().getValue());
-        jfx_node.setTickMarkColor(JFXUtil.convert(model_widget.propTickMarkRingColor().getValue()));
         jfx_node.setTickMarkRingVisible(model_widget.propTickMarkRingVisible().getValue());
-        jfx_node.setZeroColor(JFXUtil.convert(model_widget.propZeroColor().getValue()));
 
         switch ( skin ) {
             case HORIZONTAL:
@@ -400,16 +286,23 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
         try {
 
             knobPosition = model_widget.propKnobPosition().getValue();
-            knobType = model_widget.propKnobType().getValue();
             skin = model_widget.propSkin().getValue();
 
             Gauge gauge = super.createJFXNode();
 
             gauge.setKnobPosition(Pos.valueOf(knobPosition.name()));
-            gauge.setKnobType(Gauge.KnobType.valueOf(knobType.name()));
+            gauge.setKnobType(KnobType.STANDARD);
             gauge.setKnobVisible(true);
             gauge.setMajorTickMarkLengthFactor(0.515);
+            gauge.setMajorTickMarkType(TickMarkType.LINE);
             gauge.setMediumTickMarkLengthFactor(0.475);
+            gauge.setMediumTickMarkType(TickMarkType.LINE);
+            gauge.setMinorTickMarkType(TickMarkType.LINE);
+            gauge.setNeedleShape(NeedleShape.ANGLED);
+            gauge.setNeedleSize(NeedleSize.THIN);
+            gauge.setNeedleType(NeedleType.STANDARD);
+            gauge.setShadowsEnabled(true);
+            gauge.setThresholdVisible(false);
 
             return gauge;
 
@@ -463,33 +356,16 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
         model_widget.propAverageSamples().addUntypedPropertyListener(this::lookChanged);
         model_widget.propKnobColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propKnobPosition().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propKnobType().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propMajorTickColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propMajorTickType().addUntypedPropertyListener(this::lookChanged);
         model_widget.propMajorTickVisible().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propMediumTickColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propMediumTickType().addUntypedPropertyListener(this::lookChanged);
         model_widget.propMediumTickVisible().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propMinorTickColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propMinorTickType().addUntypedPropertyListener(this::lookChanged);
         model_widget.propMinorTickVisible().addUntypedPropertyListener(this::lookChanged);
         model_widget.propNeedleColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propNeedleShape().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propNeedleSize().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propNeedleType().addUntypedPropertyListener(this::lookChanged);
         model_widget.propOnlyExtremaVisible().addUntypedPropertyListener(this::lookChanged);
         model_widget.propScaleDirection().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propShadowsEnabled().addUntypedPropertyListener(this::lookChanged);
         model_widget.propSkin().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propThreshold().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propThresholdColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propThresholdVisible().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propTickLabelColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTickLabelDecimals().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTickLabelsVisible().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propTickMarkRingColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTickMarkRingVisible().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propZeroColor().addUntypedPropertyListener(this::lookChanged);
 
         model_widget.propHighlightZones().addUntypedPropertyListener(this::limitsChanged);
 

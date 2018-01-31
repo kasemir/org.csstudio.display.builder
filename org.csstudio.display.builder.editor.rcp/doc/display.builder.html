@@ -623,6 +623,12 @@ For details on each widget refer to the
 They showcase each widget and explain their key properties.
 </p>
 
+<p>The search field in the palette allows to filter widgets, showing only the ones containing the typed text (case insensitive).
+Pressing the clear button (the small &#10006; button inside the right edge of the search field) will reset the search, 
+displaying all widgets.
+</p>
+
+
 <h3>Graphic Widgets</h3>
 <!-- ============== -->
 
@@ -732,6 +738,12 @@ and then entering the text or pv_name.
 It lists every property of a widget with its current value,
 and except for very few static properties it allows entering or selecting different values.
 </p>
+
+<h3>Search Field</h3>
+
+The search field allows to filter properties, showing only the ones containing the typed text (case insensitive).
+Pressing the clear button (the small &#10006; button inside the right edge of the search field) will reset the search, 
+displaying all properties. Each time a new widget is selected, the search field is automatically reset.
 
 <h3>Property Names</h3>
 
@@ -888,6 +900,15 @@ Example:
 </p>
 <pre>states[0].value</pre>
 <pre>states[1].color</pre>
+
+
+<h3>Boolean and Enumeration Properties</h3>
+
+Boolean and enumeration properties have a combo-box control to select the valid value. In case 
+the property value must contain one or more macros, the <b>Edit Macros</b> button close to the 
+combo-box must be pressed, and the combo-box becomes editable and ready to contain the needed 
+"macroized" value string (see <b>Vertical Alignment</b> property in the figure above).
+
 
 <!-- ====================================================== -->
 <h2><a name="rules">Rules</a></h2>

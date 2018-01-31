@@ -67,6 +67,9 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     private volatile Color background = Color.WHITE,
                            grid = Color.DARK_GRAY;
 
+    /** Opacity (0 .. 100 %) of 'area' */
+    private volatile int opacity = 20;
+
     public static final String FONT_FAMILY = "Liberation Sans";
 
     /** Font to use for, well, title */
@@ -172,6 +175,14 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     public void setBackground(final Color color)
     {
         background = color;
+    }
+
+    /** Opacity (0 .. 100 %) of 'area' */
+    // 'setOpacity', as used in original SWT implementation,
+    // is already used by JFX Node base class
+    public void setAreaOpacity(final int opacity)
+    {
+        this.opacity = opacity;
     }
 
     /** @param color Grid color */
@@ -603,13 +614,11 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         // Fetch x_axis transformation and use that to paint all traces,
         // because X Axis tends to change from scrolling
         // while we're painting traces
-        x_axis.setColor(foreground);
         x_axis.setGridColor(grid);
         x_axis.paint(gc, plot_bounds);
         final ScreenTransform<XTYPE> x_transform = x_axis.getScreenTransform();
         for (YAxisImpl<XTYPE> y_axis : y_axes)
         {
-            y_axis.setColor(foreground);
             y_axis.setGridColor(grid);
             y_axis.paint(gc, plot_bounds);
         }
@@ -619,7 +628,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
 
         for (YAxisImpl<XTYPE> y_axis : y_axes)
             for (Trace<XTYPE> trace : y_axis.getTraces())
-                trace_painter.paint(gc, plot_area.getBounds(), x_transform, y_axis, trace);
+                trace_painter.paint(gc, plot_area.getBounds(), opacity, x_transform, y_axis, trace);
 
         drawPlotMarkers(gc);
         gc.setClip(null);

@@ -21,6 +21,7 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.persist.ModelLoader;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
+import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
@@ -148,6 +149,15 @@ public class EmbeddedDisplayRepresentationUtil
         // Replace display with just the content of that group
         final GroupWidget group = (GroupWidget) groups.get(0);
         model.runtimeChildren().setValue(group.runtimeChildren().getValue());
+
+        // Group model correction - use group background color, not the display background color
+        model.propBackgroundColor().setValue(group.propBackgroundColor().getValue());
+
+        // If the group is transparent, see if the embedding widget can also be
+        if (group.propTransparent().getValue())
+            model_widget.checkProperty(CommonWidgetProperties.propTransparent)
+                        .ifPresent(trans -> trans.setValue(true));
+
         // Not removing children from 'group', since group will be GC'ed anyway.
         shrinkModelToWidgets(model);
     }
@@ -225,6 +235,4 @@ public class EmbeddedDisplayRepresentationUtil
             logger.log(Level.WARNING, message + " for " + model_widget);
         }
     }
-
-
 }

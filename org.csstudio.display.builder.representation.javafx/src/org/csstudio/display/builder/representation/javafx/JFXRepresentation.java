@@ -69,6 +69,7 @@ import org.csstudio.display.builder.model.widgets.TextEntryWidget;
 import org.csstudio.display.builder.model.widgets.TextSymbolWidget;
 import org.csstudio.display.builder.model.widgets.TextUpdateWidget;
 import org.csstudio.display.builder.model.widgets.ThermometerWidget;
+import org.csstudio.display.builder.model.widgets.ThumbWheelWidget;
 import org.csstudio.display.builder.model.widgets.WebBrowserWidget;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget;
 import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget;
@@ -113,6 +114,7 @@ import org.csstudio.display.builder.representation.javafx.widgets.TextEntryRepre
 import org.csstudio.display.builder.representation.javafx.widgets.TextSymbolRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TextUpdateRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.ThermometerRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.ThumbWheelRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.WebBrowserRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.plots.ImageRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.plots.XYPlotRepresentation;
@@ -301,6 +303,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         factories.put(TextSymbolWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new TextSymbolRepresentation());
         factories.put(TextUpdateWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new TextUpdateRepresentation());
         factories.put(ThermometerWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new ThermometerRepresentation());
+        factories.put(ThumbWheelWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new ThumbWheelRepresentation());
         factories.put(WebBrowserWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new WebBrowserRepresentation());
         factories.put(XYPlotWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new XYPlotRepresentation());
     }
@@ -357,8 +360,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     {
         // Fetch css relative to JFXRepresentation, not derived class
         final String css = JFXRepresentation.class.getResource("opibuilder.css").toExternalForm();
-        scene.getStylesheets().add(css);
-
+        Styles.set(scene, css);
         Styles.setSceneStyle(scene);
     }
 
@@ -448,6 +450,20 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
             updateModelSizeIndicators();
 
         return zoom;
+    }
+
+    /** @return Zoom factor, 1.0 for 1:1 */
+    public double getZoom()
+    {
+        final List<Transform> transforms = widget_parent.getTransforms();
+        if (transforms.isEmpty()  ||
+            transforms.size() > 1 ||
+            ! (transforms.get(0) instanceof Scale))
+            return 1.0;
+        // Have one 'scale'
+        final Scale scale = (Scale) transforms.get(0);
+        // Expect scaling in X == Y, but just in case return average
+        return ( scale.getX() + scale.getY() ) / 2.0;
     }
 
     /** Obtain the 'children' of a Toolkit widget parent

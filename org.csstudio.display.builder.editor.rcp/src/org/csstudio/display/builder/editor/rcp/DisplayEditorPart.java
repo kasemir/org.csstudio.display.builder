@@ -208,7 +208,7 @@ public class DisplayEditorPart extends EditorPart
             final List<Widget> selection = editor.getWidgetSelectionHandler().getSelection();
             if (! selection.isEmpty())
             {
-                if (selection.size() > 1)
+                if (selection.size() >= 1)
                     manager.add(new CreateGroupAction(editor, selection));
                 if (selection.size() == 1  &&  selection.get(0) instanceof GroupWidget)
                     manager.add(new RemoveGroupAction(editor, (GroupWidget)selection.get(0)));
@@ -221,7 +221,13 @@ public class DisplayEditorPart extends EditorPart
 
             final DisplayModel model = editor.getModel();
             if (model != null  &&  !model.isClassModel())
+            {
                 manager.add(new ReloadClassesAction(this));
+
+                if (selection.isEmpty())
+                    manager.add(new SetDisplaySize(editor));
+            }
+
 
             manager.add(perspective);
         });

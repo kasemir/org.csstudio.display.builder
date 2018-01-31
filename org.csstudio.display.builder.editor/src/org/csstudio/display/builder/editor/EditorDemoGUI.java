@@ -31,6 +31,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.SplitPane;
@@ -40,7 +41,9 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -70,21 +73,44 @@ public class EditorDemoGUI
 
     private PropertyPanel property_panel;
 
-    final EventHandler<KeyEvent> key_handler = (event) ->
+    // Need mouse location to 'paste' widget,
+    // but key handler does not receive it.
+    // So track mouse in separate mouse listener
+
+    /** Last known mouse location */
+    private int mouse_x, mouse_y;
+
+    /** Track current mouse location inside editor */
+    private final EventHandler<MouseEvent> mouse_tracker = event ->
+    {
+        mouse_x = (int) event.getX();
+        mouse_y = (int) event.getY();
+    };
+
+    final EventHandler<KeyEvent> key_handler = event ->
     {
         final KeyCode code = event.getCode();
-        if (event.isControlDown()  &&  code == KeyCode.Z)
+        // Use Ctrl-C .. except on Mac, where it's Command-C ..
+        final boolean meta = event.isShortcutDown();
+        if (meta  &&  code == KeyCode.Z)
             editor.getUndoableActionManager().undoLast();
-        else if (event.isControlDown()  &&  code == KeyCode.Y)
+        else if (meta  &&  code == KeyCode.Y)
             editor.getUndoableActionManager().redoLast();
-        else if (event.isControlDown()  &&  code == KeyCode.X)
+        else if (meta  &&  code == KeyCode.X)
             editor.cutToClipboard();
-        else if (event.isControlDown()  &&  code == KeyCode.C)
+        else if (meta  &&  code == KeyCode.C)
             editor.copyToClipboard();
-        else if (event.isControlDown()  &&  code == KeyCode.V)
-        {   // Pasting somewhere in upper left corner
-            final Random random = new Random();
-            editor.pasteFromClipboard(random.nextInt(100), random.nextInt(100));
+        else if (meta  &&  code == KeyCode.V)
+        {   // Is mouse inside editor?
+            if (! editor.getContextMenuNode()
+                        .getLayoutBounds()
+                        .contains(mouse_x, mouse_y))
+            {   // Pasting somewhere in upper left corner
+                final Random random = new Random();
+                mouse_x = random.nextInt(100);
+                mouse_y = random.nextInt(100);
+            }
+            editor.pasteFromClipboard(mouse_x, mouse_y);
         }
         else // Pass on, don't consume
             return;
@@ -105,35 +131,33 @@ public class EditorDemoGUI
 
         property_panel = new PropertyPanel(editor);
 
-        final Label status = new Label("Status");
+        // Left: Widget tree
+        Label header = new Label("Widgets");
+        header.setMaxWidth(Double.MAX_VALUE);
+        header.getStyleClass().add("header");
 
-        final SplitPane center = new SplitPane();
-        final Node widgetsTree = tree.create();
-        final Label widgetsHeader = new Label("Widgets");
+        final Control tree_control = tree.create();
+        VBox.setVgrow(tree_control, Priority.ALWAYS);
+        final VBox tree_box = new VBox(header, tree_control);
 
-        widgetsHeader.setMaxWidth(Double.MAX_VALUE);
-        widgetsHeader.getStyleClass().add("header");
-
-        ((VBox) widgetsTree).getChildren().add(0, widgetsHeader);
-
-        final Label propertiesHeader = new Label("Properties");
-
-        propertiesHeader.setMaxWidth(Double.MAX_VALUE);
-        propertiesHeader.getStyleClass().add("header");
-
-        final VBox propertiesBox = new VBox(propertiesHeader, property_panel);
-
-
+        // Center: Editor
         final Node editor_scene = editor.create();
         extendToolbar(editor.getToolBar());
 
-        center.getItems().addAll(widgetsTree, editor_scene, propertiesBox);
-        center.setDividerPositions(0.2, 0.8);
+        // Right: Properties
+        header = new Label("Properties");
+        header.setMaxWidth(Double.MAX_VALUE);
+        header.getStyleClass().add("header");
+        final VBox properties_box = new VBox(header, property_panel);
+
+        final SplitPane center_split = new SplitPane(tree_box, editor_scene, properties_box);
+        center_split.setDividerPositions(0.2, 0.8);
 
         final BorderPane layout = new BorderPane();
-        layout.setCenter(center);
-        layout.setBottom(status);
-        BorderPane.setAlignment(center, Pos.TOP_LEFT);
+        layout.setCenter(center_split);
+        BorderPane.setAlignment(center_split, Pos.TOP_LEFT);
+
+        editor_scene.addEventFilter(MouseEvent.MOUSE_MOVED, mouse_tracker);
 
         layout.addEventFilter(KeyEvent.KEY_PRESSED, key_handler);
 
@@ -161,7 +185,6 @@ public class EditorDemoGUI
         toolbar.getItems().add(new Separator());
         toolbar.getItems().add(debug);
     }
-
 
     private Button createButton(final ActionDescription action)
     {

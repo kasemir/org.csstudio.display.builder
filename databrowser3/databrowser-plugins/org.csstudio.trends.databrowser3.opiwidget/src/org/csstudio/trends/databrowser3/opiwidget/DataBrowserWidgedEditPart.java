@@ -34,6 +34,8 @@ import org.diirt.vtype.VType;
 import org.diirt.vtype.ValueFactory;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Menu;
 
 /** EditPart that interfaces between the {@link DataBrowserWidgetFigure} visible on the screen
  *  and the {@link DataBrowserWidgedModel} that stores the persistent configuration.
@@ -175,15 +177,18 @@ public class DataBrowserWidgedEditPart extends AbstractWidgetEditPart
                     plot_widget.getPlot().addListener(plot_listener);
                 }
 
+
+                // Add context menu to the SWT control
+                // for opening full data browser
                 final MenuManager mm = new MenuManager();
-                //TODO: toolbar and legend actions
-                //mm.add(plot_widget.getPlot().getToolbarAction());
-                //mm.add(plot_widget.getPlot().getLegendAction());
                 mm.add(new OpenDataBrowserAction(this));
-                //TODO: control object in plot
-                //final Control control = plot_widget.getPlot().getPlotControl();
-                //final Menu menu = mm.createContextMenu(control);
-                //control.setMenu(menu);
+                mm.add(new ShowToolbarAction(this));
+                //TODO: legend action
+                //mm.add(plot_widget.getPlot().getLegendAction());
+
+                final Control control = gui.getSWTWidget();
+                final Menu menu = mm.createContextMenu(control);
+                control.setMenu(menu);
             }
             catch (Exception ex)
             {

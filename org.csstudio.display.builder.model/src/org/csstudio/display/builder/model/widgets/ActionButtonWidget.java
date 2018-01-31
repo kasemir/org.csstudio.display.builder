@@ -14,6 +14,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propRotationStep;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propText;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propTransparent;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropPVWritable;
 
 import java.util.Arrays;
@@ -29,6 +30,7 @@ import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
+import org.csstudio.display.builder.model.persist.XMLTags;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.RotationStep;
 import org.csstudio.display.builder.model.properties.WidgetColor;
@@ -69,6 +71,34 @@ public class ActionButtonWidget extends VisibleWidget
         }
     };
 
+    /** Check if XML describes a legacy Menu Button */
+    static boolean isMenuButton(final Element xml)
+    {
+        final String typeId = xml.getAttribute("typeId");
+        return typeId.equals("org.csstudio.opibuilder.widgets.MenuButton");
+    }
+
+    /** Should legacy Menu Button be converted into Combo? */
+    static boolean shouldUseCombo(final Element xml)
+    {
+        // Legacy Menu Button with actions_from_pv set should be handled as combo
+        if (XMLUtil.getChildBoolean(xml, "actions_from_pv").orElse(true))
+            return true;
+
+        // Check for actions
+        final Element el = XMLUtil.getChildElement(xml, "actions");
+        if (el != null  &&
+            XMLUtil.getChildElement(el, XMLTags.ACTION) != null)
+        {
+            // There are actions, so use Action Button
+            return false;
+        }
+        // There are no actions.
+        // Use combo because that will at least show a value for a PV,
+        // while Action Button would do nothing at all.
+        return true;
+    }
+
     /** Custom configurator to read legacy *.opi files */
     private static class ActionButtonConfigurator extends WidgetConfigurator
     {
@@ -81,28 +111,21 @@ public class ActionButtonWidget extends VisibleWidget
         public boolean configureFromXML(final ModelReader model_reader, final Widget widget, final Element xml)
                 throws Exception
         {
-            final String typeId = xml.getAttribute("typeId");
-            final boolean is_menu = typeId.equals("org.csstudio.opibuilder.widgets.MenuButton");
-
-            if (is_menu)
+            if (isMenuButton(xml))
             {
-                //Legacy Menu Buttons with actions from PV should be processed as combo boxes, not action buttons
-                final Element frompv_el = XMLUtil.getChildElement(xml, "actions_from_pv");
-                if ((frompv_el == null) || (XMLUtil.getString(frompv_el).equals("true")))
+                if (shouldUseCombo(xml))
                     return false;
 
-                //Menu buttons used "label" instead of text
+                // Menu buttons used "label" instead of text
                 final Element label_el = XMLUtil.getChildElement(xml, "label");
 
                 if (label_el != null)
                 {
                     final Document doc = xml.getOwnerDocument();
-                    Element the_text = doc.createElement(propText.getName());
+                    final Element the_text = doc.createElement(propText.getName());
 
                     if (label_el.getFirstChild() != null)
-                    {
                         the_text.appendChild(label_el.getFirstChild().cloneNode(true));
-                    }
                     else
                     {
                         Text the_label = doc.createTextNode("Menu Button Label");
@@ -139,8 +162,9 @@ public class ActionButtonWidget extends VisibleWidget
     private volatile WidgetProperty<Boolean> enabled;
     private volatile WidgetProperty<String> text;
     private volatile WidgetProperty<WidgetFont> font;
-    private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<WidgetColor> foreground;
+    private volatile WidgetProperty<WidgetColor> background;
+    private volatile WidgetProperty<Boolean> transparent;
     private volatile WidgetProperty<RotationStep> rotation_step;
     private volatile WidgetProperty<Boolean> pv_writable;
 
@@ -166,6 +190,7 @@ public class ActionButtonWidget extends VisibleWidget
         properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
         properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BUTTON_BACKGROUND)));
+        properties.add(transparent = propTransparent.createProperty(this, false));
         properties.add(rotation_step = propRotationStep.createProperty(this, RotationStep.NONE));
         properties.add(enabled = propEnabled.createProperty(this, true));
         properties.add(pv_writable = runtimePropPVWritable.createProperty(this, true));
@@ -196,16 +221,22 @@ public class ActionButtonWidget extends VisibleWidget
         return font;
     }
 
+    /** @return 'foreground_color' property */
+    public WidgetProperty<WidgetColor> propForegroundColor()
+    {
+        return foreground;
+    }
+
     /** @return 'background_color' property */
     public WidgetProperty<WidgetColor> propBackgroundColor()
     {
         return background;
     }
 
-    /** @return 'foreground_color' property */
-    public WidgetProperty<WidgetColor> propForegroundColor()
+    /** @return 'transparent' property */
+    public WidgetProperty<Boolean> propTransparent()
     {
-        return foreground;
+        return transparent;
     }
 
     /** @return 'rotation_step' property */

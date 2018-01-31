@@ -75,16 +75,16 @@ public abstract class BaseClockRepresentation<W extends BaseClockWidget> extends
 
             if ( value != null ) {
 
-                Locale l = Locale.getDefault();
+                Locale locale = Locale.getDefault();
 
                 try {
-                    l = Locale.forLanguageTag(value.toString());
+                    locale = Locale.forLanguageTag(value.toString());
                 } catch ( Exception ex ) {
                     logger.log(Level.WARNING, "Unable to convert \"{0}\" to a Local instance [{1}].", new Object[] { value.toString(), ex.getMessage()});
                 }
 
-                if ( !l.equals(jfx_node.getLocale()) ) {
-                    jfx_node.setLocale(l);
+                if ( !Objects.equals(locale, jfx_node.getLocale()) ) {
+                    jfx_node.setLocale(locale);
                 }
 
             }

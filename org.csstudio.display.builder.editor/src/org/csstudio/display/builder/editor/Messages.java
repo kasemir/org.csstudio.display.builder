@@ -31,6 +31,7 @@ public class Messages extends NLS
     public static String Grid;
     public static String LoadDisplay;
     public static String LoadDisplay_TT;
+    public static String MacroEditButton;
     public static String MatchHeight;
     public static String MatchWidth;
     public static String MoveDown;
@@ -38,6 +39,7 @@ public class Messages extends NLS
     public static String MoveToFront;
     public static String MoveUp;
     public static String PointCount_Fmt;
+    public static String PropertyFilterTT;
     public static String Redo_TT;
     public static String RemoveElement;
     public static String RemoveGroup;
@@ -46,6 +48,7 @@ public class Messages extends NLS
     public static String SaveDisplay;
     public static String SaveDisplay_TT;
     public static String ScriptCountFMT;
+    public static String SearchTextField;
     public static String SetPropertyFmt;
     public static String SetWidgetPoints;
     public static String ShowCoordinates;
@@ -55,6 +58,7 @@ public class Messages extends NLS
     public static String UpdateWidgetOrder;
     public static String UseWidgetClass_TT;
     public static String UsingWidgetClass_TT;
+    public static String WidgetFilterTT;
     public static String WT_FromString_dialog_content;
     public static String WT_FromString_dialog_headerFMT;
     public static String WT_FromString_dialog_title;

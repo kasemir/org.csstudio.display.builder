@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2017 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@ package org.csstudio.display.builder.representation.javafx;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetFontService;
@@ -17,26 +18,30 @@ import org.csstudio.display.builder.model.properties.NamedWidgetFont;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.csstudio.display.builder.model.properties.WidgetFontStyle;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
+import org.csstudio.javafx.PopOver;
 
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.text.Font;
 
-/** Dialog for selecting a {@link WidgetFont}
+/** PopOver for selecting a {@link WidgetFont}
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class WidgetFontDialog extends Dialog<WidgetFont>
+public class WidgetFontPopOver extends PopOver
 {
     // Sizes are of type double, but comparison of double to set selected element
     // can suffer rounding errors, so use strings
@@ -57,11 +62,14 @@ public class WidgetFontDialog extends Dialog<WidgetFont>
 
     /** Create dialog
      *  @param initial_font Initial {@link WidgetFont}
+     *  @param handle_selected_color Will be called when user selected a color
      */
-    public WidgetFontDialog(final WidgetFont initial_font)
+    public WidgetFontPopOver(final WidgetFont initial_font, final Consumer<WidgetFont> handle_selected_color)
     {
-        setTitle(Messages.FontDialog_Title);
-        setHeaderText(Messages.FontDialog_Info);
+        super(new BorderPane());
+
+        final BorderPane layout = getContentNode();
+        layout.setTop(new Label(Messages.FontDialog_Info));
 
         /* Predefined Fonts    Custom Family   Style  Size
          * [               ]   [            ]  [    ]  ___
@@ -78,18 +86,13 @@ public class WidgetFontDialog extends Dialog<WidgetFont>
         ModelThreadPool.getExecutor().execute(() ->
         {
             final List<String> fams = Font.getFamilies();
-            Platform.runLater(() -> families.getItems().addAll(fams));
-
             final NamedWidgetFonts fonts = WidgetFontService.getFonts();
             final Collection<NamedWidgetFont> values = fonts.getFonts();
             Platform.runLater(() ->
             {
-                font_names.getItems().addAll(values);
-                if (initial_font instanceof NamedWidgetFont)
-                {
-                    font_names.getSelectionModel().select((NamedWidgetFont) initial_font);
-                    font_names.scrollTo(font_names.getSelectionModel().getSelectedIndex());
-                }
+                families.getItems().setAll(fams);
+                font_names.getItems().setAll(values);
+                setFont(initial_font);
             });
         });
 
@@ -97,6 +100,7 @@ public class WidgetFontDialog extends Dialog<WidgetFont>
         sizes.getItems().addAll(default_sizes);
 
         example.setText(Messages.FontDialog_ExampleText);
+        example.setPrefHeight(50);
 
         content.add(new Label(Messages.FontDialog_Predefined), 0, 0);
         content.add(font_names, 0, 1, 1, 2);
@@ -121,15 +125,17 @@ public class WidgetFontDialog extends Dialog<WidgetFont>
         GridPane.setVgrow(styles, Priority.ALWAYS);
         GridPane.setVgrow(sizes, Priority.ALWAYS);
 
-        getDialogPane().setContent(content);
+        layout.setCenter(content);
 
-        getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        final Button ok = createButton(ButtonType.OK);
+        final Button cancel = createButton(ButtonType.CANCEL);
+        final ButtonBar buttons = new ButtonBar();
+        buttons.getButtons().setAll(ok, cancel);
+        layout.setBottom(buttons);
 
         // User selects named color -> Update picker, sliders, texts
-        font_names.getSelectionModel().selectedItemProperty().addListener((l, old, value) ->
-        {
-            setFont(value);
-        });
+        font_names.getSelectionModel().selectedItemProperty().addListener((l, old, value) ->  setFont(value));
+
 
         // Double-click exiting named font confirms/closes
         font_names.setOnMouseClicked((event) ->
@@ -137,8 +143,8 @@ public class WidgetFontDialog extends Dialog<WidgetFont>
             if (event.getButton() == MouseButton.PRIMARY  &&
                 event.getClickCount() >= 2)
             {
-                final Button ok = (Button) getDialogPane().lookupButton(ButtonType.OK);
-                ok.fire();
+                handle_selected_color.accept(font);
+                hide();
             }
         });
 
@@ -151,6 +157,8 @@ public class WidgetFontDialog extends Dialog<WidgetFont>
             try
             {
                 final String family = families.getSelectionModel().getSelectedItem();
+                if (family == null)
+                    return;
                 final WidgetFontStyle font_style = styles.getSelectionModel().getSelectedItem();
                 double font_size;
                 try
@@ -182,21 +190,36 @@ public class WidgetFontDialog extends Dialog<WidgetFont>
             }
         });
 
-        setResizable(true);
-
-        // From http://code.makery.ch/blog/javafx-dialogs-official/,
-        // attempts to focus on a field.
-        // Will only work if the dialog is opened "soon".
-        Platform.runLater(() -> font_names.requestFocus());
-
-        setResultConverter(button ->
+        showingProperty().addListener(prop ->
         {
-            if (button == ButtonType.OK)
-                return font;
-            return null;
+            if (isShowing())
+                font_names.requestFocus();
         });
 
         setFont(initial_font);
+
+        ok.setOnAction(event ->
+        {
+            handle_selected_color.accept(font);
+            hide();
+        });
+        cancel.setOnAction(event -> hide());
+
+        // OK button is the 'default' button
+        layout.addEventFilter(KeyEvent.KEY_PRESSED, event ->
+        {
+            if (event.getCode() == KeyCode.ENTER)
+                ok.getOnAction().handle(null);
+        });
+    }
+
+    private static Button createButton(final ButtonType type)
+    {
+        final Button button = new Button(type.getText());
+        ButtonBar.setButtonData(button, type.getButtonData());
+        button.setDefaultButton(type.getButtonData().isDefaultButton());
+        button.setCancelButton(type.getButtonData().isCancelButton());
+        return button;
     }
 
     /** Set all display elements to font
@@ -207,12 +230,19 @@ public class WidgetFontDialog extends Dialog<WidgetFont>
         updating = true;
         try
         {
+            if (font instanceof NamedWidgetFont)
+            {
+                font_names.getSelectionModel().select((NamedWidgetFont) font);
+                font_names.scrollTo(font_names.getSelectionModel().getSelectedIndex());
+            }
+
             families.getSelectionModel().select(font.getFamily());
             families.scrollTo(families.getSelectionModel().getSelectedIndex());
+
             styles.getSelectionModel().select(font.getStyle());
             size.setText(Double.toString(font.getSize()));
 
-            String current_size = String.format("%.1f", font.getSize());
+            final String current_size = String.format("%.1f", font.getSize());
             sizes.getSelectionModel().select(current_size);
 
             example.setFont(JFXUtil.convert(font));

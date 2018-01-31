@@ -15,10 +15,10 @@ import java.util.Optional;
 import org.csstudio.apputil.time.RelativeTime;
 import org.csstudio.apputil.ui.swt.TableColumnSortHelper;
 import org.csstudio.archive.vtype.DefaultVTypeFormat;
+import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.rtplot.PointType;
 import org.csstudio.javafx.rtplot.TraceType;
 import org.csstudio.javafx.rtplot.data.PlotDataItem;
-import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.trends.databrowser3.Activator;
 import org.csstudio.trends.databrowser3.Messages;
 import org.csstudio.trends.databrowser3.SWTMediaPool;
@@ -628,7 +628,7 @@ public class TraceTableHandler implements IStructuredContentProvider
             protected void setValue(final Object element, final Object value)
             {
                 final TraceType trace_type =
-                        TraceType.fromOrdinal(((Integer)value).intValue());
+                        TraceType.values()[(((Integer)value).intValue())];
                 final ModelItem item = (ModelItem)element;
                 if (trace_type != item.getTraceType())
                     new ChangeTraceTypeCommand(operations_manager, item, trace_type);
@@ -724,7 +724,7 @@ public class TraceTableHandler implements IStructuredContentProvider
             protected void setValue(final Object element, final Object value)
             {
                 final PointType point_type =
-                        PointType.fromOrdinal(((Integer)value).intValue());
+                        PointType.values()[((Integer)value).intValue()];
                 final ModelItem item = (ModelItem)element;
                 if (point_type != item.getPointType())
                     new ChangePointTypeCommand(operations_manager, item, point_type);

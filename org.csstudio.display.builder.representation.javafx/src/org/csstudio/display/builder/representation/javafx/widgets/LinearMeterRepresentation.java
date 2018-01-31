@@ -9,6 +9,7 @@
 package org.csstudio.display.builder.representation.javafx.widgets;
 
 
+import java.util.List;
 import java.util.Objects;
 
 import org.csstudio.display.builder.model.DirtyFlag;
@@ -29,7 +30,6 @@ import javafx.scene.paint.Color;
  */
 public class LinearMeterRepresentation extends BaseMeterRepresentation<LinearMeterWidget> {
 
-    private volatile boolean              barHighlight   = true;
     private final DirtyFlag               dirtyLimits    = new DirtyFlag();
     private final DirtyFlag               dirtyLook      = new DirtyFlag();
     private LinearMeterWidget.Orientation orientation    = null;
@@ -71,7 +71,6 @@ public class LinearMeterRepresentation extends BaseMeterRepresentation<LinearMet
 
         if ( dirtyLimits.checkAndClear() ) {
             jfx_node.setAreas(createAreas());
-            jfx_node.setAreasVisible(barHighlight && areZonesVisible());
             jfx_node.setHighlightSections(zonesHighlight);
             jfx_node.setSections(createZones());
         }
@@ -86,7 +85,7 @@ public class LinearMeterRepresentation extends BaseMeterRepresentation<LinearMet
         jfx_node.setAreaIconsVisible(false);
         jfx_node.setAreaTextVisible(false);
         jfx_node.setAreas(createAreas());
-        jfx_node.setAreasVisible(barHighlight);
+        jfx_node.setAreasVisible(false);
         jfx_node.setBarColor(JFXUtil.convert(model_widget.propBarColor().getValue()));
         jfx_node.setBarEffectEnabled(!model_widget.propFlatBar().getValue());
         jfx_node.setHighlightSections(zonesHighlight);
@@ -170,18 +169,11 @@ public class LinearMeterRepresentation extends BaseMeterRepresentation<LinearMet
             somethingChanged = true;
         }
 
-        boolean newBarHighlight = model_widget.propHighlightBar().getValue();
-
-        if ( barHighlight != newBarHighlight ) {
-            barHighlight = newBarHighlight;
-            somethingChanged = true;
-        }
-
         return somethingChanged;
 
     }
 
-    private Section[] createAreas ( ) {
+    private List<Section> createAreas ( ) {
 
         updatingAreas = true;
 

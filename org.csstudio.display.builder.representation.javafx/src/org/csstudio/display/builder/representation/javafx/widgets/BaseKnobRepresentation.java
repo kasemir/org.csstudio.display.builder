@@ -12,12 +12,15 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.persist.NamedWidgetColors;
+import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.util.FormatOptionHandler;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.KnobWidget;
@@ -38,66 +41,161 @@ import se.ess.knobs.Knob;
  */
 public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidget> extends RegionBaseRepresentation<C, W> {
 
-    private final DirtyFlag               dirtyContent  = new DirtyFlag();
-    private final DirtyFlag               dirtyGeometry = new DirtyFlag();
-    private final DirtyFlag               dirtyLimits   = new DirtyFlag();
-    private final DirtyFlag               dirtyLook     = new DirtyFlag();
-    private final DirtyFlag               dirtyStyle    = new DirtyFlag();
-    private final DirtyFlag               dirtyUnit     = new DirtyFlag();
-    private final DirtyFlag               dirtyValue    = new DirtyFlag();
-    private volatile double               high          = Double.NaN;
-    private volatile double               hihi          = Double.NaN;
-    private volatile double               lolo          = Double.NaN;
-    private volatile double               low           = Double.NaN;
-    private volatile double               max           = 100.0;
-    private volatile double               min           = 0.0;
-    private final AtomicBoolean           updatingValue = new AtomicBoolean(false);
-    private volatile boolean              firstUsage    = true;
+    protected static final Color ALARM_MAJOR_COLOR = JFXUtil.convert(WidgetColorService.getColor(NamedWidgetColors.ALARM_MAJOR));
+    protected static final Color ALARM_MINOR_COLOR = JFXUtil.convert(WidgetColorService.getColor(NamedWidgetColors.ALARM_MINOR));
+    protected static final Color ALARM_OK_COLOR    = JFXUtil.convert(WidgetColorService.getColor(NamedWidgetColors.ALARM_OK));
 
+    private final DirtyFlag     dirtyContent  = new DirtyFlag();
+    private final DirtyFlag     dirtyGeometry = new DirtyFlag();
+    private final DirtyFlag     dirtyLimits   = new DirtyFlag();
+    private final DirtyFlag     dirtyLook     = new DirtyFlag();
+    private final DirtyFlag     dirtyStyle    = new DirtyFlag();
+    private final DirtyFlag     dirtyUnit     = new DirtyFlag();
+    private final DirtyFlag     dirtyValue    = new DirtyFlag();
+    private volatile double     high          = Double.NaN;
+    private volatile double     hihi          = Double.NaN;
+    private volatile double     lolo          = Double.NaN;
+    private volatile double     low           = Double.NaN;
+    private volatile double     max           = 100.0;
+    private volatile double     min           = 0.0;
+    private final AtomicBoolean updatingValue = new AtomicBoolean(false);
+    private volatile boolean    firstUsage    = true;
+
+    @SuppressWarnings( "unchecked" )
     @Override
     public void updateChanges ( ) {
 
         super.updateChanges();
 
+        Object value;
+
         if ( dirtyContent.checkAndClear() ) {
-            jfx_node.setDecimals(FormatOptionHandler.actualPrecision(model_widget.runtimePropValue().getValue(), model_widget.propPrecision().getValue()));
+
+            value = FormatOptionHandler.actualPrecision(model_widget.runtimePropValue().getValue(), model_widget.propPrecision().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getDecimals()) ) {
+                jfx_node.setDecimals((int) value);
+            }
+
         }
 
         if ( dirtyGeometry.checkAndClear() ) {
+
+            value = model_widget.propVisible().getValue();
+
+            if ( !Objects.equals(value, jfx_node.isVisible()) ) {
+                jfx_node.setVisible((boolean) value);
+            }
+
             jfx_node.setLayoutX(model_widget.propX().getValue());
             jfx_node.setLayoutY(model_widget.propY().getValue());
             jfx_node.setPrefWidth(model_widget.propWidth().getValue());
             jfx_node.setPrefHeight(model_widget.propHeight().getValue());
-            jfx_node.setVisible(model_widget.propVisible().getValue());
+
         }
 
         if ( dirtyLook.checkAndClear() ) {
-            jfx_node.setBackgroundColor(model_widget.propTransparent().getValue() ? Color.TRANSPARENT : JFXUtil.convert(model_widget.propBackgroundColor().getValue()));
-            jfx_node.setColor(JFXUtil.convert(model_widget.propColor().getValue()));
-            jfx_node.setCurrentValueColor(JFXUtil.convert(model_widget.propValueColor().getValue()));
-            jfx_node.setExtremaVisible(model_widget.propExtremaVisible().getValue());
-            jfx_node.setIndicatorColor(JFXUtil.convert(model_widget.propThumbColor().getValue()));
-            jfx_node.setTagColor(JFXUtil.convert(model_widget.propTagColor().getValue()));
-            jfx_node.setTagVisible(model_widget.propTagVisible().getValue());
-            jfx_node.setTargetValueAlwaysVisible(model_widget.propTargetVisible().getValue());
-            jfx_node.setTextColor(JFXUtil.convert(model_widget.propTextColor().getValue()));
-            jfx_node.setZeroDetentEnabled(model_widget.propZeroDetentEnabled().getValue());
+
+            value = model_widget.propTransparent().getValue() ? Color.TRANSPARENT : JFXUtil.convert(model_widget.propBackgroundColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getBackgroundColor()) ) {
+                jfx_node.setBackgroundColor((Color) value);
+            }
+
+            value = JFXUtil.convert(model_widget.propColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getColor()) ) {
+                jfx_node.setColor((Color) value);
+            }
+
+            value = JFXUtil.convert(model_widget.propValueColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getCurrentValueColor()) ) {
+                jfx_node.setCurrentValueColor((Color) value);
+            }
+
+            value = model_widget.propExtremaVisible().getValue();
+
+            if ( !Objects.equals(value, jfx_node.isExtremaVisible()) ) {
+                jfx_node.setExtremaVisible((boolean) value);
+            }
+
+            value = JFXUtil.convert(model_widget.propThumbColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getIndicatorColor()) ) {
+                jfx_node.setIndicatorColor((Color) value);
+            }
+
+            value = JFXUtil.convert(model_widget.propTagColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getTagColor()) ) {
+                jfx_node.setTagColor((Color) value);
+            }
+
+            value = model_widget.propTagVisible().getValue();
+
+            if ( !Objects.equals(value, jfx_node.isTagVisible()) ) {
+                jfx_node.setTagVisible((boolean) value);
+            }
+
+            value = model_widget.propTargetVisible().getValue();
+
+            if ( !Objects.equals(value, jfx_node.isTargetValueAlwaysVisible()) ) {
+                jfx_node.setTargetValueAlwaysVisible((boolean) value);
+            }
+
+            value = JFXUtil.convert(model_widget.propTextColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getTextColor()) ) {
+                jfx_node.setTextColor((Color) value);
+            }
+
+            value = model_widget.propZeroDetentEnabled().getValue();
+
+            if ( !Objects.equals(value, jfx_node.isZeroDetentEnabled()) ) {
+                jfx_node.setZeroDetentEnabled((boolean) value);
+            }
 
         }
 
         if ( dirtyLimits.checkAndClear() ) {
-            jfx_node.setGradientStops(computeGradientStops());
-            jfx_node.setMinValue(min);
-            jfx_node.setMaxValue(max);
+
+            value = computeGradientStops();
+
+            if ( !Objects.equals(value, jfx_node.getGradientStops()) ) {
+                jfx_node.setGradientStops((List<Stop>) value);
+            }
+
+            if ( !Objects.equals(max, jfx_node.getMaxValue()) ) {
+                jfx_node.setMaxValue(max);
+            }
+
+            if ( !Objects.equals(min, jfx_node.getMinValue()) ) {
+                jfx_node.setMinValue(min);
+            }
+
         }
 
         if ( dirtyUnit.checkAndClear() ) {
-            jfx_node.setUnit(getUnit());
+
+            value = getUnit();
+
+            if ( !Objects.equals(value, jfx_node.getUnit()) ) {
+                jfx_node.setUnit((String) value);
+            }
+
         }
 
         if ( dirtyStyle.checkAndClear() ) {
-            jfx_node.setDragDisabled(model_widget.propDragDisabled().getValue());
+
+            value = model_widget.propDragDisabled().getValue();
+
+            if ( !Objects.equals(value, jfx_node.isDragDisabled()) ) {
+                jfx_node.setDragDisabled((boolean) value);
+            }
+
             Styles.update(jfx_node, Styles.NOT_ENABLED, !model_widget.propEnabled().getValue());
+
         }
 
         if ( dirtyValue.checkAndClear() && updatingValue.compareAndSet(false, true) ) {
@@ -215,11 +313,6 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
         model_widget.propTargetVisible().addUntypedPropertyListener(this::lookChanged);
         model_widget.propZeroDetentEnabled().addUntypedPropertyListener(this::lookChanged);
 
-        model_widget.propColorHiHi().addUntypedPropertyListener(this::limitsChanged);
-        model_widget.propColorHigh().addUntypedPropertyListener(this::limitsChanged);
-        model_widget.propColorLoLo().addUntypedPropertyListener(this::limitsChanged);
-        model_widget.propColorLow().addUntypedPropertyListener(this::limitsChanged);
-        model_widget.propColorOK().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propLevelHiHi().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propLevelHigh().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propLevelLoLo().addUntypedPropertyListener(this::limitsChanged);
@@ -229,6 +322,7 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
         model_widget.propShowHigh().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propShowLoLo().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propShowLow().addUntypedPropertyListener(this::limitsChanged);
+        model_widget.propShowOK().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propMaximum().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propMinimum().addUntypedPropertyListener(this::limitsChanged);
 
@@ -258,23 +352,24 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
         double range = max - min;
         boolean loloNaN = Double.isNaN(lolo);
         boolean lowNaN = Double.isNaN(low);
+        boolean showOK = model_widget.propShowOK().getValue();
 
         if ( !loloNaN ) {
 
-            stops.add(new Stop(0.0, JFXUtil.convert(model_widget.propColorLoLo().getValue())));
+            stops.add(new Stop(0.0, ALARM_MAJOR_COLOR));
 
             if ( !lowNaN ) {
-                stops.add(new Stop(( lolo - min ) / range, JFXUtil.convert(model_widget.propColorLow().getValue())));
-                stops.add(new Stop(( low - min )  / range, JFXUtil.convert(model_widget.propColorOK().getValue())));
+                stops.add(new Stop(( lolo - min ) / range, ALARM_MINOR_COLOR));
+                stops.add(new Stop(( low - min )  / range, showOK ? ALARM_OK_COLOR : Color.TRANSPARENT));
             } else {
-                stops.add(new Stop(( lolo - min )  / range, JFXUtil.convert(model_widget.propColorOK().getValue())));
+                stops.add(new Stop(( lolo - min )  / range, showOK ? ALARM_OK_COLOR : Color.TRANSPARENT));
             }
 
         } else if ( !lowNaN ) {
-            stops.add(new Stop(0.0, JFXUtil.convert(model_widget.propColorLow().getValue())));
-            stops.add(new Stop(( low - min )  / range, JFXUtil.convert(model_widget.propColorOK().getValue())));
+            stops.add(new Stop(0.0, ALARM_MINOR_COLOR));
+            stops.add(new Stop(( low - min )  / range, showOK ? ALARM_OK_COLOR : Color.TRANSPARENT));
         } else {
-            stops.add(new Stop(0.0, JFXUtil.convert(model_widget.propColorOK().getValue())));
+            stops.add(new Stop(0.0, showOK ? ALARM_OK_COLOR : Color.TRANSPARENT));
         }
 
         boolean highNaN = Double.isNaN(high);
@@ -282,20 +377,20 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
 
         if ( !hihiNaN ) {
 
-            stops.add(new Stop(1.0, JFXUtil.convert(model_widget.propColorHiHi().getValue())));
+            stops.add(new Stop(1.0, ALARM_MAJOR_COLOR));
 
             if ( !highNaN ) {
-                stops.add(new Stop(( hihi - min )  / range, JFXUtil.convert(model_widget.propColorHigh().getValue())));
-                stops.add(new Stop(( high - min )  / range, JFXUtil.convert(model_widget.propColorOK().getValue())));
+                stops.add(new Stop(( hihi - min )  / range, ALARM_MINOR_COLOR));
+                stops.add(new Stop(( high - min )  / range, showOK ? ALARM_OK_COLOR : Color.TRANSPARENT));
             } else {
-                stops.add(new Stop(( hihi - min )  / range, JFXUtil.convert(model_widget.propColorOK().getValue())));
+                stops.add(new Stop(( hihi - min )  / range, showOK ? ALARM_OK_COLOR : Color.TRANSPARENT));
             }
 
         } else if ( !highNaN ) {
-            stops.add(new Stop(1.0, JFXUtil.convert(model_widget.propColorHigh().getValue())));
-            stops.add(new Stop(( high - min )  / range, JFXUtil.convert(model_widget.propColorOK().getValue())));
+            stops.add(new Stop(1.0, ALARM_MINOR_COLOR));
+            stops.add(new Stop(( high - min )  / range, showOK ? ALARM_OK_COLOR : Color.TRANSPARENT));
         } else {
-            stops.add(new Stop(1.0, JFXUtil.convert(model_widget.propColorOK().getValue())));
+            stops.add(new Stop(1.0, showOK ? ALARM_OK_COLOR : Color.TRANSPARENT));
         }
 
         return stops.stream().sorted(Comparator.comparingDouble(s -> s.getOffset())).collect(Collectors.toList());

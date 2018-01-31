@@ -45,6 +45,7 @@ import org.diirt.vtype.VNumberArray;
 import org.diirt.vtype.VType;
 
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 
 /** Creates JavaFX item for model widget
  *  @author Kay Kasemir
@@ -225,7 +226,7 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         private PointType map(final PlotWidgetPointType value)
         {   // For now the ordinals match,
             // only different types to keep the Model separate from the Representation
-            return PointType.fromOrdinal(value.ordinal());
+            return PointType.values()[value.ordinal()];
         }
 
         private void traceChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -485,7 +486,9 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
 
     private void updateConfig()
     {
-        plot.setForeground(JFXUtil.convert(model_widget.propForeground().getValue()));
+        final Color foreground = JFXUtil.convert(model_widget.propForeground().getValue());
+        plot.setForeground(foreground);
+        plot.getXAxis().setColor(foreground);
         plot.setBackground(JFXUtil.convert(model_widget.propBackground().getValue()));
         plot.setGridColor(JFXUtil.convert(model_widget.propGridColor().getValue()));
         plot.setTitleFont(JFXUtil.convert(model_widget.propTitleFont().getValue()));
@@ -526,6 +529,10 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         for (Trace<?> trace : plot.getTraces())
             if (trace.getYAxis() == index)
                 trace.setVisible(visible);
+
+        final Color foreground = JFXUtil.convert(model_widget.propForeground().getValue());
+        plot_axis.setColor(foreground);
+
         plot_axis.setVisible(visible);
     }
 

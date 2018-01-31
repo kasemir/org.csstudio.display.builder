@@ -7,9 +7,14 @@
  ******************************************************************************/
 package org.csstudio.javafx.rtplot;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import org.csstudio.display.builder.util.ResourceUtil;
+import org.csstudio.javafx.rtplot.util.NamedThreadFactory;
 
 import javafx.scene.image.Image;
 
@@ -23,6 +28,18 @@ public class Activator
     final public static String ID = "org.csstudio.javafx.rtplot";
 
     final public static Logger logger =  Logger.getLogger(ID);
+
+    /** Thread pool for scrolling, throttling updates
+     *  <p>No upper limit for threads.
+     *  Removes all threads after 10 seconds
+     */
+    public static final ScheduledExecutorService thread_pool;
+
+    static
+    {
+        thread_pool = Executors.newScheduledThreadPool(0, new NamedThreadFactory("RTPlot"));
+        ((ThreadPoolExecutor)thread_pool).setKeepAliveTime(10, TimeUnit.SECONDS);
+    }
 
     final public static String IconPath = "platform:/plugin/org.csstudio.javafx.rtplot/icons/";
 

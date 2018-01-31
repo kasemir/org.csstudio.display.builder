@@ -98,6 +98,16 @@ public class TextEntryWidget extends WritablePVWidget
                     addFileSelector(text_widget, xml);
                 else if (selector == 2)
                     addDateTimeSelector(text_widget, xml);
+
+                // There's no transparent option for the text entry.
+                // Simulate by using transparent background color.
+                XMLUtil.getChildBoolean(xml, "transparent").ifPresent(transparent ->
+                {
+                    if (transparent)
+                        text_widget.propBackgroundColor().setValue(new WidgetColor(0, 0, 0, 0));
+                });
+
+                BorderSupport.handleLegacyBorder(widget, xml);
             }
             return true;
         }
@@ -203,6 +213,7 @@ public class TextEntryWidget extends WritablePVWidget
         properties.add(enabled = propEnabled.createProperty(this, true));
         properties.add(wrap_words = propWrapWords.createProperty(this, false));
         properties.add(multi_line = propMultiLine.createProperty(this, false));
+        BorderSupport.addBorderProperties(this, properties);
     }
 
     /** @return 'foreground_color' property */
