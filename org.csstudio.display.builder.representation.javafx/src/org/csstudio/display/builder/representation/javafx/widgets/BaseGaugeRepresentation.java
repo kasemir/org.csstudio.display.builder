@@ -348,11 +348,11 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         }
 
         if ( !Double.isNaN(high) ) {
-            sections.add(createZone(high, hihiNaN ? max : hihi, "High", ALARM_MAJOR_COLOR));
+            sections.add(createZone(high, hihiNaN ? max : hihi, "High", ALARM_MINOR_COLOR));
         }
 
         if ( !hihiNaN ) {
-            sections.add(createZone(hihi, max, "HiHi", ALARM_MINOR_COLOR));
+            sections.add(createZone(hihi, max, "HiHi", ALARM_MAJOR_COLOR));
         }
 
         return sections;
