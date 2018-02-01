@@ -32,7 +32,7 @@ import org.diirt.vtype.ValueUtil;
 
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Stop;
-import se.ess.knobs.Knob;
+import se.europeanspallationsource.javafx.control.knobs.Knob;
 
 
 /**

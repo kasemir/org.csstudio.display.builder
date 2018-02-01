@@ -8,9 +8,11 @@
  */
 package org.csstudio.display.builder.representation.javafx.widgets;
 
+
 import org.csstudio.display.builder.model.widgets.KnobWidget;
 
-import se.ess.knobs.Knob;
+import se.europeanspallationsource.javafx.control.knobs.Knob;
+
 
 /**
  * @author claudiorosati, European Spallation Source ERIC
@@ -19,7 +21,7 @@ import se.ess.knobs.Knob;
 public class KnobRepresentation extends BaseKnobRepresentation<Knob, KnobWidget> {
 
     @Override
-    protected Knob createKnob() {
+    protected Knob createKnob ( ) {
         return new Knob();
     }
 

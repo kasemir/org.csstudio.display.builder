@@ -27,7 +27,7 @@ import org.diirt.vtype.ValueUtil;
 
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import se.ess.thumbwheel.ThumbWheel;
+import se.europeanspallationsource.javafx.control.thumbwheel.ThumbWheel;
 
 
 /**
