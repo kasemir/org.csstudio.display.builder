@@ -186,3 +186,7 @@
     -fx-font-size: 10pt;
 }
 
+/* Original split pane divider is too thick. */
+.split-pane > .split-pane-divider {
+    -fx-padding: 0 0.095em 0 0.095em;
+}
