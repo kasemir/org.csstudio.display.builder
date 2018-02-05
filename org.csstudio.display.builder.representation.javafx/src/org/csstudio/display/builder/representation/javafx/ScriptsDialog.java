@@ -22,6 +22,7 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.ScriptPV;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
+import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
 import org.csstudio.javafx.DialogHelper;
 import org.csstudio.javafx.LineNumberTableCellFactory;
 import org.csstudio.javafx.SyntaxHighlightedMultiLineInputDialog;
@@ -42,6 +43,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
@@ -220,6 +222,10 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
         setTitle(Messages.ScriptsDialog_Title);
         setHeaderText(Messages.ScriptsDialog_Info);
+
+        final Node node = JFXBaseRepresentation.getJFXNode(widget);
+
+        initOwner(node.getScene().getWindow());
 
         scripts.forEach(script -> script_items.add(ScriptItem.forInfo(script)));
         fixupScripts(0);
