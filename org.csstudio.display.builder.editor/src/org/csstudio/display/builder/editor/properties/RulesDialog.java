@@ -7,11 +7,14 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.properties;
 
+
 import static org.csstudio.display.builder.editor.Plugin.logger;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.model.Widget;
@@ -28,6 +31,7 @@ import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.Messages;
 import org.csstudio.display.builder.representation.javafx.ScriptsDialog;
+import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.DialogHelper;
 import org.csstudio.javafx.MultiLineInputDialog;
@@ -43,6 +47,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -53,6 +58,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -62,9 +68,11 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
+
 
 /** Dialog for editing {@link RuleInfo}s
  *  @author Megan Grodowitz
@@ -449,6 +457,9 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
     /** Is the property value an expressions (i.e. user input string) **/
     private CheckBox valExpBox;
 
+    /** The splitter used in the rule side. */
+    private SplitPane ruleSplitPane;
+
     /** turn this rule's property into the long string form used in the combo box **/
     public String getPropLongString(RuleItem rule)
     {
@@ -457,51 +468,65 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
     }
 
     /** @param rules Rules to show/edit in the dialog */
-    public RulesDialog(final UndoableActionManager undo, final List<RuleInfo> rules, final Widget attached_widget, final AutocompleteMenu menu)
-    {
-        setTitle(Messages.RulesDialog_Title);
+    public RulesDialog ( final UndoableActionManager undo, final List<RuleInfo> rules, final Widget attached_widget, final AutocompleteMenu menu ) {
+
         this.undo = undo;
         this.attached_widget = attached_widget;
         this.menu = menu;
+        this.propinfo_ls = RuleInfo.getTargettableProperties(attached_widget);
 
-        propinfo_ls = RuleInfo.getTargettableProperties(attached_widget);
-        setHeaderText(Messages.RulesDialog_Info + ": " +
-                      attached_widget.getType() + " " +
-                      attached_widget.getName());
+        setTitle(Messages.RulesDialog_Title);
+        setHeaderText(Messages.RulesDialog_Info + ": " + attached_widget.getType() + " " + attached_widget.getName());
 
+        final Node node = JFXBaseRepresentation.getJFXNode(attached_widget);
+
+        initOwner(node.getScene().getWindow());
 
         rules.forEach(rule -> rule_items.add(RuleItem.forInfo(attached_widget, rule, undo)));
         fixupRules(0);
 
-        getDialogPane().setContent(createContent());
+        final SplitPane content = createContent();
+
+        getDialogPane().setContent(content);
         getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-        //use same stylesheet as ScriptsDialog, ActionsDialog
+        // use same stylesheet as ScriptsDialog, ActionsDialog
         getDialogPane().getStylesheets().add(ScriptsDialog.class.getResource("opibuilder.css").toExternalForm());
         setResizable(true);
 
-        setResultConverter(button ->
-        {
-            if (button != ButtonType.OK)
+        setResultConverter(button -> {
+            if ( button != ButtonType.OK )
                 return null;
-            return rule_items.stream()
-                    .filter(item -> ! item.name.get().isEmpty())
-                    .map(RuleItem::getRuleInfo)
-                    .collect(Collectors.toList());
+            return rule_items.stream().filter(item -> !item.name.get().isEmpty()).map(RuleItem::getRuleInfo).collect(Collectors.toList());
         });
+
+        setOnHidden(event -> {
+
+            final Preferences pref = Preferences.userNodeForPackage(RulesDialog.class);
+
+            pref.putDouble("content.width", content.getWidth());
+            pref.putDouble("content.height", content.getHeight());
+            pref.putDouble("content.divider.position", content.getDividerPositions()[0]);
+            pref.putDouble("rule.content.divider.position", ruleSplitPane.getDividerPositions()[0]);
+
+            try {
+                pref.flush();
+            } catch ( BackingStoreException ex ) {
+                logger.log(Level.WARNING, "Unable to flush preferences", ex);
+            }
+
+        });
+
     }
 
-    private Node createContent()
-    {
+    private SplitPane createContent ( ) {
         final Node rules = createRulesTable();
-        final Node pvs = createPVsTable();
-        final Node exprs = createExpressionsTable();
+        final HBox pvs = createPVsTable();
+        final HBox exprs = createExpressionsTable();
 
         // Display PVs of currently selected rule
-        rules_table.getSelectionModel().selectedItemProperty().addListener((prop, old, selected) ->
-        {
+        rules_table.getSelectionModel().selectedItemProperty().addListener( ( prop, old, selected ) -> {
             selected_rule_item = selected;
-            if (selected == null)
-            {
+            if ( selected == null ) {
                 btn_remove_rule.setDisable(true);
                 btn_dup_rule.setDisable(true);
                 btn_move_rule_up.setDisable(true);
@@ -520,9 +545,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                 valExpBox.setDisable(true);
                 pv_items.clear();
                 expression_items.clear();
-            }
-            else
-            {
+            } else {
                 btn_remove_rule.setDisable(false);
                 btn_dup_rule.setDisable(false);
                 btn_move_rule_up.setDisable(false);
@@ -546,19 +569,17 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             }
         });
         // Update PVs of selected rule from PVs table
-        final ListChangeListener<PVItem> pll = change ->
-        {
+        final ListChangeListener<PVItem> pll = change -> {
             final RuleItem selected = rules_table.getSelectionModel().getSelectedItem();
-            if (selected != null)
+            if ( selected != null )
                 selected.pvs = new ArrayList<>(change.getList());
         };
         pv_items.addListener(pll);
 
         // Update Expressions of selected rule from Expressions table
-        final ListChangeListener<ExprItem<?>> ell = change ->
-        {
+        final ListChangeListener<ExprItem<?>> ell = change -> {
             final RuleItem selected = rules_table.getSelectionModel().getSelectedItem();
-            if (selected != null)
+            if ( selected != null )
                 selected.expressions = new ArrayList<>(change.getList());
         };
         expression_items.addListener(ell);
@@ -567,54 +588,86 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         final Label propLabel = new Label("Property ID:");
         // Show each property with current value
         final ObservableList<String> prop_id_opts = FXCollections.observableArrayList();
-        for (PropInfo pi : propinfo_ls)
-        {   // Property _value_ can be long, ex. points of a polyline
-            // Truncate the value that's shown in the combo box
-            // to prevent combo from using all screen width.
+        for ( PropInfo pi : propinfo_ls ) {   // Property _value_ can be long,
+                                              // ex. points of a polyline
+                                              // Truncate the value that's shown
+                                              // in the combo box
+                                              // to prevent combo from using all
+                                              // screen width.
             String prop_opt = pi.toString();
-            if (prop_opt.length() > MAX_PROP_LENGTH)
+            if ( prop_opt.length() > MAX_PROP_LENGTH )
                 prop_opt = prop_opt.substring(0, MAX_PROP_LENGTH) + "...";
             prop_id_opts.add(prop_opt);
         }
         propComboBox = new ComboBox<String>(prop_id_opts);
         propComboBox.setDisable(true);
         // Select property info based on index within combo
-        propComboBox.getSelectionModel().selectedIndexProperty().addListener( (p, o, index) ->
-        {
+        propComboBox.getSelectionModel().selectedIndexProperty().addListener( ( p, o, index ) -> {
             final PropInfo prop = propinfo_ls.get(index.intValue());
-            if (selected_rule_item.tryUpdatePropID(undo, prop.getPropID()))
+            if ( selected_rule_item.tryUpdatePropID(undo, prop.getPropID()) )
                 expression_items.setAll(selected_rule_item.expressions);
         });
+        propComboBox.setMinHeight(27);
 
-        // TODO: change this to actually manipulate expression objects in the rule
+        // TODO: change this to actually manipulate expression objects in the
+        // rule
         valExpBox = new CheckBox("Value as Expression");
         valExpBox.setDisable(true);
         valExpBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+
             @Override
-            public void changed(ObservableValue<? extends Boolean> ov, Boolean old_val, Boolean new_val) {
-                if (!selected_rule_item.tryTogglePropAsExpr(undo, new_val))
-                {
+            public void changed ( ObservableValue<? extends Boolean> ov, Boolean old_val, Boolean new_val ) {
+                if ( !selected_rule_item.tryTogglePropAsExpr(undo, new_val) ) {
                     logger.log(Level.FINE, "Did not update rule property as expression flag to " + new_val);
-                }
-                else
-                {
+                } else {
                     expression_items.setAll(selected_rule_item.expressions);
                 }
             }
         });
 
-        final HBox props = new HBox(10, valExpBox, new Separator(Orientation.VERTICAL), propLabel, propComboBox);
-        final HBox subtabs = new HBox(10, pvs, exprs);
-        final VBox subitems = new VBox(10, props, new Separator(Orientation.HORIZONTAL), subtabs);
-        final VBox rulebox = new VBox(10, rules);
-        final HBox box = new HBox(10, rulebox, new Separator(Orientation.VERTICAL), subitems);
-        VBox.setVgrow(rules, Priority.ALWAYS);
+        final HBox props = new HBox(10, propLabel, propComboBox, new Pane(), valExpBox);
+
+        pvs.setPadding(new Insets(0, 10, 0, 0));
+        exprs.setPadding(new Insets(0, 0, 0, 10));
+
         HBox.setHgrow(pvs, Priority.ALWAYS);
         HBox.setHgrow(exprs, Priority.ALWAYS);
-        HBox.setHgrow(subitems, Priority.ALWAYS);
-        VBox.setVgrow(subtabs, Priority.ALWAYS);
 
-        return box;
+        Preferences pref = Preferences.userNodeForPackage(RulesDialog.class);
+        double prefRSPDividerPosition = pref.getDouble("rule.content.divider.position", 0.5);
+
+        ruleSplitPane = new SplitPane(pvs, exprs);
+
+        ruleSplitPane.setOrientation(Orientation.HORIZONTAL);
+        ruleSplitPane.setDividerPositions(prefRSPDividerPosition);
+        ruleSplitPane.setStyle("-fx-padding: 0;-fx-border-color: null; -fx-border-insets: 0;-fx-background-insets: 0, 0;");
+
+        VBox.setVgrow(ruleSplitPane, Priority.ALWAYS);
+
+        final VBox subitems = new VBox(10, props, ruleSplitPane);
+        final VBox rulebox = new VBox(10, rules);
+
+        props.setAlignment(Pos.CENTER);
+        rulebox.setPadding(new Insets(0, 10, 0, 0));
+        subitems.setPadding(new Insets(0, 0, 0, 10));
+
+        VBox.setVgrow(rules, Priority.ALWAYS);
+        HBox.setHgrow(subitems, Priority.ALWAYS);
+
+        double prefWidth = pref.getDouble("content.width", -1);
+        double prefHeight = pref.getDouble("content.height", -1);
+        double prefDividerPosition = pref.getDouble("content.divider.position", 0.3);
+        SplitPane splitPane = new SplitPane(rulebox, subitems);
+
+        splitPane.setOrientation(Orientation.HORIZONTAL);
+        splitPane.setDividerPositions(prefDividerPosition);
+
+        if ( prefWidth > 0 && prefHeight > 0 ) {
+            splitPane.setPrefSize(prefWidth, prefHeight);
+        }
+
+        return splitPane;
+
     }
 
     /** @param attached_widget
@@ -733,7 +786,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
     }
 
     /** @return Node for UI elements that edit the expressions */
-    private Node createExpressionsTable()
+    private HBox createExpressionsTable()
     {
         // Create table with editable rule 'bool expression' column
         final TableColumn<ExprItem<?>, String> bool_exp_col = new TableColumn<>(Messages.RulesDialog_ColBoolExp);
@@ -884,7 +937,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
     }
 
     /** @return Node for UI elements that edit the PVs of a rule */
-    private Node createPVsTable()
+    private HBox createPVsTable()
     {
         // Create table with editable 'name' column
         final TableColumn<PVItem, String> name_col = new TableColumn<>(Messages.ScriptsDialog_ColPV);
