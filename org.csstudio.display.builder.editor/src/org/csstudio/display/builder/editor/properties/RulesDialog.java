@@ -640,7 +640,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
 
         ruleSplitPane.setOrientation(Orientation.HORIZONTAL);
         ruleSplitPane.setDividerPositions(prefRSPDividerPosition);
-        ruleSplitPane.setStyle("-fx-padding: 0;-fx-border-color: null; -fx-border-insets: 0;-fx-background-insets: 0, 0;");
+        ruleSplitPane.setStyle("-fx-background-insets: 0, 0;");
 
         VBox.setVgrow(ruleSplitPane, Priority.ALWAYS);
 
