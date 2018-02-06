@@ -649,7 +649,7 @@ load /path/to/the/example.mat
         of Matlab you best convert them to Matlab serial date numbers, which
         you can then for example plot over time like this:</p>
     <pre>
-channel0.date = datenum(channel0.time, 'yyyy/mm/dd HH:MM:SS.FFF');
+channel0.date = datenum(channel0.time, 'yyyy-mm-dd HH:MM:SS.FFF');
 plot(channel0.date, channel0.value);
 datetick('x',0);
 title(channel0.name);
