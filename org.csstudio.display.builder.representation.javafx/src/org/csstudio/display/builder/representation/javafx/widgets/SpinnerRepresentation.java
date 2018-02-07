@@ -56,7 +56,6 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
         spinner.setValueFactory(createSVF());
         styleChanged(null, null, null);
         spinner.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
-        spinner.setEditable(!toolkit.isEditMode() && model_widget.propEnabled().getValue());
         spinner.focusedProperty().addListener((property, oldval, newval)->
         {
             if (!spinner.isFocused())
@@ -268,14 +267,14 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
         @Override
         public void decrement(int steps)
         {
-            if ( !toolkit.isEditMode() && model_widget.propEnabled().getValue() )
+            if (!toolkit.isEditMode() && model_widget.propEnabled().getValue())
                 writeResultingValue(-steps*getStepIncrement());
         }
 
         @Override
         public void increment(int steps)
         {
-            if ( !toolkit.isEditMode() && model_widget.propEnabled().getValue() )
+            if (!toolkit.isEditMode() && model_widget.propEnabled().getValue())
                 writeResultingValue(steps*getStepIncrement());
         }
 
@@ -381,8 +380,7 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
             jfx_node.setPrefWidth(model_widget.propWidth().getValue());
             jfx_node.setPrefHeight(model_widget.propHeight().getValue());
 
-            boolean enabled = model_widget.propEnabled().getValue();
-
+            final boolean enabled = model_widget.propEnabled().getValue();
             Styles.update(jfx_node, Styles.NOT_ENABLED, !enabled);
             jfx_node.setEditable(!toolkit.isEditMode() && enabled);
 

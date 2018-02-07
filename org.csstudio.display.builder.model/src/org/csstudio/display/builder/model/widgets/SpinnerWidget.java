@@ -87,10 +87,10 @@ public class SpinnerWidget extends PVWidget
         properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.WRITE_BACKGROUND)));
         properties.add(minimum = propMinimum.createProperty(this, 0.0));
         properties.add(maximum = propMaximum.createProperty(this, 100.0));
-        properties.add(enabled = propEnabled.createProperty(this, true));
         properties.add(limits_from_pv = propLimitsFromPV.createProperty(this, true));
         properties.add(increment = propIncrement.createProperty(this, 1.0));
         properties.add(buttons_on_left = propButtonsOnLeft.createProperty(this, false));
+        properties.add(enabled = propEnabled.createProperty(this, true));
     }
 
     @Override
@@ -153,7 +153,9 @@ public class SpinnerWidget extends PVWidget
         return buttons_on_left;
     }
 
-    public WidgetProperty<Boolean> propEnabled ( ) {
+    /** @return 'enabled' property */
+    public WidgetProperty<Boolean> propEnabled()
+    {
         return enabled;
     }
 }
