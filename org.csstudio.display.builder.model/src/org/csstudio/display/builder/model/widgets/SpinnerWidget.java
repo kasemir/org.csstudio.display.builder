@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFormat;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propIncrement;
@@ -69,6 +70,7 @@ public class SpinnerWidget extends PVWidget
     private volatile WidgetProperty<Boolean> limits_from_pv;
     private volatile WidgetProperty<Double> increment;
     private volatile WidgetProperty<Boolean> buttons_on_left;
+    private volatile WidgetProperty<Boolean> enabled;
 
     public SpinnerWidget()
     {
@@ -85,6 +87,7 @@ public class SpinnerWidget extends PVWidget
         properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.WRITE_BACKGROUND)));
         properties.add(minimum = propMinimum.createProperty(this, 0.0));
         properties.add(maximum = propMaximum.createProperty(this, 100.0));
+        properties.add(enabled = propEnabled.createProperty(this, true));
         properties.add(limits_from_pv = propLimitsFromPV.createProperty(this, true));
         properties.add(increment = propIncrement.createProperty(this, 1.0));
         properties.add(buttons_on_left = propButtonsOnLeft.createProperty(this, false));
@@ -148,5 +151,9 @@ public class SpinnerWidget extends PVWidget
     public WidgetProperty<Boolean> propButtonsOnLeft()
     {
         return buttons_on_left;
+    }
+
+    public WidgetProperty<Boolean> propEnabled ( ) {
+        return enabled;
     }
 }
