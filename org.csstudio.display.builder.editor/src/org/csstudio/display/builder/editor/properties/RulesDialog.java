@@ -58,17 +58,18 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TableView.TableViewSelectionModel;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -543,14 +544,14 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                 btn_move_rule_up.setDisable(true);
                 btn_move_rule_down.setDisable(true);
                 btn_show_script.setDisable(true);
-                btn_add_pv.setDisable(true);
-                btn_rm_pv.setDisable(true);
-                btn_move_pv_up.setDisable(true);
-                btn_move_pv_down.setDisable(true);
-                btn_add_exp.setDisable(true);
-                btn_rm_exp.setDisable(true);
-                btn_move_exp_up.setDisable(true);
-                btn_move_exp_down.setDisable(true);
+//                btn_add_pv.setDisable(true);
+//                btn_rm_pv.setDisable(true);
+//                btn_move_pv_up.setDisable(true);
+//                btn_move_pv_down.setDisable(true);
+//                btn_add_exp.setDisable(true);
+//                btn_rm_exp.setDisable(true);
+//                btn_move_exp_up.setDisable(true);
+//                btn_move_exp_down.setDisable(true);
                 propComboBox.setDisable(true);
                 propComboBox.getSelectionModel().select(null);
                 valExpBox.setDisable(true);
@@ -563,19 +564,21 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                 pvs.setDisable(false);
                 exprs.setDisable(false);
 
+                TableViewSelectionModel<RuleItem> model = rules_table.getSelectionModel();
+
                 btn_remove_rule.setDisable(false);
                 btn_dup_rule.setDisable(false);
-                btn_move_rule_up.setDisable(false);
-                btn_move_rule_down.setDisable(false);
+                btn_move_rule_up.setDisable(model.getSelectedIndex() == 0);
+                btn_move_rule_down.setDisable(model.getSelectedIndex() == rule_items.size() - 1);
                 btn_show_script.setDisable(false);
-                btn_add_pv.setDisable(false);
-                btn_rm_pv.setDisable(false);
-                btn_move_pv_up.setDisable(false);
-                btn_move_pv_down.setDisable(false);
-                btn_add_exp.setDisable(false);
-                btn_rm_exp.setDisable(false);
-                btn_move_exp_up.setDisable(false);
-                btn_move_exp_down.setDisable(false);
+//                btn_add_pv.setDisable(false);
+//                btn_rm_pv.setDisable(false);
+//                btn_move_pv_up.setDisable(false);
+//                btn_move_pv_down.setDisable(false);
+//                btn_add_exp.setDisable(false);
+//                btn_rm_exp.setDisable(false);
+//                btn_move_exp_up.setDisable(false);
+//                btn_move_exp_down.setDisable(false);
                 propComboBox.setDisable(false);
                 propComboBox.getSelectionModel().select(getPropLongString(selected));
                 valExpBox.setDisable(false);
@@ -751,7 +754,6 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         });
 
         rules_table = new TableView<>(rule_items);
-
         rules_table.getColumns().add(name_col);
         rules_table.setEditable(true);
         rules_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -760,8 +762,8 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
 
         // Buttons
         final Button add = new Button(Messages.Add, JFXUtil.getIcon("add.png"));
-
         add.setMaxWidth(Double.MAX_VALUE);
+        add.setAlignment(Pos.CENTER_LEFT);
         add.setOnAction(event -> {
 
             RuleItem newItem = new RuleItem(
@@ -782,17 +784,9 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
 
         });
 
-        btn_dup_rule = new Button(Messages.Copy, JFXUtil.getIcon("embedded_script.png"));
-        btn_dup_rule.setMaxWidth(Double.MAX_VALUE);
-        btn_dup_rule.setDisable(true);
-        btn_dup_rule.setOnAction(event -> {
-            if ( selected_rule_item != null ) {
-                rule_items.add(RuleItem.forInfo(attached_widget, selected_rule_item.getRuleInfo(), undo));
-            }
-        });
-
         btn_remove_rule = new Button(Messages.Remove, JFXUtil.getIcon("delete.png"));
         btn_remove_rule.setMaxWidth(Double.MAX_VALUE);
+        btn_remove_rule.setAlignment(Pos.CENTER_LEFT);
         btn_remove_rule.setDisable(true);
         btn_remove_rule.setOnAction(event -> {
             final int sel = rules_table.getSelectionModel().getSelectedIndex();
@@ -804,17 +798,30 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
 
         btn_move_rule_up = new Button(Messages.MoveUp, JFXUtil.getIcon("up.png"));
         btn_move_rule_up.setMaxWidth(Double.MAX_VALUE);
+        btn_move_rule_up.setAlignment(Pos.CENTER_LEFT);
         btn_move_rule_up.setDisable(true);
         btn_move_rule_up.setOnAction(event -> TableHelper.move_item_up(rules_table, rule_items));
 
         btn_move_rule_down = new Button(Messages.MoveDown, JFXUtil.getIcon("down.png"));
         btn_move_rule_down.setMaxWidth(Double.MAX_VALUE);
+        btn_move_rule_down.setAlignment(Pos.CENTER_LEFT);
         btn_move_rule_down.setDisable(true);
         btn_move_rule_down.setOnAction(event -> TableHelper.move_item_down(rules_table, rule_items));
 
-        btn_show_script = new Button(Messages.RulesDialog_ShowScript, JFXUtil.getIcon("embedded_script.png"));
+        btn_dup_rule = new Button(Messages.Duplicate, JFXUtil.getIcon("file-duplicate.png"));
+        btn_dup_rule.setMaxWidth(Double.MAX_VALUE);
+        btn_dup_rule.setAlignment(Pos.CENTER_LEFT);
+        btn_dup_rule.setDisable(true);
+        btn_dup_rule.setOnAction(event -> {
+            if ( selected_rule_item != null ) {
+                rule_items.add(RuleItem.forInfo(attached_widget, selected_rule_item.getRuleInfo(), undo));
+            }
+        });
+
+        btn_show_script = new Button(Messages.RulesDialog_ShowScript, JFXUtil.getIcon("file.png"));
         btn_show_script.setMaxWidth(Double.MAX_VALUE);
-        btn_show_script.setAlignment(Pos.BOTTOM_CENTER);
+        btn_show_script.setMinWidth(120);
+        btn_dup_rule.setAlignment(Pos.CENTER_LEFT);
         btn_show_script.setDisable(true);
         btn_show_script.setOnAction(event -> {
             final int sel = rules_table.getSelectionModel().getSelectedIndex();
@@ -827,11 +834,14 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             }
         });
 
-        final VBox buttons = new VBox(10, add, new Separator(Orientation.HORIZONTAL), btn_dup_rule, btn_remove_rule, btn_move_rule_up, btn_move_rule_down, new Separator(Orientation.HORIZONTAL), btn_show_script);
-
+        final VBox buttons = new VBox(10, add, btn_remove_rule, btn_move_rule_up, btn_move_rule_down, new Pane(), btn_dup_rule, btn_show_script);
         final HBox content = new HBox(10, rules_table, buttons);
+
         HBox.setHgrow(rules_table, Priority.ALWAYS);
+        HBox.setHgrow(buttons, Priority.NEVER);
+
         return content;
+
     }
 
     /** Fix rules data: Delete empty rows in middle

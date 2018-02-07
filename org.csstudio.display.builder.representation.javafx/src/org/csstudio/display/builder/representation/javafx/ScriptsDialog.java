@@ -57,6 +57,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TableView.TableViewSelectionModel;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.CheckBoxTableCell;
@@ -342,9 +343,13 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
                 btn_pv_up.setDisable(true);
                 btn_py_down.setDisable(true);
             } else {
+
+                TableViewSelectionModel<PVItem> model = pvs_table.getSelectionModel();
+
                 btn_pv_remove.setDisable(false);
-                btn_pv_up.setDisable(false);
-                btn_py_down.setDisable(false);
+                btn_pv_up.setDisable(model.getSelectedIndex() == 0);
+                btn_py_down.setDisable(model.getSelectedIndex() == pv_items.size() - 1);
+
             }
         });
 
@@ -487,9 +492,12 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
         final VBox buttons = new VBox(10, addMenuButton, btn_script_remove, btn_edit);
         final HBox content = new HBox(10, scripts_table, buttons);
+
         HBox.setHgrow(scripts_table, Priority.ALWAYS);
         HBox.setHgrow(buttons, Priority.NEVER);
+
         return content;
+
     }
 
     /** Fix scripts data: Delete empty rows in middle

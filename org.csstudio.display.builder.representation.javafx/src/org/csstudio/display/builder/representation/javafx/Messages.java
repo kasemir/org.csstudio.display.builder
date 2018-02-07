@@ -51,6 +51,7 @@ public class Messages extends NLS
     public static String ConvertToEmbeddedPython;
     public static String ConvertToScriptFile;
     public static String Copy;
+    public static String Duplicate;
     public static String Edit;
     public static String FileTypeAll;
     public static String FileTypeDisplays;
