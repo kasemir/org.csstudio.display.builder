@@ -31,11 +31,15 @@ import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.Messages;
+import org.csstudio.display.builder.representation.javafx.PVTableItem;
+import org.csstudio.display.builder.representation.javafx.PVTableItem.AutoCompletedTableCell;
 import org.csstudio.display.builder.representation.javafx.ScriptsDialog;
 import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.DialogHelper;
-import org.csstudio.javafx.MultiLineInputDialog;
+import org.csstudio.javafx.LineNumberTableCellFactory;
+import org.csstudio.javafx.SyntaxHighlightedMultiLineInputDialog;
+import org.csstudio.javafx.SyntaxHighlightedMultiLineInputDialog.Language;
 import org.csstudio.javafx.TableHelper;
 
 import javafx.application.Platform;
@@ -82,38 +86,6 @@ import javafx.util.converter.DefaultStringConverter;
 @SuppressWarnings("nls")
 public class RulesDialog extends Dialog<List<RuleInfo>>
 {
-    /** ScriptPV info as property-based item for table */
-    public static class PVItem
-    {
-        private final StringProperty name = new SimpleStringProperty();
-        private final BooleanProperty trigger = new SimpleBooleanProperty(true);
-
-        public PVItem(final String name, final boolean trigger)
-        {
-            this.name.set(name);
-            this.trigger.set(trigger);
-        }
-
-        public static PVItem forPV(final ScriptPV info)
-        {
-            return new PVItem(info.getName(), info.isTrigger());
-        }
-
-        public ScriptPV toScriptPV()
-        {
-            return new ScriptPV(name.get(), trigger.get());
-        }
-
-        public StringProperty nameProperty()
-        {
-            return name;
-        }
-
-        public BooleanProperty triggerProperty()
-        {
-            return trigger;
-        }
-    };
 
     /** Expression info as property-based item for table */
     public abstract static class ExprItem<T>
@@ -272,7 +244,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
     public static class RuleItem
     {
         public List<ExprItem<?>> expressions;
-        public List<PVItem> pvs;
+        public List<PVTableItem> pvs;
         protected StringProperty name = new SimpleStringProperty();
         protected StringProperty prop_id = new SimpleStringProperty();
         public BooleanProperty prop_as_expr = new SimpleBooleanProperty(false);
@@ -287,7 +259,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
 
         public RuleItem(final Widget attached_widget,
                 final List<ExprItem<?>> exprs,
-                final List<PVItem> pvs,
+                final List<PVTableItem> pvs,
                 final String name,
                 final String prop_id,
                 final boolean prop_as_exp)
@@ -302,8 +274,8 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
 
         public static RuleItem forInfo(final Widget attached_widget, final RuleInfo info, final UndoableActionManager undo)
         {
-            final List<PVItem> pvs = new ArrayList<>();
-            info.getPVs().forEach(pv -> pvs.add(PVItem.forPV(pv)));
+            final List<PVTableItem> pvs = new ArrayList<>();
+            info.getPVs().forEach(pv -> pvs.add(PVTableItem.forPV(pv)));
             final List<ExprItem<?>> exprs = new ArrayList<>();
             info.getExpressions().forEach(expr ->
             {
@@ -424,10 +396,10 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
     private TableView<RuleItem> rules_table;
 
     /** Data that is linked to the pvs_table */
-    private final ObservableList<PVItem> pv_items = FXCollections.observableArrayList();
+    private final ObservableList<PVTableItem> pv_items = FXCollections.observableArrayList();
 
     /** Table for PVs of currently selected rule */
-    private TableView<PVItem> pvs_table;
+    private TableView<PVTableItem> pvs_table;
 
     /** Data that is linked to the expressions_table */
     private final ObservableList<ExprItem<?>> expression_items = FXCollections.observableArrayList();
@@ -544,14 +516,6 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                 btn_move_rule_up.setDisable(true);
                 btn_move_rule_down.setDisable(true);
                 btn_show_script.setDisable(true);
-//                btn_add_pv.setDisable(true);
-//                btn_rm_pv.setDisable(true);
-//                btn_move_pv_up.setDisable(true);
-//                btn_move_pv_down.setDisable(true);
-//                btn_add_exp.setDisable(true);
-//                btn_rm_exp.setDisable(true);
-//                btn_move_exp_up.setDisable(true);
-//                btn_move_exp_down.setDisable(true);
                 propComboBox.setDisable(true);
                 propComboBox.getSelectionModel().select(null);
                 valExpBox.setDisable(true);
@@ -571,14 +535,6 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                 btn_move_rule_up.setDisable(model.getSelectedIndex() == 0);
                 btn_move_rule_down.setDisable(model.getSelectedIndex() == rule_items.size() - 1);
                 btn_show_script.setDisable(false);
-//                btn_add_pv.setDisable(false);
-//                btn_rm_pv.setDisable(false);
-//                btn_move_pv_up.setDisable(false);
-//                btn_move_pv_down.setDisable(false);
-//                btn_add_exp.setDisable(false);
-//                btn_rm_exp.setDisable(false);
-//                btn_move_exp_up.setDisable(false);
-//                btn_move_exp_down.setDisable(false);
                 propComboBox.setDisable(false);
                 propComboBox.getSelectionModel().select(getPropLongString(selected));
                 valExpBox.setDisable(false);
@@ -594,22 +550,62 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         });
 
         // Update PVs of selected rule from PVs table
-        final ListChangeListener<PVItem> pll = change ->
-        {
+        final ListChangeListener<PVTableItem> pll = change -> {
+
             final RuleItem selected = rules_table.getSelectionModel().getSelectedItem();
-            if (selected != null)
+
+            if ( selected != null ) {
                 selected.pvs = new ArrayList<>(change.getList());
+            }
+
         };
         pv_items.addListener(pll);
 
+        // Update buttons for currently selected PV
+        pvs_table.getSelectionModel().selectedItemProperty().addListener( ( prop, old, selected ) -> {
+            if ( selected == null ) {
+                btn_rm_pv.setDisable(true);
+                btn_move_pv_up.setDisable(true);
+                btn_move_pv_down.setDisable(true);
+            } else {
+
+                TableViewSelectionModel<PVTableItem> model = pvs_table.getSelectionModel();
+
+                btn_rm_pv.setDisable(false);
+                btn_move_pv_up.setDisable(model.getSelectedIndex() == 0);
+                btn_move_pv_down.setDisable(model.getSelectedIndex() == pv_items.size() - 1);
+
+            }
+        });
+
         // Update Expressions of selected rule from Expressions table
-        final ListChangeListener<ExprItem<?>> ell = change ->
-        {
+        final ListChangeListener<ExprItem<?>> ell = change -> {
+
             final RuleItem selected = rules_table.getSelectionModel().getSelectedItem();
-            if (selected != null)
+
+            if (selected != null) {
                 selected.expressions = new ArrayList<>(change.getList());
+            }
+
         };
         expression_items.addListener(ell);
+
+        // Update buttons for currently selected expression
+        expressions_table.getSelectionModel().selectedItemProperty().addListener( ( prop, old, selected ) -> {
+            if ( selected == null ) {
+                btn_rm_exp.setDisable(true);
+                btn_move_exp_up.setDisable(true);
+                btn_move_exp_down.setDisable(true);
+            } else {
+
+                TableViewSelectionModel<ExprItem<?>> model = expressions_table.getSelectionModel();
+
+                btn_rm_exp.setDisable(false);
+                btn_move_exp_up.setDisable(model.getSelectedIndex() == 0);
+                btn_move_exp_down.setDisable(model.getSelectedIndex() == expression_items.size() - 1);
+
+            }
+        });
 
         // What is the property id option we are using?
         final Label propLabel = new Label("Property ID:");
@@ -684,13 +680,6 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         VBox.setVgrow(rules, Priority.ALWAYS);
         HBox.setHgrow(subitems, Priority.ALWAYS);
 
-        // Select the first rule
-        if ( !rules_table.getItems().isEmpty() ) {
-            Platform.runLater(() -> rules_table.getSelectionModel().select(0));
-        }
-
-        Platform.runLater(() -> rules_table.requestFocus());
-
         final double prefWidth = pref.getDouble("content.width", -1);
         final double prefHeight = pref.getDouble("content.height", -1);
         final double prefDividerPosition = pref.getDouble("content.divider.position", 0.3);
@@ -702,6 +691,13 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         if ( prefWidth > 0 && prefHeight > 0 ) {
             splitPane.setPrefSize(prefWidth, prefHeight);
         }
+
+        // Select the first rule
+        if ( !rules_table.getItems().isEmpty() ) {
+            Platform.runLater(() -> rules_table.getSelectionModel().select(0));
+        }
+
+        Platform.runLater(() -> rules_table.requestFocus());
 
         return splitPane;
 
@@ -814,7 +810,22 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         btn_dup_rule.setDisable(true);
         btn_dup_rule.setOnAction(event -> {
             if ( selected_rule_item != null ) {
-                rule_items.add(RuleItem.forInfo(attached_widget, selected_rule_item.getRuleInfo(), undo));
+
+                RuleItem newItem = RuleItem.forInfo(attached_widget, selected_rule_item.getRuleInfo(), undo);
+
+                if ( !newItem.nameProperty().get().endsWith(" (duplicate)") ) {
+                    newItem.nameProperty().set(newItem.nameProperty().get() + " (duplicate)");
+                }
+
+                rule_items.add(newItem);
+                rules_table.getSelectionModel().select(newItem);
+
+                final int newRow = rules_table.getSelectionModel().getSelectedIndex();
+
+                ModelThreadPool.getTimer().schedule( ( ) -> {
+                    Platform.runLater( ( ) -> rules_table.edit(newRow, name_col));
+                }, 123, TimeUnit.MILLISECONDS);
+
             }
         });
 
@@ -824,14 +835,25 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         btn_dup_rule.setAlignment(Pos.CENTER_LEFT);
         btn_show_script.setDisable(true);
         btn_show_script.setOnAction(event -> {
+
             final int sel = rules_table.getSelectionModel().getSelectedIndex();
+
             if ( sel >= 0 ) {
+
                 final String content = rule_items.get(sel).getRuleInfo().getTextPy(attached_widget);
-                final MultiLineInputDialog dialog = new MultiLineInputDialog(content);
+                final SyntaxHighlightedMultiLineInputDialog dialog = new SyntaxHighlightedMultiLineInputDialog(
+                    btn_show_script,
+                    content,
+                    Language.Python,
+                    false
+                );
+
                 DialogHelper.positionDialog(dialog, btn_show_script, -200, -300);
                 dialog.setTextHeight(600);
                 dialog.show();
+
             }
+
         });
 
         final VBox buttons = new VBox(10, add, btn_remove_rule, btn_move_rule_up, btn_move_rule_down, new Pane(), btn_dup_rule, btn_show_script);
@@ -897,7 +919,6 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
 
         btn_add_exp = new Button(Messages.Add, JFXUtil.getIcon("add.png"));
         btn_add_exp.setMaxWidth(Double.MAX_VALUE);
-        btn_add_exp.setDisable(true);
         btn_add_exp.setOnAction(event ->
         {
             selected_rule_item.addNewExpr(undo);
@@ -934,133 +955,75 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
 
     }
 
-    /**
-     * {@link PVItem} {@link TableCell} with {@link AutocompleteMenu}
-     *
-     * @author Amanda Carpenter
-     */
-    private class AutoCompletedTableCell extends TableCell<PVItem, String>
-    {
-        //TODO: make autocomplete menu styling consistent with other menus
-        //(stylesheet in representation.javafx package is not applied)
-        private TextField textField;
-        private final AutocompleteMenu menu;
-
-        public AutoCompletedTableCell(final AutocompleteMenu menu)
-        {
-            this.menu = menu;
-        }
-
-        @Override
-        public void startEdit()
-        {
-            if (!isEmpty())
-            {
-                super.startEdit();
-                createTextField();
-                setText(null);
-                setGraphic(textField);
-                menu.attachField(textField);
-                textField.selectAll();
-            }
-        }
-
-        @Override
-        public void cancelEdit()
-        {
-            super.cancelEdit();
-            setText(getItem());
-            setGraphic(null);
-        }
-
-        @Override
-        public void updateItem(String item, boolean empty)
-        {
-            super.updateItem(item, empty);
-            if (empty)
-            {
-                setText(null);
-                setGraphic(null);
-            }
-            else if (isEditing())
-            {
-                if (textField != null)
-                    textField.setText(getItem() == null ? "" : getItem());
-                setText(null);
-                setGraphic(textField);
-            }
-            else
-            {
-                setText(getItem() == null ? "" : getItem());
-                setGraphic(null);
-                if (textField != null)
-                    menu.removeField(textField);
-            }
-        }
-
-        private void createTextField()
-        {
-            if (textField == null)
-            {
-                textField = new TextField(getItem() == null ? "" : getItem());
-                textField.setOnAction((event) ->
-                {
-                    commitEdit(textField.getText());
-                });
-            } else
-                textField.setText(getItem() == null ? "" : getItem());
-            textField.setMinWidth(getWidth() - getGraphicTextGap() * 2);
-        }
-    }
-
     /** @return Node for UI elements that edit the PVs of a rule */
-    private HBox createPVsTable()
-    {
+    private HBox createPVsTable ( ) {
+
+        final TableColumn<PVTableItem, Integer> indexColumn = new TableColumn<>("#");
+
+        indexColumn.setEditable(false);
+        indexColumn.setSortable(false);
+        indexColumn.setCellFactory(new LineNumberTableCellFactory<>(true));
+        indexColumn.setMaxWidth(26);
+        indexColumn.setMinWidth(26);
+
         // Create table with editable 'name' column
-        final TableColumn<PVItem, String> name_col = new TableColumn<>(Messages.ScriptsDialog_ColPV);
-        name_col.setCellValueFactory(new PropertyValueFactory<PVItem, String>("name"));
-        name_col.setCellFactory(col -> new AutoCompletedTableCell(menu));
-        name_col.setOnEditCommit(event ->
-        {
+        final TableColumn<PVTableItem, String> name_col = new TableColumn<>(Messages.ScriptsDialog_ColPV);
+        name_col.setSortable(false);
+        name_col.setCellValueFactory(new PropertyValueFactory<PVTableItem, String>("name"));
+        name_col.setCellFactory(col -> new AutoCompletedTableCell(menu, btn_add_pv));
+        name_col.setOnEditCommit(event -> {
+
             final int row = event.getTablePosition().getRow();
+
             pv_items.get(row).nameProperty().set(event.getNewValue());
             fixupPVs(row);
+
         });
 
-        // Table column for 'trigger' uses CheckBoxTableCell that directly modifies the Observable Property
-        final TableColumn<PVItem, Boolean> trigger_col = new TableColumn<>(Messages.ScriptsDialog_ColTrigger);
-        trigger_col.setCellValueFactory(new PropertyValueFactory<PVItem, Boolean>("trigger"));
-        trigger_col.setCellFactory(CheckBoxTableCell.<PVItem>forTableColumn(trigger_col));
+        // Table column for 'trigger' uses CheckBoxTableCell that directly
+        // modifies the Observable Property
+        final TableColumn<PVTableItem, Boolean> trigger_col = new TableColumn<>(Messages.ScriptsDialog_ColTrigger);
+        trigger_col.setSortable(false);
+        trigger_col.setCellValueFactory(new PropertyValueFactory<PVTableItem, Boolean>("trigger"));
+        trigger_col.setCellFactory(CheckBoxTableCell.<PVTableItem> forTableColumn(trigger_col));
+        trigger_col.setResizable(false);
+        trigger_col.setMaxWidth(70);
+        trigger_col.setMinWidth(70);
 
         pvs_table = new TableView<>(pv_items);
+        pvs_table.getColumns().add(indexColumn);
         pvs_table.getColumns().add(name_col);
         pvs_table.getColumns().add(trigger_col);
-
         pvs_table.setEditable(true);
         pvs_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         pvs_table.setTooltip(new Tooltip(Messages.RulesDialog_PVsTT));
         pvs_table.setPlaceholder(new Label(Messages.RulesDialog_NoPVs));
 
-        //name_col.prefWidthProperty().bind(pvs_table.widthProperty().multiply(0.8));
-        //trigger_col.prefWidthProperty().bind(pvs_table.widthProperty().multiply(0.2));
-
         // Buttons
         btn_add_pv = new Button(Messages.Add, JFXUtil.getIcon("add.png"));
         btn_add_pv.setMaxWidth(Double.MAX_VALUE);
-        btn_add_pv.setDisable(true);
-        btn_add_pv.setOnAction(event ->
-        {
-            pv_items.add(new PVItem("newpv", true));
+        btn_add_pv.setAlignment(Pos.CENTER_LEFT);
+        btn_add_pv.setOnAction(event -> {
+
+            final PVTableItem newItem = new PVTableItem("new-PV", true);
+
+            pv_items.add(newItem);
+            pvs_table.getSelectionModel().select(newItem);
+
+            final int newRow = pvs_table.getSelectionModel().getSelectedIndex();
+
+            ModelThreadPool.getTimer().schedule(() ->{
+                Platform.runLater(() -> pvs_table.edit(newRow, name_col));
+            }, 123, TimeUnit.MILLISECONDS);
+
         });
 
         btn_rm_pv = new Button(Messages.Remove, JFXUtil.getIcon("delete.png"));
         btn_rm_pv.setMaxWidth(Double.MAX_VALUE);
         btn_rm_pv.setDisable(true);
-        btn_rm_pv.setOnAction(event ->
-        {
+        btn_rm_pv.setOnAction(event -> {
             final int sel = pvs_table.getSelectionModel().getSelectedIndex();
-            if (sel >= 0)
-            {
+            if ( sel >= 0 ) {
                 pv_items.remove(sel);
                 fixupPVs(sel);
             }
@@ -1094,7 +1057,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         // Check if edited row is now empty and should be deleted
         if (changed_row < pv_items.size())
         {
-            final PVItem item = pv_items.get(changed_row);
+            final PVTableItem item = pv_items.get(changed_row);
             if (item.nameProperty().get().trim().isEmpty())
                 pv_items.remove(changed_row);
         }

@@ -122,6 +122,20 @@ public class SyntaxHighlightedMultiLineInputDialog extends Dialog<String> {
     }
 
     /**
+     * @param parent Parent node, dialog will be positioned relative to it.
+     * @param initialText Initial text.
+     * @param language The language this dialog will use to highlight syntax.
+     * @param editable {@code true} if the dialog allows editing, {@code false otherwise}.
+     */
+    public SyntaxHighlightedMultiLineInputDialog ( final Node parent, final String initialText, final Language language, boolean editable ) {
+
+        this(parent, initialText, language);
+
+        codeArea.setEditable(editable);
+
+    }
+
+    /**
      * @param pixels Suggested height of text in pixels .
      */
     public void setTextHeight ( final double pixels ) {
