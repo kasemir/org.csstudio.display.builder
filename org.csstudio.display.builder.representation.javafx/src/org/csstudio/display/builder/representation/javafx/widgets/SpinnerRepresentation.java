@@ -268,13 +268,15 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
         @Override
         public void decrement(int steps)
         {
-            writeResultingValue(-steps*getStepIncrement());
+            if ( !toolkit.isEditMode() && model_widget.propEnabled().getValue() )
+                writeResultingValue(-steps*getStepIncrement());
         }
 
         @Override
         public void increment(int steps)
         {
-            writeResultingValue(steps*getStepIncrement());
+            if ( !toolkit.isEditMode() && model_widget.propEnabled().getValue() )
+                writeResultingValue(steps*getStepIncrement());
         }
 
         private void writeResultingValue(double change)
