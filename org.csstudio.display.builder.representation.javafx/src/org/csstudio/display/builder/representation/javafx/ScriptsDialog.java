@@ -419,11 +419,13 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
             }
 
         });
-        scripts_name_col.setOnEditCommit(event ->
-        {
+        scripts_name_col.setOnEditCommit(event -> {
+
             final int row = event.getTablePosition().getRow();
+
             script_items.get(row).file.set(event.getNewValue());
             fixupScripts(row);
+
         });
 
         scripts_table = new TableView<>(script_items);

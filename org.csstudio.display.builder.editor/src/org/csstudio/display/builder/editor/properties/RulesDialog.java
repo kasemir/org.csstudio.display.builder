@@ -11,6 +11,7 @@ import static org.csstudio.display.builder.editor.Plugin.logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
@@ -26,6 +27,7 @@ import org.csstudio.display.builder.model.rules.RuleInfo.ExprInfoString;
 import org.csstudio.display.builder.model.rules.RuleInfo.ExprInfoValue;
 import org.csstudio.display.builder.model.rules.RuleInfo.ExpressionInfo;
 import org.csstudio.display.builder.model.rules.RuleInfo.PropInfo;
+import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.Messages;
@@ -42,6 +44,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -70,6 +73,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
+import javafx.util.converter.DefaultStringConverter;
 
 /** Dialog for editing {@link RuleInfo}s
  *  @author Megan Grodowitz
@@ -700,22 +704,54 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
 
     }
 
-    /** @param attached_widget
-     * @return Node for UI elements that edit the rules */
-    private Node createRulesTable()
-    {
+    /**
+     * @return Node for UI elements that edit the rules
+     */
+    private Node createRulesTable ( ) {
+
         // Create table with editable rule 'name' column
         final TableColumn<RuleItem, String> name_col = new TableColumn<>(Messages.RulesDialog_ColName);
+
         name_col.setCellValueFactory(new PropertyValueFactory<RuleItem, String>("name"));
-        name_col.setCellFactory(TextFieldTableCell.<RuleItem>forTableColumn());
-        name_col.setOnEditCommit(event ->
-        {
+        name_col.setCellFactory(list -> new TextFieldTableCell<RuleItem, String>(new DefaultStringConverter()) {
+
+            private final ChangeListener<? super Boolean> focusedListener = ( ob, o, n ) -> {
+                if ( !n ) {
+                    cancelEdit();
+                }
+            };
+
+            @Override
+            public void cancelEdit ( ) {
+                ( (TextField) getGraphic() ).focusedProperty().removeListener(focusedListener);
+                super.cancelEdit();
+            }
+
+            @Override
+            public void commitEdit ( final String newValue ) {
+                ( (TextField) getGraphic() ).focusedProperty().removeListener(focusedListener);
+                super.commitEdit(newValue);
+                Platform.runLater( ( ) -> btn_add_pv.requestFocus());
+            }
+
+            @Override
+            public void startEdit ( ) {
+                super.startEdit();
+                ( (TextField) getGraphic() ).focusedProperty().addListener(focusedListener);
+            }
+
+        });
+        name_col.setOnEditCommit(event -> {
+
             final int row = event.getTablePosition().getRow();
+
             rule_items.get(row).name.set(event.getNewValue());
             fixupRules(row);
+
         });
 
         rules_table = new TableView<>(rule_items);
+
         rules_table.getColumns().add(name_col);
         rules_table.setEditable(true);
         rules_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -724,38 +760,43 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
 
         // Buttons
         final Button add = new Button(Messages.Add, JFXUtil.getIcon("add.png"));
+
         add.setMaxWidth(Double.MAX_VALUE);
-        add.setOnAction(event ->
-        {
-            rule_items.add( new RuleItem(
-                    attached_widget,
-                    ( (selected_rule_item == null) ?
-                            ( (propinfo_ls.size() == 0) ? "" : propinfo_ls.get(0).getPropID() )
-                            :
-                                selected_rule_item.prop_id.get() )
-                    ));
+        add.setOnAction(event -> {
+
+            RuleItem newItem = new RuleItem(
+                attached_widget,
+                ( selected_rule_item == null )
+                    ? ( ( propinfo_ls.size() == 0 ) ? "" : propinfo_ls.get(0).getPropID() )
+                    : selected_rule_item.prop_id.get()
+            );
+
+            rule_items.add(newItem);
+            rules_table.getSelectionModel().select(newItem);
+
+            final int newRow = rules_table.getSelectionModel().getSelectedIndex();
+
+            ModelThreadPool.getTimer().schedule( ( ) -> {
+                Platform.runLater( ( ) -> rules_table.edit(newRow, name_col));
+            }, 123, TimeUnit.MILLISECONDS);
+
         });
 
         btn_dup_rule = new Button(Messages.Copy, JFXUtil.getIcon("embedded_script.png"));
         btn_dup_rule.setMaxWidth(Double.MAX_VALUE);
         btn_dup_rule.setDisable(true);
-        btn_dup_rule.setOnAction(event ->
-        {
-            if (selected_rule_item != null) {
-                rule_items.add( RuleItem.forInfo(attached_widget,
-                        selected_rule_item.getRuleInfo(),
-                        undo) );
+        btn_dup_rule.setOnAction(event -> {
+            if ( selected_rule_item != null ) {
+                rule_items.add(RuleItem.forInfo(attached_widget, selected_rule_item.getRuleInfo(), undo));
             }
         });
 
         btn_remove_rule = new Button(Messages.Remove, JFXUtil.getIcon("delete.png"));
         btn_remove_rule.setMaxWidth(Double.MAX_VALUE);
         btn_remove_rule.setDisable(true);
-        btn_remove_rule.setOnAction(event ->
-        {
+        btn_remove_rule.setOnAction(event -> {
             final int sel = rules_table.getSelectionModel().getSelectedIndex();
-            if (sel >= 0)
-            {
+            if ( sel >= 0 ) {
                 rule_items.remove(sel);
                 fixupRules(sel);
             }
@@ -775,11 +816,9 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         btn_show_script.setMaxWidth(Double.MAX_VALUE);
         btn_show_script.setAlignment(Pos.BOTTOM_CENTER);
         btn_show_script.setDisable(true);
-        btn_show_script.setOnAction(event ->
-        {
+        btn_show_script.setOnAction(event -> {
             final int sel = rules_table.getSelectionModel().getSelectedIndex();
-            if (sel >= 0)
-            {
+            if ( sel >= 0 ) {
                 final String content = rule_items.get(sel).getRuleInfo().getTextPy(attached_widget);
                 final MultiLineInputDialog dialog = new MultiLineInputDialog(content);
                 DialogHelper.positionDialog(dialog, btn_show_script, -200, -300);
@@ -788,14 +827,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             }
         });
 
-        final VBox buttons = new VBox(10, add,
-                new Separator(Orientation.HORIZONTAL),
-                btn_dup_rule,
-                btn_remove_rule,
-                btn_move_rule_up,
-                btn_move_rule_down,
-                new Separator(Orientation.HORIZONTAL),
-                btn_show_script);
+        final VBox buttons = new VBox(10, add, new Separator(Orientation.HORIZONTAL), btn_dup_rule, btn_remove_rule, btn_move_rule_up, btn_move_rule_down, new Separator(Orientation.HORIZONTAL), btn_show_script);
 
         final HBox content = new HBox(10, rules_table, buttons);
         HBox.setHgrow(rules_table, Priority.ALWAYS);
