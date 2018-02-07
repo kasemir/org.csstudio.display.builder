@@ -484,11 +484,9 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
     }
 
     /** @return Node for UI elements that edit the PVs of a script */
-    private Region createPVsTable()
-    {
+    private Region createPVsTable ( ) {
 
         final TableColumn<PVTableItem, Integer> indexColumn = new TableColumn<>("#");
-
         indexColumn.setEditable(false);
         indexColumn.setSortable(false);
         indexColumn.setCellFactory(new LineNumberTableCellFactory<>(true));
@@ -551,14 +549,15 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         btn_pv_remove.setMinWidth(96);
         btn_pv_remove.setAlignment(Pos.CENTER_LEFT);
         btn_pv_remove.setDisable(true);
-        btn_pv_remove.setOnAction(event ->
-        {
+        btn_pv_remove.setOnAction(event -> {
+
             final int sel = pvs_table.getSelectionModel().getSelectedIndex();
-            if (sel >= 0)
-            {
+
+            if ( sel >= 0 ) {
                 pv_items.remove(sel);
                 fixupPVs(sel);
             }
+
         });
 
         btn_pv_up = new Button(Messages.MoveUp, JFXUtil.getIcon("up.png"));

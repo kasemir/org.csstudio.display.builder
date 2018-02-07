@@ -881,16 +881,46 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
     }
 
     /** @return Node for UI elements that edit the expressions */
-    private HBox createExpressionsTable()
-    {
+    private HBox createExpressionsTable ( ) {
+
         // Create table with editable rule 'bool expression' column
         final TableColumn<ExprItem<?>, String> bool_exp_col = new TableColumn<>(Messages.RulesDialog_ColBoolExp);
+        bool_exp_col.setSortable(false);
         bool_exp_col.setCellValueFactory(new PropertyValueFactory<ExprItem<?>, String>("boolExp"));
-        bool_exp_col.setCellFactory(TextFieldTableCell.forTableColumn());
-        bool_exp_col.setOnEditCommit(event ->
-        {
+//        bool_exp_col.setCellFactory(TextFieldTableCell.forTableColumn());
+        bool_exp_col.setCellFactory(list -> new TextFieldTableCell<ExprItem<?>, String>(new DefaultStringConverter()) {
+
+            private final ChangeListener<? super Boolean> focusedListener = ( ob, o, n ) -> {
+                if ( !n ) {
+                    cancelEdit();
+                }
+            };
+
+            @Override
+            public void cancelEdit ( ) {
+                ( (TextField) getGraphic() ).focusedProperty().removeListener(focusedListener);
+                super.cancelEdit();
+            }
+
+            @Override
+            public void commitEdit ( final String newValue ) {
+                ( (TextField) getGraphic() ).focusedProperty().removeListener(focusedListener);
+                super.commitEdit(newValue);
+            }
+
+            @Override
+            public void startEdit ( ) {
+                super.startEdit();
+                ( (TextField) getGraphic() ).focusedProperty().addListener(focusedListener);
+            }
+
+        });
+        bool_exp_col.setOnEditCommit(event -> {
+
             final int row = event.getTablePosition().getRow();
+
             expression_items.get(row).boolExpProperty().set(event.getNewValue());
+
         });
 
         // Create table with editable rule 'value expression' column
@@ -919,10 +949,19 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
 
         btn_add_exp = new Button(Messages.Add, JFXUtil.getIcon("add.png"));
         btn_add_exp.setMaxWidth(Double.MAX_VALUE);
-        btn_add_exp.setOnAction(event ->
-        {
+        btn_add_exp.setOnAction(event -> {
+
             selected_rule_item.addNewExpr(undo);
             expression_items.setAll(selected_rule_item.expressions);
+
+            expressions_table.getSelectionModel().select(expression_items.size() - 1);
+
+            final int newRow = expression_items.size() - 1;
+
+            ModelThreadPool.getTimer().schedule(() ->{
+                Platform.runLater(() -> expressions_table.edit(newRow, bool_exp_col));
+            }, 123, TimeUnit.MILLISECONDS);
+
         });
 
         btn_rm_exp = new Button(Messages.Remove, JFXUtil.getIcon("delete.png"));
@@ -959,7 +998,6 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
     private HBox createPVsTable ( ) {
 
         final TableColumn<PVTableItem, Integer> indexColumn = new TableColumn<>("#");
-
         indexColumn.setEditable(false);
         indexColumn.setSortable(false);
         indexColumn.setCellFactory(new LineNumberTableCellFactory<>(true));
@@ -1020,28 +1058,36 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
 
         btn_rm_pv = new Button(Messages.Remove, JFXUtil.getIcon("delete.png"));
         btn_rm_pv.setMaxWidth(Double.MAX_VALUE);
+        btn_rm_pv.setMinWidth(96);
+        btn_rm_pv.setAlignment(Pos.CENTER_LEFT);
         btn_rm_pv.setDisable(true);
         btn_rm_pv.setOnAction(event -> {
+
             final int sel = pvs_table.getSelectionModel().getSelectedIndex();
+
             if ( sel >= 0 ) {
                 pv_items.remove(sel);
                 fixupPVs(sel);
             }
+
         });
 
         btn_move_pv_up = new Button(Messages.MoveUp, JFXUtil.getIcon("up.png"));
         btn_move_pv_up.setMaxWidth(Double.MAX_VALUE);
+        btn_move_pv_up.setAlignment(Pos.CENTER_LEFT);
         btn_move_pv_up.setDisable(true);
         btn_move_pv_up.setOnAction(event -> TableHelper.move_item_up(pvs_table, pv_items));
 
         btn_move_pv_down = new Button(Messages.MoveDown, JFXUtil.getIcon("down.png"));
         btn_move_pv_down.setMaxWidth(Double.MAX_VALUE);
+        btn_move_pv_down.setAlignment(Pos.CENTER_LEFT);
         btn_move_pv_down.setDisable(true);
         btn_move_pv_down.setOnAction(event -> TableHelper.move_item_down(pvs_table, pv_items));
 
         final VBox buttons = new VBox(10, btn_add_pv, btn_rm_pv, btn_move_pv_up, btn_move_pv_down);
         final HBox content = new HBox(10, pvs_table, buttons);
         HBox.setHgrow(pvs_table, Priority.ALWAYS);
+        HBox.setHgrow(buttons, Priority.NEVER);
 
         content.setDisable(true);
 
