@@ -36,6 +36,7 @@ import org.csstudio.javafx.DialogHelper;
 import org.csstudio.javafx.MultiLineInputDialog;
 import org.csstudio.javafx.TableHelper;
 
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -524,11 +525,15 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         final HBox exprs = createExpressionsTable();
 
         // Display PVs of currently selected rule
-        rules_table.getSelectionModel().selectedItemProperty().addListener((prop, old, selected) ->
-        {
+        rules_table.getSelectionModel().selectedItemProperty().addListener( ( prop, old, selected ) -> {
+
             selected_rule_item = selected;
-            if (selected == null)
-            {
+
+            if ( selected == null ) {
+
+                pvs.setDisable(true);
+                exprs.setDisable(true);
+
                 btn_remove_rule.setDisable(true);
                 btn_dup_rule.setDisable(true);
                 btn_move_rule_up.setDisable(true);
@@ -545,11 +550,15 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                 propComboBox.setDisable(true);
                 propComboBox.getSelectionModel().select(null);
                 valExpBox.setDisable(true);
+
                 pv_items.clear();
                 expression_items.clear();
-            }
-            else
-            {
+
+            } else {
+
+                pvs.setDisable(false);
+                exprs.setDisable(false);
+
                 btn_remove_rule.setDisable(false);
                 btn_dup_rule.setDisable(false);
                 btn_move_rule_up.setDisable(false);
@@ -567,11 +576,16 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                 propComboBox.getSelectionModel().select(getPropLongString(selected));
                 valExpBox.setDisable(false);
                 valExpBox.selectedProperty().set(selected.prop_as_expr.get());
+
                 pv_items.setAll(selected.pvs);
                 expression_items.setAll(selected.expressions);
+
                 fixupPVs(0);
+
             }
+
         });
+
         // Update PVs of selected rule from PVs table
         final ListChangeListener<PVItem> pll = change ->
         {
@@ -605,17 +619,24 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         }
         propComboBox = new ComboBox<String>(prop_id_opts);
         propComboBox.setDisable(true);
-        // Select property info based on index within combo
-        propComboBox.getSelectionModel().selectedIndexProperty().addListener( (p, o, index) ->
-        {
-            final PropInfo prop = propinfo_ls.get(index.intValue());
-            if (selected_rule_item.tryUpdatePropID(undo, prop.getPropID()))
-                expression_items.setAll(selected_rule_item.expressions);
+        propComboBox.getSelectionModel().selectedIndexProperty().addListener( (p, o, index) -> {
+            // Select property info based on index within combo.
+            int idx = index.intValue();
+
+            if ( idx >= 0 ) {
+
+                PropInfo prop = propinfo_ls.get(idx);
+
+                if ( selected_rule_item.tryUpdatePropID(undo, prop.getPropID()) ) {
+                    expression_items.setAll(selected_rule_item.expressions);
+                }
+
+            }
+
         });
         propComboBox.setMinHeight(27);
         propComboBox.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(propComboBox, Priority.ALWAYS);
-
 
         // TODO: change this to actually manipulate expression objects in the rule
         valExpBox = new CheckBox("Value as Expression");
@@ -628,10 +649,12 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                 expression_items.setAll(selected_rule_item.expressions);
         });
 
-
         final Region spring = new Region();
         HBox.setHgrow(spring, Priority.ALWAYS);
+
         final HBox props = new HBox(10, propLabel, propComboBox, spring, valExpBox);
+
+        props.setAlignment(Pos.CENTER);
         pvs.setPadding(new Insets(0, 10, 0, 0));
         exprs.setPadding(new Insets(0, 0, 0, 10));
 
@@ -649,22 +672,32 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
 
         final VBox subitems = new VBox(10, props, ruleSplitPane);
         final VBox rulebox = new VBox(10, rules);
-        props.setAlignment(Pos.CENTER);
         rulebox.setPadding(new Insets(0, 10, 0, 0));
         subitems.setPadding(new Insets(0, 0, 0, 10));
         VBox.setVgrow(rules, Priority.ALWAYS);
         HBox.setHgrow(subitems, Priority.ALWAYS);
 
+        // Select the first rule
+        if ( !rules_table.getItems().isEmpty() ) {
+            Platform.runLater(() -> rules_table.getSelectionModel().select(0));
+        }
+
+        Platform.runLater(() -> rules_table.requestFocus());
+
         final double prefWidth = pref.getDouble("content.width", -1);
         final double prefHeight = pref.getDouble("content.height", -1);
         final double prefDividerPosition = pref.getDouble("content.divider.position", 0.3);
         final SplitPane splitPane = new SplitPane(rulebox, subitems);
+
         splitPane.setOrientation(Orientation.HORIZONTAL);
         splitPane.setDividerPositions(prefDividerPosition);
-        if (prefWidth > 0  &&  prefHeight > 0)
+
+        if ( prefWidth > 0 && prefHeight > 0 ) {
             splitPane.setPrefSize(prefWidth, prefHeight);
+        }
 
         return splitPane;
+
     }
 
     /** @param attached_widget
@@ -687,6 +720,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         rules_table.setEditable(true);
         rules_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         rules_table.setTooltip(new Tooltip(Messages.RulesDialog_RulesTT));
+        rules_table.setPlaceholder(new Label(Messages.RulesDialog_NoRules));
 
         // Buttons
         final Button add = new Button(Messages.Add, JFXUtil.getIcon("add.png"));
@@ -811,15 +845,13 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             expression_items.get(row).fieldProperty().set(event.getNewValue());
         });
 
-
         expressions_table = new TableView<>(expression_items);
         expressions_table.getColumns().add(bool_exp_col);
         expressions_table.getColumns().add(val_exp_col);
         expressions_table.setEditable(true);
         expressions_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         expressions_table.setTooltip(new Tooltip(Messages.RulesDialog_ExpressionsTT));
-        expressions_table.setPlaceholder(new Label(Messages.RulesDialog_SelectRule));
-
+        expressions_table.setPlaceholder(new Label(Messages.RulesDialog_NoExpressions));
 
         btn_add_exp = new Button(Messages.Add, JFXUtil.getIcon("add.png"));
         btn_add_exp.setMaxWidth(Double.MAX_VALUE);
@@ -853,7 +885,11 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         final VBox buttons = new VBox(10, btn_add_exp, btn_rm_exp, btn_move_exp_up, btn_move_exp_down);
         final HBox content = new HBox(10, expressions_table, buttons);
         HBox.setHgrow(expressions_table, Priority.ALWAYS);
+
+        content.setDisable(true);
+
         return content;
+
     }
 
     /**
@@ -961,7 +997,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         pvs_table.setEditable(true);
         pvs_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         pvs_table.setTooltip(new Tooltip(Messages.RulesDialog_PVsTT));
-        pvs_table.setPlaceholder(new Label(Messages.RulesDialog_SelectRule));
+        pvs_table.setPlaceholder(new Label(Messages.RulesDialog_NoPVs));
 
         //name_col.prefWidthProperty().bind(pvs_table.widthProperty().multiply(0.8));
         //trigger_col.prefWidthProperty().bind(pvs_table.widthProperty().multiply(0.2));
@@ -1001,7 +1037,11 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         final VBox buttons = new VBox(10, btn_add_pv, btn_rm_pv, btn_move_pv_up, btn_move_pv_down);
         final HBox content = new HBox(10, pvs_table, buttons);
         HBox.setHgrow(pvs_table, Priority.ALWAYS);
+
+        content.setDisable(true);
+
         return content;
+
     }
 
     /** Fix PVs data: Delete empty rows in middle

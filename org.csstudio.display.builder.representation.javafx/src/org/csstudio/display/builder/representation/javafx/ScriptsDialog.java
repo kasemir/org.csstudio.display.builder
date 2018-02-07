@@ -432,6 +432,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         scripts_table.setEditable(true);
         scripts_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         scripts_table.setTooltip(new Tooltip(Messages.ScriptsDialog_ScriptsTT));
+        scripts_table.setPlaceholder(new Label(Messages.ScriptsDialog_NoScripts));
 
         // Buttons
         MenuButton addMenuButton = new MenuButton(
@@ -632,7 +633,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         pvs_table.setEditable(true);
         pvs_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         pvs_table.setTooltip(new Tooltip(Messages.ScriptsDialog_PVsTT));
-        pvs_table.setPlaceholder(new Label(Messages.ScriptsDialog_SelectScript));
+        pvs_table.setPlaceholder(new Label(Messages.ScriptsDialog_NoPVs));
 
         // Buttons
         btn_pv_add = new Button(Messages.Add, JFXUtil.getIcon("add.png"));
