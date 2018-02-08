@@ -77,7 +77,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import javafx.util.Callback;
 import javafx.util.converter.DefaultStringConverter;
 
 /** Dialog for editing {@link RuleInfo}s
@@ -227,16 +226,6 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                     + property.getClass().getName());
 
             throw new Exception("Invalid property type");
-        }
-    }
-
-    public class ValueFormatCell extends TableCell<ExprItem<?>, Node>
-    {
-        @Override protected void updateItem(Node item, boolean empty)
-        {
-            // calling super here is very important - don't skip this!
-            super.updateItem(item, empty);
-            setGraphic(item);
         }
     }
 
@@ -408,7 +397,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
     private TableView<ExprItem<?>> expressions_table;
 
     /** Buttons for removing or reordering rules **/
-    private Button btn_dup_rule, btn_remove_rule, btn_move_rule_up, btn_move_rule_down, btn_show_script;
+    private Button btn_add_rule, btn_dup_rule, btn_remove_rule, btn_move_rule_up, btn_move_rule_down, btn_show_script;
     /** Buttons for adding/removing PVs and expressions from the selected rule **/
     private Button btn_add_pv, btn_rm_pv, btn_move_pv_up, btn_move_pv_down, btn_add_exp, btn_rm_exp, btn_move_exp_up, btn_move_exp_down;
 
@@ -694,10 +683,13 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
 
         // Select the first rule
         if ( !rules_table.getItems().isEmpty() ) {
-            Platform.runLater(() -> rules_table.getSelectionModel().select(0));
+            Platform.runLater(() -> {
+                rules_table.getSelectionModel().select(0);
+                rules_table.requestFocus();
+            });
+        } else {
+            Platform.runLater(() -> btn_add_rule.requestFocus());
         }
-
-        Platform.runLater(() -> rules_table.requestFocus());
 
         return splitPane;
 
@@ -757,10 +749,10 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         rules_table.setPlaceholder(new Label(Messages.RulesDialog_NoRules));
 
         // Buttons
-        final Button add = new Button(Messages.Add, JFXUtil.getIcon("add.png"));
-        add.setMaxWidth(Double.MAX_VALUE);
-        add.setAlignment(Pos.CENTER_LEFT);
-        add.setOnAction(event -> {
+        btn_add_rule = new Button(Messages.Add, JFXUtil.getIcon("add.png"));
+        btn_add_rule.setMaxWidth(Double.MAX_VALUE);
+        btn_add_rule.setAlignment(Pos.CENTER_LEFT);
+        btn_add_rule.setOnAction(event -> {
 
             RuleItem newItem = new RuleItem(
                 attached_widget,
@@ -856,7 +848,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
 
         });
 
-        final VBox buttons = new VBox(10, add, btn_remove_rule, btn_move_rule_up, btn_move_rule_down, new Pane(), btn_dup_rule, btn_show_script);
+        final VBox buttons = new VBox(10, btn_add_rule, btn_remove_rule, btn_move_rule_up, btn_move_rule_down, new Pane(), btn_dup_rule, btn_show_script);
         final HBox content = new HBox(10, rules_table, buttons);
 
         HBox.setHgrow(rules_table, Priority.ALWAYS);
@@ -887,14 +879,18 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         final TableColumn<ExprItem<?>, String> bool_exp_col = new TableColumn<>(Messages.RulesDialog_ColBoolExp);
         bool_exp_col.setSortable(false);
         bool_exp_col.setCellValueFactory(new PropertyValueFactory<ExprItem<?>, String>("boolExp"));
-//        bool_exp_col.setCellFactory(TextFieldTableCell.forTableColumn());
-        bool_exp_col.setCellFactory(list -> new TextFieldTableCell<ExprItem<?>, String>(new DefaultStringConverter()) {
+        bool_exp_col.setCellFactory(tableColumn -> new TextFieldTableCell<ExprItem<?>, String>(new DefaultStringConverter()) {
 
             private final ChangeListener<? super Boolean> focusedListener = ( ob, o, n ) -> {
                 if ( !n ) {
                     cancelEdit();
                 }
             };
+
+            /* Instance initializer. */
+            {
+                setAlignment(Pos.CENTER_LEFT);
+            }
 
             @Override
             public void cancelEdit ( ) {
@@ -915,28 +911,46 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             }
 
         });
+
+        // Create table with editable rule 'value expression' column
+        final TableColumn<ExprItem<?>, Node> val_exp_col = new TableColumn<>(Messages.RulesDialog_ColValExp);
+
+        //  This statement requires "val_exp_col" be defined.
         bool_exp_col.setOnEditCommit(event -> {
 
             final int row = event.getTablePosition().getRow();
 
             expression_items.get(row).boolExpProperty().set(event.getNewValue());
+            ModelThreadPool.getTimer().schedule(() ->{
+                Platform.runLater(() -> {
+                    val_exp_col.getCellData(row).requestFocus();
+                });
+            }, 123, TimeUnit.MILLISECONDS);
 
         });
 
-        // Create table with editable rule 'value expression' column
-        final TableColumn<ExprItem<?>, Node> val_exp_col = new TableColumn<>(Messages.RulesDialog_ColValExp);
+        val_exp_col.setSortable(false);
         val_exp_col.setCellValueFactory(new PropertyValueFactory<ExprItem<?>, Node>("field"));
-        val_exp_col.setCellFactory(new Callback<TableColumn<ExprItem<?>, Node>, TableCell<ExprItem<?>, Node>>()
-        {
-            @Override public TableCell<ExprItem<?>, Node> call(TableColumn<ExprItem<?>, Node> t)
-            {
-                return new ValueFormatCell();
+        val_exp_col.setCellFactory(tableColumn -> new TableCell<ExprItem<?>, Node>() {
+            @Override
+            protected void updateItem ( Node item, boolean empty ) {
+                // calling super here is very important - don't skip this!
+                super.updateItem(item, empty);
+                setGraphic(item);
             }
         });
-        val_exp_col.setOnEditCommit(event ->
-        {
+        val_exp_col.setOnEditCommit(event -> {
+
             final int row = event.getTablePosition().getRow();
+
             expression_items.get(row).fieldProperty().set(event.getNewValue());
+            event.consume();
+            ModelThreadPool.getTimer().schedule(() ->{
+                Platform.runLater(() -> {
+                    btn_add_exp.requestFocus();
+                });
+            }, 1230, TimeUnit.MILLISECONDS);
+
         });
 
         expressions_table = new TableView<>(expression_items);
@@ -947,8 +961,10 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         expressions_table.setTooltip(new Tooltip(Messages.RulesDialog_ExpressionsTT));
         expressions_table.setPlaceholder(new Label(Messages.RulesDialog_NoExpressions));
 
+        // Buttons
         btn_add_exp = new Button(Messages.Add, JFXUtil.getIcon("add.png"));
         btn_add_exp.setMaxWidth(Double.MAX_VALUE);
+        btn_add_exp.setAlignment(Pos.CENTER_LEFT);
         btn_add_exp.setOnAction(event -> {
 
             selected_rule_item.addNewExpr(undo);
@@ -966,27 +982,35 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
 
         btn_rm_exp = new Button(Messages.Remove, JFXUtil.getIcon("delete.png"));
         btn_rm_exp.setMaxWidth(Double.MAX_VALUE);
+        btn_rm_exp.setMinWidth(96);
+        btn_rm_exp.setAlignment(Pos.CENTER_LEFT);
         btn_rm_exp.setDisable(true);
-        btn_rm_exp.setOnAction(event ->
-        {
+        btn_rm_exp.setOnAction(event -> {
+
             final int sel = expressions_table.getSelectionModel().getSelectedIndex();
-            if (sel >= 0)
+
+            if ( sel >= 0 ) {
                 expression_items.remove(sel);
+            }
+
         });
 
         btn_move_exp_up = new Button(Messages.MoveUp, JFXUtil.getIcon("up.png"));
         btn_move_exp_up.setMaxWidth(Double.MAX_VALUE);
+        btn_move_exp_up.setAlignment(Pos.CENTER_LEFT);
         btn_move_exp_up.setDisable(true);
         btn_move_exp_up.setOnAction(event -> TableHelper.move_item_up(expressions_table, expression_items));
 
         btn_move_exp_down = new Button(Messages.MoveDown, JFXUtil.getIcon("down.png"));
         btn_move_exp_down.setMaxWidth(Double.MAX_VALUE);
+        btn_move_exp_down.setAlignment(Pos.CENTER_LEFT);
         btn_move_exp_down.setDisable(true);
         btn_move_exp_down.setOnAction(event -> TableHelper.move_item_down(expressions_table, expression_items));
 
         final VBox buttons = new VBox(10, btn_add_exp, btn_rm_exp, btn_move_exp_up, btn_move_exp_down);
         final HBox content = new HBox(10, expressions_table, buttons);
         HBox.setHgrow(expressions_table, Priority.ALWAYS);
+        HBox.setHgrow(buttons, Priority.NEVER);
 
         content.setDisable(true);
 

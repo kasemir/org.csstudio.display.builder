@@ -275,6 +275,9 @@ public class PropertyPanelSection extends GridPane
             binding.bind();
 
             field = new BorderPane(combo, null, macroButton, null, null);
+
+            field.focusedProperty().addListener(( ob, o, n ) -> combo.requestFocus());
+
         }
         else if (property instanceof BooleanWidgetProperty)
         {
@@ -309,6 +312,17 @@ public class PropertyPanelSection extends GridPane
             binding.bind();
 
             field = new BorderPane(new StackPane(combo, check), null, macroButton, null, null);
+
+            field.focusedProperty().addListener(( ob, o, n ) -> {
+                if ( combo.isVisible() ) {
+                    combo.requestFocus();
+                } else {
+                    if ( check.isVisible() ) {
+                        check.requestFocus();
+                    }
+                }
+            });
+
         }
         else if (property instanceof ColorMapWidgetProperty)
         {
@@ -361,6 +375,9 @@ public class PropertyPanelSection extends GridPane
             binding.bind();
             field = new HBox(text, select_file);
             HBox.setHgrow(text, Priority.ALWAYS);
+
+            field.focusedProperty().addListener(( ob, o, n ) -> text.requestFocus());
+
         }
         else if (property instanceof PVNameWidgetProperty)
         {
@@ -415,6 +432,9 @@ public class PropertyPanelSection extends GridPane
                 });
                 field = new HBox(text, open_editor);
                 HBox.setHgrow(text, Priority.ALWAYS);
+
+                field.focusedProperty().addListener(( ob, o, n ) -> text.requestFocus());
+
             }
             else
                 field = text;

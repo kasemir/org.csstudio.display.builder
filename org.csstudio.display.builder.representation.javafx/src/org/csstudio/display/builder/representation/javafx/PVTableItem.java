@@ -15,6 +15,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TextField;
@@ -67,8 +68,12 @@ public class PVTableItem {
         private TextField              textField;
 
         public AutoCompletedTableCell ( final AutocompleteMenu menu, final Node focusedOnCommit ) {
+
             this.menu = menu;
             this.focusedOnCommit = focusedOnCommit;
+
+            setAlignment(Pos.CENTER_LEFT);
+
         }
 
         @Override

@@ -53,6 +53,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SplitMenuButton;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TableView.TableViewSelectionModel;
@@ -164,6 +165,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
     private TableColumn<PVTableItem, String> pvs_name_col;
     private TableColumn<PVTableItem, Boolean> pvs_trigger_col;
 
+    private MenuButton addMenuButton;
     private SplitMenuButton btn_edit;
     private Button btn_script_remove;
     private Button btn_pv_add, btn_pv_remove, btn_pv_up, btn_py_down;
@@ -340,10 +342,13 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
         // Select the first script
         if ( !scripts_table.getItems().isEmpty() ) {
-            Platform.runLater(() -> scripts_table.getSelectionModel().select(0));
+            Platform.runLater(() -> {
+                scripts_table.getSelectionModel().select(0);
+                scripts_table.requestFocus();
+            });
+        } else {
+            Platform.runLater(() -> addMenuButton.requestFocus());
         }
-
-        Platform.runLater(() -> scripts_table.requestFocus());
 
         return splitPane;
 
@@ -357,6 +362,20 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         scripts_icon_col.setCellValueFactory(cdf-> new SimpleObjectProperty<ImageView>(getScriptImage(cdf.getValue())) {{
             bind(Bindings.createObjectBinding(() -> getScriptImage(cdf.getValue()), cdf.getValue().fileProperty()));
         }});
+        scripts_icon_col.setCellFactory(tableColumn -> new TableCell<ScriptItem, ImageView>() {
+
+            /* Instance initializer. */
+            {
+                setAlignment(Pos.CENTER_LEFT);
+            }
+
+            @Override
+            protected void updateItem ( ImageView item, boolean empty ) {
+                super.updateItem(item, empty);
+                super.setGraphic(item);
+            }
+
+        });
         scripts_icon_col.setEditable(false);
         scripts_icon_col.setSortable(false);
         scripts_icon_col.setMaxWidth(25);
@@ -365,7 +384,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         // Create table with editable script 'file' column
         scripts_name_col = new TableColumn<>(Messages.ScriptsDialog_ColScript);
         scripts_name_col.setCellValueFactory(new PropertyValueFactory<ScriptItem, String>("file"));
-        scripts_name_col.setCellFactory(list -> new TextFieldTableCell<ScriptItem, String>(new DefaultStringConverter()) {
+        scripts_name_col.setCellFactory(tableColumn -> new TextFieldTableCell<ScriptItem, String>(new DefaultStringConverter()) {
 
             private final ChangeListener<? super Boolean> focusedListener = ( ob, o, n ) -> {
                 if ( !n ) {
@@ -411,7 +430,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         scripts_table.setPlaceholder(new Label(Messages.ScriptsDialog_NoScripts));
 
         // Buttons
-        MenuButton addMenuButton = new MenuButton(
+        addMenuButton = new MenuButton(
             Messages.Add,
             JFXUtil.getIcon("add.png"),
             new MenuItem(Messages.AddPythonFile, JFXUtil.getIcon("file-python.png")) {{
@@ -777,37 +796,46 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
     private ImageView getScriptImage ( ScriptItem item ) {
 
-        if ( item == null ) {
-            return null;
-        }
+        ImageView imageView = null;
 
-        ScriptInfo info = item.getScriptInfo();
+        if ( item != null ) {
 
-        if ( info == null ) {
-            return null;
-        }
+            ScriptInfo info = item.getScriptInfo();
 
-        String path = info.getPath();
+            if ( info != null ) {
 
-        if ( ScriptInfo.isEmbedded(path) ) {
-            if ( ScriptInfo.isJavaScript(path) ) {
-                return JFXUtil.getIcon("javascript.png");
-            } else if ( ScriptInfo.isJython(path) ) {
-                return JFXUtil.getIcon("python.png");
-            } else {
-                //  It should never happen.
-                return JFXUtil.getIcon("unknown.png");
+                String path = info.getPath();
+
+                if ( ScriptInfo.isEmbedded(path) ) {
+                    if ( ScriptInfo.isJavaScript(path) ) {
+                        imageView = JFXUtil.getIcon("javascript.png");
+                    } else if ( ScriptInfo.isJython(path) ) {
+                        imageView = JFXUtil.getIcon("python.png");
+                    } else {
+                        //  It should never happen.
+                        imageView = JFXUtil.getIcon("unknown.png");
+                    }
+                } else {
+                    if ( ScriptInfo.isJavaScript(path) ) {
+                        imageView = JFXUtil.getIcon("file-javascript.png");
+                    } else if ( ScriptInfo.isJython(path) ) {
+                        imageView = JFXUtil.getIcon("file-python.png");
+                    } else {
+                        //  It should never happen.
+                        imageView = JFXUtil.getIcon("file-unknown.png");
+                    }
+                }
+
             }
-        } else {
-            if ( ScriptInfo.isJavaScript(path) ) {
-                return JFXUtil.getIcon("file-javascript.png");
-            } else if ( ScriptInfo.isJython(path) ) {
-                return JFXUtil.getIcon("file-python.png");
-            } else {
-                //  It should never happen.
-                return JFXUtil.getIcon("file-unknown.png");
-            }
+
         }
+
+        if ( imageView != null ) {
+            imageView.setPreserveRatio(true);
+            imageView.setSmooth(true);
+        }
+
+        return imageView;
 
     }
 
