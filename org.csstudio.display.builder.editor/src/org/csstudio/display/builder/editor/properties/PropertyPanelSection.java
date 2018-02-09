@@ -281,16 +281,15 @@ public class PropertyPanelSection extends GridPane
             macro_handler.handle(null);
 
             field = new BorderPane(combo, null, macroButton, null, null);
-
-            field.focusedProperty().addListener(( ob, o, focused ) -> {
-                if ( focused ) {
-
+            // When used in RulesDialog, field can get focus.
+            // In that case, forward focus to combo
+            field.focusedProperty().addListener((ob, o, focused) ->
+            {
+                if (focused)
+                {
                     combo.requestFocus();
-
-                    if ( combo.isEditable() ) {
+                    if (combo.isEditable())
                         combo.getEditor().selectAll();
-                    }
-
                 }
             });
         }
@@ -327,18 +326,20 @@ public class PropertyPanelSection extends GridPane
             binding.bind();
 
             field = new BorderPane(new StackPane(combo, check), null, macroButton, null, null);
-
-            field.focusedProperty().addListener(( ob, o, focused ) -> {
-                if ( focused ) {
-                    if ( combo.isVisible() ) {
+            // For RulesDialog, see above
+            field.focusedProperty().addListener((ob, o, focused) ->
+            {
+                if (focused)
+                {
+                    if (combo.isVisible())
+                    {
                         combo.requestFocus();
                         combo.getEditor().selectAll();
-                    } else if ( check.isVisible() ) {
-                        check.requestFocus();
                     }
+                    else if (check.isVisible())
+                        check.requestFocus();
                 }
             });
-
         }
         else if (property instanceof ColorMapWidgetProperty)
         {
@@ -391,13 +392,12 @@ public class PropertyPanelSection extends GridPane
             binding.bind();
             field = new HBox(text, select_file);
             HBox.setHgrow(text, Priority.ALWAYS);
-
-            field.focusedProperty().addListener(( ob, o, focused ) -> {
-                if ( focused ) {
+            // For RulesDialog, see above
+            field.focusedProperty().addListener((ob, o, focused) ->
+            {
+                if (focused)
                     text.requestFocus();
-                }
             });
-
         }
         else if (property instanceof PVNameWidgetProperty)
         {
@@ -452,13 +452,12 @@ public class PropertyPanelSection extends GridPane
                 });
                 field = new HBox(text, open_editor);
                 HBox.setHgrow(text, Priority.ALWAYS);
-
-                field.focusedProperty().addListener(( ob, o, focused ) -> {
-                    if ( focused ) {
+                // For RulesDialog, see above
+                field.focusedProperty().addListener((ob, o, focused) ->
+                {
+                    if (focused)
                         text.requestFocus();
-                    }
                 });
-
             }
             else
                 field = text;
