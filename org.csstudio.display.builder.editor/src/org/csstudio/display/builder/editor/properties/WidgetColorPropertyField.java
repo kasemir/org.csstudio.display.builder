@@ -43,7 +43,11 @@ public class WidgetColorPropertyField extends HBox
         setSpacing(5.0);
         getChildren().addAll(blob, button);
 
-        focusedProperty().addListener(( ob, o, n ) -> button.requestFocus());
+        focusedProperty().addListener(( ob, o, focused ) -> {
+            if ( focused ) {
+                button.requestFocus();
+            }
+        });
     }
 
     /** @return Button that can be used by popup to hide when focus is lost */
