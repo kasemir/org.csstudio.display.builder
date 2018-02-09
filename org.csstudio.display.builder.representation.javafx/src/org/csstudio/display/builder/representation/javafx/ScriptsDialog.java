@@ -22,6 +22,7 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.ScriptPV;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
+import org.csstudio.display.builder.representation.javafx.PVTableItem.AutoCompletedTableCell;
 import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
 import org.csstudio.javafx.DialogHelper;
 import org.csstudio.javafx.LineNumberTableCellFactory;
@@ -31,8 +32,6 @@ import org.csstudio.javafx.TableHelper;
 
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -57,6 +56,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TableView.TableViewSelectionModel;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.CheckBoxTableCell;
@@ -83,53 +83,20 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
     private final AutocompleteMenu menu;
 
-    /** ScriptPV info as property-based item for table */
-    public static class PVItem
-    {
-        private final StringProperty name = new SimpleStringProperty();
-        private final BooleanProperty trigger = new SimpleBooleanProperty(true);
-
-        public PVItem(final String name, final boolean trigger)
-        {
-            this.name.set(name);
-            this.trigger.set(trigger);
-        }
-
-        public static PVItem forPV(final ScriptPV info)
-        {
-            return new PVItem(info.getName(), info.isTrigger());
-        }
-
-        public ScriptPV toScriptPV()
-        {
-            return new ScriptPV(name.get(), trigger.get());
-        }
-
-        public StringProperty nameProperty()
-        {
-            return name;
-        }
-
-        public BooleanProperty triggerProperty()
-        {
-            return trigger;
-        }
-    };
-
     /** Modifiable ScriptInfo */
     public static class ScriptItem
     {
         public StringProperty file = new SimpleStringProperty();
         public String text;
         public boolean check_connections;
-        public List<PVItem> pvs;
+        public List<PVTableItem> pvs;
 
         public ScriptItem()
         {
             this(Messages.ScriptsDialog_DefaultScriptFile, ScriptInfo.EXAMPLE_PYTHON, true, new ArrayList<>());
         }
 
-        public ScriptItem(final String file, final String text, final boolean check_connections, final List<PVItem> pvs)
+        public ScriptItem(final String file, final String text, final boolean check_connections, final List<PVTableItem> pvs)
         {
             this.file.set(file);
             this.text = text;
@@ -139,8 +106,8 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
         public static ScriptItem forInfo(final ScriptInfo info)
         {
-            final List<PVItem> pvs = new ArrayList<>();
-            info.getPVs().forEach(pv -> pvs.add(PVItem.forPV(pv)));
+            final List<PVTableItem> pvs = new ArrayList<>();
+            info.getPVs().forEach(pv -> pvs.add(PVTableItem.forPV(pv)));
             return new ScriptItem(info.getPath(), info.getText(), info.getCheckConnections(), pvs);
         }
 
@@ -191,13 +158,14 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
     }};
 
     /** Data that is linked to the pvs_table */
-    private final ObservableList<PVItem> pv_items = FXCollections.observableArrayList();
+    private final ObservableList<PVTableItem> pv_items = FXCollections.observableArrayList();
 
     /** Table for PVs of currently selected script */
-    private TableView<PVItem> pvs_table;
-    private TableColumn<PVItem, String> pvs_name_col;
-    private TableColumn<PVItem, Boolean> pvs_trigger_col;
+    private TableView<PVTableItem> pvs_table;
+    private TableColumn<PVTableItem, String> pvs_name_col;
+    private TableColumn<PVTableItem, Boolean> pvs_trigger_col;
 
+    private MenuButton addMenuButton;
     private SplitMenuButton btn_edit;
     private Button btn_script_remove;
     private Button btn_pv_add, btn_pv_remove, btn_pv_up, btn_py_down;
@@ -328,10 +296,14 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         });
 
 		// Update PVs of selected script from PVs table
-        final ListChangeListener<PVItem> ll = change -> {
+        final ListChangeListener<PVTableItem> ll = change -> {
+
             final ScriptItem selected = scripts_table.getSelectionModel().getSelectedItem();
-            if ( selected != null )
+
+            if ( selected != null ) {
                 selected.pvs = new ArrayList<>(change.getList());
+            }
+
         };
         pv_items.addListener(ll);
 
@@ -342,18 +314,15 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
                 btn_pv_up.setDisable(true);
                 btn_py_down.setDisable(true);
             } else {
+
+                TableViewSelectionModel<PVTableItem> model = pvs_table.getSelectionModel();
+
                 btn_pv_remove.setDisable(false);
-                btn_pv_up.setDisable(false);
-                btn_py_down.setDisable(false);
+                btn_pv_up.setDisable(model.getSelectedIndex() == 0);
+                btn_py_down.setDisable(model.getSelectedIndex() == pv_items.size() - 1);
+
             }
         });
-
-        // Select the first script
-        if ( !scripts_table.getItems().isEmpty() ) {
-            Platform.runLater(() -> scripts_table.getSelectionModel().select(0));
-        }
-
-        Platform.runLater(() -> scripts_table.requestFocus());
 
         scripts.setPadding(new Insets(0, 10, 0, 0));
         pvs.setPadding(new Insets(0, 0, 0, 10));
@@ -371,6 +340,16 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
             splitPane.setPrefSize(prefWidth, prefHeight);
         }
 
+        // Select the first script
+        if ( !scripts_table.getItems().isEmpty() ) {
+            Platform.runLater(() -> {
+                scripts_table.getSelectionModel().select(0);
+                scripts_table.requestFocus();
+            });
+        } else {
+            Platform.runLater(() -> addMenuButton.requestFocus());
+        }
+
         return splitPane;
 
     }
@@ -383,6 +362,20 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         scripts_icon_col.setCellValueFactory(cdf-> new SimpleObjectProperty<ImageView>(getScriptImage(cdf.getValue())) {{
             bind(Bindings.createObjectBinding(() -> getScriptImage(cdf.getValue()), cdf.getValue().fileProperty()));
         }});
+        scripts_icon_col.setCellFactory(tableColumn -> new TableCell<ScriptItem, ImageView>() {
+
+            /* Instance initializer. */
+            {
+                setAlignment(Pos.CENTER_LEFT);
+            }
+
+            @Override
+            protected void updateItem ( ImageView item, boolean empty ) {
+                super.updateItem(item, empty);
+                super.setGraphic(item);
+            }
+
+        });
         scripts_icon_col.setEditable(false);
         scripts_icon_col.setSortable(false);
         scripts_icon_col.setMaxWidth(25);
@@ -391,7 +384,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         // Create table with editable script 'file' column
         scripts_name_col = new TableColumn<>(Messages.ScriptsDialog_ColScript);
         scripts_name_col.setCellValueFactory(new PropertyValueFactory<ScriptItem, String>("file"));
-        scripts_name_col.setCellFactory(list -> new TextFieldTableCell<ScriptItem, String>(new DefaultStringConverter()) {
+        scripts_name_col.setCellFactory(tableColumn -> new TextFieldTableCell<ScriptItem, String>(new DefaultStringConverter()) {
 
             private final ChangeListener<? super Boolean> focusedListener = ( ob, o, n ) -> {
                 if ( !n ) {
@@ -419,11 +412,13 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
             }
 
         });
-        scripts_name_col.setOnEditCommit(event ->
-        {
+        scripts_name_col.setOnEditCommit(event -> {
+
             final int row = event.getTablePosition().getRow();
+
             script_items.get(row).file.set(event.getNewValue());
             fixupScripts(row);
+
         });
 
         scripts_table = new TableView<>(script_items);
@@ -432,9 +427,10 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         scripts_table.setEditable(true);
         scripts_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         scripts_table.setTooltip(new Tooltip(Messages.ScriptsDialog_ScriptsTT));
+        scripts_table.setPlaceholder(new Label(Messages.ScriptsDialog_NoScripts));
 
         // Buttons
-        MenuButton addMenuButton = new MenuButton(
+        addMenuButton = new MenuButton(
             Messages.Add,
             JFXUtil.getIcon("add.png"),
             new MenuItem(Messages.AddPythonFile, JFXUtil.getIcon("file-python.png")) {{
@@ -484,9 +480,12 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
         final VBox buttons = new VBox(10, addMenuButton, btn_script_remove, btn_edit);
         final HBox content = new HBox(10, scripts_table, buttons);
+
         HBox.setHgrow(scripts_table, Priority.ALWAYS);
         HBox.setHgrow(buttons, Priority.NEVER);
+
         return content;
+
     }
 
     /** Fix scripts data: Delete empty rows in middle
@@ -503,101 +502,10 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         }
     }
 
-    /**
-     * {@link PVItem} {@link TableCell} with {@link AutocompleteMenu}
-     *
-     * @author Amanda Carpenter
-     */
-    private class AutoCompletedTableCell extends TableCell<PVItem, String>
-    {
-        private TextField textField;
-        private final AutocompleteMenu menu;
-
-        public AutoCompletedTableCell(final AutocompleteMenu menu)
-        {
-            this.menu = menu;
-        }
-
-        @Override
-        public void startEdit()
-        {
-            if (!isEmpty())
-            {
-                super.startEdit();
-
-                createTextField();
-                setText(null);
-                setGraphic(textField);
-
-                menu.attachField(textField);
-                textField.selectAll();
-            }
-            Platform.runLater(() -> textField.requestFocus());
-        }
-
-        @Override
-        public void cancelEdit()
-        {
-            super.cancelEdit();
-            setText(getItem());
-            setGraphic(null);
-        }
-
-        @Override
-        public void updateItem(String item, boolean empty)
-        {
-            super.updateItem(item, empty);
-            if (empty)
-            {
-                setText(null);
-                setGraphic(null);
-            } else if (isEditing())
-            {
-                if (textField != null)
-                    textField.setText(getItem() == null ? "" : getItem());
-                setText(null);
-                setGraphic(textField);
-            } else
-            {
-                setText(getItem() == null ? "" : getItem());
-                setGraphic(null);
-                if (textField != null)
-                    menu.removeField(textField);
-            }
-        }
-
-        private void createTextField()
-        {
-            if (textField == null)
-            {
-                textField = new TextField(getItem() == null ? "" : getItem());
-                textField.setOnAction(event -> commitEdit(textField.getText()));
-                textField.focusedProperty().addListener((ob, o, n) ->
-                {
-                    if (!n)
-                        cancelEdit();
-                });
-
-            }
-            else
-                textField.setText(getItem() == null ? "" : getItem());
-            textField.setMinWidth(getWidth() - getGraphicTextGap() * 2);
-        }
-
-        @Override
-        public void commitEdit (String newValue)
-        {
-            super.commitEdit(newValue);
-            Platform.runLater(() -> btn_pv_add.requestFocus());
-        }
-    }
-
     /** @return Node for UI elements that edit the PVs of a script */
-    private Region createPVsTable()
-    {
+    private Region createPVsTable ( ) {
 
-        final TableColumn<PVItem, Integer> indexColumn = new TableColumn<>("#");
-
+        final TableColumn<PVTableItem, Integer> indexColumn = new TableColumn<>("#");
         indexColumn.setEditable(false);
         indexColumn.setSortable(false);
         indexColumn.setCellFactory(new LineNumberTableCellFactory<>(true));
@@ -607,19 +515,21 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         // Create table with editable 'name' column
         pvs_name_col = new TableColumn<>(Messages.ScriptsDialog_ColPV);
         pvs_name_col.setSortable(false);
-        pvs_name_col.setCellValueFactory(new PropertyValueFactory<PVItem, String>("name"));
-        pvs_name_col.setCellFactory((col) -> new AutoCompletedTableCell(menu));
-        pvs_name_col.setOnEditCommit(event ->
-        {
+        pvs_name_col.setCellValueFactory(new PropertyValueFactory<PVTableItem, String>("name"));
+        pvs_name_col.setCellFactory((col) -> new AutoCompletedTableCell(menu, btn_pv_add));
+        pvs_name_col.setOnEditCommit(event -> {
+
             final int row = event.getTablePosition().getRow();
+
             pv_items.get(row).nameProperty().set(event.getNewValue());
             fixupPVs(row);
+
         });
 
         pvs_trigger_col = new TableColumn<>(Messages.ScriptsDialog_ColTrigger);
         pvs_trigger_col.setSortable(false);
-        pvs_trigger_col.setCellValueFactory(new PropertyValueFactory<PVItem, Boolean>("trigger"));
-        pvs_trigger_col.setCellFactory(CheckBoxTableCell.<PVItem>forTableColumn(pvs_trigger_col));
+        pvs_trigger_col.setCellValueFactory(new PropertyValueFactory<PVTableItem, Boolean>("trigger"));
+        pvs_trigger_col.setCellFactory(CheckBoxTableCell.<PVTableItem>forTableColumn(pvs_trigger_col));
         pvs_trigger_col.setResizable(false);
         pvs_trigger_col.setMaxWidth(70);
         pvs_trigger_col.setMinWidth(70);
@@ -632,23 +542,25 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         pvs_table.setEditable(true);
         pvs_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         pvs_table.setTooltip(new Tooltip(Messages.ScriptsDialog_PVsTT));
-        pvs_table.setPlaceholder(new Label(Messages.ScriptsDialog_SelectScript));
+        pvs_table.setPlaceholder(new Label(Messages.ScriptsDialog_NoPVs));
 
         // Buttons
         btn_pv_add = new Button(Messages.Add, JFXUtil.getIcon("add.png"));
         btn_pv_add.setMaxWidth(Double.MAX_VALUE);
         btn_pv_add.setAlignment(Pos.CENTER_LEFT);
-        btn_pv_add.setOnAction(event ->
-        {
-            final PVItem newItem = new PVItem("", true);
+        btn_pv_add.setOnAction(event -> {
+
+            final PVTableItem newItem = new PVTableItem("new-PV", true);
+
             pv_items.add(newItem);
             pvs_table.getSelectionModel().select(newItem);
 
             final int newRow = pvs_table.getSelectionModel().getSelectedIndex();
-            ModelThreadPool.getTimer().schedule(() ->
-            {
+
+            ModelThreadPool.getTimer().schedule(() ->{
                 Platform.runLater(() -> pvs_table.edit(newRow, pvs_name_col));
             }, 123, TimeUnit.MILLISECONDS);
+
         });
 
         btn_pv_remove = new Button(Messages.Remove, JFXUtil.getIcon("delete.png"));
@@ -656,14 +568,15 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         btn_pv_remove.setMinWidth(96);
         btn_pv_remove.setAlignment(Pos.CENTER_LEFT);
         btn_pv_remove.setDisable(true);
-        btn_pv_remove.setOnAction(event ->
-        {
+        btn_pv_remove.setOnAction(event -> {
+
             final int sel = pvs_table.getSelectionModel().getSelectedIndex();
-            if (sel >= 0)
-            {
+
+            if ( sel >= 0 ) {
                 pv_items.remove(sel);
                 fixupPVs(sel);
             }
+
         });
 
         btn_pv_up = new Button(Messages.MoveUp, JFXUtil.getIcon("up.png"));
@@ -706,7 +619,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         // Check if edited row is now empty and should be deleted
         if (changed_row < pv_items.size())
         {
-            final PVItem item = pv_items.get(changed_row);
+            final PVTableItem item = pv_items.get(changed_row);
             if (item.nameProperty().get().trim().isEmpty())
                 pv_items.remove(changed_row);
         }
@@ -864,7 +777,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
             }
 
             final SyntaxHighlightedMultiLineInputDialog dlg = new SyntaxHighlightedMultiLineInputDialog(
-                scripts_table,
+                btn_edit,
                 selected_script_item.text,
                 language
             );
@@ -883,37 +796,46 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
     private ImageView getScriptImage ( ScriptItem item ) {
 
-        if ( item == null ) {
-            return null;
-        }
+        ImageView imageView = null;
 
-        ScriptInfo info = item.getScriptInfo();
+        if ( item != null ) {
 
-        if ( info == null ) {
-            return null;
-        }
+            ScriptInfo info = item.getScriptInfo();
 
-        String path = info.getPath();
+            if ( info != null ) {
 
-        if ( ScriptInfo.isEmbedded(path) ) {
-            if ( ScriptInfo.isJavaScript(path) ) {
-                return JFXUtil.getIcon("javascript.png");
-            } else if ( ScriptInfo.isJython(path) ) {
-                return JFXUtil.getIcon("python.png");
-            } else {
-                //  It should never happen.
-                return JFXUtil.getIcon("unknown.png");
+                String path = info.getPath();
+
+                if ( ScriptInfo.isEmbedded(path) ) {
+                    if ( ScriptInfo.isJavaScript(path) ) {
+                        imageView = JFXUtil.getIcon("javascript.png");
+                    } else if ( ScriptInfo.isJython(path) ) {
+                        imageView = JFXUtil.getIcon("python.png");
+                    } else {
+                        //  It should never happen.
+                        imageView = JFXUtil.getIcon("unknown.png");
+                    }
+                } else {
+                    if ( ScriptInfo.isJavaScript(path) ) {
+                        imageView = JFXUtil.getIcon("file-javascript.png");
+                    } else if ( ScriptInfo.isJython(path) ) {
+                        imageView = JFXUtil.getIcon("file-python.png");
+                    } else {
+                        //  It should never happen.
+                        imageView = JFXUtil.getIcon("file-unknown.png");
+                    }
+                }
+
             }
-        } else {
-            if ( ScriptInfo.isJavaScript(path) ) {
-                return JFXUtil.getIcon("file-javascript.png");
-            } else if ( ScriptInfo.isJython(path) ) {
-                return JFXUtil.getIcon("file-python.png");
-            } else {
-                //  It should never happen.
-                return JFXUtil.getIcon("file-unknown.png");
-            }
+
         }
+
+        if ( imageView != null ) {
+            imageView.setPreserveRatio(true);
+            imageView.setSmooth(true);
+        }
+
+        return imageView;
 
     }
 
