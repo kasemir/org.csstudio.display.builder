@@ -284,7 +284,13 @@ public class PropertyPanelSection extends GridPane
 
             field.focusedProperty().addListener(( ob, o, focused ) -> {
                 if ( focused ) {
+
                     combo.requestFocus();
+
+                    if ( combo.isEditable() ) {
+                        combo.getEditor().selectAll();
+                    }
+
                 }
             });
         }
@@ -326,6 +332,7 @@ public class PropertyPanelSection extends GridPane
                 if ( focused ) {
                     if ( combo.isVisible() ) {
                         combo.requestFocus();
+                        combo.getEditor().selectAll();
                     } else if ( check.isVisible() ) {
                         check.requestFocus();
                     }
