@@ -81,11 +81,12 @@ import javafx.util.converter.DefaultStringConverter;
 
 /** Dialog for editing {@link RuleInfo}s
  *  @author Megan Grodowitz
+ *  @author Claudio Rosati
+ *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
 public class RulesDialog extends Dialog<List<RuleInfo>>
 {
-
     /** Expression info as property-based item for table */
     public abstract static class ExprItem<T>
     {
@@ -112,7 +113,6 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         abstract public ExpressionInfo<T> toExprInfo();
         abstract public T getPropVal();
     };
-
 
     public static class ExprItemString extends ExprItem<String>
     {
@@ -436,6 +436,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         this.undo = undo;
         this.attached_widget = attached_widget;
         this.menu = menu;
+
         this.propinfo_ls = RuleInfo.getTargettableProperties(attached_widget);
 
         setTitle(Messages.RulesDialog_Title);
@@ -491,15 +492,13 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         final HBox exprs = createExpressionsTable();
 
         // Display PVs of currently selected rule
-        rules_table.getSelectionModel().selectedItemProperty().addListener( ( prop, old, selected ) -> {
-
+        rules_table.getSelectionModel().selectedItemProperty().addListener( (prop, old, selected) ->
+        {
             selected_rule_item = selected;
-
-            if ( selected == null ) {
-
+            if (selected == null)
+            {
                 pvs.setDisable(true);
                 exprs.setDisable(true);
-
                 btn_remove_rule.setDisable(true);
                 btn_dup_rule.setDisable(true);
                 btn_move_rule_up.setDisable(true);
@@ -508,17 +507,15 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                 propComboBox.setDisable(true);
                 propComboBox.getSelectionModel().select(null);
                 valExpBox.setDisable(true);
-
                 pv_items.clear();
                 expression_items.clear();
-
-            } else {
-
+            }
+            else
+            {
                 pvs.setDisable(false);
                 exprs.setDisable(false);
 
-                TableViewSelectionModel<RuleItem> model = rules_table.getSelectionModel();
-
+                final TableViewSelectionModel<RuleItem> model = rules_table.getSelectionModel();
                 btn_remove_rule.setDisable(false);
                 btn_dup_rule.setDisable(false);
                 btn_move_rule_up.setDisable(model.getSelectedIndex() == 0);
@@ -528,71 +525,63 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                 propComboBox.getSelectionModel().select(getPropLongString(selected));
                 valExpBox.setDisable(false);
                 valExpBox.selectedProperty().set(selected.prop_as_expr.get());
-
                 pv_items.setAll(selected.pvs);
                 expression_items.setAll(selected.expressions);
-
                 fixupPVs(0);
-
             }
-
         });
 
         // Update PVs of selected rule from PVs table
-        final ListChangeListener<PVTableItem> pll = change -> {
-
+        final ListChangeListener<PVTableItem> pll = change ->
+        {
             final RuleItem selected = rules_table.getSelectionModel().getSelectedItem();
-
-            if ( selected != null ) {
+            if (selected != null)
                 selected.pvs = new ArrayList<>(change.getList());
-            }
-
         };
         pv_items.addListener(pll);
 
         // Update buttons for currently selected PV
-        pvs_table.getSelectionModel().selectedItemProperty().addListener( ( prop, old, selected ) -> {
-            if ( selected == null ) {
+        pvs_table.getSelectionModel().selectedItemProperty().addListener( (prop, old, selected) ->
+        {
+            if (selected == null)
+            {
                 btn_rm_pv.setDisable(true);
                 btn_move_pv_up.setDisable(true);
                 btn_move_pv_down.setDisable(true);
-            } else {
-
-                TableViewSelectionModel<PVTableItem> model = pvs_table.getSelectionModel();
-
+            }
+            else
+            {
+                final TableViewSelectionModel<PVTableItem> model = pvs_table.getSelectionModel();
                 btn_rm_pv.setDisable(false);
                 btn_move_pv_up.setDisable(model.getSelectedIndex() == 0);
                 btn_move_pv_down.setDisable(model.getSelectedIndex() == pv_items.size() - 1);
-
             }
         });
 
         // Update Expressions of selected rule from Expressions table
-        final ListChangeListener<ExprItem<?>> ell = change -> {
-
+        final ListChangeListener<ExprItem<?>> ell = change ->
+        {
             final RuleItem selected = rules_table.getSelectionModel().getSelectedItem();
-
-            if (selected != null) {
+            if (selected != null)
                 selected.expressions = new ArrayList<>(change.getList());
-            }
-
         };
         expression_items.addListener(ell);
 
         // Update buttons for currently selected expression
-        expressions_table.getSelectionModel().selectedItemProperty().addListener( ( prop, old, selected ) -> {
-            if ( selected == null ) {
+        expressions_table.getSelectionModel().selectedItemProperty().addListener( (prop, old, selected) ->
+        {
+            if (selected == null)
+            {
                 btn_rm_exp.setDisable(true);
                 btn_move_exp_up.setDisable(true);
                 btn_move_exp_down.setDisable(true);
-            } else {
-
-                TableViewSelectionModel<ExprItem<?>> model = expressions_table.getSelectionModel();
-
+            }
+            else
+            {
+                final TableViewSelectionModel<ExprItem<?>> model = expressions_table.getSelectionModel();
                 btn_rm_exp.setDisable(false);
                 btn_move_exp_up.setDisable(model.getSelectedIndex() == 0);
                 btn_move_exp_down.setDisable(model.getSelectedIndex() == expression_items.size() - 1);
-
             }
         });
 
@@ -611,20 +600,15 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         }
         propComboBox = new ComboBox<String>(prop_id_opts);
         propComboBox.setDisable(true);
-        propComboBox.getSelectionModel().selectedIndexProperty().addListener( (p, o, index) -> {
-            // Select property info based on index within combo.
-            int idx = index.intValue();
-
-            if ( idx >= 0 ) {
-
-                PropInfo prop = propinfo_ls.get(idx);
-
-                if ( selected_rule_item.tryUpdatePropID(undo, prop.getPropID()) ) {
+        propComboBox.getSelectionModel().selectedIndexProperty().addListener( (p, o, index) ->
+        {   // Select property info based on index within combo.
+            final int idx = index.intValue();
+            if (idx >= 0)
+            {
+                final PropInfo prop = propinfo_ls.get(idx);
+                if (selected_rule_item.tryUpdatePropID(undo, prop.getPropID()))
                     expression_items.setAll(selected_rule_item.expressions);
-                }
-
             }
-
         });
         propComboBox.setMinHeight(27);
         propComboBox.setMaxWidth(Double.MAX_VALUE);
@@ -677,68 +661,66 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         splitPane.setOrientation(Orientation.HORIZONTAL);
         splitPane.setDividerPositions(prefDividerPosition);
 
-        if ( prefWidth > 0 && prefHeight > 0 ) {
+        if (prefWidth > 0 && prefHeight > 0)
             splitPane.setPrefSize(prefWidth, prefHeight);
-        }
 
         // Select the first rule
-        if ( !rules_table.getItems().isEmpty() ) {
-            Platform.runLater(() -> {
+        if (!rules_table.getItems().isEmpty())
+        {
+            Platform.runLater(() ->
+            {
                 rules_table.getSelectionModel().select(0);
                 rules_table.requestFocus();
             });
-        } else {
-            Platform.runLater(() -> btn_add_rule.requestFocus());
         }
+        else
+            Platform.runLater(() -> btn_add_rule.requestFocus());
 
         return splitPane;
-
     }
 
-    /**
-     * @return Node for UI elements that edit the rules
-     */
-    private Node createRulesTable ( ) {
-
+    /** @return Node for UI elements that edit the rules */
+    private Node createRulesTable ()
+    {
         // Create table with editable rule 'name' column
         final TableColumn<RuleItem, String> name_col = new TableColumn<>(Messages.RulesDialog_ColName);
 
         name_col.setCellValueFactory(new PropertyValueFactory<RuleItem, String>("name"));
-        name_col.setCellFactory(list -> new TextFieldTableCell<RuleItem, String>(new DefaultStringConverter()) {
-
-            private final ChangeListener<? super Boolean> focusedListener = ( ob, o, n ) -> {
-                if ( !n ) {
+        name_col.setCellFactory(list -> new TextFieldTableCell<RuleItem, String>(new DefaultStringConverter())
+        {
+            private final ChangeListener<? super Boolean> focusedListener = (ob, o, n) ->
+            {
+                if (!n)
                     cancelEdit();
-                }
             };
 
             @Override
-            public void cancelEdit ( ) {
+            public void cancelEdit()
+            {
                 ( (TextField) getGraphic() ).focusedProperty().removeListener(focusedListener);
                 super.cancelEdit();
             }
 
             @Override
-            public void commitEdit ( final String newValue ) {
+            public void commitEdit(final String newValue)
+            {
                 ( (TextField) getGraphic() ).focusedProperty().removeListener(focusedListener);
                 super.commitEdit(newValue);
                 Platform.runLater( ( ) -> btn_add_pv.requestFocus());
             }
 
             @Override
-            public void startEdit ( ) {
+            public void startEdit()
+            {
                 super.startEdit();
                 ( (TextField) getGraphic() ).focusedProperty().addListener(focusedListener);
             }
-
         });
-        name_col.setOnEditCommit(event -> {
-
+        name_col.setOnEditCommit(event ->
+        {
             final int row = event.getTablePosition().getRow();
-
             rule_items.get(row).name.set(event.getNewValue());
             fixupRules(row);
-
         });
 
         rules_table = new TableView<>(rule_items);
@@ -752,13 +734,13 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         btn_add_rule = new Button(Messages.Add, JFXUtil.getIcon("add.png"));
         btn_add_rule.setMaxWidth(Double.MAX_VALUE);
         btn_add_rule.setAlignment(Pos.CENTER_LEFT);
-        btn_add_rule.setOnAction(event -> {
-
-            RuleItem newItem = new RuleItem(
+        btn_add_rule.setOnAction(event ->
+        {
+            final RuleItem newItem = new RuleItem(
                 attached_widget,
-                ( selected_rule_item == null )
-                    ? ( ( propinfo_ls.size() == 0 ) ? "" : propinfo_ls.get(0).getPropID() )
-                    : selected_rule_item.prop_id.get()
+                selected_rule_item == null
+                ? ( ( propinfo_ls.size() == 0 ) ? "" : propinfo_ls.get(0).getPropID() )
+                : selected_rule_item.prop_id.get()
             );
 
             rule_items.add(newItem);
@@ -766,19 +748,21 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
 
             final int newRow = rules_table.getSelectionModel().getSelectedIndex();
 
-            ModelThreadPool.getTimer().schedule( ( ) -> {
-                Platform.runLater( ( ) -> rules_table.edit(newRow, name_col));
+            ModelThreadPool.getTimer().schedule(() ->
+            {
+                Platform.runLater(() -> rules_table.edit(newRow, name_col));
             }, 123, TimeUnit.MILLISECONDS);
-
         });
 
         btn_remove_rule = new Button(Messages.Remove, JFXUtil.getIcon("delete.png"));
         btn_remove_rule.setMaxWidth(Double.MAX_VALUE);
         btn_remove_rule.setAlignment(Pos.CENTER_LEFT);
         btn_remove_rule.setDisable(true);
-        btn_remove_rule.setOnAction(event -> {
+        btn_remove_rule.setOnAction(event ->
+        {
             final int sel = rules_table.getSelectionModel().getSelectedIndex();
-            if ( sel >= 0 ) {
+            if (sel >= 0)
+            {
                 rule_items.remove(sel);
                 fixupRules(sel);
             }
@@ -800,24 +784,24 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         btn_dup_rule.setMaxWidth(Double.MAX_VALUE);
         btn_dup_rule.setAlignment(Pos.CENTER_LEFT);
         btn_dup_rule.setDisable(true);
-        btn_dup_rule.setOnAction(event -> {
-            if ( selected_rule_item != null ) {
+        btn_dup_rule.setOnAction(event ->
+        {
+            if (selected_rule_item != null)
+            {
+                final RuleItem newItem = RuleItem.forInfo(attached_widget, selected_rule_item.getRuleInfo(), undo);
 
-                RuleItem newItem = RuleItem.forInfo(attached_widget, selected_rule_item.getRuleInfo(), undo);
-
-                if ( !newItem.nameProperty().get().endsWith(" (duplicate)") ) {
+                if (!newItem.nameProperty().get().endsWith(" (duplicate)"))
                     newItem.nameProperty().set(newItem.nameProperty().get() + " (duplicate)");
-                }
 
                 rule_items.add(newItem);
                 rules_table.getSelectionModel().select(newItem);
 
                 final int newRow = rules_table.getSelectionModel().getSelectedIndex();
 
-                ModelThreadPool.getTimer().schedule( ( ) -> {
+                ModelThreadPool.getTimer().schedule(() ->
+                {
                     Platform.runLater( ( ) -> rules_table.edit(newRow, name_col));
                 }, 123, TimeUnit.MILLISECONDS);
-
             }
         });
 
@@ -826,26 +810,22 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         btn_show_script.setMinWidth(120);
         btn_dup_rule.setAlignment(Pos.CENTER_LEFT);
         btn_show_script.setDisable(true);
-        btn_show_script.setOnAction(event -> {
-
+        btn_show_script.setOnAction(event ->
+        {
             final int sel = rules_table.getSelectionModel().getSelectedIndex();
-
-            if ( sel >= 0 ) {
-
+            if (sel >= 0)
+            {
                 final String content = rule_items.get(sel).getRuleInfo().getTextPy(attached_widget);
                 final SyntaxHighlightedMultiLineInputDialog dialog = new SyntaxHighlightedMultiLineInputDialog(
-                    btn_show_script,
-                    content,
-                    Language.Python,
-                    false
-                );
-
+                        btn_show_script,
+                        content,
+                        Language.Python,
+                        false
+                    );
                 DialogHelper.positionDialog(dialog, btn_show_script, -200, -300);
                 dialog.setTextHeight(600);
                 dialog.show();
-
             }
-
         });
 
         final VBox buttons = new VBox(10, btn_add_rule, btn_remove_rule, btn_move_rule_up, btn_move_rule_down, new Pane(), btn_dup_rule, btn_show_script);
@@ -855,7 +835,6 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         HBox.setHgrow(buttons, Priority.NEVER);
 
         return content;
-
     }
 
     /** Fix rules data: Delete empty rows in middle
@@ -873,18 +852,18 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
     }
 
     /** @return Node for UI elements that edit the expressions */
-    private HBox createExpressionsTable ( ) {
-
+    private HBox createExpressionsTable ()
+    {
         // Create table with editable rule 'bool expression' column
         final TableColumn<ExprItem<?>, String> bool_exp_col = new TableColumn<>(Messages.RulesDialog_ColBoolExp);
         bool_exp_col.setSortable(false);
         bool_exp_col.setCellValueFactory(new PropertyValueFactory<ExprItem<?>, String>("boolExp"));
-        bool_exp_col.setCellFactory(tableColumn -> new TextFieldTableCell<ExprItem<?>, String>(new DefaultStringConverter()) {
-
-            private final ChangeListener<? super Boolean> focusedListener = ( ob, o, n ) -> {
-                if ( !n ) {
+        bool_exp_col.setCellFactory(tableColumn -> new TextFieldTableCell<ExprItem<?>, String>(new DefaultStringConverter())
+        {
+            private final ChangeListener<? super Boolean> focusedListener = (ob, o, n) ->
+            {
+                if (!n)
                     cancelEdit();
-                }
             };
 
             /* Instance initializer. */
@@ -893,64 +872,64 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             }
 
             @Override
-            public void cancelEdit ( ) {
+            public void cancelEdit()
+            {
                 ( (TextField) getGraphic() ).focusedProperty().removeListener(focusedListener);
                 super.cancelEdit();
             }
 
             @Override
-            public void commitEdit ( final String newValue ) {
+            public void commitEdit (final String newValue)
+            {
                 ( (TextField) getGraphic() ).focusedProperty().removeListener(focusedListener);
                 super.commitEdit(newValue);
             }
 
             @Override
-            public void startEdit ( ) {
+            public void startEdit()
+            {
                 super.startEdit();
                 ( (TextField) getGraphic() ).focusedProperty().addListener(focusedListener);
             }
-
         });
 
         // Create table with editable rule 'value expression' column
         final TableColumn<ExprItem<?>, Node> val_exp_col = new TableColumn<>(Messages.RulesDialog_ColValExp);
 
         //  This statement requires "val_exp_col" be defined.
-        bool_exp_col.setOnEditCommit(event -> {
-
+        bool_exp_col.setOnEditCommit(event ->
+        {
             final int row = event.getTablePosition().getRow();
 
             expression_items.get(row).boolExpProperty().set(event.getNewValue());
-            ModelThreadPool.getTimer().schedule(() ->{
-                Platform.runLater(() -> {
-                    val_exp_col.getCellData(row).requestFocus();
-                });
+            ModelThreadPool.getTimer().schedule(() ->
+            {
+                Platform.runLater(() -> val_exp_col.getCellData(row).requestFocus());
             }, 123, TimeUnit.MILLISECONDS);
-
         });
 
         val_exp_col.setSortable(false);
         val_exp_col.setCellValueFactory(new PropertyValueFactory<ExprItem<?>, Node>("field"));
-        val_exp_col.setCellFactory(tableColumn -> new TableCell<ExprItem<?>, Node>() {
+        val_exp_col.setCellFactory(tableColumn -> new TableCell<ExprItem<?>, Node>()
+        {
             @Override
-            protected void updateItem ( Node item, boolean empty ) {
+            protected void updateItem (final Node item, final boolean empty)
+            {
                 // calling super here is very important - don't skip this!
                 super.updateItem(item, empty);
                 setGraphic(item);
             }
         });
-        val_exp_col.setOnEditCommit(event -> {
-
+        val_exp_col.setOnEditCommit(event ->
+        {
             final int row = event.getTablePosition().getRow();
 
             expression_items.get(row).fieldProperty().set(event.getNewValue());
             event.consume();
-            ModelThreadPool.getTimer().schedule(() ->{
-                Platform.runLater(() -> {
-                    btn_add_exp.requestFocus();
-                });
+            ModelThreadPool.getTimer().schedule(() ->
+            {
+                Platform.runLater(() -> btn_add_exp.requestFocus());
             }, 1230, TimeUnit.MILLISECONDS);
-
         });
 
         expressions_table = new TableView<>(expression_items);
@@ -965,8 +944,8 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         btn_add_exp = new Button(Messages.Add, JFXUtil.getIcon("add.png"));
         btn_add_exp.setMaxWidth(Double.MAX_VALUE);
         btn_add_exp.setAlignment(Pos.CENTER_LEFT);
-        btn_add_exp.setOnAction(event -> {
-
+        btn_add_exp.setOnAction(event ->
+        {
             selected_rule_item.addNewExpr(undo);
             expression_items.setAll(selected_rule_item.expressions);
 
@@ -974,10 +953,10 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
 
             final int newRow = expression_items.size() - 1;
 
-            ModelThreadPool.getTimer().schedule(() ->{
+            ModelThreadPool.getTimer().schedule(() ->
+            {
                 Platform.runLater(() -> expressions_table.edit(newRow, bool_exp_col));
             }, 123, TimeUnit.MILLISECONDS);
-
         });
 
         btn_rm_exp = new Button(Messages.Remove, JFXUtil.getIcon("delete.png"));
@@ -985,14 +964,11 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         btn_rm_exp.setMinWidth(96);
         btn_rm_exp.setAlignment(Pos.CENTER_LEFT);
         btn_rm_exp.setDisable(true);
-        btn_rm_exp.setOnAction(event -> {
-
+        btn_rm_exp.setOnAction(event ->
+        {
             final int sel = expressions_table.getSelectionModel().getSelectedIndex();
-
-            if ( sel >= 0 ) {
+            if (sel >= 0)
                 expression_items.remove(sel);
-            }
-
         });
 
         btn_move_exp_up = new Button(Messages.MoveUp, JFXUtil.getIcon("up.png"));
@@ -1019,8 +995,8 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
     }
 
     /** @return Node for UI elements that edit the PVs of a rule */
-    private HBox createPVsTable ( ) {
-
+    private HBox createPVsTable()
+    {
         final TableColumn<PVTableItem, Integer> indexColumn = new TableColumn<>("#");
         indexColumn.setEditable(false);
         indexColumn.setSortable(false);
@@ -1033,13 +1009,11 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         name_col.setSortable(false);
         name_col.setCellValueFactory(new PropertyValueFactory<PVTableItem, String>("name"));
         name_col.setCellFactory(col -> new AutoCompletedTableCell(menu, btn_add_pv));
-        name_col.setOnEditCommit(event -> {
-
+        name_col.setOnEditCommit(event ->
+        {
             final int row = event.getTablePosition().getRow();
-
             pv_items.get(row).nameProperty().set(event.getNewValue());
             fixupPVs(row);
-
         });
 
         // Table column for 'trigger' uses CheckBoxTableCell that directly
@@ -1065,8 +1039,8 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         btn_add_pv = new Button(Messages.Add, JFXUtil.getIcon("add.png"));
         btn_add_pv.setMaxWidth(Double.MAX_VALUE);
         btn_add_pv.setAlignment(Pos.CENTER_LEFT);
-        btn_add_pv.setOnAction(event -> {
-
+        btn_add_pv.setOnAction(event ->
+        {
             final PVTableItem newItem = new PVTableItem("new-PV", true);
 
             pv_items.add(newItem);
@@ -1074,7 +1048,8 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
 
             final int newRow = pvs_table.getSelectionModel().getSelectedIndex();
 
-            ModelThreadPool.getTimer().schedule(() ->{
+            ModelThreadPool.getTimer().schedule(() ->
+            {
                 Platform.runLater(() -> pvs_table.edit(newRow, name_col));
             }, 123, TimeUnit.MILLISECONDS);
 
@@ -1085,15 +1060,14 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         btn_rm_pv.setMinWidth(96);
         btn_rm_pv.setAlignment(Pos.CENTER_LEFT);
         btn_rm_pv.setDisable(true);
-        btn_rm_pv.setOnAction(event -> {
-
+        btn_rm_pv.setOnAction(event ->
+        {
             final int sel = pvs_table.getSelectionModel().getSelectedIndex();
-
-            if ( sel >= 0 ) {
+            if (sel >= 0)
+            {
                 pv_items.remove(sel);
                 fixupPVs(sel);
             }
-
         });
 
         btn_move_pv_up = new Button(Messages.MoveUp, JFXUtil.getIcon("up.png"));
@@ -1116,7 +1090,6 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         content.setDisable(true);
 
         return content;
-
     }
 
     /** Fix PVs data: Delete empty rows in middle
