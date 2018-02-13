@@ -44,7 +44,7 @@ extends WidgetPropertyBinding<Button, RulesWidgetProperty>
     private EventHandler<ActionEvent> action_handler = event ->
     {
         final RulesDialog dialog = new RulesDialog(undo, widget_property.getValue(), widget_property.getWidget(), menu);
-        DialogHelper.positionDialog(dialog, DialogHelper.getContainer(jfx_node), -200, -200);
+        DialogHelper.positionDialog(dialog, DialogHelper.getContainer(jfx_node), -400, -200);
         ModalityHack.forDialog(dialog);
         //ScenicView.show(dialog.getDialogPane());
         final Optional<List<RuleInfo>> result = dialog.showAndWait();

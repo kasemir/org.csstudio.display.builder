@@ -15,8 +15,10 @@ Require-Bundle: org.eclipse.osgi,
  org.csstudio.display.builder.model;bundle-version="1.0.0";visibility:=reexport,
  org.csstudio.display.builder.representation;bundle-version="1.0.0";visibility:=reexport,
  org.csstudio.display.builder.util;bundle-version="1.0.0",
- org.csstudio.platform.libs.gauges,
- org.csstudio.vtype.pv;bundle-version="4.0.2"
+ org.csstudio.vtype.pv;bundle-version="4.0.2",
+ se.europeanspallationsource.javafx.control.knobs,
+ se.europeanspallationsource.javafx.control.medusa,
+ se.europeanspallationsource.javafx.control.thumbwheel
 Export-Package: org.csstudio.display.builder.representation.javafx,
  org.csstudio.display.builder.representation.javafx.sandbox,
  org.csstudio.display.builder.representation.javafx.widgets

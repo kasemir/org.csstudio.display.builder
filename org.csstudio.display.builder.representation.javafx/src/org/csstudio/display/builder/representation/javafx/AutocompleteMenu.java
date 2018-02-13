@@ -290,12 +290,15 @@ public class AutocompleteMenu
         if (updater != null)
             updater.updateHistory(entry);
         else
-        {   // add entry to top of menu items (for the particular autocomplete menu instance)
-            // (Currently, there are two instances of this class in the editor: one for the inline editor, one for the palette)
-            final List<MenuItem> items = menu.getItems();
-            // remove entry if present, to avoid duplication
-            items.removeIf((item) -> item.getText().equals(entry));
-            items.add(0, createMenuItem(entry));
+        {
+            Platform.runLater(() -> {
+                // add entry to top of menu items (for the particular autocomplete menu instance)
+                // (Currently, there are two instances of this class in the editor: one for the inline editor, one for the palette)
+                final List<MenuItem> items = menu.getItems();
+                // remove entry if present, to avoid duplication
+                items.removeIf((item) -> item.getText().equals(entry));
+                items.add(0, createMenuItem(entry));
+            });
         }
     }
 

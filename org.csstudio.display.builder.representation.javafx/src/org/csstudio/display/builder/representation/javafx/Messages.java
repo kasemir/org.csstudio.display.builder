@@ -51,6 +51,7 @@ public class Messages extends NLS
     public static String ConvertToEmbeddedPython;
     public static String ConvertToScriptFile;
     public static String Copy;
+    public static String Duplicate;
     public static String Edit;
     public static String FileTypeAll;
     public static String FileTypeDisplays;
@@ -86,9 +87,11 @@ public class Messages extends NLS
     public static String RulesDialog_DefaultRuleName;
     public static String RulesDialog_ExpressionsTT;
     public static String RulesDialog_Info;
+    public static String RulesDialog_NoExpressions;
+    public static String RulesDialog_NoPVs;
+    public static String RulesDialog_NoRules;
     public static String RulesDialog_PVsTT;
     public static String RulesDialog_RulesTT;
-    public static String RulesDialog_SelectRule;
     public static String RulesDialog_ShowScript;
     public static String RulesDialog_Title;
     public static String ScriptsDialog_BtnEmbedJS;
@@ -99,12 +102,13 @@ public class Messages extends NLS
     public static String ScriptsDialog_ColScript;
     public static String ScriptsDialog_ColTrigger;
     public static String ScriptsDialog_DefaultScriptFile;
-    public static String ScriptsDialog_JavaScriptScriptFile;
-    public static String ScriptsDialog_PythonScriptFile;
     public static String ScriptsDialog_Info;
+    public static String ScriptsDialog_JavaScriptScriptFile;
+    public static String ScriptsDialog_NoScripts;
+    public static String ScriptsDialog_NoPVs;
     public static String ScriptsDialog_PVsTT;
+    public static String ScriptsDialog_PythonScriptFile;
     public static String ScriptsDialog_ScriptsTT;
-    public static String ScriptsDialog_SelectScript;
     public static String ScriptsDialog_Title;
     public static String Select;
     public static String WidgetColorPopOver_DefaultButton;

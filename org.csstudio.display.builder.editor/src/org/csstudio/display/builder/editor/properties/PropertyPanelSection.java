@@ -260,21 +260,38 @@ public class PropertyPanelSection extends GridPane
             BorderPane.setMargin(macroButton, new Insets(0, 0, 0, 3));
             BorderPane.setAlignment(macroButton, Pos.CENTER);
 
+            final EnumWidgetPropertyBinding binding = new EnumWidgetPropertyBinding(undo, combo, enum_prop, other);
+            bindings.add(binding);
+            binding.bind();
+
             final EventHandler<ActionEvent> macro_handler = event ->
             {
                 final boolean use_macro = macroButton.isSelected() ||
                                           MacroHandler.containsMacros(enum_prop.getSpecification());
                 combo.setEditable(use_macro);
+                // Combo's text field has been set to the current value
+                // while the combo was non-editable.
+                // With Java 8, it that can be ignored, so set it again
+                // now that the combo has become editable.
+                if (use_macro  &&  combo.getEditor().getText().isEmpty())
+                    binding.restore();
             };
             macroButton.setOnAction(macro_handler);
             macroButton.setSelected(MacroHandler.containsMacros(enum_prop.getSpecification()));
             macro_handler.handle(null);
 
-            final EnumWidgetPropertyBinding binding = new EnumWidgetPropertyBinding(undo, combo, enum_prop, other);
-            bindings.add(binding);
-            binding.bind();
-
             field = new BorderPane(combo, null, macroButton, null, null);
+            // When used in RulesDialog, field can get focus.
+            // In that case, forward focus to combo
+            field.focusedProperty().addListener((ob, o, focused) ->
+            {
+                if (focused)
+                {
+                    combo.requestFocus();
+                    if (combo.isEditable())
+                        combo.getEditor().selectAll();
+                }
+            });
         }
         else if (property instanceof BooleanWidgetProperty)
         {
@@ -309,6 +326,20 @@ public class PropertyPanelSection extends GridPane
             binding.bind();
 
             field = new BorderPane(new StackPane(combo, check), null, macroButton, null, null);
+            // For RulesDialog, see above
+            field.focusedProperty().addListener((ob, o, focused) ->
+            {
+                if (focused)
+                {
+                    if (combo.isVisible())
+                    {
+                        combo.requestFocus();
+                        combo.getEditor().selectAll();
+                    }
+                    else if (check.isVisible())
+                        check.requestFocus();
+                }
+            });
         }
         else if (property instanceof ColorMapWidgetProperty)
         {
@@ -361,6 +392,12 @@ public class PropertyPanelSection extends GridPane
             binding.bind();
             field = new HBox(text, select_file);
             HBox.setHgrow(text, Priority.ALWAYS);
+            // For RulesDialog, see above
+            field.focusedProperty().addListener((ob, o, focused) ->
+            {
+                if (focused)
+                    text.requestFocus();
+            });
         }
         else if (property instanceof PVNameWidgetProperty)
         {
@@ -415,6 +452,12 @@ public class PropertyPanelSection extends GridPane
                 });
                 field = new HBox(text, open_editor);
                 HBox.setHgrow(text, Priority.ALWAYS);
+                // For RulesDialog, see above
+                field.focusedProperty().addListener((ob, o, focused) ->
+                {
+                    if (focused)
+                        text.requestFocus();
+                });
             }
             else
                 field = text;
