@@ -31,6 +31,7 @@ import org.diirt.vtype.VType;
 import org.diirt.vtype.ValueFactory;
 
 /** {@link SampleImporter} for Command (space, tab) separated value file of time, value
+ *  @author Jaka Bobnar - Parse min, max
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
