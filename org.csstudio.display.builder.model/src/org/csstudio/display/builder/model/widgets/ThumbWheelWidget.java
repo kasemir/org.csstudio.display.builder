@@ -34,6 +34,7 @@ import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
+import org.csstudio.display.builder.model.persist.WidgetFontService;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
@@ -150,7 +151,7 @@ public class ThumbWheelWidget extends WritablePVWidget {
         properties.add(integer_digits = propIntegerDigits.createProperty(this, 2));
 
         properties.add(background     = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.WRITE_BACKGROUND)));
-        properties.add(font           = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
+        properties.add(font           = propFont.createProperty(this, WidgetFontService.get(NamedWidgetFonts.DEFAULT)));
         properties.add(foreground     = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
         properties.add(invalid_color  = propInvalidColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.ALARM_MAJOR)));
 

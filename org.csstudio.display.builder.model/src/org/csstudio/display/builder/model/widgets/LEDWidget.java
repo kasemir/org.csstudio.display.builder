@@ -29,6 +29,7 @@ import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
+import org.csstudio.display.builder.model.persist.WidgetFontService;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.osgi.framework.Version;
@@ -111,7 +112,7 @@ public class LEDWidget extends BaseLEDWidget
         properties.add(off_color = propOffColor.createProperty(this, new WidgetColor(60, 100, 60)));
         properties.add(on_label = propOnLabel.createProperty(this, ""));
         properties.add(on_color = propOnColor.createProperty(this, new WidgetColor(60, 255, 60)));
-        properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
+        properties.add(font = propFont.createProperty(this, WidgetFontService.get(NamedWidgetFonts.DEFAULT)));
         properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
         properties.add(square = propSquare.createProperty(this, false));
         // Ideally, widgets should fetch their information from a PV,
