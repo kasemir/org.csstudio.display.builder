@@ -363,18 +363,29 @@ public class DisplayEditorPart extends EditorPart
         if (file != null   &&
             (DisplayModel.FILE_EXTENSION.equals(file.getFileExtension()) ||
              WidgetClassSupport.FILE_EXTENSION.equals(file.getFileExtension())))
-            saveModelToFile(monitor, file);
-        else
-        {   // No file name, or using legacy file extension -> prompt for name
-            file = promptForFile(getSite().getShell(), getEditorInput());
-            if (file == null)
+        {
+
+            if (file.exists()  &&  file.isReadOnly())
             {
-                monitor.setCanceled(true);
-                monitor.done();
+                if (MessageDialog.openQuestion(getSite().getShell(), "File is read only",
+                                               "The file\n" + file.getFullPath() +
+                                               "\nis read-only.\nSave under a different name?"))
+                    doSaveAs();
+                return;
             }
-            else
-                saveModelToFile(monitor, file);
+            saveModelToFile(monitor, file);
+            return;
         }
+
+        // No file name, or using legacy file extension -> prompt for name
+        file = promptForFile(getSite().getShell(), getEditorInput());
+        if (file == null)
+        {
+            monitor.setCanceled(true);
+            monitor.done();
+        }
+        else
+            saveModelToFile(monitor, file);
     }
 
     @Override
