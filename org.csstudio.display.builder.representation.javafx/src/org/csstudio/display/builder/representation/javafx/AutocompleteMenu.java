@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,9 +8,7 @@
 package org.csstudio.display.builder.representation.javafx;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -64,7 +62,6 @@ public class AutocompleteMenu
             {
                 if (field.isFocused())
                 {
-                    //TODO: could make use of cursor position for more intelligent suggestions
                     if (updater != null)
                         updater.requestEntries(field.getText());
                     if (!menu.isShowing())
@@ -91,40 +88,44 @@ public class AutocompleteMenu
         }
     }
 
+    /** One result received from completion service */
     private class Result
     {
-        private final CustomMenuItem label;
+        // Category, for example "History"
+        private final String category;
+        // Entries for that category
         private final List<String> results;
-        protected int expected; //expected index of results (in result_list)
+        // Priority of that category within the results
+        final int priority;
 
-        protected Result(final String label, final List<String> results, final int expected)
+        protected Result(final String category, final List<String> results, final int priority)
         {
-            this.label = createHeaderItem(label);
-            this.results = new ArrayList<String>(results);
-            this.expected = expected;
-        }
-
-        protected void addItemsTo(final List<MenuItem> items)
-        {
-            items.add(label);
-            for (String result : results)
-                items.add(createMenuItem(result));
-        }
-
-        protected boolean textIs(final String str)
-        {
-            return ((Text) label.getContent()).getText().equals(str);
+            this.category = category;
+            this.results = new ArrayList<>(results);
+            this.priority = priority;
         }
 
         @Override
         public String toString()
         {
-            return ((Text) label.getContent()).getText() + " at " + expected + " (" + results.size() + "): "
-                    + results.toString();
+            return category;
         }
     }
 
-    private final List<Result> result_list = new LinkedList<Result>();
+    // The AutoCompleteService provides results with a somewhat
+    // strange 'index' or priority.
+    // It is supposed to order the results, but it can change
+    // over time, i.e. might receive results for "History"
+    // and index 0 but then one result with "History" and index 1.
+    //
+    // -> Identify results by label ("History"),
+    //    and present them ordered by priority.
+    //
+    // Might contemplate a 'Set' with label as key,
+    // then sort entries by priority.
+    // But since there are only very few entries (History, sim:// PVs, local lookup, ..),
+    // a plain list works fine
+    private final ArrayList<Result> all_results = new ArrayList<>();
 
     public AutocompleteMenu()
     {
@@ -211,72 +212,38 @@ public class AutocompleteMenu
         updater = results_updater;
     }
 
-    public void setResults(final String label, final List<String> results)
-    {
-        setResults(label, results, 0);
-    }
-
     /**
      * Set the results for the provider with the given label at the given index.
      *
-     * @param label Label for results provider or category
+     * @param category Label for results provider or category
      * @param results List of results to be shown
      * @param index Expected index (with respect to labels) of results
      */
-    public void setResults(final String label, final List<String> results, int index)
+    public void setResults(final String category, final List<String> results, final int priority)
     {
-        if (label == null)
+        if (category == null)
             return;
 
-        //System.out.println("results for " + label + " at " + index);
-
-        final List<MenuItem> items = new LinkedList<MenuItem>();
-
-        synchronized (result_list)
+        final List<MenuItem> items = new ArrayList<>();
+        synchronized (all_results)
         {
-            final ListIterator<Result> it = result_list.listIterator();
-            Result result;
-            if (it.hasNext())
+            // Merge new results: Remove existing info for that category, add new, sort by priority
+            all_results.removeIf(result -> result.category.equals(category));
+            all_results.add(new Result(category, results, priority));
+            all_results.sort((a, b) -> a.priority - b.priority);
+            // Create menu with all the known results
+            for (Result result : all_results)
             {
-                result = it.next();
-                while (result.expected < index)
-                {
-                    if (result.textIs(label))
-                        it.remove();
-                    else
-                        result.addItemsTo(items);
-                    if (it.hasNext())
-                        result = it.next();
-                    else
-                        break;
-                }
-                if (result.expected >= index && it.hasPrevious())
-                    it.previous();
-                else
-                    result.addItemsTo(items);
-            }
-            result = new Result(label, results, index);
-            it.add(result);
-            result.addItemsTo(items);
-            while (it.hasNext())
-            {
-                result = it.next();
-                if (result.expected <= index)
-                    result.expected++;
-                if (result.expected >= index)
-                    index++;
-                if (result.textIs(label))
-                    it.remove();
-                else
-                    result.addItemsTo(items);
+                if (result.results.isEmpty())
+                    continue;
+                items.add(createHeaderItem(result.category));
+                for (String item : result.results)
+                    items.add(createMenuItem(item));
             }
         }
 
-        //for (Result result : result_list)
-        //System.out.println(result);
-
         // Must make changes to JavaFX ContextMenu object from JavaFX thread
-        Platform.runLater(() -> menu.getItems().setAll(items));
+        Platform.runLater(() ->  menu.getItems().setAll(items));
     }
 
     /**
@@ -291,7 +258,8 @@ public class AutocompleteMenu
             updater.updateHistory(entry);
         else
         {
-            Platform.runLater(() -> {
+            Platform.runLater(() ->
+            {
                 // add entry to top of menu items (for the particular autocomplete menu instance)
                 // (Currently, there are two instances of this class in the editor: one for the inline editor, one for the palette)
                 final List<MenuItem> items = menu.getItems();
