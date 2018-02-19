@@ -36,6 +36,8 @@ public class ZoomAction extends ContributionItem
         // Create tool item w/ combo box
         final ToolItem item = new ToolItem(parent, SWT.SEPARATOR, index);
         final Combo combo = createCombo(parent, item);
+
+        part.getRepresentation().setZoomListener(txt -> combo.setText(txt));
         // Auto-size combo, then use that for tool item
         combo.pack();
         item.setWidth(combo.getSize().x);
