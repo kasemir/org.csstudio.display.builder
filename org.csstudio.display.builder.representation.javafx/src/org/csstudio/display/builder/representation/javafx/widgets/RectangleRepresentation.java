@@ -30,6 +30,8 @@ public class RectangleRepresentation extends JFXBaseRepresentation<Rectangle, Re
     public Rectangle createJFXNode() throws Exception
     {
         final Rectangle rect = new Rectangle();
+        rect.setSmooth(true);
+        rect.setCache(true);
         updateColors();
         return rect;
     }

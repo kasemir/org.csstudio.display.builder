@@ -29,6 +29,8 @@ public class EllipseRepresentation extends JFXBaseRepresentation<Ellipse, Ellips
     public Ellipse createJFXNode() throws Exception
     {
         final Ellipse ellipse = new Ellipse();
+//        ellipse.setSmooth(true);
+//        ellipse.setCache(true);
         updateColors();
         return ellipse;
     }

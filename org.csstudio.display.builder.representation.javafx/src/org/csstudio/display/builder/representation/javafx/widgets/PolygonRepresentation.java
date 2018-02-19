@@ -29,6 +29,8 @@ public class PolygonRepresentation extends JFXBaseRepresentation<Polygon, Polygo
         final Polygon polygon = new Polygon();
         polygon.setStrokeLineJoin(StrokeLineJoin.ROUND);
         polygon.setStrokeLineCap(StrokeLineCap.BUTT);
+        polygon.setSmooth(true);
+        polygon.setCache(true);
         return polygon;
     }
 
