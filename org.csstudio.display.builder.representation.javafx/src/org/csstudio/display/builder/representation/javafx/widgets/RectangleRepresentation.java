@@ -31,7 +31,6 @@ public class RectangleRepresentation extends JFXBaseRepresentation<Rectangle, Re
     {
         final Rectangle rect = new Rectangle();
         rect.setSmooth(true);
-        rect.setCache(true);
         updateColors();
         return rect;
     }

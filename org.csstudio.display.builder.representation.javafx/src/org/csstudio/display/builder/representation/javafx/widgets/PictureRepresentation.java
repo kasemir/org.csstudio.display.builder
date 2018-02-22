@@ -59,7 +59,6 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
     {
         iv = new ImageView();
         iv.setSmooth(true);
-        iv.setCache(true);
 
         Group gr = new Group(border, iv);
         gr.getTransforms().addAll(translate, rotation);

@@ -39,7 +39,6 @@ public class PolylineRepresentation extends JFXBaseRepresentation<Group, Polylin
         polyline.setStrokeLineJoin(StrokeLineJoin.MITER);
         polyline.setStrokeLineCap(StrokeLineCap.BUTT);
         polyline.setSmooth(true);
-        polyline.setCache(true);
         return new Group(polyline, new Arrow(), new Arrow());
     }
 

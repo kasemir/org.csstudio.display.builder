@@ -30,7 +30,6 @@ public class EllipseRepresentation extends JFXBaseRepresentation<Ellipse, Ellips
     {
         final Ellipse ellipse = new Ellipse();
         ellipse.setSmooth(true);
-        ellipse.setCache(true);
         updateColors();
         return ellipse;
     }
