@@ -33,7 +33,6 @@ public class ArcRepresentation extends JFXBaseRepresentation<Arc, ArcWidget>
     public Arc createJFXNode() throws Exception
     {
         final Arc arc = new Arc();
-        arc.setSmooth(true);
         updateColors();
         updateAngles();
         return arc;
