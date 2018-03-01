@@ -12,6 +12,7 @@ import static org.csstudio.display.builder.representation.ToolkitRepresentation.
 import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.function.Function;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.properties.HorizontalAlignment;
@@ -61,27 +62,11 @@ public class JFXUtil extends org.csstudio.javafx.JFXUtil
      */
     public static Color convert(final WidgetColor color)
     {
-
-        Color c = colorCache.get(color);
-
-        if ( c == null ) {
-            synchronized ( colorCache ) {
-
-                c = colorCache.get(color);
-
-                if ( c == null ) {
-
-                    c = Color.rgb(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()/255.0);
-
-                    colorCache.put(color, c);
-
-                }
-
-            }
-        }
-
-        return c;
-
+        return computeIfAbsent(
+            colorCache,
+            color,
+            c -> Color.rgb(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha() / 255.0)
+        );
     }
 
     /** Convert model color into web-type RGB text
@@ -90,27 +75,11 @@ public class JFXUtil extends org.csstudio.javafx.JFXUtil
      */
     public static String webRGB(final WidgetColor color)
     {
-
-        String s = webRGBCache.get(color);
-
-        if ( s == null ) {
-            synchronized ( webRGBCache ) {
-
-                s = webRGBCache.get(color);
-
-                if ( s == null ) {
-
-                    s = appendWebRGB(new StringBuilder(), color).toString();
-
-                    webRGBCache.put(color, s);
-
-                }
-
-            }
-        }
-
-        return s;
-
+        return computeIfAbsent(
+            webRGBCache,
+            color,
+            c -> appendWebRGB(new StringBuilder(), c).toString()
+        );
     }
 
     /** Convert model color into web-type RGB text
@@ -148,56 +117,44 @@ public class JFXUtil extends org.csstudio.javafx.JFXUtil
      */
     public static String shadedStyle(final WidgetColor color)
     {
+        return computeIfAbsent(
+            shadedStyleCache,
+            color,
+            c -> {
 
-        String s = shadedStyleCache.get(color);
+                // How to best set colors?
+                // Content Pane can be set in API, but Tab has no usable 'set color' API.
+                // TabPane has setBackground(), but in "floating" style that would be
+                // the background behind the tabs, which is usually transparent.
+                // modena.css of JDK8 reveals a structure of sub-items which are shaded with gradients based
+                // on  -fx-color for the inactive tabs,
+                //     -fx-outer-border and -fx-inner-border for the, well, border,
+                // and -fx-background for the selected tab,
+                // so re-define those.
+                final String bg = webRGB(c);
 
-        if ( s == null ) {
-            synchronized ( shadedStyleCache ) {
-
-                s = shadedStyleCache.get(color);
-
-                if ( s == null ) {
-
-                    // How to best set colors?
-                    // Content Pane can be set in API, but Tab has no usable 'set color' API.
-                    // TabPane has setBackground(), but in "floating" style that would be
-                    // the background behind the tabs, which is usually transparent.
-                    // modena.css of JDK8 reveals a structure of sub-items which are shaded with gradients based
-                    // on  -fx-color for the inactive tabs,
-                    //     -fx-outer-border and -fx-inner-border for the, well, border,
-                    // and -fx-background for the selected tab,
-                    // so re-define those.
-                    final String bg = webRGB(color);
-
-                    s = "-fx-color: derive(" + bg + ", 50%);" +
-                        "-fx-outer-border: derive(" + bg + ", -23%);" +
-                        "-fx-inner-border: linear-gradient(to bottom," +
-                        "ladder(" + bg + "," +
-                        "       derive(" + bg + ",30%) 0%," +
-                        "       derive(" + bg + ",20%) 40%," +
-                        "       derive(" + bg + ",25%) 60%," +
-                        "       derive(" + bg + ",55%) 80%," +
-                        "       derive(" + bg + ",55%) 90%," +
-                        "       derive(" + bg + ",75%) 100%" +
-                        ")," +
-                        "ladder(" + bg + "," +
-                        "       derive(" + bg + ",20%) 0%," +
-                        "       derive(" + bg + ",10%) 20%," +
-                        "       derive(" + bg + ",5%) 40%," +
-                        "       derive(" + bg + ",-2%) 60%," +
-                        "       derive(" + bg + ",-5%) 100%" +
-                        "));" +
-                        "-fx-background: " + bg + ";";
-
-                    shadedStyleCache.put(color, s);
-
-                }
+                return "-fx-color: derive(" + bg + ", 50%);" +
+                    "-fx-outer-border: derive(" + bg + ", -23%);" +
+                    "-fx-inner-border: linear-gradient(to bottom," +
+                    "ladder(" + bg + "," +
+                    "       derive(" + bg + ",30%) 0%," +
+                    "       derive(" + bg + ",20%) 40%," +
+                    "       derive(" + bg + ",25%) 60%," +
+                    "       derive(" + bg + ",55%) 80%," +
+                    "       derive(" + bg + ",55%) 90%," +
+                    "       derive(" + bg + ",75%) 100%" +
+                    ")," +
+                    "ladder(" + bg + "," +
+                    "       derive(" + bg + ",20%) 0%," +
+                    "       derive(" + bg + ",10%) 20%," +
+                    "       derive(" + bg + ",5%) 40%," +
+                    "       derive(" + bg + ",-2%) 60%," +
+                    "       derive(" + bg + ",-5%) 100%" +
+                    "));" +
+                    "-fx-background: " + bg + ";";
 
             }
-        }
-
-        return s;
-
+        );
     }
 
     /** Convert JFX color into model color
@@ -218,42 +175,26 @@ public class JFXUtil extends org.csstudio.javafx.JFXUtil
      */
     public static Font convert(final WidgetFont font)
     {
+        return computeIfAbsent(
+            fontCache,
+            font,
+            f -> {
 
-        Font f = fontCache.get(font);
+                final double calibrated = font.getSize() * font_calibration;
 
-        if ( f == null ) {
-            synchronized ( fontCache ) {
-
-                f = fontCache.get(font);
-
-                if ( f == null ) {
-
-                    final double calibrated = font.getSize() * font_calibration;
-
-                    switch ( font.getStyle() ) {
-                        case BOLD:
-                            f = Font.font(font.getFamily(), FontWeight.BOLD, FontPosture.REGULAR, calibrated);
-                            break;
-                        case ITALIC:
-                            f = Font.font(font.getFamily(), FontWeight.NORMAL, FontPosture.ITALIC, calibrated);
-                            break;
-                        case BOLD_ITALIC:
-                            f = Font.font(font.getFamily(), FontWeight.BOLD, FontPosture.ITALIC, calibrated);
-                            break;
-                        default:
-                            f = Font.font(font.getFamily(), FontWeight.NORMAL, FontPosture.REGULAR, calibrated);
-                            break;
-                    }
-
-                    fontCache.put(font, f);
-
+                switch ( f.getStyle() ) {
+                    case BOLD:
+                        return Font.font(f.getFamily(), FontWeight.BOLD, FontPosture.REGULAR, calibrated);
+                    case ITALIC:
+                        return Font.font(f.getFamily(), FontWeight.NORMAL, FontPosture.ITALIC, calibrated);
+                    case BOLD_ITALIC:
+                        return Font.font(f.getFamily(), FontWeight.BOLD, FontPosture.ITALIC, calibrated);
+                    default:
+                        return Font.font(f.getFamily(), FontWeight.NORMAL, FontPosture.REGULAR, calibrated);
                 }
 
             }
-        }
-
-        return f;
-
+        );
     }
 
     /** Convert font to Java FX "-fx-font-*"
@@ -312,4 +253,29 @@ public class JFXUtil extends org.csstudio.javafx.JFXUtil
         // Could use if/switch orgy to be independent from 'Pos' ordinals.
         return Pos.values()[vert.ordinal() * 3 + horiz.ordinal()];
     }
+
+    private static <K, V> V computeIfAbsent ( Map<K, V> map, K key, Function<K,? extends V> mappingFunction ) {
+
+        V value = map.get(key);
+
+        if ( value == null ) {
+            synchronized ( map ) {
+
+                value = map.get(key);
+
+                if ( value == null ) {
+
+                    value = mappingFunction.apply(key);
+
+                    map.put(key, value);
+
+                }
+
+            }
+        }
+
+        return value;
+
+    }
+
 }
