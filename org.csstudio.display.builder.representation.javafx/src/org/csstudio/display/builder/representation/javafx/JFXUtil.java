@@ -9,6 +9,10 @@ package org.csstudio.display.builder.representation.javafx;
 
 import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
 
+import java.util.Collections;
+import java.util.Map;
+import java.util.WeakHashMap;
+import java.util.function.Function;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.properties.HorizontalAlignment;
@@ -33,6 +37,11 @@ public class JFXUtil extends org.csstudio.javafx.JFXUtil
 {
     private static double font_calibration = 1.0;
 
+    private static final Map<WidgetColor, Color> colorCache = Collections.synchronizedMap(new WeakHashMap<>());
+    private static final Map<WidgetFont, Font> fontCache = Collections.synchronizedMap(new WeakHashMap<>());
+    private static final Map<WidgetColor, String> shadedStyleCache = Collections.synchronizedMap(new WeakHashMap<>());
+    private static final Map<WidgetColor, String> webRGBCache = Collections.synchronizedMap(new WeakHashMap<>());
+
     static
     {
         try
@@ -53,7 +62,11 @@ public class JFXUtil extends org.csstudio.javafx.JFXUtil
      */
     public static Color convert(final WidgetColor color)
     {
-        return Color.rgb(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()/255.0);
+        return computeIfAbsent(
+            colorCache,
+            color,
+            c -> Color.rgb(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha() / 255.0)
+        );
     }
 
     /** Convert model color into web-type RGB text
@@ -62,7 +75,11 @@ public class JFXUtil extends org.csstudio.javafx.JFXUtil
      */
     public static String webRGB(final WidgetColor color)
     {
-        return appendWebRGB(new StringBuilder(), color).toString();
+        return computeIfAbsent(
+            webRGBCache,
+            color,
+            c -> appendWebRGB(new StringBuilder(), c).toString()
+        );
     }
 
     /** Convert model color into web-type RGB text
@@ -100,36 +117,44 @@ public class JFXUtil extends org.csstudio.javafx.JFXUtil
      */
     public static String shadedStyle(final WidgetColor color)
     {
-        // How to best set colors?
-        // Content Pane can be set in API, but Tab has no usable 'set color' API.
-        // TabPane has setBackground(), but in "floating" style that would be
-        // the background behind the tabs, which is usually transparent.
-        // modena.css of JDK8 reveals a structure of sub-items which are shaded with gradients based
-        // on  -fx-color for the inactive tabs,
-        //     -fx-outer-border and -fx-inner-border for the, well, border,
-        // and -fx-background for the selected tab,
-        // so re-define those.
-        final String bg = webRGB(color);
+        return computeIfAbsent(
+            shadedStyleCache,
+            color,
+            c -> {
 
-        return  "-fx-color: derive(" + bg + ", 50%);" +
-        "-fx-outer-border: derive(" + bg + ", -23%);" +
-        "-fx-inner-border: linear-gradient(to bottom," +
-        "ladder(" + bg + "," +
-        "       derive(" + bg + ",30%) 0%," +
-        "       derive(" + bg + ",20%) 40%," +
-        "       derive(" + bg + ",25%) 60%," +
-        "       derive(" + bg + ",55%) 80%," +
-        "       derive(" + bg + ",55%) 90%," +
-        "       derive(" + bg + ",75%) 100%" +
-        ")," +
-        "ladder(" + bg + "," +
-        "       derive(" + bg + ",20%) 0%," +
-        "       derive(" + bg + ",10%) 20%," +
-        "       derive(" + bg + ",5%) 40%," +
-        "       derive(" + bg + ",-2%) 60%," +
-        "       derive(" + bg + ",-5%) 100%" +
-        "));" +
-        "-fx-background: " + bg + ";";
+                // How to best set colors?
+                // Content Pane can be set in API, but Tab has no usable 'set color' API.
+                // TabPane has setBackground(), but in "floating" style that would be
+                // the background behind the tabs, which is usually transparent.
+                // modena.css of JDK8 reveals a structure of sub-items which are shaded with gradients based
+                // on  -fx-color for the inactive tabs,
+                //     -fx-outer-border and -fx-inner-border for the, well, border,
+                // and -fx-background for the selected tab,
+                // so re-define those.
+                final String bg = webRGB(c);
+
+                return "-fx-color: derive(" + bg + ", 50%);" +
+                    "-fx-outer-border: derive(" + bg + ", -23%);" +
+                    "-fx-inner-border: linear-gradient(to bottom," +
+                    "ladder(" + bg + "," +
+                    "       derive(" + bg + ",30%) 0%," +
+                    "       derive(" + bg + ",20%) 40%," +
+                    "       derive(" + bg + ",25%) 60%," +
+                    "       derive(" + bg + ",55%) 80%," +
+                    "       derive(" + bg + ",55%) 90%," +
+                    "       derive(" + bg + ",75%) 100%" +
+                    ")," +
+                    "ladder(" + bg + "," +
+                    "       derive(" + bg + ",20%) 0%," +
+                    "       derive(" + bg + ",10%) 20%," +
+                    "       derive(" + bg + ",5%) 40%," +
+                    "       derive(" + bg + ",-2%) 60%," +
+                    "       derive(" + bg + ",-5%) 100%" +
+                    "));" +
+                    "-fx-background: " + bg + ";";
+
+            }
+        );
     }
 
     /** Convert JFX color into model color
@@ -150,18 +175,26 @@ public class JFXUtil extends org.csstudio.javafx.JFXUtil
      */
     public static Font convert(final WidgetFont font)
     {
-        final double calibrated = font.getSize() * font_calibration;
-        switch (font.getStyle())
-        {
-        case BOLD:
-            return Font.font(font.getFamily(), FontWeight.BOLD, calibrated);
-        case ITALIC:
-            return Font.font(font.getFamily(), FontPosture.ITALIC, calibrated);
-        case BOLD_ITALIC:
-            return Font.font(font.getFamily(), FontWeight.BOLD, FontPosture.ITALIC, calibrated);
-        default:
-            return Font.font(font.getFamily(), calibrated);
-        }
+        return computeIfAbsent(
+            fontCache,
+            font,
+            f -> {
+
+                final double calibrated = font.getSize() * font_calibration;
+
+                switch ( f.getStyle() ) {
+                    case BOLD:
+                        return Font.font(f.getFamily(), FontWeight.BOLD, FontPosture.REGULAR, calibrated);
+                    case ITALIC:
+                        return Font.font(f.getFamily(), FontWeight.NORMAL, FontPosture.ITALIC, calibrated);
+                    case BOLD_ITALIC:
+                        return Font.font(f.getFamily(), FontWeight.BOLD, FontPosture.ITALIC, calibrated);
+                    default:
+                        return Font.font(f.getFamily(), FontWeight.NORMAL, FontPosture.REGULAR, calibrated);
+                }
+
+            }
+        );
     }
 
     /** Convert font to Java FX "-fx-font-*"
@@ -220,4 +253,29 @@ public class JFXUtil extends org.csstudio.javafx.JFXUtil
         // Could use if/switch orgy to be independent from 'Pos' ordinals.
         return Pos.values()[vert.ordinal() * 3 + horiz.ordinal()];
     }
+
+    private static <K, V> V computeIfAbsent ( Map<K, V> map, K key, Function<K,? extends V> mappingFunction ) {
+
+        V value = map.get(key);
+
+        if ( value == null ) {
+            synchronized ( map ) {
+
+                value = map.get(key);
+
+                if ( value == null ) {
+
+                    value = mappingFunction.apply(key);
+
+                    map.put(key, value);
+
+                }
+
+            }
+        }
+
+        return value;
+
+    }
+
 }

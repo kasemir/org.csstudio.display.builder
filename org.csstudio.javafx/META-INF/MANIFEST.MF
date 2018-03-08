@@ -10,10 +10,10 @@ Bundle-Vendor: Kay Kasemir - SNS
 Bundle-Activator: org.csstudio.javafx.Activator
 Require-Bundle: org.csstudio.display.builder.util;bundle-version="1.0.0",
  org.eclipse.osgi,
- org.apache.batik.transcoder,
- de.codecentric.centerdevice.javafxsvg,
+ org.apache.xmlgraphics.batik-transcoder;bundle-version="1.8.0",
+ de.codecentric.centerdevice.javafxsvg;bundle-version="1.2.1",
  org.reactfx,
- org.fxmisc.flowless, 
+ org.fxmisc.flowless,
  org.fxmisc.richtext.fx,
  org.fxmisc.undo.fx,
  org.fxmisc.wellbehaved.fx
