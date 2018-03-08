@@ -112,6 +112,9 @@ public class GroupRepresentation extends JFXBaseRepresentation<Pane, GroupWidget
             label.setFont(JFXUtil.convert(font));
             label.setText(model_widget.propName().getValue());
 
+            final double previousX = inner.getLayoutX();
+            final double previousY = inner.getLayoutY();
+
             final Style style = model_widget.propStyle().getValue();
             if (style == Style.NONE)
             {
@@ -126,6 +129,8 @@ public class GroupRepresentation extends JFXBaseRepresentation<Pane, GroupWidget
 
                 inner.relocate(0, 0);
                 model_widget.runtimePropInsets().setValue(new int[] { 0, 0 });
+System.out.println("**** " + style.name() + ": " + 0 + ", " + 0);
+
             }
             else if (style == Style.TITLE)
             {
@@ -140,6 +145,7 @@ public class GroupRepresentation extends JFXBaseRepresentation<Pane, GroupWidget
 
                 inner.relocate(border_width, inset+border_width);
                 model_widget.runtimePropInsets().setValue(new int[] { border_width, inset+border_width });
+System.out.println("**** " + style.name() + ": " + border_width + ", " + ( inset + border_width ));
             }
             else if (style == Style.LINE)
             {
@@ -150,6 +156,7 @@ public class GroupRepresentation extends JFXBaseRepresentation<Pane, GroupWidget
 
                 inner.relocate(border_width, border_width);
                 model_widget.runtimePropInsets().setValue(new int[] { border_width, border_width });
+System.out.println("**** " + style.name() + ": " + border_width + ", " + border_width);
             }
             else // GROUP
             {
@@ -164,6 +171,7 @@ public class GroupRepresentation extends JFXBaseRepresentation<Pane, GroupWidget
 
                 inner.relocate(inset, inset);
                 model_widget.runtimePropInsets().setValue(new int[] { inset, inset });
+System.out.println("**** " + style.name() + ": " + inset + ", " + inset);
             }
         }
     }
