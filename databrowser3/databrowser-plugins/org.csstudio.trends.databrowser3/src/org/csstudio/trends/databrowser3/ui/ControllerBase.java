@@ -281,7 +281,10 @@ public abstract class ControllerBase
             @Override
             public void changedTitle()
             {
-                plot.getPlot().setTitle(model.getTitle().orElse(null));
+                String title = model.getTitle().orElse(null);
+                if (title != null)
+                    title = model.resolveMacros(title);
+                plot.getPlot().setTitle(title);
             }
 
             @Override
@@ -462,7 +465,10 @@ public abstract class ControllerBase
         plot.getPlot().showLegend(model.isLegendVisible());
         plot.getPlot().setTitleFont(SWTMediaPool.getJFX(model.getTitleFont()));
         plot.getPlot().setLegendFont(SWTMediaPool.getJFX(model.getLegendFont()));
-        plot.getPlot().setTitle(model.getTitle().orElse(null));
+        String title = model.getTitle().orElse(null);
+        if (title != null)
+            title = model.resolveMacros(title);
+        plot.getPlot().setTitle(title);
         plot.getPlot().setScrollStep(model.getScrollStep());
 
         final List<Trace<Instant>> traces = new ArrayList<>();
