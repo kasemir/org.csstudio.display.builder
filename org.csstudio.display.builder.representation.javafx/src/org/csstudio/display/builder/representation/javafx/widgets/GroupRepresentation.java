@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
+import java.util.Arrays;
+
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
@@ -27,12 +29,26 @@ import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.StrokeLineCap;
+import javafx.scene.shape.StrokeLineJoin;
+import javafx.scene.shape.StrokeType;
 
 /** Creates JavaFX item for model widget
  *  @author Kay Kasemir
  */
 public class GroupRepresentation extends JFXBaseRepresentation<Pane, GroupWidget>
 {
+
+    private static final BorderWidths EDTI_NONE_BORDER = new BorderWidths(0.5, 0.5, 0.5, 0.5, false, false, false, false);
+    public static final BorderStrokeStyle EDTI_NONE_DASHED = new BorderStrokeStyle(
+        StrokeType.INSIDE,
+        StrokeLineJoin.MITER,
+        StrokeLineCap.BUTT,
+        10,
+        0,
+        Arrays.asList(Double.valueOf(11.11), Double.valueOf(7.7), Double.valueOf(3.3), Double.valueOf(7.7))
+    );
+
     private final DirtyFlag dirty_border = new DirtyFlag();
 
     private static final int border_width = 1;
@@ -120,8 +136,8 @@ public class GroupRepresentation extends JFXBaseRepresentation<Pane, GroupWidget
             {
                 inset = 0;
                 // In edit mode, show outline because otherwise hard to handle the totally invisible group
-                if (toolkit.isEditMode() && model_widget.propTransparent().getValue())
-                    jfx_node.setBorder(new Border(new BorderStroke(foreground_color, BorderStrokeStyle.DASHED, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+                if (toolkit.isEditMode())
+                    jfx_node.setBorder(new Border(new BorderStroke(foreground_color, EDTI_NONE_DASHED, CornerRadii.EMPTY, EDTI_NONE_BORDER)));
                 else
                     jfx_node.setBorder(null);
 

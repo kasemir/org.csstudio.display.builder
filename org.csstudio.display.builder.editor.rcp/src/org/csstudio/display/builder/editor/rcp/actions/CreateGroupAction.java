@@ -17,6 +17,7 @@ import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.ModelPlugin;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
+import org.csstudio.display.builder.model.widgets.GroupWidget.Style;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.eclipse.jface.action.Action;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -55,9 +56,11 @@ public class CreateGroupAction extends Action
 
         // Inset depends on representation and changes with group style and font.
         // Can be obtained via group.runtimePropInsets() _after_ the group has
-        // been represented, but right now this guess is based on the
-        // JFX GroupRepresentation with group box and default font
-        final int inset = 16;
+        // been represented. For this reason Style.NONE is used, where the inset
+        // is always 0. An alternative could be Style.LINE, with an inset of 1.
+        final int inset = 0;
+        group.propStyle().setValue(Style.NONE);
+        group.propTransparent().setValue(true);
         group.propX().setValue((int) rect.getMinX() - inset);
         group.propY().setValue((int) rect.getMinY() - inset);
         group.propWidth().setValue((int) rect.getWidth() + 2*inset);
