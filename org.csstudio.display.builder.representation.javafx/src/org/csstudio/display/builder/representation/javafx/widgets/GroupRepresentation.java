@@ -140,7 +140,9 @@ public class GroupRepresentation extends JFXBaseRepresentation<Pane, GroupWidget
 
             System.arraycopy(model_widget.runtimePropInsets().getValue(), 0, insets, 0, insets.length);
 
-            if ( !model_widget.runtimeChildren().getValue().isEmpty() ) {
+            boolean hasChildren = !model_widget.runtimeChildren().getValue().isEmpty();
+
+            if ( hasChildren ) {
 
                 inner.relocate(- insets[0], - insets[1]);
 
@@ -197,9 +199,9 @@ public class GroupRepresentation extends JFXBaseRepresentation<Pane, GroupWidget
 
                     jfx_node.setBorder(new Border(new BorderStroke(foreground_color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
                     label.setVisible(true);
-                    label.relocate(firstUpdate ? 0 : BORDER_WIDTH, BORDER_WIDTH);
+                    label.relocate(0, BORDER_WIDTH);
                     label.setPadding(TITLE_PADDING);
-                    label.setPrefSize(width, inset);
+                    label.setPrefSize(width + ( ( !firstUpdate && hasChildren ) ? insets[2] : 0 ), inset);
                     label.setTextFill(background_color);
                     label.setBackground(new Background(new BackgroundFill(foreground_color, CornerRadii.EMPTY, Insets.EMPTY)));
 
@@ -233,7 +235,7 @@ public class GroupRepresentation extends JFXBaseRepresentation<Pane, GroupWidget
 
             if ( firstUpdate ) {
                 firstUpdate = false;
-            } else if ( !model_widget.runtimeChildren().getValue().isEmpty() ) {
+            } else if ( hasChildren ) {
 
                 x -= insets[0];
                 y -= insets[1];
