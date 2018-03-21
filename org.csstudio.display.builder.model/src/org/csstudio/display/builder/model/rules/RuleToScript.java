@@ -51,14 +51,19 @@ public class RuleToScript
         NUMERIC, BOOLEAN, STRING, COLOR
     }
 
-    private static String formatPropVal(WidgetProperty<?> prop, int exprIDX, PropFormat pform)
+    /** @param prop Property
+     *  @param exprIDX Index of expression
+     *  @param pform Format
+     *  @return Text that represents value of the property as python literal
+     */
+    private static String formatPropVal(final WidgetProperty<?> prop, final int exprIDX, final PropFormat pform)
     {
         switch(pform)
         {
         case BOOLEAN:
             return (Boolean) prop.getValue() ? "True" : "False";
         case STRING:
-            return "\"" + prop.getValue() + "\"";
+            return "\"" + escapeString(prop.getValue().toString()) + "\"";
         case COLOR:
             if (exprIDX >= 0)
                 return "colorVal" + String.valueOf(exprIDX);
@@ -68,6 +73,16 @@ public class RuleToScript
         default:
             return String.valueOf(prop.getValue());
         }
+    }
+
+    /** @param text Text
+     *  @return Text where quotes and whitespace is escaped
+     */
+    private static String escapeString(final String text)
+    {
+        return text.replace("\"", "\\\"")
+                   .replace("\n", "\\n")
+                   .replace("\t", "\\t");
     }
 
     /** Patch logic

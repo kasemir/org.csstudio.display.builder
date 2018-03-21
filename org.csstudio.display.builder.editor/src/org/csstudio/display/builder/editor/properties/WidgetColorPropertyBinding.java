@@ -16,6 +16,7 @@ import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.representation.javafx.WidgetColorPopOver;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
+
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 
@@ -50,11 +51,14 @@ public class WidgetColorPropertyBinding
                                          wColor ->
         {
             undo.execute(new SetWidgetPropertyAction<WidgetColor>(widget_property, wColor));
-            final String path = widget_property.getPath();
-            for (Widget w : other)
+            if (! other.isEmpty())
             {
-                final ColorWidgetProperty other_prop = (ColorWidgetProperty) w.getProperty(path);
-                undo.execute(new SetWidgetPropertyAction<WidgetColor>(other_prop, wColor));
+                final String path = widget_property.getPath();
+                for (Widget w : other)
+                {
+                    final ColorWidgetProperty other_prop = (ColorWidgetProperty) w.getProperty(path);
+                    undo.execute(new SetWidgetPropertyAction<WidgetColor>(other_prop, wColor));
+                }
             }
         });
         popover.show(jfx_node.getButton());

@@ -9,10 +9,8 @@ package org.csstudio.display.builder.representation.javafx;
 
 import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
 
-import java.util.Collections;
 import java.util.Map;
-import java.util.WeakHashMap;
-import java.util.function.Function;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.properties.HorizontalAlignment;
@@ -37,10 +35,10 @@ public class JFXUtil extends org.csstudio.javafx.JFXUtil
 {
     private static double font_calibration = 1.0;
 
-    private static final Map<WidgetColor, Color> colorCache = Collections.synchronizedMap(new WeakHashMap<>());
-    private static final Map<WidgetFont, Font> fontCache = Collections.synchronizedMap(new WeakHashMap<>());
-    private static final Map<WidgetColor, String> shadedStyleCache = Collections.synchronizedMap(new WeakHashMap<>());
-    private static final Map<WidgetColor, String> webRGBCache = Collections.synchronizedMap(new WeakHashMap<>());
+    private static final Map<WidgetColor, Color> colorCache = new ConcurrentHashMap<>(8);
+    private static final Map<WidgetFont, Font> fontCache = new ConcurrentHashMap<>(8);
+    private static final Map<WidgetColor, String> shadedStyleCache = new ConcurrentHashMap<>(8);
+    private static final Map<WidgetColor, String> webRGBCache = new ConcurrentHashMap<>(8);
 
     static
     {
@@ -62,8 +60,7 @@ public class JFXUtil extends org.csstudio.javafx.JFXUtil
      */
     public static Color convert(final WidgetColor color)
     {
-        return computeIfAbsent(
-            colorCache,
+        return colorCache.computeIfAbsent(
             color,
             c -> Color.rgb(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha() / 255.0)
         );
@@ -75,8 +72,7 @@ public class JFXUtil extends org.csstudio.javafx.JFXUtil
      */
     public static String webRGB(final WidgetColor color)
     {
-        return computeIfAbsent(
-            webRGBCache,
+        return webRGBCache.computeIfAbsent(
             color,
             c -> appendWebRGB(new StringBuilder(), c).toString()
         );
@@ -117,8 +113,7 @@ public class JFXUtil extends org.csstudio.javafx.JFXUtil
      */
     public static String shadedStyle(final WidgetColor color)
     {
-        return computeIfAbsent(
-            shadedStyleCache,
+        return shadedStyleCache.computeIfAbsent(
             color,
             c -> {
 
@@ -175,8 +170,7 @@ public class JFXUtil extends org.csstudio.javafx.JFXUtil
      */
     public static Font convert(final WidgetFont font)
     {
-        return computeIfAbsent(
-            fontCache,
+        return fontCache.computeIfAbsent(
             font,
             f -> {
 
@@ -252,30 +246,6 @@ public class JFXUtil extends org.csstudio.javafx.JFXUtil
         // This depends on the order of 'Pos' and uses Pos.BOTTOM_*, not Pos.BASELINE_*.
         // Could use if/switch orgy to be independent from 'Pos' ordinals.
         return Pos.values()[vert.ordinal() * 3 + horiz.ordinal()];
-    }
-
-    private static <K, V> V computeIfAbsent ( Map<K, V> map, K key, Function<K,? extends V> mappingFunction ) {
-
-        V value = map.get(key);
-
-        if ( value == null ) {
-            synchronized ( map ) {
-
-                value = map.get(key);
-
-                if ( value == null ) {
-
-                    value = mappingFunction.apply(key);
-
-                    map.put(key, value);
-
-                }
-
-            }
-        }
-
-        return value;
-
     }
 
 }

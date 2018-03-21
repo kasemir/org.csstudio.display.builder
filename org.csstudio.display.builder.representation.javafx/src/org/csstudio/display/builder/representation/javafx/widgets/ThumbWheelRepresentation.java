@@ -49,7 +49,6 @@ public class ThumbWheelRepresentation extends RegionBaseRepresentation<ThumbWhee
     private volatile double     min           = 0.0;
     private final AtomicBoolean updatingValue = new AtomicBoolean(false);
 
-    @SuppressWarnings( "unchecked" )
     @Override
     public void updateChanges ( ) {
 
@@ -285,22 +284,29 @@ public class ThumbWheelRepresentation extends RegionBaseRepresentation<ThumbWhee
         double newMin = model_widget.propMinimum().getValue();
         double newMax = model_widget.propMaximum().getValue();
 
+        //  If invalid limits, fall back to 0..100 range.
+        if ( Double.isNaN(newMin) || Double.isNaN(newMax) || newMin > newMax ) {
+            newMin = 0.0;
+            newMax = 100.0;
+        }
+
         if ( model_widget.propLimitsFromPV().getValue() ) {
 
             //  Try to get display range from PV.
             final Display display_info = ValueUtil.displayOf(model_widget.runtimePropValue().getValue());
 
             if ( display_info != null ) {
-                newMin = display_info.getLowerCtrlLimit();
-                newMax = display_info.getUpperCtrlLimit();
+
+                double infoMin = display_info.getLowerCtrlLimit();
+                double infoMax = display_info.getUpperCtrlLimit();
+
+                if ( !Double.isNaN(infoMin) && !Double.isNaN(infoMax) && infoMin < infoMax ) {
+                    newMin = infoMin;
+                    newMax = infoMax;
+                }
+
             }
 
-        }
-
-        //  If invalid limits, fall back to 0..100 range.
-        if ( !( Double.isNaN(newMin) || Double.isNaN(newMax) || newMin < newMax ) ) {
-            newMin = 0.0;
-            newMax = 100.0;
         }
 
         if ( Double.compare(min, newMin) != 0 ) {
