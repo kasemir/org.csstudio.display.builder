@@ -79,18 +79,6 @@ public class ClockRepresentation extends BaseClockRepresentation<ClockWidget> {
                 jfx_node.setBackgroundPaint((Paint) value);
             }
 
-            value = JFXUtil.convert(model_widget.propBorderColor().getValue());
-
-            if ( !Objects.equals(value, jfx_node.getBorderPaint()) ) {
-                jfx_node.setBorderPaint((Paint) value);
-            }
-
-            value = model_widget.propBorderWidth().getValue();
-
-            if ( !Objects.equals(value, jfx_node.getBorderWidth()) ) {
-                jfx_node.setBorderWidth((double) value);
-            }
-
             value = JFXUtil.convert(model_widget.propDateColor().getValue());
 
             if ( !Objects.equals(value, jfx_node.getDateColor()) ) {
@@ -137,6 +125,18 @@ public class ClockRepresentation extends BaseClockRepresentation<ClockWidget> {
 
             if ( !Objects.equals(value, jfx_node.isMinuteTickMarksVisible()) ) {
                 jfx_node.setMinuteTickMarksVisible((boolean) value);
+            }
+
+            value = JFXUtil.convert(model_widget.propRingColor().getValue());
+
+            if ( !Objects.equals(value, jfx_node.getBorderPaint()) ) {
+                jfx_node.setBorderPaint((Paint) value);
+            }
+
+            value = model_widget.propRingWidth().getValue();
+
+            if ( !Objects.equals(value, jfx_node.getBorderWidth()) ) {
+                jfx_node.setBorderWidth((double) value);
             }
 
             value = JFXUtil.convert(model_widget.propSecondColor().getValue());
@@ -186,8 +186,8 @@ public class ClockRepresentation extends BaseClockRepresentation<ClockWidget> {
         Clock clock = super.createJFXNode(skinType);
 
         clock.setBackgroundPaint(model_widget.propTransparent().getValue() ? Color.TRANSPARENT : JFXUtil.convert(model_widget.propBackgroundColor().getValue()));
-        clock.setBorderPaint(JFXUtil.convert(model_widget.propBorderColor().getValue()));
-        clock.setBorderWidth(model_widget.propBorderWidth().getValue());
+        clock.setBorderPaint(JFXUtil.convert(model_widget.propRingColor().getValue()));
+        clock.setBorderWidth(model_widget.propRingWidth().getValue());
         clock.setDateColor(JFXUtil.convert(model_widget.propDateColor().getValue()));
         clock.setDiscreteHours(model_widget.propDiscreteHours().getValue());
         clock.setDiscreteMinutes(model_widget.propDiscreteMinutes().getValue());
@@ -212,13 +212,13 @@ public class ClockRepresentation extends BaseClockRepresentation<ClockWidget> {
             }
         });
         clock.borderPaintProperty().addListener( ( s, o, n ) -> {
-            if ( !Objects.equals(n, JFXUtil.convert(model_widget.propBorderColor().getValue())) ) {
-                model_widget.propBorderColor().setValue(JFXUtil.convert((Color) n));
+            if ( !Objects.equals(n, JFXUtil.convert(model_widget.propRingColor().getValue())) ) {
+                model_widget.propRingColor().setValue(JFXUtil.convert((Color) n));
             }
         });
         clock.borderWidthProperty().addListener( ( s, o, n ) -> {
-            if ( !Objects.equals(n, model_widget.propBorderWidth().getValue()) ) {
-                model_widget.propBorderWidth().setValue(n.doubleValue());
+            if ( !Objects.equals(n, model_widget.propRingWidth().getValue()) ) {
+                model_widget.propRingWidth().setValue(n.doubleValue());
             }
         });
         clock.dateColorProperty().addListener( ( s, o, n ) -> {
@@ -317,8 +317,6 @@ public class ClockRepresentation extends BaseClockRepresentation<ClockWidget> {
         super.registerListeners();
 
         model_widget.propBackgroundColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propBorderColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propBorderWidth().addUntypedPropertyListener(this::lookChanged);
         model_widget.propDateColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propHourColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propHourTickMarkColor().addUntypedPropertyListener(this::lookChanged);
@@ -327,6 +325,8 @@ public class ClockRepresentation extends BaseClockRepresentation<ClockWidget> {
         model_widget.propMinuteColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propMinuteTickMarkColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propMinuteTickMarkVisible().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propRingColor().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propRingWidth().addUntypedPropertyListener(this::lookChanged);
         model_widget.propSecondColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propSkin().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTextColor().addUntypedPropertyListener(this::lookChanged);
