@@ -19,6 +19,7 @@ import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.model.widgets.PictureWidget;
 
+import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -132,19 +133,19 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
         if ( !load_failed ) {
 
             if ( img_path.toLowerCase().endsWith(".svg") ) {
-
                 try {
 
-                    svg = SVGLoader.load(img_path);
+                    svg = SVGLoader.load(ModelResourceUtil.openResourceStream(img_path));
 
+                    Bounds bounds = svg.getLayoutBounds();
 
+                    native_ratio = bounds.getWidth() / bounds.getHeight();
+                    img_loaded = null;
 
                 } catch ( Exception ex ) {
                     logger.log(Level.WARNING, "Failure loading SVG image file:" + img_path, ex);
                     load_failed = true;
                 }
-
-
             } else {
                 try {
                     // Open the image from the stream created from the resource file
@@ -199,11 +200,38 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
         }
         if (dirty_content.checkAndClear())
         {
+
+            if ( jfx_node.getChildren().get(1) == iv ) {
+                if ( img_loaded != null ) {
+                    iv.setImage(img_loaded);
+                    // We handle ratio internally, do not let ImageView do that
+                    iv.setPreserveRatio(false);
+                } else if ( svg != null ) {
+                    jfx_node.getChildren().remove(1);
+                    jfx_node.getChildren().add(svg);
+                } else {
+                    //  It should never happen... but never say never.
+                    logger.warning("Null picture content!");
+                }
+            } else {
+                if ( svg != null ) {
+                    jfx_node.getChildren().remove(1);
+                    jfx_node.getChildren().add(svg);
+                } else if ( img_loaded != null ) {
+                    jfx_node.getChildren().remove(1);
+                    jfx_node.getChildren().add(iv);
+                    iv.setImage(img_loaded);
+                    // We handle ratio internally, do not let ImageView do that
+                    iv.setPreserveRatio(false);
+                } else {
+                    //  It should never happen... but never say never.
+                    logger.warning("Null vectorial content!");
+                }
+            }
+
             //System.out.println("update change to img path at " + img_path + " on thread " + Thread.currentThread().getName());}
-            iv.setImage(img_loaded);
-            // We handle ratio internally, do not let ImageView do that
-            iv.setPreserveRatio(false);
             jfx_node.setCache(true);
+
         }
         if (dirty_style.checkAndClear())
         {
