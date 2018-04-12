@@ -27,6 +27,8 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
+import se.europeanspallationsource.xaos.tools.svg.SVGContent;
+import se.europeanspallationsource.xaos.tools.svg.SVGLoader;
 
 /** Creates JavaFX item for model widget
  *  @author Megan Grodowitz
@@ -43,6 +45,7 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
 
     private volatile Image img_loaded;
     private volatile ImageView iv;
+    private volatile SVGContent svg;
     private volatile String img_path;
     private volatile double native_ratio = 1.0;
 
@@ -126,19 +129,34 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
             load_failed = true;
         }
 
-        if (!load_failed)
-        {
-            try
-            {
-                // Open the image from the stream created from the resource file
-                img_loaded = new Image(ModelResourceUtil.openResourceStream(img_path));
-                native_ratio = img_loaded.getWidth() / img_loaded.getHeight();
+        if ( !load_failed ) {
+
+            if ( img_path.toLowerCase().endsWith(".svg") ) {
+
+                try {
+
+                    svg = SVGLoader.load(img_path);
+
+
+
+                } catch ( Exception ex ) {
+                    logger.log(Level.WARNING, "Failure loading SVG image file:" + img_path, ex);
+                    load_failed = true;
+                }
+
+
+            } else {
+                try {
+                    // Open the image from the stream created from the resource file
+                    img_loaded = new Image(ModelResourceUtil.openResourceStream(img_path));
+                    native_ratio = img_loaded.getWidth() / img_loaded.getHeight();
+                    svg = null;
+                } catch ( Exception ex ) {
+                    logger.log(Level.WARNING, "Failure loading image file:" + img_path, ex);
+                    load_failed = true;
+                }
             }
-            catch (Exception ex)
-            {
-                logger.log(Level.WARNING, "Failure loading image file:" + img_path, ex);
-                load_failed = true;
-            }
+
         }
 
         if (load_failed)
@@ -149,6 +167,7 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
                 // Open the image from the stream created from the resource file
                 img_loaded = new Image(ModelResourceUtil.openResourceStream(dflt_img));
                 native_ratio = img_loaded.getWidth() / img_loaded.getHeight();
+                svg = null;
             }
             catch (Exception ex)
             {
