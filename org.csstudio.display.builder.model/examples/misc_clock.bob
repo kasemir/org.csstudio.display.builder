@@ -36,11 +36,11 @@
       <color red="239" green="239" blue="239">
       </color>
     </background_color>
-    <border_color>
+    <ring_color>
       <color red="0" green="0" blue="0">
       </color>
-    </border_color>
-    <border_width>5.0</border_width>
+    </ring_color>
+    <ring_width>5.0</ring_width>
     <date_color>
       <color red="0" green="0" blue="0">
       </color>
@@ -115,7 +115,7 @@
       <color red="0" green="0" blue="0">
       </color>
     </background_color>
-    <border_width>0.0</border_width>
+    <ring_width>0.0</ring_width>
     <date_color>
       <color red="255" green="255" blue="255">
       </color>
@@ -168,7 +168,7 @@
     <y>330</y>
     <width>160</width>
     <height>160</height>
-    <border_width>0.0</border_width>
+    <ring_width>0.0</ring_width>
     <date_color>
       <color red="230" green="77" blue="77">
       </color>
