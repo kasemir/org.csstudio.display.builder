@@ -20,6 +20,7 @@ import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.model.widgets.PictureWidget;
 
 import javafx.geometry.Bounds;
+import javafx.geometry.Dimension2D;
 import javafx.scene.Group;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -57,6 +58,35 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
 
     private volatile Rotate rotation = new Rotate(0);
     private volatile Translate translate = new Translate(0,0);
+
+    public static Dimension2D computeSize ( final PictureWidget widget ) {
+
+        final String imageFile = widget.propFile().getValue();
+
+        try {
+
+            final String filename = ModelResourceUtil.resolveResource(widget.getTopDisplayModel(), imageFile);
+
+            if ( filename.toLowerCase().endsWith(".svg") ) {
+
+                final SVGContent svg = SVGLoader.load(ModelResourceUtil.openResourceStream(filename));
+                final Bounds bounds = svg.getLayoutBounds();
+
+                return new Dimension2D(bounds.getWidth(), bounds.getHeight());
+
+            } else {
+
+                final Image image = new Image(ModelResourceUtil.openResourceStream(filename));
+
+                return new Dimension2D(image.getWidth(), image.getHeight());
+
+            }
+
+        } catch ( Exception ex ) {
+            return new Dimension2D(0.0, 0.0);
+        }
+
+    }
 
     @Override
     public Group createJFXNode() throws Exception

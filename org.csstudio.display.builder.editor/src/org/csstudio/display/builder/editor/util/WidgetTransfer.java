@@ -56,6 +56,7 @@ import org.csstudio.display.builder.model.widgets.PictureWidget;
 import org.csstudio.display.builder.model.widgets.SymbolWidget;
 import org.csstudio.display.builder.model.widgets.WebBrowserWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.PictureRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.SymbolRepresentation;
 import org.eclipse.osgi.util.NLS;
 
@@ -930,19 +931,10 @@ public class WidgetTransfer {
      */
     private static void updatePictureWidgetSize ( final PictureWidget widget ) {
 
-        final String imageFile = widget.propFile().getValue();
+        Dimension2D size = PictureRepresentation.computeSize(widget);
 
-        try {
-
-            final String filename = ModelResourceUtil.resolveResource(widget.getTopDisplayModel(), imageFile);
-            final Image image = new Image(ModelResourceUtil.openResourceStream(filename));
-
-            widget.propWidth().setValue((int) Math.round(image.getWidth()));
-            widget.propHeight().setValue((int) Math.round(image.getHeight()));
-
-        } catch ( Exception ex ) {
-            logger.log(Level.WARNING, "Cannot obtain image size for " + imageFile, ex);
-        }
+        widget.propWidth().setValue((int) Math.round(size.getWidth()));
+        widget.propHeight().setValue((int) Math.round(size.getHeight()));
 
     }
 
