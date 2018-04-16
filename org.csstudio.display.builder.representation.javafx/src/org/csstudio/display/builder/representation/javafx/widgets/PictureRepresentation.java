@@ -169,6 +169,9 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
 
                     Bounds bounds = svg.getLayoutBounds();
 
+                    svg.setTranslateX(-bounds.getMinX());
+                    svg.setTranslateY(-bounds.getMinY());
+
                     native_ratio = bounds.getWidth() / bounds.getHeight();
                     img_loaded = null;
 
@@ -318,6 +321,17 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
             // translate to the center of the widget
             translate.setX((widg_w - final_pic_w) / 2.0);
             translate.setY((widg_h - final_pic_h) / 2.0);
+
+            if ( svg != null ) {
+
+                Bounds bounds = svg.getLayoutBounds();
+
+                svg.setScaleX(final_pic_w / bounds.getWidth());
+                svg.setScaleY(final_pic_h / bounds.getHeight());
+                jfx_node.relocate(model_widget.propX().getValue(), model_widget.propY().getValue());
+
+            }
+
         }
     }
 }
