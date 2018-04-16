@@ -161,10 +161,10 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
         }
 
         if ( !load_failed ) {
-
             if ( img_path.toLowerCase().endsWith(".svg") ) {
                 try {
 
+                    // Open the image from the stream created from the resource file
                     svg = SVGLoader.load(ModelResourceUtil.openResourceStream(img_path));
 
                     Bounds bounds = svg.getLayoutBounds();
@@ -190,7 +190,6 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
                     load_failed = true;
                 }
             }
-
         }
 
         if (load_failed)
@@ -242,9 +241,6 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
                 } else if ( svg != null ) {
                     jfx_node.getChildren().remove(1);
                     jfx_node.getChildren().add(svg);
-                } else {
-                    //  It should never happen... but never say never.
-                    logger.warning("Null picture content!");
                 }
             } else {
                 if ( svg != null ) {
@@ -256,9 +252,6 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
                     iv.setImage(img_loaded);
                     // We handle ratio internally, do not let ImageView do that
                     iv.setPreserveRatio(false);
-                } else {
-                    //  It should never happen... but never say never.
-                    logger.warning("Null vectorial content!");
                 }
             }
 

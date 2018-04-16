@@ -49,6 +49,7 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.geometry.Bounds;
 import javafx.geometry.Dimension2D;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -64,6 +65,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import se.europeanspallationsource.xaos.tools.svg.SVGContent;
+import se.europeanspallationsource.xaos.tools.svg.SVGLoader;
 
 
 /**
@@ -84,8 +87,8 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
     private final DirtyFlag                      dirtyStyle            = new DirtyFlag();
     private final DirtyFlag                      dirtyValue            = new DirtyFlag();
     private volatile boolean                     enabled               = true;
-    private final List<Image>                    imagesList            = Collections.synchronizedList(new ArrayList<>(4));
-    private final Map<String, Image>             imagesMap             = Collections.synchronizedMap(new TreeMap<>());
+    private final List<ImageContent>             imagesList            = Collections.synchronizedList(new ArrayList<>(4));
+    private final Map<String, ImageContent>      imagesMap             = Collections.synchronizedMap(new TreeMap<>());
     private BorderPane                           imagePane;
     private final WidgetPropertyListener<String> imagePropertyListener = this::imageChanged;
     private ImageView                            imageView;
@@ -350,7 +353,23 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
                 imageView.setSmooth(true);
                 imageView.fitHeightProperty().bind(symbol.prefHeightProperty());
                 imageView.fitWidthProperty().bind(symbol.prefWidthProperty());
-                imageView.imageProperty().bind(Bindings.createObjectBinding(() -> ( getImageIndex() >= 0 ) ? imagesList.get(getImageIndex()) : getDefaultSymbol(), imageIndexProperty()));
+                imageView.imageProperty().bind(Bindings.createObjectBinding(() -> {
+                        if ( getImageIndex() >= 0 ) {
+
+                            ImageContent imageContent = imagesList.get(getImageIndex());
+
+                            if ( imageContent.isImage() ) {
+                                return imageContent.getImage();
+                            } else {
+                                return getDefaultSymbol();
+                            }
+
+                        } else {
+                            return getDefaultSymbol();
+                        }
+                    },
+                    imageIndexProperty()
+                ));
 
             imagePane.setCenter(imageView);
             imagePane.setPrefWidth(model_widget.propWidth().getValue());
@@ -455,7 +474,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
     private Image getDefaultSymbol() {
 
         if ( defaultSymbol == null ) {
-            defaultSymbol = loadSymbol(SymbolWidget.DEFAULT_SYMBOL);
+            defaultSymbol = loadDefaultSymbol();
         }
 
         return defaultSymbol;
@@ -497,41 +516,18 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
         toolkit.scheduleUpdate(this);
     }
 
-    /**
-     * Load the image for the given file name.
-     *
-     * @param fileName The file name of the image to be loaded.
-     * @return The loaded {@link Image}, or {@code null} if no image was loaded.
-     */
-    private Image loadSymbol ( String fileName ) {
+    private Image loadDefaultSymbol() {
 
-        String imageFileName = resolveImageFile(model_widget, fileName);
-        Image image = null;
+        String imageFileName = resolveImageFile(model_widget, SymbolWidget.DEFAULT_SYMBOL);
 
-        if ( imageFileName != null ) {
-            try {
-                //  Open the image from the stream created from the resource file.
-                image = new Image(ModelResourceUtil.openResourceStream(imageFileName));
-            } catch ( Exception ex ) {
-                logger.log(Level.WARNING, "Failure loading image: ({0}) {1} [{2}].", new Object[] { fileName, imageFileName, ex.getMessage() });
-            }
+        try {
+            //  Open the image from the stream created from the resource file.
+            return new Image(ModelResourceUtil.openResourceStream(imageFileName));
+        } catch ( Exception ex ) {
+            logger.log(Level.WARNING, "Failure loading image: {0} [{1}].", new Object[] { SymbolWidget.DEFAULT_SYMBOL, ex.getMessage() });
         }
 
-        if ( image == null ) {
-
-            imageFileName = resolveImageFile(model_widget, SymbolWidget.DEFAULT_SYMBOL);
-
-            try {
-                //  Open the image from the stream created from the resource file.
-                image = new Image(ModelResourceUtil.openResourceStream(imageFileName));
-
-            } catch ( Exception ex ) {
-                logger.log(Level.WARNING, "Failure loading image: ({0}) {1} [{2}].", new Object[] { fileName, imageFileName, ex.getMessage() });
-            }
-
-        }
-
-        return image;
+        return null;
 
     }
 
@@ -649,20 +645,20 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
                 fileNames.stream().forEach(f -> {
 
                     String fileName = f.getValue();
-                    Image image = imagesMap.get(fileName);
+                    ImageContent imageContent = imagesMap.get(fileName);
 
-                    if ( image == null ) {
+                    if ( imageContent == null ) {
 
-                        image = loadSymbol(fileName);
+                        imageContent = new ImageContent(fileName);
 
-                        if ( image != null ) {
-                            imagesMap.put(fileName, image);
+                        if ( imageContent.isValid() ) {
+                            imagesMap.put(fileName, imageContent);
                         }
 
                     }
 
-                    if ( image != null ) {
-                        imagesList.add(image);
+                    if ( imageContent.isValid() ) {
+                        imagesList.add(imageContent);
                     }
 
                 });
@@ -685,6 +681,103 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
     private void valueChanged ( final WidgetProperty<? extends VType> property, final VType oldValue, final VType newValue ) {
         dirtyValue.mark();
         toolkit.scheduleUpdate(this);
+    }
+
+    private class ImageContent {
+
+        private Image image;
+        private final String fileName;
+        private double originalRatio;
+        private SVGContent svg;
+
+        ImageContent ( String fileName ) {
+
+            this.fileName = fileName;
+
+            boolean loadFailed = true;
+            String imageFileName = resolveImageFile(model_widget, fileName);
+
+            if ( imageFileName != null ) {
+                if ( imageFileName.toLowerCase().endsWith(".svg") ) {
+                    try {
+
+                        // Open the image from the stream created from the resource file
+                        svg = SVGLoader.load(ModelResourceUtil.openResourceStream(imageFileName));
+
+                        Bounds bounds = svg.getLayoutBounds();
+
+                        svg.setTranslateX(-bounds.getMinX());
+                        svg.setTranslateY(-bounds.getMinY());
+
+                        originalRatio = bounds.getWidth() / bounds.getHeight();
+                        image = null;
+                        loadFailed = false;
+
+                    } catch ( Exception ex ) {
+                        logger.log(Level.WARNING, "Failure loading SVG image file: ({0}) {1} [{2}].", new Object[] { fileName, imageFileName, ex.getMessage() });
+                    }
+                } else {
+                    try {
+                        //  Open the image from the stream created from the resource file.
+                        image = new Image(ModelResourceUtil.openResourceStream(imageFileName));
+                        originalRatio = image.getWidth() / image.getHeight();
+                        svg = null;
+                        loadFailed = false;
+                    } catch ( Exception ex ) {
+                        logger.log(Level.WARNING, "Failure loading image: ({0}) {1} [{2}].", new Object[] { fileName, imageFileName, ex.getMessage() });
+                    }
+                }
+            }
+
+            if ( loadFailed ) {
+
+                imageFileName = resolveImageFile(model_widget, SymbolWidget.DEFAULT_SYMBOL);
+
+                try {
+                    //  Open the image from the stream created from the resource file.
+                    image = loadDefaultSymbol();
+                    originalRatio = image.getWidth() / image.getHeight();
+                    svg = null;
+                } catch ( Exception ex ) {
+                    logger.log(Level.WARNING, "Failure loading image: ({0}) {1} [{2}].", new Object[] { fileName, imageFileName, ex.getMessage() });
+                    image = null;
+                    svg = null;
+                    originalRatio = Double.NaN;
+                }
+
+            }
+
+        }
+
+        String getFileName() {
+            return fileName;
+        }
+
+        Image getImage() {
+            return image;
+        }
+
+        double getOriginalRatio() {
+            return originalRatio;
+        }
+
+        SVGContent getSVG() {
+            return svg;
+        }
+
+        boolean isImage() {
+            return ( image != null );
+        }
+
+        boolean isSVG() {
+            return ( svg != null );
+        }
+
+        boolean isValid() {
+            return ( isImage() || isSVG() );
+        }
+
+
     }
 
 }
