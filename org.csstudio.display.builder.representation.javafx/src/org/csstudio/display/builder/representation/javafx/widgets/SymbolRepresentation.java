@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.macros.MacroHandler;
@@ -47,7 +48,9 @@ import org.diirt.vtype.VType;
 
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.geometry.Bounds;
 import javafx.geometry.Dimension2D;
@@ -112,6 +115,25 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
         Platform.runLater(() -> this.imageIndex.set(imageIndex));
     }
 
+    //  ---- triggerContentUpdate property
+    private BooleanProperty triggerContentUpdate =  new SimpleBooleanProperty(false);
+
+    private boolean isTriggerContentUpdate ( ) {
+        return triggerContentUpdate.get();
+    }
+
+    private BooleanProperty triggerContentUpdateProperty ( ) {
+        return triggerContentUpdate;
+    }
+
+    private void setTriggerContentUpdate ( boolean triggerContentUpdate ) {
+        Platform.runLater(() -> this.triggerContentUpdate.set(triggerContentUpdate));
+    }
+
+    private void triggerContentUpdate() {
+        setTriggerContentUpdate(!isTriggerContentUpdate());
+    }
+
 
     /**
      * Compute the maximum width and height of the given {@code widget} based on
@@ -130,14 +152,14 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
 
             try {
 
-                final String filename = ModelResourceUtil.resolveResource(widget.getTopDisplayModel(), imageFile);
-                final Image image = new Image(ModelResourceUtil.openResourceStream(filename));
+                final SymbolRepresentation representation = widget.getUserData(Widget.USER_DATA_REPRESENTATION);
+                final ImageContent ic = representation.createImageContent(imageFile);
 
-                if ( max_size[0] < image.getWidth() ) {
-                    max_size[0] = image.getWidth();
+                if ( max_size[0] < ic.getOriginalWidth() ) {
+                    max_size[0] = ic.getOriginalWidth();
                 }
-                if ( max_size[1] < image.getHeight() ) {
-                    max_size[1] = image.getHeight();
+                if ( max_size[1] < ic.getOriginalHeight() ) {
+                    max_size[1] = ic.getOriginalHeight();
                 }
 
             } catch ( Exception ex ) {
@@ -191,6 +213,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
 
         super.updateChanges();
 
+        boolean needsSVGResize = false;
         Object value;
 
         if ( dirtyGeometry.checkAndClear() ) {
@@ -224,6 +247,8 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
 
             indexLabelBackground.setRadius(Math.min(minSize / 2, 16.0));
 
+            needsSVGResize = true;
+
         }
 
         if ( dirtyIndex.checkAndClear() ) {
@@ -247,7 +272,11 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
             value = model_widget.propPreserveRatio().getValue();
 
             if ( !Objects.equals(value, imageView.isPreserveRatio()) ) {
+
                 imageView.setPreserveRatio((boolean) value);
+
+                needsSVGResize = true;
+
             }
 
             value = model_widget.propEnabled().getValue();
@@ -329,17 +358,55 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
 
         }
 
+        if ( needsSVGResize ) {
+            imagesList.stream().filter(ic -> ic.isSVG()).forEach(ic -> {
+
+                Integer widgetWidth = model_widget.propWidth().getValue();
+                Integer widgetHeight = model_widget.propHeight().getValue();
+                double symbolWidth = widgetWidth.doubleValue();
+                double symbolHeight = widgetHeight.doubleValue();
+
+                if ( model_widget.propPreserveRatio().getValue() ) {
+
+                    double wPrime = symbolHeight * ic.getOriginalRatio();
+                    double hPrime = symbolWidth / ic.getOriginalRatio();
+
+                    if ( wPrime < symbolWidth ) {
+                        symbolHeight = hPrime;
+                    } else if ( hPrime < symbolHeight ) {
+                        symbolWidth = wPrime;
+                    }
+
+                }
+
+                double finalSymbolWidth = symbolWidth;
+                double finalSymbolHeight = symbolHeight;
+                double cos_a = Math.cos(Math.toRadians(model_widget.propRotation().getValue()));
+                double sin_a = Math.sin(Math.toRadians(model_widget.propRotation().getValue()));
+                double pic_bb_w = symbolWidth * Math.abs(cos_a) + symbolHeight * Math.abs(sin_a);
+                double pic_bb_h = symbolWidth * Math.abs(sin_a) + symbolHeight * Math.abs(cos_a);
+                double scale_fac = Math.min(widgetWidth / pic_bb_w, widgetHeight / pic_bb_h);
+
+                if ( scale_fac < 1.0 ) {
+                    finalSymbolWidth = (int) Math.floor(scale_fac * symbolWidth);
+                    finalSymbolHeight = (int) Math.floor(scale_fac * symbolHeight);
+                }
+
+                SVGContent svg = ic.getSVG();
+                Bounds bounds = svg.getLayoutBounds();
+
+                svg.setScaleX(finalSymbolWidth / bounds.getWidth());
+                svg.setScaleY(finalSymbolHeight / bounds.getHeight());
+
+            });
+        }
+
     }
 
     @Override
     protected AnchorPane createJFXNode ( ) throws Exception {
 
         autoSize = model_widget.propAutoSize().getValue();
-
-        if ( autoSize ) {
-            model_widget.propWidth().setValue((int) Math.round(maxSize.getWidth()));
-            model_widget.propHeight().setValue((int) Math.round(maxSize.getHeight()));
-        }
 
         AnchorPane symbol = new AnchorPane();
 
@@ -371,10 +438,27 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
                     imageIndexProperty()
                 ));
 
-            imagePane.setCenter(imageView);
             imagePane.setPrefWidth(model_widget.propWidth().getValue());
             imagePane.setPrefHeight(model_widget.propHeight().getValue());
             imagePane.setRotate(model_widget.propRotation().getValue());
+            imagePane.centerProperty().bind(Bindings.createObjectBinding(() -> {
+                    if ( getImageIndex() >= 0 ) {
+
+                        ImageContent imageContent = imagesList.get(getImageIndex());
+
+                        if ( imageContent.isSVG() ) {
+                            return imageContent.getSVG();
+                        } else {
+                            return imageView;
+                        }
+
+                    } else {
+                        return imageView;
+                    }
+                },
+                imageIndexProperty(),
+                triggerContentUpdateProperty()
+            ));
 
             AnchorPane.setLeftAnchor(imagePane, 0.0);
             AnchorPane.setRightAnchor(imagePane, 0.0);
@@ -464,6 +548,11 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
     private void contentChanged ( final WidgetProperty<?> property, final Object oldValue, final Object newValue ) {
         dirtyContent.mark();
         toolkit.scheduleUpdate(this);
+    }
+
+
+    private ImageContent createImageContent ( String fileName ) {
+        return new ImageContent(fileName);
     }
 
     private void geometryChanged ( final WidgetProperty<?> property, final Object oldValue, final Object newValue ) {
@@ -627,6 +716,8 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
 
     private synchronized void updateSymbols ( ) {
 
+        int oldIndex = getImageIndex();
+
         try {
 
             ArrayWidgetProperty<WidgetProperty<String>> propSymbols = model_widget.propSymbols();
@@ -668,12 +759,28 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
                 toBeRemoved.stream().forEach(f -> imagesMap.remove(f));
 
                 setImageIndex(Math.min(Math.max(getImageIndex(), 0), imagesList.size() - 1));
-                maxSize = computeMaximumSize(model_widget);
 
             }
 
         } finally {
-            valueChanged(null, null, null);
+
+            maxSize = computeMaximumSize(model_widget);
+
+            if ( oldIndex == getImageIndex() && oldIndex >= 0 ) {
+
+                ImageContent imageContent = imagesList.get(getImageIndex());
+
+                if ( ( imageContent.isSVG() && imagePane.getCenter() == imageView )
+                  || ( imageContent.isImage() && imagePane.getCenter() != imageView ) ) {
+                    triggerContentUpdate();
+                }
+
+            }
+
+            dirtyGeometry.mark();
+            dirtyValue.mark();
+            toolkit.scheduleUpdate(this);
+
         }
 
     }
@@ -686,13 +793,11 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
     private class ImageContent {
 
         private Image image;
-        private final String fileName;
-        private double originalRatio;
+        private double originalHeight;
+        private double originalWidth;
         private SVGContent svg;
 
         ImageContent ( String fileName ) {
-
-            this.fileName = fileName;
 
             boolean loadFailed = true;
             String imageFileName = resolveImageFile(model_widget, fileName);
@@ -706,10 +811,8 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
 
                         Bounds bounds = svg.getLayoutBounds();
 
-                        svg.setTranslateX(-bounds.getMinX());
-                        svg.setTranslateY(-bounds.getMinY());
-
-                        originalRatio = bounds.getWidth() / bounds.getHeight();
+                        originalWidth = bounds.getWidth();
+                        originalHeight = bounds.getHeight();
                         image = null;
                         loadFailed = false;
 
@@ -720,7 +823,8 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
                     try {
                         //  Open the image from the stream created from the resource file.
                         image = new Image(ModelResourceUtil.openResourceStream(imageFileName));
-                        originalRatio = image.getWidth() / image.getHeight();
+                        originalWidth = image.getWidth();
+                        originalHeight = image.getHeight();
                         svg = null;
                         loadFailed = false;
                     } catch ( Exception ex ) {
@@ -736,29 +840,35 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
                 try {
                     //  Open the image from the stream created from the resource file.
                     image = loadDefaultSymbol();
-                    originalRatio = image.getWidth() / image.getHeight();
+                    originalWidth = image.getWidth();
+                    originalHeight = image.getHeight();
                     svg = null;
                 } catch ( Exception ex ) {
                     logger.log(Level.WARNING, "Failure loading image: ({0}) {1} [{2}].", new Object[] { fileName, imageFileName, ex.getMessage() });
                     image = null;
                     svg = null;
-                    originalRatio = Double.NaN;
+                    originalWidth = Double.NaN;
+                    originalHeight = Double.NaN;
                 }
 
             }
 
         }
 
-        String getFileName() {
-            return fileName;
-        }
-
         Image getImage() {
             return image;
         }
 
+        double getOriginalHeight() {
+            return originalHeight;
+        }
+
         double getOriginalRatio() {
-            return originalRatio;
+            return originalWidth / originalHeight;
+        }
+
+        double getOriginalWidth() {
+            return originalWidth;
         }
 
         SVGContent getSVG() {
@@ -776,7 +886,6 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
         boolean isValid() {
             return ( isImage() || isSVG() );
         }
-
 
     }
 

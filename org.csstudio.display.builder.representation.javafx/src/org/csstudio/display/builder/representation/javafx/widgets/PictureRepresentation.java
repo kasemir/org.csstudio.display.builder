@@ -49,6 +49,8 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
     private volatile ImageView iv;
     private volatile SVGContent svg;
     private volatile String img_path;
+    private volatile double native_offset_x = 0.0;
+    private volatile double native_offset_y = 0.0;
     private volatile double native_ratio = 1.0;
 
     // private static final Color border_color = Color.GRAY;
@@ -169,9 +171,8 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
 
                     Bounds bounds = svg.getLayoutBounds();
 
-                    svg.setTranslateX(-bounds.getMinX());
-                    svg.setTranslateY(-bounds.getMinY());
-
+                    native_offset_x = -bounds.getMinX();
+                    native_offset_y = -bounds.getMinY();
                     native_ratio = bounds.getWidth() / bounds.getHeight();
                     img_loaded = null;
 
@@ -263,8 +264,8 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
         {
             Integer widg_w = model_widget.propWidth().getValue();
             Integer widg_h = model_widget.propHeight().getValue();
-            Integer pic_w = widg_w;
-            Integer pic_h = widg_h;
+            double pic_w = widg_w.doubleValue();
+            double pic_h = widg_h.doubleValue();
 
             // preserve aspect ratio
             if (!model_widget.propStretch().getValue())
@@ -274,30 +275,26 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
                 double h_prime = pic_w / native_ratio;
                 if (w_prime < pic_w)
                 {
-                    pic_h = (int) Math.round(h_prime);
+                    pic_h = h_prime;
                 }
                 else if (h_prime < pic_h)
                 {
-                    pic_w = (int) Math.round(w_prime);
+                    pic_w = w_prime;
                 }
             }
 
-            Integer final_pic_w, final_pic_h;
-
+            double final_pic_w = pic_w;
+            double final_pic_h = pic_h;
             double cos_a = Math.cos(Math.toRadians(model_widget.propRotation().getValue()));
             double sin_a = Math.sin(Math.toRadians(model_widget.propRotation().getValue()));
             double pic_bb_w = pic_w * Math.abs(cos_a) + pic_h * Math.abs(sin_a);
             double pic_bb_h = pic_w * Math.abs(sin_a) + pic_h * Math.abs(cos_a);
-
             double scale_fac = Math.min(widg_w / pic_bb_w, widg_h / pic_bb_h);
+
             if (scale_fac < 1.0)
             {
                 final_pic_w = (int) Math.floor(scale_fac * pic_w);
                 final_pic_h = (int) Math.floor(scale_fac * pic_h);
-            }
-            else {
-                final_pic_w = pic_w;
-                final_pic_h = pic_h;
             }
 
             border.setWidth(final_pic_w - 2*inset);
@@ -318,9 +315,13 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
             if ( svg != null ) {
 
                 Bounds bounds = svg.getLayoutBounds();
+                double scale_x = final_pic_w / bounds.getWidth();
+                double scale_y = final_pic_h / bounds.getHeight();
 
-                svg.setScaleX(final_pic_w / bounds.getWidth());
-                svg.setScaleY(final_pic_h / bounds.getHeight());
+                svg.setScaleX(scale_x);
+                svg.setScaleY(scale_y);
+                translate.setX(scale_x * native_offset_x + (widg_w - final_pic_w) / 2.0);
+                translate.setY(scale_y * native_offset_y + (widg_h - final_pic_h) / 2.0);
                 jfx_node.relocate(model_widget.propX().getValue(), model_widget.propY().getValue());
 
             }
