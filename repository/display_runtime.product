@@ -32,9 +32,6 @@
       <plugin id="javax.mail"/>
       <plugin id="javax.xml"/>
       <plugin id="net.sf.py4j"/>
-      <plugin id="org.apache.batik.css"/>
-      <plugin id="org.apache.batik.util"/>
-      <plugin id="org.apache.batik.util.gui"/>
       <plugin id="org.apache.commons.io"/>
       <plugin id="org.apache.commons.jxpath"/>
       <plugin id="org.apache.commons.lang3"/>
