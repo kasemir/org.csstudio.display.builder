@@ -19,6 +19,8 @@ import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.model.widgets.PictureWidget;
 
+import javafx.geometry.Bounds;
+import javafx.geometry.Dimension2D;
 import javafx.scene.Group;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -27,6 +29,8 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
+import se.europeanspallationsource.xaos.tools.svg.SVGContent;
+import se.europeanspallationsource.xaos.tools.svg.SVGLoader;
 
 /** Creates JavaFX item for model widget
  *  @author Megan Grodowitz
@@ -43,7 +47,10 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
 
     private volatile Image img_loaded;
     private volatile ImageView iv;
+    private volatile SVGContent svg;
     private volatile String img_path;
+    private volatile double native_offset_x = 0.0;
+    private volatile double native_offset_y = 0.0;
     private volatile double native_ratio = 1.0;
 
     // private static final Color border_color = Color.GRAY;
@@ -53,6 +60,35 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
 
     private volatile Rotate rotation = new Rotate(0);
     private volatile Translate translate = new Translate(0,0);
+
+    public static Dimension2D computeSize ( final PictureWidget widget ) {
+
+        final String imageFile = widget.propFile().getValue();
+
+        try {
+
+            final String filename = ModelResourceUtil.resolveResource(widget.getTopDisplayModel(), imageFile);
+
+            if ( filename.toLowerCase().endsWith(".svg") ) {
+
+                final SVGContent svg = SVGLoader.load(ModelResourceUtil.openResourceStream(filename));
+                final Bounds bounds = svg.getLayoutBounds();
+
+                return new Dimension2D(bounds.getWidth(), bounds.getHeight());
+
+            } else {
+
+                final Image image = new Image(ModelResourceUtil.openResourceStream(filename));
+
+                return new Dimension2D(image.getWidth(), image.getHeight());
+
+            }
+
+        } catch ( Exception ex ) {
+            return new Dimension2D(0.0, 0.0);
+        }
+
+    }
 
     @Override
     public Group createJFXNode() throws Exception
@@ -126,18 +162,34 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
             load_failed = true;
         }
 
-        if (!load_failed)
-        {
-            try
-            {
-                // Open the image from the stream created from the resource file
-                img_loaded = new Image(ModelResourceUtil.openResourceStream(img_path));
-                native_ratio = img_loaded.getWidth() / img_loaded.getHeight();
-            }
-            catch (Exception ex)
-            {
-                logger.log(Level.WARNING, "Failure loading image file:" + img_path, ex);
-                load_failed = true;
+        if ( !load_failed ) {
+            if ( img_path.toLowerCase().endsWith(".svg") ) {
+                try {
+
+                    // Open the image from the stream created from the resource file
+                    svg = SVGLoader.load(ModelResourceUtil.openResourceStream(img_path));
+
+                    Bounds bounds = svg.getLayoutBounds();
+
+                    native_offset_x = -bounds.getMinX();
+                    native_offset_y = -bounds.getMinY();
+                    native_ratio = bounds.getWidth() / bounds.getHeight();
+                    img_loaded = null;
+
+                } catch ( Exception ex ) {
+                    logger.log(Level.WARNING, "Failure loading SVG image file:" + img_path, ex);
+                    load_failed = true;
+                }
+            } else {
+                try {
+                    // Open the image from the stream created from the resource file
+                    img_loaded = new Image(ModelResourceUtil.openResourceStream(img_path));
+                    native_ratio = img_loaded.getWidth() / img_loaded.getHeight();
+                    svg = null;
+                } catch ( Exception ex ) {
+                    logger.log(Level.WARNING, "Failure loading image file:" + img_path, ex);
+                    load_failed = true;
+                }
             }
         }
 
@@ -149,6 +201,7 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
                 // Open the image from the stream created from the resource file
                 img_loaded = new Image(ModelResourceUtil.openResourceStream(dflt_img));
                 native_ratio = img_loaded.getWidth() / img_loaded.getHeight();
+                svg = null;
             }
             catch (Exception ex)
             {
@@ -180,18 +233,39 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
         }
         if (dirty_content.checkAndClear())
         {
+
+            if ( jfx_node.getChildren().get(1) == iv ) {
+                if ( img_loaded != null ) {
+                    iv.setImage(img_loaded);
+                    // We handle ratio internally, do not let ImageView do that
+                    iv.setPreserveRatio(false);
+                } else if ( svg != null ) {
+                    jfx_node.getChildren().remove(1);
+                    jfx_node.getChildren().add(svg);
+                }
+            } else {
+                if ( svg != null ) {
+                    jfx_node.getChildren().remove(1);
+                    jfx_node.getChildren().add(svg);
+                } else if ( img_loaded != null ) {
+                    jfx_node.getChildren().remove(1);
+                    jfx_node.getChildren().add(iv);
+                    iv.setImage(img_loaded);
+                    // We handle ratio internally, do not let ImageView do that
+                    iv.setPreserveRatio(false);
+                }
+            }
+
             //System.out.println("update change to img path at " + img_path + " on thread " + Thread.currentThread().getName());}
-            iv.setImage(img_loaded);
-            // We handle ratio internally, do not let ImageView do that
-            iv.setPreserveRatio(false);
             jfx_node.setCache(true);
+
         }
         if (dirty_style.checkAndClear())
         {
             Integer widg_w = model_widget.propWidth().getValue();
             Integer widg_h = model_widget.propHeight().getValue();
-            Integer pic_w = widg_w;
-            Integer pic_h = widg_h;
+            double pic_w = widg_w.doubleValue();
+            double pic_h = widg_h.doubleValue();
 
             // preserve aspect ratio
             if (!model_widget.propStretch().getValue())
@@ -201,30 +275,26 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
                 double h_prime = pic_w / native_ratio;
                 if (w_prime < pic_w)
                 {
-                    pic_h = (int) Math.round(h_prime);
+                    pic_h = h_prime;
                 }
                 else if (h_prime < pic_h)
                 {
-                    pic_w = (int) Math.round(w_prime);
+                    pic_w = w_prime;
                 }
             }
 
-            Integer final_pic_w, final_pic_h;
-
+            double final_pic_w = pic_w;
+            double final_pic_h = pic_h;
             double cos_a = Math.cos(Math.toRadians(model_widget.propRotation().getValue()));
             double sin_a = Math.sin(Math.toRadians(model_widget.propRotation().getValue()));
             double pic_bb_w = pic_w * Math.abs(cos_a) + pic_h * Math.abs(sin_a);
             double pic_bb_h = pic_w * Math.abs(sin_a) + pic_h * Math.abs(cos_a);
-
             double scale_fac = Math.min(widg_w / pic_bb_w, widg_h / pic_bb_h);
+
             if (scale_fac < 1.0)
             {
                 final_pic_w = (int) Math.floor(scale_fac * pic_w);
                 final_pic_h = (int) Math.floor(scale_fac * pic_h);
-            }
-            else {
-                final_pic_w = pic_w;
-                final_pic_h = pic_h;
             }
 
             border.setWidth(final_pic_w - 2*inset);
@@ -241,6 +311,21 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
             // translate to the center of the widget
             translate.setX((widg_w - final_pic_w) / 2.0);
             translate.setY((widg_h - final_pic_h) / 2.0);
+
+            if ( svg != null ) {
+
+                Bounds bounds = svg.getLayoutBounds();
+                double scale_x = final_pic_w / bounds.getWidth();
+                double scale_y = final_pic_h / bounds.getHeight();
+
+                svg.setScaleX(scale_x);
+                svg.setScaleY(scale_y);
+                translate.setX(scale_x * native_offset_x + (widg_w - final_pic_w) / 2.0);
+                translate.setY(scale_y * native_offset_y + (widg_h - final_pic_h) / 2.0);
+                jfx_node.relocate(model_widget.propX().getValue(), model_widget.propY().getValue());
+
+            }
+
         }
     }
 }

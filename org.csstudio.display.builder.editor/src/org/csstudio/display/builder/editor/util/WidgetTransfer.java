@@ -56,7 +56,7 @@ import org.csstudio.display.builder.model.widgets.PictureWidget;
 import org.csstudio.display.builder.model.widgets.SymbolWidget;
 import org.csstudio.display.builder.model.widgets.WebBrowserWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
-import org.csstudio.display.builder.representation.javafx.widgets.SymbolRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.PictureRepresentation;
 import org.eclipse.osgi.util.NLS;
 
 import javafx.embed.swing.SwingFXUtils;
@@ -382,37 +382,6 @@ public class WidgetTransfer {
     }
 
     /**
-     * @param image_file The image file used to create and preset a {@link PictureWidget}.
-     * @param selection_tracker Used to get the grid steps from its model to be
-     *            used in offsetting multiple widgets.
-     * @param widgets The container of the created widgets.
-     * @param updates Updates to perform on widgets
-     */
-    private static void installPictureWidgetFromFile (
-        final String image_file,
-        final SelectedWidgetUITracker selection_tracker,
-        final List<Widget> widgets,
-        final List<Runnable> updates
-    ) {
-
-        logger.log(Level.FINE, "Creating PictureWidget for dropped image {0}", image_file);
-
-        final DisplayModel model = selection_tracker.getModel();
-        final PictureWidget widget = (PictureWidget) PictureWidget.WIDGET_DESCRIPTOR.createWidget();
-
-        widget.propFile().setValue(image_file);
-
-        final int index = widgets.size();
-
-        widget.propX().setValue(model.propGridStepX().getValue() * index);
-        widget.propY().setValue(model.propGridStepY().getValue() * index);
-
-        widgets.add(widget);
-        updates.add(() -> updatePictureWidgetSize(widget));
-
-    }
-
-    /**
      * @param db The {@link Dragboard} containing the dragged data.
      * @param selection_tracker Used to get the display model.
      * @param widgets The container of the created widgets.
@@ -463,6 +432,37 @@ public class WidgetTransfer {
     }
 
     /**
+     * @param image_file The image file used to create and preset a {@link PictureWidget}.
+     * @param selection_tracker Used to get the grid steps from its model to be
+     *            used in offsetting multiple widgets.
+     * @param widgets The container of the created widgets.
+     * @param updates Updates to perform on widgets
+     */
+    private static void installPictureWidgetFromImageFile (
+        final String image_file,
+        final SelectedWidgetUITracker selection_tracker,
+        final List<Widget> widgets,
+        final List<Runnable> updates
+    ) {
+
+        logger.log(Level.FINE, "Creating PictureWidget for dropped image {0}", image_file);
+
+        final DisplayModel model = selection_tracker.getModel();
+        final PictureWidget widget = (PictureWidget) PictureWidget.WIDGET_DESCRIPTOR.createWidget();
+
+        widget.propFile().setValue(image_file);
+
+        final int index = widgets.size();
+
+        widget.propX().setValue(model.propGridStepX().getValue() * index);
+        widget.propY().setValue(model.propGridStepY().getValue() * index);
+
+        widgets.add(widget);
+        updates.add(() -> updatePictureWidgetSize(widget));
+
+    }
+
+    /**
      * @param files The pathnames of the image files used by the symbol widget.
      * @param selection_tracker Used to get the grid steps from its model to be
      *            used in offsetting multiple widgets.
@@ -496,7 +496,6 @@ public class WidgetTransfer {
         widget.propY().setValue(model.propGridStepY().getValue() * index);
 
         widgets.add(widget);
-        updates.add(() -> updateSymbolWidgetSize(widget));
 
     }
 
@@ -530,7 +529,7 @@ public class WidgetTransfer {
                 final String extension = getExtension(fileName).toUpperCase();
 
                 if ( IMAGE_FILE_EXTENSIONS.contains(extension) ) {
-                    installPictureWidgetFromFile(fileName, selection_tracker, widgets, updates);
+                    installPictureWidgetFromImageFile(fileName, selection_tracker, widgets, updates);
                 } else if ( EMBEDDED_FILE_EXTENSIONS.contains(extension) ) {
                     installEmbeddedDisplayWidgetFromFile(fileName, selection_tracker, widgets, updates);
                 }
@@ -930,35 +929,10 @@ public class WidgetTransfer {
      */
     private static void updatePictureWidgetSize ( final PictureWidget widget ) {
 
-        final String imageFile = widget.propFile().getValue();
+        Dimension2D size = PictureRepresentation.computeSize(widget);
 
-        try {
-
-            final String filename = ModelResourceUtil.resolveResource(widget.getTopDisplayModel(), imageFile);
-            final Image image = new Image(ModelResourceUtil.openResourceStream(filename));
-
-            widget.propWidth().setValue((int) Math.round(image.getWidth()));
-            widget.propHeight().setValue((int) Math.round(image.getHeight()));
-
-        } catch ( Exception ex ) {
-            logger.log(Level.WARNING, "Cannot obtain image size for " + imageFile, ex);
-        }
-
-    }
-
-    /**
-     * Update a symbol widget's size from image files, using the maximum
-     * width and height from the widget's symbols.
-     *
-     * @param widget {@link PictureWidget}
-     */
-    private static void updateSymbolWidgetSize ( final SymbolWidget widget ) {
-
-        Dimension2D maxSize = SymbolRepresentation.computeMaximumSize(widget);
-
-        widget.propWidth().setValue((int) Math.round(maxSize.getWidth()));
-        widget.propHeight().setValue((int) Math.round(maxSize.getHeight()));
-        widget.propAutoSize().setValue(true);
+        widget.propWidth().setValue((int) Math.round(size.getWidth()));
+        widget.propHeight().setValue((int) Math.round(size.getHeight()));
 
     }
 
