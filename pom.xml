@@ -214,12 +214,12 @@
         </repository>
         <repository>
           <id>Eclipse</id>
-          <url>http://download.eclipse.org/releases/oxygen</url>
+          <url>http://download.eclipse.org/releases/neon</url>
           <layout>p2</layout>
         </repository>
         <repository>
           <id>orbit</id>
-          <url>http://download.eclipse.org/tools/orbit/downloads/drops/R20180330011457/repository</url>
+          <url>http://download.eclipse.org/tools/orbit/downloads/drops/R20160520211859/repository</url>
           <layout>p2</layout>
         </repository>
       </repositories>
