@@ -529,7 +529,11 @@ public class WidgetTransfer {
                 final String extension = getExtension(fileName).toUpperCase();
 
                 if ( IMAGE_FILE_EXTENSIONS.contains(extension) ) {
-                    installPictureWidgetFromImageFile(fileName, selection_tracker, widgets, updates);
+                    if ( db.getTransferModes().contains(TransferMode.MOVE) ) {
+                        installPictureWidgetFromImageFile(fileName, selection_tracker, widgets, updates);
+                    } else {
+                        installSymbolWidgetFromImageFiles(Collections.singletonList(fileName), selection_tracker, widgets, updates);
+                    }
                 } else if ( EMBEDDED_FILE_EXTENSIONS.contains(extension) ) {
                     installEmbeddedDisplayWidgetFromFile(fileName, selection_tracker, widgets, updates);
                 }
