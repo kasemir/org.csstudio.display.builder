@@ -8,7 +8,6 @@
 package org.csstudio.javafx;
 
 
-import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory;
 import java.util.logging.Logger;
 import javafx.scene.image.Image;
 import org.csstudio.display.builder.util.ResourceUtil;
@@ -46,9 +45,8 @@ public class Activator implements BundleActivator {
 
     @Override
     public void start(BundleContext context) throws Exception {
-        logger.config("Installing SVG support...");
-        SvgImageLoaderFactory.install();
-    }
+
+	}
 
     @Override
     public void stop(BundleContext context) throws Exception {

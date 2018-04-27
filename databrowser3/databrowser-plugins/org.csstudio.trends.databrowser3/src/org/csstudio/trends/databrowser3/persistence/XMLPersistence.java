@@ -22,8 +22,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.csstudio.apputil.xml.DOMHelper;
 import org.csstudio.apputil.xml.XMLWriter;
-import org.csstudio.trends.databrowser3.SWTMediaPool;
 import org.csstudio.trends.databrowser3.Activator;
+import org.csstudio.trends.databrowser3.SWTMediaPool;
 import org.csstudio.trends.databrowser3.model.AnnotationInfo;
 import org.csstudio.trends.databrowser3.model.ArchiveRescale;
 import org.csstudio.trends.databrowser3.model.AxisConfig;
@@ -157,8 +157,8 @@ public class XMLPersistence
             // Ignore
         }
 
-        final String start = DOMHelper.getSubelementString(root_node, TAG_START);
-        final String end = DOMHelper.getSubelementString(root_node, TAG_END);
+        final String start = patchLegacyAbsTime(DOMHelper.getSubelementString(root_node, TAG_START));
+        final String end = patchLegacyAbsTime(DOMHelper.getSubelementString(root_node, TAG_END));
         if (start.length() > 0  &&  end.length() > 0)
             model.setTimerange(start, end);
 
@@ -318,6 +318,15 @@ public class XMLPersistence
                 item = DOMHelper.findNextElementNode(item, "traceSettingsList");
             }
         }
+    }
+
+    private String patchLegacyAbsTime(final String spec)
+    {
+        // Older absolute time spec used "yyyy/mm/dd ...",
+        // which now must be "yyyy-mm-dd ...",
+        if (spec.length() > 10  && spec.charAt(4)=='/'  &&  spec.charAt(7) =='/')
+            return spec.replace('/', '-');
+        return spec;
     }
 
     /** Load RGB color from XML document

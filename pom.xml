@@ -24,7 +24,7 @@
   <properties>
     <!-- VERSIONS -->
     <sns.version>0.1</sns.version>
-    <tycho.version>1.0.0</tycho.version>
+    <tycho.version>1.1.0</tycho.version>
     <tycho-extras.version>${tycho.version}</tycho-extras.version>
 
     <!-- Repo that contain target platform and CSS dependencies.
