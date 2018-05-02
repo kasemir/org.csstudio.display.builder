@@ -20,6 +20,7 @@ import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.control.skin.SliderSkin;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -46,8 +47,6 @@ public class SliderMarkers extends Pane
     //
     // This implementation simply positions markers as Labels in a Pane,
     // and it does use the correct positioning based on the thumb size.
-    // On the downside, it uses private API (com.sun.javafx.scene.control.skin.SliderSkin)
-    // and depends on the SliderSkin's internal behavior.
     private final Slider slider;
     private Label lolo_label = new Label("LOLO");
     private Label low_label = new Label("LOW");
@@ -139,7 +138,7 @@ public class SliderMarkers extends Pane
         // In the SliderSkin, that's a Pane with style "thumb".
         try
         {
-            com.sun.javafx.scene.control.skin.SliderSkin skin = (com.sun.javafx.scene.control.skin.SliderSkin) slider.getSkin();
+            SliderSkin skin = (SliderSkin) slider.getSkin();
             if (skin != null)
                 for (Node node : skin.getChildren())
                 {
