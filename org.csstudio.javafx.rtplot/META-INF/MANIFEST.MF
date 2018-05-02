@@ -4,7 +4,7 @@ Bundle-Name: RTPlot
 Bundle-Description: RTPlot
 Bundle-SymbolicName: org.csstudio.javafx.rtplot
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-9
 Require-Bundle: org.eclipse.osgi,
  org.diirt.util,
  org.diirt.vtype,

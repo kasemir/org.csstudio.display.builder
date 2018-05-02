@@ -4,7 +4,7 @@ Bundle-Name: Display Builder RCP Integration
 Bundle-Description: Display Builder RCP Integration
 Bundle-SymbolicName: org.csstudio.display.builder.rcp;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-9
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: Kay Kasemir - SNS
 Bundle-Localization: plugin

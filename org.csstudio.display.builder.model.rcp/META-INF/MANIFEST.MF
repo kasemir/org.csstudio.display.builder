@@ -5,7 +5,7 @@ Bundle-Description: Display Builder Model RCP Extension
 Bundle-SymbolicName: org.csstudio.display.builder.model.rcp
 Bundle-Version: 1.0.0.qualifier
 Fragment-Host: org.csstudio.display.builder.model;bundle-version="1.0.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-9
 Bundle-Vendor: Kay Kasemir - SNS
 Require-Bundle: org.eclipse.core.resources,
  org.eclipse.core.filesystem

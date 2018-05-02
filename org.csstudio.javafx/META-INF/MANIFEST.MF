@@ -4,7 +4,7 @@ Bundle-Name: JavaFX Utilities
 Bundle-Description: JavaFX Utilities
 Bundle-SymbolicName: org.csstudio.javafx
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-9
 Export-Package: org.csstudio.javafx
 Bundle-Vendor: Kay Kasemir - SNS
 Bundle-Activator: org.csstudio.javafx.Activator
