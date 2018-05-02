@@ -40,11 +40,10 @@ public class MacroOrPropertyProvider implements MacroValueProvider
         if ("DID".equals(name))
         {
             // Have properties of a widget, need display model.
-            // Every widget must have a 'type' property,
-            // so fetch that to get the widget and then the display.
+            // Use the 'top' display.
             try
             {
-                return widget.getDisplayModel().getID();
+                return widget.getTopDisplayModel().getID();
             }
             catch (Exception ex)
             {
