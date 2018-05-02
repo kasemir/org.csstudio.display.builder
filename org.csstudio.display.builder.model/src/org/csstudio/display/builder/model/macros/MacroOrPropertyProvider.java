@@ -57,7 +57,7 @@ public class MacroOrPropertyProvider implements MacroValueProvider
         {
             try
             {
-                return widget.getDisplayModel().getName();
+                return widget.getTopDisplayModel().getName();
             }
             catch (Exception ex)
             {
