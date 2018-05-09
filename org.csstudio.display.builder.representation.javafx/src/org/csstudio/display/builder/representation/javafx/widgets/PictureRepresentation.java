@@ -320,8 +320,9 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
 
                 svg.setScaleX(scale_x);
                 svg.setScaleY(scale_y);
-                translate.setX(scale_x * native_offset_x + (widg_w - final_pic_w) / 2.0);
-                translate.setY(scale_y * native_offset_y + (widg_h - final_pic_h) / 2.0);
+
+                translate.setX((widg_w - final_pic_w) / 2.0);
+                translate.setY((widg_h - final_pic_h) / 2.0);
                 jfx_node.relocate(model_widget.propX().getValue(), model_widget.propY().getValue());
 
             }
