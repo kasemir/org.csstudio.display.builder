@@ -26,6 +26,8 @@ import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseReprese
 import org.csstudio.javafx.DialogHelper;
 import org.csstudio.javafx.LineNumberTableCellFactory;
 import org.csstudio.javafx.MultiLineInputDialog;
+import org.csstudio.javafx.SyntaxHighlightedMultiLineInputDialog;
+import org.csstudio.javafx.SyntaxHighlightedMultiLineInputDialog.Language;
 import org.csstudio.javafx.TableHelper;
 
 import javafx.application.Platform;
@@ -643,11 +645,11 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
             {
                 Platform.runLater(() ->
                 {
-//                    final Language language = ScriptInfo.isJython(selected_script_item.getScriptInfo().getPath())
-//                                            ? Language.Python : Language.JavaScript;
-//                    final SyntaxHighlightedMultiLineInputDialog dlg = new SyntaxHighlightedMultiLineInputDialog(
-//                        scripts_table, selected_script_item.text, language);
-                    final MultiLineInputDialog dlg = new MultiLineInputDialog(scripts_table, selected_script_item.text);
+                    final Language language = ScriptInfo.isJython(selected_script_item.getScriptInfo().getPath())
+                                            ? Language.Python : Language.JavaScript;
+                    final SyntaxHighlightedMultiLineInputDialog dlg = new SyntaxHighlightedMultiLineInputDialog(
+                        scripts_table, selected_script_item.text, language);
+//                    final MultiLineInputDialog dlg = new MultiLineInputDialog(scripts_table, selected_script_item.text);
                     DialogHelper.positionDialog(dlg, btn_edit, -300, -200);
                     dlg.showAndWait().ifPresent(result -> selected_script_item.text = result);
                 });
