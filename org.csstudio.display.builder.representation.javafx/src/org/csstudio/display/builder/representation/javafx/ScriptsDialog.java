@@ -25,6 +25,7 @@ import org.csstudio.display.builder.representation.javafx.PVTableItem.AutoComple
 import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
 import org.csstudio.javafx.DialogHelper;
 import org.csstudio.javafx.LineNumberTableCellFactory;
+import org.csstudio.javafx.MultiLineInputDialog;
 import org.csstudio.javafx.SyntaxHighlightedMultiLineInputDialog;
 import org.csstudio.javafx.SyntaxHighlightedMultiLineInputDialog.Language;
 import org.csstudio.javafx.TableHelper;
@@ -648,6 +649,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
                                             ? Language.Python : Language.JavaScript;
                     final SyntaxHighlightedMultiLineInputDialog dlg = new SyntaxHighlightedMultiLineInputDialog(
                         scripts_table, selected_script_item.text, language);
+//                    final MultiLineInputDialog dlg = new MultiLineInputDialog(scripts_table, selected_script_item.text);
                     DialogHelper.positionDialog(dlg, btn_edit, -300, -200);
                     dlg.showAndWait().ifPresent(result -> selected_script_item.text = result);
                 });
@@ -757,10 +759,11 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         }
         else
         {
-            final Language language = ScriptInfo.isJython(selected_script_item.getScriptInfo().getPath())
-                                    ? Language.Python : Language.JavaScript;
-            final SyntaxHighlightedMultiLineInputDialog dlg = new SyntaxHighlightedMultiLineInputDialog(
-                btn_edit, selected_script_item.text, language);
+//            final Language language = ScriptInfo.isJython(selected_script_item.getScriptInfo().getPath())
+//                                    ? Language.Python : Language.JavaScript;
+//            final SyntaxHighlightedMultiLineInputDialog dlg = new SyntaxHighlightedMultiLineInputDialog(
+//                btn_edit, selected_script_item.text, language);
+            final MultiLineInputDialog dlg = new MultiLineInputDialog(btn_edit, selected_script_item.text);
             DialogHelper.positionDialog(dlg, btn_edit, -300, -200);
             dlg.showAndWait().ifPresent(result -> selected_script_item.text = result);
         }

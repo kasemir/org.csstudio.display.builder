@@ -817,11 +817,12 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             {
                 final String content = rule_items.get(sel).getRuleInfo().getTextPy(attached_widget);
                 final SyntaxHighlightedMultiLineInputDialog dialog = new SyntaxHighlightedMultiLineInputDialog(
-                        btn_show_script,
-                        content,
-                        Language.Python,
-                        false
-                    );
+                    btn_show_script,
+                    content,
+                    Language.Python,
+                    false
+                );
+//                final MultiLineInputDialog dialog = new MultiLineInputDialog(btn_show_script, content);
                 DialogHelper.positionDialog(dialog, btn_show_script, -200, -300);
                 dialog.setTextHeight(600);
                 dialog.show();

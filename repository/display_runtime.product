@@ -115,7 +115,6 @@
       <plugin id="org.eclipse.equinox.registry"/>
       <plugin id="org.eclipse.equinox.security"/>
       <plugin id="org.eclipse.equinox.util"/>
-      <plugin id="org.eclipse.fx.javafx"/>
       <plugin id="org.eclipse.fx.osgi" fragment="true"/>
       <plugin id="org.eclipse.fx.ui.workbench3"/>
       <plugin id="org.eclipse.help"/>
