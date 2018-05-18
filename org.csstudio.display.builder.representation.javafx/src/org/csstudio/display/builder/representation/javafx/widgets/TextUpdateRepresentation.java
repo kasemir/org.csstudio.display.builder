@@ -25,7 +25,6 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
@@ -62,7 +61,6 @@ public class TextUpdateRepresentation extends RegionBaseRepresentation<Control, 
         if (model_widget.propInteractive().getValue()  &&  !toolkit.isEditMode())
         {
             final TextArea area = new TextArea();
-            area.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
             area.setEditable(false);
             area.getStyleClass().add("text_entry");
             return area;
@@ -150,27 +148,37 @@ public class TextUpdateRepresentation extends RegionBaseRepresentation<Control, 
             final RotationStep rotation = model_widget.propRotationStep().getValue();
             final int width = model_widget.propWidth().getValue(),
                       height = model_widget.propHeight().getValue();
+            // Explicitly setting min, max instead of only prefSize
+            // was a little faster than setting min to Region.USE_PREF_SIZE.
             switch (rotation)
             {
             case NONE:
+                jfx_node.setMinSize(width, height);
                 jfx_node.setPrefSize(width, height);
+                jfx_node.setMaxSize(width, height);
                 if (was_ever_transformed)
                     jfx_node.getTransforms().clear();
                 break;
             case NINETY:
+                jfx_node.setMinSize(height, width);
                 jfx_node.setPrefSize(height, width);
+                jfx_node.setMaxSize(height, width);
                 jfx_node.getTransforms().setAll(new Rotate(-rotation.getAngle()),
                                                 new Translate(-height, 0));
                 was_ever_transformed = true;
                 break;
             case ONEEIGHTY:
+                jfx_node.setMinSize(width, height);
                 jfx_node.setPrefSize(width, height);
+                jfx_node.setMaxSize(width, height);
                 jfx_node.getTransforms().setAll(new Rotate(-rotation.getAngle()),
                                                 new Translate(-width, -height));
                 was_ever_transformed = true;
                                break;
             case MINUS_NINETY:
+                jfx_node.setMinSize(height, width);
                 jfx_node.setPrefSize(height, width);
+                jfx_node.setMaxSize(height, width);
                 jfx_node.getTransforms().setAll(new Rotate(-rotation.getAngle()),
                                                 new Translate(0, -width));
                 was_ever_transformed = true;
@@ -187,8 +195,7 @@ public class TextUpdateRepresentation extends RegionBaseRepresentation<Control, 
             if (jfx_node instanceof Label)
             {
                 final Label label = (Label) jfx_node;
-                Color color = JFXUtil.convert(model_widget.propForegroundColor().getValue());
-                label.setTextFill(color);
+                label.setTextFill(JFXUtil.convert(model_widget.propForegroundColor().getValue()));
                 label.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
                 label.setAlignment(pos);
                 label.setWrapText(model_widget.propWrapWords().getValue());

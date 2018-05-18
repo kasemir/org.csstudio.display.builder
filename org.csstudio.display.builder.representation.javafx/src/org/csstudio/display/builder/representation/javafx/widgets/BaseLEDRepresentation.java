@@ -52,10 +52,7 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
         colors = createColors();
         value_color = colors[0];
 
-        final Pane pane = new Pane();
-        pane.setMinSize(Pane.USE_PREF_SIZE, Pane.USE_PREF_SIZE);
-        pane.setMaxSize(Pane.USE_PREF_SIZE, Pane.USE_PREF_SIZE);
-        return pane;
+        return new Pane();
     }
 
     private void createLED()
@@ -181,7 +178,9 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
             final int w = model_widget.propWidth().getValue();
             final int h = model_widget.propHeight().getValue();
 
+            jfx_node.setMinSize(w, h);
             jfx_node.setPrefSize(w, h);
+            jfx_node.setMaxSize(w, h);
             if (led instanceof Ellipse)
             {
                 final Ellipse ell = (Ellipse) led;
