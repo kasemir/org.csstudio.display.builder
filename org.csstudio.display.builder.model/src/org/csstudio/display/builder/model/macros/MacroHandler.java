@@ -22,7 +22,7 @@ public class MacroHandler
     // B=$(A)
     // Current implementation quits after MAX_RECURSION attempts because
     // that's much simpler and plenty fast.
-    private static final int MAX_RECURSION = 20;
+    private static final int MAX_RECURSION = 100;
 
     // XXX Replace pattern with code.
     // This pattern is too complicated,

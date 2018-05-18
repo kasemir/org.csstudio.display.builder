@@ -84,6 +84,12 @@ abstract public class MacroizedWidgetProperty<T> extends WidgetProperty<T>
         // have been provided.
         if (MacroHandler.containsMacros(specification))
         {
+            if (specification.equals("$(" + getName() + ")"))
+            {
+                // Setting Property X to value $(X) would create infinite recursion.
+                logger.log(Level.WARNING, "Setting value of property '" + getName() + "' to " + specification + " is not allowed");
+                return;
+            }
             this.specification = specification;
             value = null;
             firePropertyChange(this, null, null);
