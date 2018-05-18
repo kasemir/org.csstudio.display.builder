@@ -262,10 +262,10 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
         }
         if (dirty_style.checkAndClear())
         {
-            Integer widg_w = model_widget.propWidth().getValue();
-            Integer widg_h = model_widget.propHeight().getValue();
-            double pic_w = widg_w.doubleValue();
-            double pic_h = widg_h.doubleValue();
+            double widg_w = model_widget.propWidth().getValue().doubleValue();
+            double widg_h = model_widget.propHeight().getValue().doubleValue();
+            double pic_w = widg_w;
+            double pic_h = widg_h;
 
             // preserve aspect ratio
             if (!model_widget.propStretch().getValue())
@@ -315,14 +315,22 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
             if ( svg != null ) {
 
                 Bounds bounds = svg.getLayoutBounds();
-                double scale_x = final_pic_w / bounds.getWidth();
-                double scale_y = final_pic_h / bounds.getHeight();
+                double boundsWidth = bounds.getWidth();
+                double boundsHeight = bounds.getHeight();
+                double scale_x = final_pic_w / boundsWidth;
+                double scale_y = final_pic_h / boundsWidth;
 
                 svg.setScaleX(scale_x);
                 svg.setScaleY(scale_y);
 
-                translate.setX((widg_w - final_pic_w) / 2.0);
-                translate.setY((widg_h - final_pic_h) / 2.0);
+                if ( final_pic_w < boundsWidth ) {
+                    translate.setX(( widg_w - boundsWidth ) / 2.0);
+                }
+
+                if ( final_pic_h < boundsHeight ) {
+                    translate.setY(( widg_h - boundsHeight ) / 2.0);
+                }
+
                 jfx_node.relocate(model_widget.propX().getValue(), model_widget.propY().getValue());
 
             }
