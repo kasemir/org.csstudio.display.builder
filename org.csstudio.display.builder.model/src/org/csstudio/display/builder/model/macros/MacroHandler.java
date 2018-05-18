@@ -7,7 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.macros;
 
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,9 +23,6 @@ public class MacroHandler
     // Current implementation quits after MAX_RECURSION attempts because
     // that's much simpler and plenty fast.
     private static final int MAX_RECURSION = 20;
-
-    /** Recursion counter */
-    private static final AtomicInteger recursions = new AtomicInteger();
 
     // XXX Replace pattern with code.
     // This pattern is too complicated,
@@ -56,12 +52,13 @@ public class MacroHandler
     public static String replace(final MacroValueProvider macros, final String input) throws Exception
     {
         // Replace macros, then un-escape escaped dollar signs
-        final String replaced = replace(macros, input, 0);
+        final String replaced = replace(0, macros, input, 0);
         return replaced.replace("\\$", "$");
     }
 
     /** Replace macros in input
      *
+     *  @param recursions Recursion counter
      *  @param macros {@link MacroValueProvider} to use
      *  @param input Text that may contain macros "$(NAME)" or "${NAME}",
      *               also allowing nested "${{INNER}}"
@@ -69,63 +66,57 @@ public class MacroHandler
      *  @return Text where all macros have been resolved
      *  @throws Exception on error
      */
-    private static String replace(final MacroValueProvider macros, final String input,
+    private static String replace(final int recursions,
+                                  final MacroValueProvider macros, final String input,
                                   final int from) throws Exception
     {
-        try
+        if (recursions > MAX_RECURSION)
+            throw new Exception("Recursive macro " + input + ". Values: " + macros);
+        // Recursion and default values:
+        // Default values provide a possible way to resolve recursive macros. If recursion
+        // is detected, the default value could be used.
+        // However, with the current implementation, there is no way to recover the original
+        // default value. For example, replacing $(S=a) with the macro S=$(S) would throw an
+        // error, since the expected default value, "a", is overwritten on the first recursion.
+
+        // Short cut if there is nothing to replace
+        if (input.indexOf('$',  from) < 0)
+            return input;
+
+        // Find first macro
+        final Matcher matcher = spec.matcher(input);
+        if (matcher.find(from) == false)
+            return input;
+
+        // Was it a $(macro) or ${macro}?
+        final int which = matcher.start(1) > 0 ? 1 : 4;
+
+        // Find macro name and default value
+        final String name = input.substring(matcher.start(which), matcher.end(which));
+        // Find default value between end of "=" group and end of "=y" group
+        final String def_val = matcher.end(which + 1) < 0 ? null
+                : input.substring(matcher.end(which + 2), matcher.end(which + 1));
+
+        // Start and end of macro name
+        final int start = matcher.start(0);
+        final int end = matcher.end(0);
+
+        // Resolve
+        final String value = macros.getValue(name);
+        if (value != null || def_val != null)
         {
-            if (recursions.incrementAndGet() > MAX_RECURSION)
-                throw new Exception("Recursive macro " + input);
-            // Recursion and default values:
-            // Default values provide a possible way to resolve recursive macros. If recursion
-            // is detected, the default value could be used.
-            // However, with the current implementation, there is no way to recover the original
-            // default value. For example, replacing $(S=a) with the macro S=$(S) would throw an
-            // error, since the expected default value, "a", is overwritten on the first recursion.
-
-            // Short cut if there is nothing to replace
-            if (input.indexOf('$',  from) < 0)
-                return input;
-
-            // Find first macro
-            final Matcher matcher = spec.matcher(input);
-            if (matcher.find(from) == false)
-                return input;
-
-            // Was it a $(macro) or ${macro}?
-            final int which = matcher.start(1) > 0 ? 1 : 4;
-
-            // Find macro name and default value
-            final String name = input.substring(matcher.start(which), matcher.end(which));
-            // Find default value between end of "=" group and end of "=y" group
-            final String def_val = matcher.end(which + 1) < 0 ? null
-                    : input.substring(matcher.end(which + 2), matcher.end(which + 1));
-
-            // Start and end of macro name
-            final int start = matcher.start(0);
-            final int end = matcher.end(0);
-
-            // Resolve
-            final String value = macros.getValue(name);
-            if (value != null || def_val != null)
-            {
-                // Replace macro in input, removing the '$(' resp. ')'
-                final String result = input.substring(0, start) + (value != null ? value : def_val) + input.substring(end);
-                // Text has now changed.
-                // Subsequent calls to find() would return indices for the original text
-                // which are no longer valid for the changed text
-                // -> Recurse with updated text for next macro,
-                //    which also handles nested $($(INNER))
-                return replace(macros, result, 0);
-            }
-            else
-            { // Leave macro unresolved, continue with remaining input
-                return replace(macros, input, end + 1);
-            }
+            // Replace macro in input, removing the '$(' resp. ')'
+            final String result = input.substring(0, start) + (value != null ? value : def_val) + input.substring(end);
+            // Text has now changed.
+            // Subsequent calls to find() would return indices for the original text
+            // which are no longer valid for the changed text
+            // -> Recurse with updated text for next macro,
+            //    which also handles nested $($(INNER))
+            return replace(recursions + 1, macros, result, 0);
         }
-        finally
-        {
-            recursions.decrementAndGet();
+        else
+        { // Leave macro unresolved, continue with remaining input
+            return replace(recursions + 1, macros, input, end + 1);
         }
     }
 }
