@@ -38,7 +38,8 @@ import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseReprese
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.DialogHelper;
 import org.csstudio.javafx.LineNumberTableCellFactory;
-import org.csstudio.javafx.MultiLineInputDialog;
+import org.csstudio.javafx.SyntaxHighlightedMultiLineInputDialog;
+import org.csstudio.javafx.SyntaxHighlightedMultiLineInputDialog.Language;
 import org.csstudio.javafx.TableHelper;
 
 import javafx.application.Platform;
@@ -815,13 +816,13 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             if (sel >= 0)
             {
                 final String content = rule_items.get(sel).getRuleInfo().getTextPy(attached_widget);
-//                final SyntaxHighlightedMultiLineInputDialog dialog = new SyntaxHighlightedMultiLineInputDialog(
-//                        btn_show_script,
-//                        content,
-//                        Language.Python,
-//                        false
-//                    );
-                final MultiLineInputDialog dialog = new MultiLineInputDialog(btn_show_script, content);
+                final SyntaxHighlightedMultiLineInputDialog dialog = new SyntaxHighlightedMultiLineInputDialog(
+                    btn_show_script,
+                    content,
+                    Language.Python,
+                    false
+                );
+//                final MultiLineInputDialog dialog = new MultiLineInputDialog(btn_show_script, content);
                 DialogHelper.positionDialog(dialog, btn_show_script, -200, -300);
                 dialog.setTextHeight(600);
                 dialog.show();

@@ -361,10 +361,10 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
         if ( needsSVGResize ) {
             imagesList.stream().filter(ic -> ic.isSVG()).forEach(ic -> {
 
-                Integer widgetWidth = model_widget.propWidth().getValue();
-                Integer widgetHeight = model_widget.propHeight().getValue();
-                double symbolWidth = widgetWidth.doubleValue();
-                double symbolHeight = widgetHeight.doubleValue();
+                double widgetWidth = model_widget.propWidth().getValue().doubleValue();
+                double widgetHeight = model_widget.propHeight().getValue().doubleValue();
+                double symbolWidth = widgetWidth;
+                double symbolHeight = widgetHeight;
 
                 if ( model_widget.propPreserveRatio().getValue() ) {
 
@@ -394,9 +394,23 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
 
                 SVGContent svg = ic.getSVG();
                 Bounds bounds = svg.getLayoutBounds();
+                double boundsWidth = bounds.getWidth();
+                double boundsHeight = bounds.getHeight();
 
-                svg.setScaleX(finalSymbolWidth / bounds.getWidth());
-                svg.setScaleY(finalSymbolHeight / bounds.getHeight());
+                svg.setScaleX(finalSymbolWidth / boundsWidth);
+                svg.setScaleY(finalSymbolHeight / boundsHeight);
+
+                if ( finalSymbolWidth < boundsWidth && widgetWidth <= boundsWidth ) {
+                    svg.setTranslateX(( widgetWidth - boundsWidth ) / 2.0);
+                } else {
+                    svg.setTranslateX(0);
+                }
+
+                if ( finalSymbolHeight < boundsHeight && widgetHeight <= boundsHeight ) {
+                    svg.setTranslateY(( widgetHeight - boundsHeight ) / 2.0);
+                } else {
+                    svg.setTranslateY(0);
+                }
 
             });
         }
