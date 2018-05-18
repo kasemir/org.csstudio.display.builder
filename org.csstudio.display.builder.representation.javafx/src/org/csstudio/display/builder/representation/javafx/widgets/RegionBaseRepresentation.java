@@ -16,6 +16,7 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -313,9 +314,14 @@ abstract public class RegionBaseRepresentation<JFX extends Region, MW extends Vi
         super.updateChanges();
         if (dirty_border.checkAndClear())
         {
+            // If there's an alarm border, set it.
+            // Otherwise, use custom border,
+            // but leave property untouched if there's no change.
+            // For the hopefully common case of never setting any border,
+            // this avoids even setting it to 'null' and marking it as set-by-user.
             if (alarm_border != null)
                 jfx_node.setBorder(alarm_border);
-            else
+            else if (! Objects.equals(custom_border, jfx_node.getBorder()))
                 jfx_node.setBorder(custom_border);
         }
     }
