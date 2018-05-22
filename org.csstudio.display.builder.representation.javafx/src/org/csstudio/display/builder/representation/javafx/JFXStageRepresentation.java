@@ -56,6 +56,7 @@ public class JFXStageRepresentation extends JFXRepresentation
         setSceneStyle(scene);
         stage.setScene(scene);
         stage.setOnCloseRequest((WindowEvent event) -> handleCloseRequest(scene, close_request_handler));
+        stage.setAlwaysOnTop(true);
         stage.show();
 
         // If ScenicView.jar is added to classpath, open it here

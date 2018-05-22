@@ -7,9 +7,9 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propX;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propType;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propX;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -261,18 +261,12 @@ public class WidgetPropertyUnitTest
         display.propMacros().getValue().add("name", "The Name");
         assertThat(MacroHandler.replace(widget.getMacrosOrProperties(), "$(name)"), equalTo("The Name"));
 
-        // Bad recursion: Property was set to macro which in turn requests that same property
+        // Setting Property X to value $(X) would create infinite recursion.
+        // Cannot be detected right away because replacing the macro checks for the _property_,
+        // and reading that would start another macro replacement, which again fetches the value of the property ad infinitum.
+        // Setting the value of a property to $(name_of_that_property) is thus not allowed.
+        ((MacroizedWidgetProperty<String>)widget.propPVName()).setSpecification("OK");
         ((MacroizedWidgetProperty<String>)widget.propPVName()).setSpecification("$(pv_name)");
-        try
-        {
-            MacroHandler.replace(widget.getMacrosOrProperties(), "$(pv_name)");
-            fail("Didn't detect recursion");
-        }
-        catch (Exception ex)
-        {
-            assertThat(ex.getMessage().toLowerCase(), containsString("recursive"));
-        }
-        // Macro remains unresolved (with many warnings on console)
-        assertThat(widget.propPVName().getValue(), equalTo("$(pv_name)"));
+        assertThat(MacroHandler.replace(widget.getMacrosOrProperties(), "$(pv_name)"), equalTo("OK"));
     }
 }

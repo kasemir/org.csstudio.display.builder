@@ -15,6 +15,12 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 import org.junit.Test;
 
 /** JUnit test of macro handling
@@ -142,6 +148,7 @@ public class MacrosUnitTest
     @Test
     public void testRecursion() throws Exception
     {
+        // Catch true recursion
         final Macros macros = new Macros();
         macros.add("S", "$(S)");
         try
@@ -161,6 +168,20 @@ public class MacrosUnitTest
         catch (Exception ex)
         {
             assertThat(ex.getMessage(), containsString(/* [Rr] */ "ecursive"));
+        }
+
+
+        // In previous implementation, MacroHandler would mistake many
+        // concurrent calls for recursion.
+        macros.add("S",  "OK");
+        final ExecutorService pool = Executors.newCachedThreadPool();
+        final List<Future<String>> results = new ArrayList<>();
+        for (int i=0; i<10000; ++i)
+            results.add(pool.submit(() -> MacroHandler.replace(macros, "All $(S)")));
+        for (Future<String> result : results)
+        {
+            String text = result.get();
+            assertThat(text, equalTo("All OK"));
         }
     }
 

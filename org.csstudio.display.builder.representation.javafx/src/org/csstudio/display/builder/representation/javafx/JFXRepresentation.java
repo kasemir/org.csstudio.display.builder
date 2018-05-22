@@ -725,6 +725,10 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     @Override
     public void representModel(final Parent root, final DisplayModel model) throws Exception
     {
+//        // Debug the timing. For certain displays...
+//        logger.log(Level.WARNING, "Representing...");
+//        final long t0 = System.currentTimeMillis();
+
         root.getProperties().put(ACTIVE_MODEL, model);
         super.representModel(root, model);
 
@@ -749,6 +753,19 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
             }
             background_listener.propertyChanged(null, null, null);
         }
+
+//        // .. creating the JFX nodes is actually quite fast..
+//        final long t1 = System.currentTimeMillis();
+//        logger.log(Level.WARNING, "Done Representing after " + (t1-t0) + " ms");
+//
+//        // .. but JFX will then spend a lot of time when first showing the new scene graph,
+//        // being busy in applyCSS followed by a long stack trace.
+//        // Scheduling another UI task a little later will measure that time.
+//        schedule(() ->
+//        {
+//            final long t2 = System.currentTimeMillis();
+//            logger.log(Level.WARNING, "Next Tick after " + (t2-t1) + " ms");
+//        }, 200, TimeUnit.MILLISECONDS);
     }
 
     @Override
