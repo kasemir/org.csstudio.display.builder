@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<GridPane fx:id="root" hgap="12.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="450.0" prefWidth="638.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.csstudio.display.builder.representation.javafx.WidgetFontPopOverController">
+  <columnConstraints>
+    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+  </columnConstraints>
+  <rowConstraints>
+    <RowConstraints vgrow="NEVER" />
+    <RowConstraints percentHeight="55.0" vgrow="ALWAYS" />
+    <RowConstraints valignment="CENTER" vgrow="NEVER" />
+      <RowConstraints vgrow="ALWAYS" />
+  </rowConstraints>
+   <children>
+      <TextField fx:id="searchField" maxWidth="300.0" promptText="%WidgetFontPopOver_SearchPrompt" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.hgrow="NEVER" GridPane.vgrow="NEVER">
+         <GridPane.margin>
+            <Insets bottom="12.0" />
+         </GridPane.margin>
+      </TextField>
+      <TitledPane alignment="CENTER" animated="false" collapsible="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="%WidgetFontPopOver_PredefinedFonts" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
+        <content>
+          <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
+        </content>
+         <GridPane.margin>
+            <Insets bottom="12.0" />
+         </GridPane.margin>
+      </TitledPane>
+      <TitledPane alignment="CENTER" animated="false" collapsible="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="%WidgetFontPopOver_FontsFamilies" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
+         <GridPane.margin>
+            <Insets bottom="12.0" />
+         </GridPane.margin>
+         <content>
+            <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
+         </content></TitledPane>
+      <BorderPane GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.vgrow="NEVER">
+         <left>
+            <Label alignment="CENTER_RIGHT" text="%WidgetFontPopOver_StyleCaption" BorderPane.alignment="CENTER">
+               <BorderPane.margin>
+                  <Insets right="6.0" />
+               </BorderPane.margin>
+            </Label>
+         </left>
+         <center>
+            <ComboBox maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER" />
+         </center>
+         <GridPane.margin>
+            <Insets bottom="12.0" />
+         </GridPane.margin>
+      </BorderPane>
+      <BorderPane GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.vgrow="NEVER">
+         <left>
+            <Label text="Label" BorderPane.alignment="CENTER">
+               <BorderPane.margin>
+                  <Insets right="6.0" />
+               </BorderPane.margin>
+            </Label>
+         </left>
+         <center>
+            <ComboBox maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER" />
+         </center>
+         <GridPane.margin>
+            <Insets bottom="12.0" />
+         </GridPane.margin></BorderPane>
+      <TitledPane animated="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="untitled" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS">
+        <content>
+          <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
+        </content>
+      </TitledPane>
+   </children>
+   <padding>
+      <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
+   </padding>
+</GridPane>
