@@ -99,10 +99,19 @@ public class PrintAction extends Action
         if (data == null)
         {
             logger.fine("Cannot obtain printer");
+            // Disposed unused snapshot
+            snapshot.dispose();
             return;
         }
+
         // Access to SWT Printer must be on UI thread.
         // Printing in other thread can deadlock with UI thread.
+        // We are on UI thread, but move to another UI update tick.
+        shell.getDisplay().asyncExec(() -> doPrint(snapshot, data));
+    }
+
+    private void doPrint(final Image snapshot, final PrinterData data)
+    {
         final Printer printer = new Printer(data);
         try
         {
