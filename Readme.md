@@ -29,11 +29,11 @@ Try Nightly Snapshot
 
 Since Feb. 2017, the SNS products include the Display Builder.
 
-Download the 'Basic EPICS' or SNS version of CS-Studio from http://ics-web.sns.ornl.gov/css/nightly
+Download the 'Basic EPICS' or SNS version of CS-Studio from https://ics-web.sns.ornl.gov/css/nightly
 
 When you use a different CS-Studio product that doesn't already include the Display Builder,
 you may be able to add it.
-Open the menu `Help`, `Install New Software`. Enter `http://ics-web.sns.ornl.gov/css/display.builder`
+Open the menu `Help`, `Install New Software`. Enter `https://ics-web.sns.ornl.gov/css/display.builder`
 as a site, select the Display Builder for installation, follow the steps in the installation dialog, restart.
 
 
