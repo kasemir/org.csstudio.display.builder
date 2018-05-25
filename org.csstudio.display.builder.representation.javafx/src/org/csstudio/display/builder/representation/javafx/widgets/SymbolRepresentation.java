@@ -252,6 +252,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
         }
 
         if ( dirtyIndex.checkAndClear() ) {
+//  TODO:CR updates not working is happening before loading was completed.
             setImageIndex(Math.min(Math.max(model_widget.propInitialIndex().getValue(), 0), imagesList.size() - 1));
         }
 
