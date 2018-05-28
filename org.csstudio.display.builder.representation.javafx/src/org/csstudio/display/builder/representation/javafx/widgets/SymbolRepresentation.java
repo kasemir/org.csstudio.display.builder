@@ -71,8 +71,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import se.europeanspallationsource.xaos.tools.svg.SVGContent;
-import se.europeanspallationsource.xaos.tools.svg.SVGLoader;
+import se.europeanspallationsource.xaos.components.SVG;
 
 
 /**
@@ -408,7 +407,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
                     finalSymbolHeight = (int) Math.floor(scale_fac * symbolHeight);
                 }
 
-                SVGContent svg = ic.getSVG();
+                SVG svg = ic.getSVG();
                 Bounds bounds = svg.getLayoutBounds();
                 double boundsWidth = bounds.getWidth();
                 double boundsHeight = bounds.getHeight();
@@ -833,7 +832,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
         private Image image;
         private double originalHeight;
         private double originalWidth;
-        private SVGContent svg;
+        private SVG svg;
 
         ImageContent ( String fileName ) {
 
@@ -845,7 +844,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
                     try {
 
                         // Open the image from the stream created from the resource file
-                        svg = SVGLoader.load(ModelResourceUtil.openResourceStream(imageFileName));
+                        svg = SVG.load(ModelResourceUtil.openResourceStream(imageFileName));
 
                         Bounds bounds = svg.getLayoutBounds();
 
@@ -909,7 +908,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
             return originalWidth;
         }
 
-        SVGContent getSVG() {
+        SVG getSVG() {
             return svg;
         }
 
