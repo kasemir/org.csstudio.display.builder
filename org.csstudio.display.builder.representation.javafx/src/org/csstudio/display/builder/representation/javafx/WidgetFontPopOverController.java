@@ -10,9 +10,23 @@ package org.csstudio.display.builder.representation.javafx;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 
+import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
+import org.csstudio.display.builder.model.persist.WidgetFontService;
+import org.csstudio.display.builder.model.properties.NamedWidgetFont;
+import org.csstudio.display.builder.model.properties.WidgetFont;
+import org.csstudio.display.builder.model.properties.WidgetFontStyle;
+import org.csstudio.javafx.PopOver;
+
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 
@@ -26,8 +40,71 @@ public class WidgetFontPopOverController implements Initializable {
 
     @FXML private TextField searchField;
 
+    @FXML private ListView<NamedWidgetFont> fontNames;
+    @FXML private ListView<String> families;
+
+    @FXML private ComboBox<WidgetFontStyle> styles;
+    @FXML private ComboBox<String> sizes;
+
+    @FXML private TextField preview;
+
+    @FXML private Button cancelButton;
+    @FXML private Button okButton;
+
+    private Consumer<WidgetFont> fontChangeConsumer;
+    private PopOver              popOver;
+
+    /*
+     * ---- font property -----------------------------------------------------
+     */
+    private final ObjectProperty<WidgetFont> font = new SimpleObjectProperty<WidgetFont>(this, "font", WidgetFontService.get(NamedWidgetFonts.DEFAULT)) {
+        @Override
+        protected void invalidated() {
+
+            WidgetFont fnt = get();
+
+            if ( fnt == null ) {
+                set(WidgetFontService.get(NamedWidgetFonts.DEFAULT));
+            }
+
+        }
+    };
+
+    ObjectProperty<WidgetFont> fontProperty() {
+        return font;
+    }
+
+    WidgetFont getFont() {
+        return font.get();
+    }
+
+    void setFont( WidgetFont font ) {
+        this.font.set(font);
+    }
+
+    /*
+     * -------------------------------------------------------------------------
+     */
     @Override
     public void initialize ( URL location, ResourceBundle resources ) {
+    }
+
+    @FXML
+    void cancelPressed ( ActionEvent event ) {
+        if ( popOver != null ) {
+            popOver.hide();
+        }
+    }
+
+    @FXML
+    void okPressed ( ActionEvent event ) {
+
+        if ( fontChangeConsumer != null ) {
+            fontChangeConsumer.accept(getFont());
+        }
+
+        cancelPressed(event);
+
     }
 
 }
