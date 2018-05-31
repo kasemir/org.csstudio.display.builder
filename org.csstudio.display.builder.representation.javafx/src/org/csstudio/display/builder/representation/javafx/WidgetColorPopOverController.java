@@ -141,7 +141,7 @@ public class WidgetColorPopOverController implements Initializable {
 
         updateButton(okButton, ButtonType.OK);
         updateButton(cancelButton, ButtonType.CANCEL);
-        updateButton(defaultButton, new ButtonType(Messages.WidgetColorPopOver_DefaultButton, ButtonData.LEFT));
+        updateButton(defaultButton, new ButtonType(Messages.WidgetColorPopOver_DefaultButton, ButtonData.SMALL_GAP));
 
         okButton.setText(ButtonType.OK.getText());
         ButtonBar.setButtonData(okButton, ButtonType.OK.getButtonData());

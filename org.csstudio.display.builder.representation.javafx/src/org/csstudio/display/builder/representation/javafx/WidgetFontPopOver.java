@@ -47,6 +47,12 @@ import javafx.scene.text.Font;
 @SuppressWarnings("nls")
 public class WidgetFontPopOver extends PopOver
 {
+
+
+
+
+
+
     // Sizes are of type double, but comparison of double to set selected element
     // can suffer rounding errors, so use strings
     private final static Collection<String> default_sizes =
