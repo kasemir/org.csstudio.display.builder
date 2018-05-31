@@ -49,8 +49,10 @@ public class WidgetFontPopOverController implements Initializable {
     @FXML private TextField preview;
 
     @FXML private Button cancelButton;
+    @FXML private Button defaultButton;
     @FXML private Button okButton;
 
+    private WidgetFont           defaultFont = null;
     private Consumer<WidgetFont> fontChangeConsumer;
     private PopOver              popOver;
 
@@ -94,6 +96,17 @@ public class WidgetFontPopOverController implements Initializable {
         if ( popOver != null ) {
             popOver.hide();
         }
+    }
+
+    @FXML
+    void defaultPressed(ActionEvent event) {
+
+        if ( fontChangeConsumer != null ) {
+            fontChangeConsumer.accept(defaultFont);
+        }
+
+        cancelPressed(event);
+
     }
 
     @FXML

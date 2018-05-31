@@ -29,7 +29,7 @@ import javafx.scene.control.Label;
 
 
 /**
- * A factory class for popover editors.
+ * PopOver editor for selecting {@link WidgetColor}s.
  *
  * @author claudiorosati, European Spallation Source ERIC
  * @version 1.0.0 30 Nov 2017

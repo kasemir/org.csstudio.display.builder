@@ -111,11 +111,11 @@ public class Messages extends NLS
     public static String ScriptsDialog_ScriptsTT;
     public static String ScriptsDialog_Title;
     public static String SearchField;
-    public static String SearchFieldTT;
     public static String Select;
     public static String WidgetColorPopOver_DefaultButton;
     public static String WidgetColorPopOver_Info;
     public static String WidgetColorPopOver_PredefinedColors;
+    public static String WidgetColorPopOver_SearchFieldTT;
     public static String WidgetInfoDialog_Category;
     public static String WidgetInfoDialog_Disconnected;
     public static String WidgetInfoDialog_Info_Fmt;

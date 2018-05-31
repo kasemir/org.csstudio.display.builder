@@ -37,8 +37,12 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.text.Font;
 
-/** PopOver for selecting a {@link WidgetFont}
- *  @author Kay Kasemir
+
+/**
+ * PopOver editor for selecting a {@link WidgetFont}s.
+ *
+ * @author Kay Kasemir, SNS
+ * @author claudiorosati, European Spallation Source ERIC
  */
 @SuppressWarnings("nls")
 public class WidgetFontPopOver extends PopOver

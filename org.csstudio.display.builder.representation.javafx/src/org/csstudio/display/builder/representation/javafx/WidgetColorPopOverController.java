@@ -145,10 +145,11 @@ public class WidgetColorPopOverController implements Initializable {
 
         okButton.setText(ButtonType.OK.getText());
         ButtonBar.setButtonData(okButton, ButtonType.OK.getButtonData());
-        root.addEventFilter(KeyEvent.KEY_PRESSED, event ->
-        {
-            if (event.getCode() == KeyCode.ENTER)
+        root.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            if ( event.getCode() == KeyCode.ENTER ) {
                 okPressed(null);
+                event.consume();
+            }
         });
 
         picker.valueProperty().addListener(( observable, oldColor, newColor ) -> {
@@ -292,7 +293,7 @@ public class WidgetColorPopOverController implements Initializable {
 
         //  Search field
         searchField.setPromptText(Messages.SearchField);
-        searchField.setTooltip(new Tooltip(Messages.SearchFieldTT));
+        searchField.setTooltip(new Tooltip(Messages.WidgetColorPopOver_SearchFieldTT));
         searchField.setPrefColumnCount(9);
         searchField.textProperty().addListener(o -> {
 

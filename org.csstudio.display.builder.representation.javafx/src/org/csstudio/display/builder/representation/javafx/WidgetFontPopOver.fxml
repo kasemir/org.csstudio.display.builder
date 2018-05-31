@@ -15,8 +15,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-
-<VBox prefHeight="487.0" prefWidth="598.0" xmlns="http://javafx.com/javafx/9" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.csstudio.display.builder.representation.javafx.WidgetFontPopOverController">
+<VBox prefHeight="487.0" prefWidth="598.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.csstudio.display.builder.representation.javafx.WidgetFontPopOverController">
    <children>
       <SplitPane dividerPositions="0.75" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" orientation="VERTICAL" style="-fx-box-border: transparent;" stylesheets="@opibuilder.css" VBox.vgrow="ALWAYS">
          <items>
@@ -99,6 +98,7 @@
             <Insets top="18.0" />
          </VBox.margin>
          <buttons>
+            <Button fx:id="defaultButton" mnemonicParsing="false" onAction="#defaultPressed" text="Button" />
             <Button fx:id="cancelButton" cancelButton="true" mnemonicParsing="false" onAction="#cancelPressed" text="%WidgetFontPopOver_Cancel" />
             <Button fx:id="okButton" defaultButton="true" mnemonicParsing="false" onAction="#okPressed" text="%WidgetFontPopOver_OK" />
          </buttons>
