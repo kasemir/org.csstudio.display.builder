@@ -34,14 +34,13 @@ import javafx.scene.control.Label;
  * @author claudiorosati, European Spallation Source ERIC
  * @version 1.0.0 30 Nov 2017
  */
-@SuppressWarnings("nls")
-public class WidgetColorPopOver extends PopOver
-{
-    public WidgetColorPopOver(final ColorWidgetProperty color_prop,
-                              final Consumer<WidgetColor> colorChangeConsumer)
-    {
-        try
-        {
+@SuppressWarnings( "nls" )
+public class WidgetColorPopOver extends PopOver {
+
+    public WidgetColorPopOver ( final ColorWidgetProperty color_prop, final Consumer<WidgetColor> colorChangeConsumer ) {
+
+        try {
+
             URL fxml = WidgetColorPopOver.class.getResource("WidgetColorPopOver.fxml");
             InputStream iStream = WidgetColorPopOver.class.getResourceAsStream("messages.properties");
             ResourceBundle bundle = new PropertyResourceBundle(iStream);
@@ -50,14 +49,21 @@ public class WidgetColorPopOver extends PopOver
 
             setContent(content);
 
-            WidgetColorPopOverController controller = fxmlLoader.<WidgetColorPopOverController>getController();
+            WidgetColorPopOverController controller = fxmlLoader.<WidgetColorPopOverController> getController();
 
-            controller.setInitialConditions(this, color_prop.getValue(), color_prop.getDefaultValue(), color_prop.getDescription(), colorChangeConsumer);
-        }
-        catch (IOException ex)
-        {
+            controller.setInitialConditions(
+                this,
+                color_prop.getValue(),
+                color_prop.getDefaultValue(),
+                color_prop.getDescription(),
+                colorChangeConsumer
+            );
+
+        } catch ( IOException ex ) {
             logger.log(Level.WARNING, "Unable to edit color.", ex);
             setContent(new Label("Unable to edit color."));
         }
+
     }
+
 }
