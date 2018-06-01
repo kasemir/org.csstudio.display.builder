@@ -19,6 +19,14 @@ import javafx.scene.input.KeyEvent;
  * ENTER and RETURN are handled differently, mostly when JavaFX is
  * embedded in Eclipse RCP. This utility class provides a method to
  * add a proper filter to a JavaFX {@link Node} to fix the problem.
+ * <p>
+ * On MacOS X with Java 8, when the application is run outside
+ * Eclipse RCP (i.e. pure JavaFX application), the inner handler
+ * will never fire new events, because ENTER and RETURN are considered
+ * equals. Instead, when the application is an Eclipse RCB-based one,
+ * then a proper {@link KeyCode#ENTER} is generated when the numpad
+ * ENTER key is pressed.
+ * </p>
  *
  * @author claudiorosati, European Spallation Source ERIC
  * @version 1.0.0 1 Jun 2018
