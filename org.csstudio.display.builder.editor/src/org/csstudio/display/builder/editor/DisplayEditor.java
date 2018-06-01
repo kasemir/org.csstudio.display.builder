@@ -555,6 +555,16 @@ public class DisplayEditor
         {
             logger.log(Level.SEVERE, "Error representing model", ex);
         }
+
+        // Bring up the model's properties.
+        try
+        {
+            toolkit.execute(() -> selection.clear());
+        }
+        catch (final Exception ex)
+        {
+            logger.log(Level.SEVERE, "Error selecting model", ex);
+        }
     }
 
     /** @return Currently edited model */
