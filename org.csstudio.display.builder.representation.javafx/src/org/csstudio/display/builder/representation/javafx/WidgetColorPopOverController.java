@@ -306,7 +306,10 @@ public class WidgetColorPopOverController implements Initializable {
                 String lcFilter = filter.toLowerCase();
 
                 filteredNamedColorsList.setPredicate(s -> s.getName().toLowerCase().contains(lcFilter));
-                Platform.runLater(() -> colorNames.refresh());
+                Platform.runLater(() -> {
+                    colorNames.refresh();
+                    colorNames.scrollTo(0);
+                });
 
             }
 

@@ -37,6 +37,12 @@ import javafx.scene.control.Label;
 @SuppressWarnings( "nls" )
 public class WidgetColorPopOver extends PopOver {
 
+    /**
+     * Create dialog
+     *
+     * @param color_prop {@link ColorWidgetProperty} used to configure initial values.
+     * @param colorChangeConsumer Will be called when user press OK to leave the popover.
+     */
     public WidgetColorPopOver ( final ColorWidgetProperty color_prop, final Consumer<WidgetColor> colorChangeConsumer ) {
 
         try {

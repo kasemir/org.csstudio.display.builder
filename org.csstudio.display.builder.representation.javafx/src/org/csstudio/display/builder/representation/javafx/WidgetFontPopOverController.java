@@ -88,26 +88,14 @@ public class WidgetFontPopOverController implements Initializable {
     @FXML private Button okButton;
 
     private WidgetFont                            defaultFont            = null;
+    private final ObservableList<String>          familiesList         = FXCollections.observableArrayList();
     private Consumer<WidgetFont>                  fontChangeConsumer;
+    private final ObservableList<NamedWidgetFont> namedFontsList         = FXCollections.observableArrayList();
     private final CountDownLatch                  namesLoaded            = new CountDownLatch(2);
     private WidgetFont                            originalFont           = null;
     private PopOver                               popOver;
-    private final ObservableList<NamedWidgetFont> namedFontsList         = FXCollections.observableArrayList();
-    private final FilteredList<NamedWidgetFont>   filteredNamedFontsList = new FilteredList<>(new SortedList<>(
-        namedFontsList,
-        (nc1, nc2) -> String.CASE_INSENSITIVE_ORDER.compare(nc1.getName(), nc2.getName())
-    ));
-    private final ObservableList<String>          familiesList         = FXCollections.observableArrayList();
-    private final FilteredList<String>            filteredfamiliesList = new FilteredList<>(new SortedList<>(
-        familiesList,
-        String.CASE_INSENSITIVE_ORDER
-    ));
-    private final Updater<WidgetFont>             fontNamesUpdater       = new Updater<>(newValue -> {
-        if ( newValue != null ) {
-            setFont(newValue);
-        }
-    });
-    private final Updater<String>                 familiesUpdater        = new Updater<>(newValue -> {
+
+    private final Updater<String> familiesUpdater = new Updater<>(newValue -> {
         if ( newValue != null ) {
             setFont(new WidgetFont(
                 newValue,
@@ -116,21 +104,34 @@ public class WidgetFontPopOverController implements Initializable {
             ));
         }
     });
-    private final Updater<WidgetFontStyle>        stylesUpdater          = new Updater<>(newValue -> {
+    private final FilteredList<String> filteredFamiliesList = new FilteredList<>(new SortedList<>(
+            familiesList,
+            String.CASE_INSENSITIVE_ORDER
+        ));
+    private final FilteredList<NamedWidgetFont> filteredNamedFontsList = new FilteredList<>(new SortedList<>(
+        namedFontsList,
+        (nc1, nc2) -> String.CASE_INSENSITIVE_ORDER.compare(nc1.getName(), nc2.getName())
+    ));
+    private final Updater<WidgetFont> fontNamesUpdater = new Updater<>(newValue -> {
         if ( newValue != null ) {
-            setFont(new WidgetFont(
-                defaultIfNull(families.getSelectionModel().getSelectedItem(), Font.font(10.0).getFamily()),
-                newValue,
-                Math.max(1.0, defaultIfNull((Number) sizes.getSelectionModel().getSelectedItem(), 10.0).doubleValue())
-            ));
+            setFont(newValue);
         }
     });
-    private final Updater<Double>                 sizesUpdater           = new Updater<>(newValue -> {
+    private final Updater<Double> sizesUpdater = new Updater<>(newValue -> {
         if ( newValue != null ) {
             setFont(new WidgetFont(
                 defaultIfNull(families.getSelectionModel().getSelectedItem(), Font.font(10.0).getFamily()),
                 defaultIfNull(styles.getSelectionModel().getSelectedItem(), WidgetFontStyle.REGULAR),
                 Math.max(1.0, newValue)
+            ));
+        }
+    });
+    private final Updater<WidgetFontStyle> stylesUpdater = new Updater<>(newValue -> {
+        if ( newValue != null ) {
+            setFont(new WidgetFont(
+                defaultIfNull(families.getSelectionModel().getSelectedItem(), Font.font(10.0).getFamily()),
+                newValue,
+                Math.max(1.0, defaultIfNull((Number) sizes.getSelectionModel().getSelectedItem(), 10.0).doubleValue())
             ));
         }
     });
@@ -215,7 +216,7 @@ public class WidgetFontPopOverController implements Initializable {
         fontNames.getSelectionModel().selectedItemProperty().addListener(( obserobsvable, oldValue, newValue ) -> fontNamesUpdater.accept(newValue));
 
         families.setPlaceholder(new Label(Messages.WidgetFontPopOver_FontsFamilies));
-        families.setItems(filteredfamiliesList);
+        families.setItems(filteredFamiliesList);
         families.getSelectionModel().selectedItemProperty().addListener(( observable, oldValue, newValue ) -> familiesUpdater.accept(newValue));
 
         styles.setPlaceholder(new Label(Messages.WidgetFontPopOver_Styles));
@@ -267,18 +268,26 @@ public class WidgetFontPopOverController implements Initializable {
         searchField.setPrefColumnCount(9);
         searchField.textProperty().addListener(o -> {
 
-//            String filter = searchField.getText();
-//
-//            if ( filter == null || filter.isEmpty() ) {
-//                filteredColorsList.setPredicate(null);
-//            } else {
-//
-//                String lcFilter = filter.toLowerCase();
-//
-//                filteredColorsList.setPredicate(s -> s.getName().toLowerCase().contains(lcFilter));
-//                Platform.runLater(() -> colorNames.refresh());
-//
-//            }
+            String filter = searchField.getText();
+
+            if ( filter == null || filter.isEmpty() ) {
+                filteredNamedFontsList.setPredicate(null);
+                filteredFamiliesList.setPredicate(null);
+            } else {
+
+                String lcFilter = filter.toLowerCase();
+
+                filteredNamedFontsList.setPredicate(s -> s.getName().toLowerCase().contains(lcFilter));
+                filteredFamiliesList.setPredicate(s -> s.toLowerCase().contains(lcFilter));
+
+                Platform.runLater(() -> {
+                    fontNames.refresh();
+                    fontNames.scrollTo(0);
+                    families.refresh();
+                    families.scrollTo(0);
+                });
+
+            }
 
         });
 
