@@ -45,6 +45,7 @@ import org.csstudio.display.builder.representation.javafx.FilenameSupport;
 import org.csstudio.display.builder.util.ResourceUtil;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.DialogHelper;
+import org.csstudio.javafx.InputUtils;
 import org.csstudio.javafx.MultiLineInputDialog;
 
 import javafx.event.ActionEvent;
@@ -452,7 +453,8 @@ public class PropertyPanelSection extends GridPane
         else if (property instanceof MacroizedWidgetProperty)
         {   // MacroizedWidgetProperty needs to be checked _after_ subclasses like PVNameWidgetProperty, FilenameWidgetProperty
             final MacroizedWidgetProperty<?> macro_prop = (MacroizedWidgetProperty<?>)property;
-            final TextField text = new TextField();
+            final TextField text = InputUtils.wrap(new TextField());
+
             text.setPromptText(macro_prop.getDefaultValue().toString());
             final MacroizedWidgetPropertyBinding binding = new MacroizedWidgetPropertyBinding(undo, text, macro_prop, other);
             bindings.add(binding);
