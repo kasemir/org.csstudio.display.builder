@@ -26,6 +26,7 @@ import javafx.util.StringConverter;
 
 /** Tree cell that displays {@link WidgetOrTab} (name, icon, ..)
  *  @author Kay Kasemir
+ *  @author Claudio Rosati
  */
 @SuppressWarnings("nls")
 class WidgetTreeCell extends TextFieldTreeCell<WidgetOrTab>
