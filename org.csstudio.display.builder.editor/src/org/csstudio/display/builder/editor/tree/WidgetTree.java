@@ -167,6 +167,7 @@ public class WidgetTree
         tree_view.setShowRoot(false);
         tree_view.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         tree_view.setCellFactory(cell_factory);
+        tree_view.setEditable(true);
 
         bindSelections();
         tree_view.setOnKeyPressed(this::handleKeyPress);

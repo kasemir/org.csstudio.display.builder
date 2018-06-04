@@ -15,29 +15,30 @@ import org.csstudio.display.builder.editor.util.WidgetIcons;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.util.ResourceUtil;
 
-import javafx.scene.control.TreeCell;
+import javafx.scene.control.cell.TextFieldTreeCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.util.StringConverter;
 
 /** Tree cell that displays {@link WidgetOrTab} (name, icon, ..)
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-class WidgetTreeCell extends TreeCell<WidgetOrTab>
+class WidgetTreeCell extends TextFieldTreeCell<WidgetOrTab>
 {
     private Image tab_icon;
 
-    WidgetTreeCell()
-    {
-        try
-        {
+    WidgetTreeCell ( ) {
+
+        setConverter(new Converter());
+
+        try {
             tab_icon = new Image(ResourceUtil.openPlatformResource("platform:/plugin/org.csstudio.display.builder.editor/icons/tab_item.png"));
-        }
-        catch (Exception ex)
-        {
+        } catch ( Exception ex ) {
             tab_icon = null;
             logger.log(Level.WARNING, "Cannot load tab icon", ex);
         }
+
     }
 
     @Override
@@ -69,4 +70,37 @@ class WidgetTreeCell extends TreeCell<WidgetOrTab>
                 setGraphic(null);
         }
     }
+
+    private class Converter extends StringConverter<WidgetOrTab> {
+
+        @Override
+        public String toString ( WidgetOrTab item ) {
+            if ( item == null ) {
+                return null;
+            } else if ( item.isWidget() ) {
+                return item.getWidget().getName();
+            } else {
+                return item.getTab().name().getValue();
+            }
+        }
+
+        @Override
+        public WidgetOrTab fromString ( String string ) {
+
+            WidgetOrTab item = WidgetTreeCell.this.getItem();
+
+            if ( item != null && string != null && !string.isEmpty() ) {
+                if ( item.isWidget() ) {
+                    item.getWidget().propName().setValue(string);
+                } else {
+                    item.getTab().name().setValue(string);
+                }
+            }
+
+            return item;
+
+        }
+
+    }
+
 }
