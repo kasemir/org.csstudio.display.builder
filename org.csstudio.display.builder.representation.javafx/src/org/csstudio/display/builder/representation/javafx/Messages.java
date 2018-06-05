@@ -113,6 +113,15 @@ public class Messages extends NLS
     public static String Select;
     public static String WidgetColorPopOver_DefaultButton;
     public static String WidgetColorPopOver_Info;
+    public static String WidgetColorPopOver_PredefinedColors;
+    public static String WidgetColorPopOver_SearchFieldTT;
+    public static String WidgetFontPopOver_Default;
+    public static String WidgetFontPopOver_FontsFamilies;
+    public static String WidgetFontPopOver_Info;
+    public static String WidgetFontPopOver_PredefinedFonts;
+    public static String WidgetFontPopOver_SearchFieldTT;
+    public static String WidgetFontPopOver_Sizes;
+    public static String WidgetFontPopOver_Styles;
     public static String WidgetInfoDialog_Category;
     public static String WidgetInfoDialog_Disconnected;
     public static String WidgetInfoDialog_Info_Fmt;

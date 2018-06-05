@@ -22,6 +22,9 @@ import java.util.TreeMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -68,8 +71,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import se.europeanspallationsource.xaos.tools.svg.SVGContent;
-import se.europeanspallationsource.xaos.tools.svg.SVGLoader;
+import se.europeanspallationsource.xaos.components.SVG;
 
 
 /**
@@ -80,7 +82,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
 
     private static final Executor EXECUTOR = Executors.newFixedThreadPool(8);
 
-    private static Image defaultSymbol = null;
+    private static volatile Image defaultSymbol = null;
 
     private int                                  arrayIndex            = 0;
     private volatile boolean                     autoSize              = false;
@@ -98,6 +100,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
     private Label                                indexLabel;
     private Circle                               indexLabelBackground;
     private Dimension2D                          maxSize               = new Dimension2D(0, 0);
+    private final ReentrantLock                  updatingSymbols       = new ReentrantLock();
     private final AtomicBoolean                  updatingValue         = new AtomicBoolean(false);
 
     //  ---- imageIndex property
@@ -112,7 +115,17 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
     }
 
     private void setImageIndex ( int imageIndex ) {
-        Platform.runLater(() -> this.imageIndex.set(imageIndex));
+        EXECUTOR.execute(() -> {
+
+            updatingSymbols.lock();
+
+            try {
+                Platform.runLater(() -> this.imageIndex.set(imageIndex));
+            } finally {
+                updatingSymbols.unlock();
+            }
+
+        });
     }
 
     //  ---- triggerContentUpdate property
@@ -133,7 +146,6 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
     private void triggerContentUpdate() {
         setTriggerContentUpdate(!isTriggerContentUpdate());
     }
-
 
     /**
      * Compute the maximum width and height of the given {@code widget} based on
@@ -252,7 +264,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
         }
 
         if ( dirtyIndex.checkAndClear() ) {
-            setImageIndex(Math.min(Math.max(model_widget.propInitialIndex().getValue(), 0), imagesList.size() - 1));
+            setImageIndex(model_widget.propInitialIndex().getValue());
         }
 
         if ( dirtyContent.checkAndClear() ) {
@@ -263,7 +275,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
                 arrayIndex = Math.max(0, (int) value);
             }
 
-            setImageIndex(Math.min(Math.max(getImageIndex(), 0), imagesList.size() - 1));
+            dirtyValue.mark();
 
         }
 
@@ -312,7 +324,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
 
         if ( dirtyValue.checkAndClear() && updatingValue.compareAndSet(false, true) ) {
 
-            int idx = -1;
+            int idx = Integer.MIN_VALUE;    //  Marker indicating no valid value.
 
             try {
 
@@ -354,7 +366,10 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
                 updatingValue.set(false);
             }
 
-            setImageIndex(Math.min(Math.max(idx, 0), imagesList.size() - 1));
+            if ( idx != Integer.MIN_VALUE ) {
+                //  Valid value.
+                setImageIndex(idx);
+            }
 
         }
 
@@ -392,7 +407,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
                     finalSymbolHeight = (int) Math.floor(scale_fac * symbolHeight);
                 }
 
-                SVGContent svg = ic.getSVG();
+                SVG svg = ic.getSVG();
                 Bounds bounds = svg.getLayoutBounds();
                 double boundsWidth = bounds.getWidth();
                 double boundsHeight = bounds.getHeight();
@@ -420,6 +435,8 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
     @Override
     protected AnchorPane createJFXNode ( ) throws Exception {
 
+        imageIndex.set(Math.max(model_widget.propInitialIndex().getValue(), 0));
+
         autoSize = model_widget.propAutoSize().getValue();
 
         AnchorPane symbol = new AnchorPane();
@@ -428,48 +445,20 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
 
                 imageView = new ImageView();
 
-                setImageIndex(Math.min(Math.max(model_widget.propInitialIndex().getValue(), 0), imagesList.size() - 1));
-
                 imageView.setPreserveRatio(model_widget.propPreserveRatio().getValue());
                 imageView.setSmooth(true);
                 imageView.fitHeightProperty().bind(symbol.prefHeightProperty());
                 imageView.fitWidthProperty().bind(symbol.prefWidthProperty());
-                imageView.imageProperty().bind(Bindings.createObjectBinding(() -> {
-                        if ( getImageIndex() >= 0 ) {
-
-                            ImageContent imageContent = imagesList.get(getImageIndex());
-
-                            if ( imageContent.isImage() ) {
-                                return imageContent.getImage();
-                            } else {
-                                return getDefaultSymbol();
-                            }
-
-                        } else {
-                            return getDefaultSymbol();
-                        }
-                    },
+                imageView.imageProperty().bind(Bindings.createObjectBinding(
+                    () -> getDisplayable(ic -> ic.isImage(), ic -> ic.getImage(), getDefaultSymbol()),
                     imageIndexProperty()
                 ));
 
             imagePane.setPrefWidth(model_widget.propWidth().getValue());
             imagePane.setPrefHeight(model_widget.propHeight().getValue());
             imagePane.setRotate(model_widget.propRotation().getValue());
-            imagePane.centerProperty().bind(Bindings.createObjectBinding(() -> {
-                    if ( getImageIndex() >= 0 ) {
-
-                        ImageContent imageContent = imagesList.get(getImageIndex());
-
-                        if ( imageContent.isSVG() ) {
-                            return imageContent.getSVG();
-                        } else {
-                            return imageView;
-                        }
-
-                    } else {
-                        return imageView;
-                    }
-                },
+            imagePane.centerProperty().bind(Bindings.createObjectBinding(
+                () -> getDisplayable(ic -> ic.isSVG(), ic -> ic.getSVG(), imageView),
                 imageIndexProperty(),
                 triggerContentUpdateProperty()
             ));
@@ -577,10 +566,34 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
     private Image getDefaultSymbol() {
 
         if ( defaultSymbol == null ) {
-            defaultSymbol = loadDefaultSymbol();
+            synchronized ( SymbolRepresentation.class ) {
+                if ( defaultSymbol == null ) {
+                    defaultSymbol = loadDefaultSymbol();
+                }
+            }
         }
 
         return defaultSymbol;
+
+    }
+
+    private <T> T  getDisplayable( Predicate<ImageContent> predicate, Function<ImageContent, T> getter, T defaultDisplayable ) {
+
+        int index = getImageIndex();
+
+        if ( index >= 0 && index < imagesList.size() ) {
+
+            ImageContent imageContent = imagesList.get(index);
+
+            if ( predicate.test(imageContent) ) {
+                return getter.apply(imageContent);
+            } else {
+                return defaultDisplayable;
+            }
+
+        } else {
+            return defaultDisplayable;
+        }
 
     }
 
@@ -730,71 +743,81 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
 
     private synchronized void updateSymbols ( ) {
 
-        int oldIndex = getImageIndex();
+        updatingSymbols.lock();
 
         try {
 
-            ArrayWidgetProperty<WidgetProperty<String>> propSymbols = model_widget.propSymbols();
-            List<WidgetProperty<String>> fileNames = propSymbols.getValue();
+            int oldIndex = getImageIndex();
 
-            if ( model_widget.getImportedFrom() != null ) {
-                updateImportedSymbols();
-            }
+            try {
 
-            if ( fileNames == null ) {
-                logger.log(Level.WARNING, "Empty list of file names.");
-            } else {
+                ArrayWidgetProperty<WidgetProperty<String>> propSymbols = model_widget.propSymbols();
+                List<WidgetProperty<String>> fileNames = propSymbols.getValue();
 
-                imagesList.clear();
+                if ( model_widget.getImportedFrom() != null ) {
+                    updateImportedSymbols();
+                }
 
-                fileNames.stream().forEach(f -> {
+                if ( fileNames == null ) {
+                    logger.log(Level.WARNING, "Empty list of file names.");
+                } else {
 
-                    String fileName = f.getValue();
-                    ImageContent imageContent = imagesMap.get(fileName);
+                    imagesList.clear();
 
-                    if ( imageContent == null ) {
+                    fileNames.stream().forEach(f -> {
 
-                        imageContent = new ImageContent(fileName);
+                        String fileName = f.getValue();
+                        ImageContent imageContent = imagesMap.get(fileName);
 
-                        if ( imageContent.isValid() ) {
-                            imagesMap.put(fileName, imageContent);
+                        if ( imageContent == null ) {
+
+                            imageContent = new ImageContent(fileName);
+
+                            if ( imageContent.isValid() ) {
+                                imagesMap.put(fileName, imageContent);
+                            }
+
                         }
 
+                        if ( imageContent.isValid() ) {
+                            imagesList.add(imageContent);
+                        }
+
+                    });
+
+                    Set<String> toBeRemoved = imagesMap.keySet().stream().filter(f -> !imagesList.contains(imagesMap.get(f))).collect(Collectors.toSet());
+
+                    toBeRemoved.stream().forEach(f -> imagesMap.remove(f));
+
+                }
+
+            } finally {
+
+                int newImageIndex = Math.min(Math.max(getImageIndex(), 0), imagesList.size() - 1);
+
+                maxSize = computeMaximumSize(model_widget);
+
+                if ( oldIndex == newImageIndex && oldIndex >= 0 ) {
+
+                    ImageContent imageContent = imagesList.get(getImageIndex());
+
+                    if ( ( imageContent.isSVG() && imagePane.getCenter() == imageView )
+                      || ( imageContent.isImage() && imagePane.getCenter() != imageView ) ) {
+                        Platform.runLater(() -> triggerContentUpdate());
                     }
 
-                    if ( imageContent.isValid() ) {
-                        imagesList.add(imageContent);
-                    }
+                } else if ( oldIndex != newImageIndex ) {
+                    imageIndex.set(newImageIndex);
+                }
 
-                });
-
-                Set<String> toBeRemoved = imagesMap.keySet().stream().filter(f -> !imagesList.contains(imagesMap.get(f))).collect(Collectors.toSet());
-
-                toBeRemoved.stream().forEach(f -> imagesMap.remove(f));
-
-                setImageIndex(Math.min(Math.max(getImageIndex(), 0), imagesList.size() - 1));
+                dirtyGeometry.mark();
+                dirtyValue.mark();
+                toolkit.scheduleUpdate(this);
 
             }
 
         } finally {
-
-            maxSize = computeMaximumSize(model_widget);
-
-            if ( oldIndex == getImageIndex() && oldIndex >= 0 ) {
-
-                ImageContent imageContent = imagesList.get(getImageIndex());
-
-                if ( ( imageContent.isSVG() && imagePane.getCenter() == imageView )
-                  || ( imageContent.isImage() && imagePane.getCenter() != imageView ) ) {
-                    triggerContentUpdate();
-                }
-
-            }
-
-            dirtyGeometry.mark();
-            dirtyValue.mark();
-            toolkit.scheduleUpdate(this);
-
+            updatingSymbols.unlock();
         }
 
     }
@@ -809,7 +832,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
         private Image image;
         private double originalHeight;
         private double originalWidth;
-        private SVGContent svg;
+        private SVG svg;
 
         ImageContent ( String fileName ) {
 
@@ -821,7 +844,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
                     try {
 
                         // Open the image from the stream created from the resource file
-                        svg = SVGLoader.load(ModelResourceUtil.openResourceStream(imageFileName));
+                        svg = SVG.load(ModelResourceUtil.openResourceStream(imageFileName));
 
                         Bounds bounds = svg.getLayoutBounds();
 
@@ -853,7 +876,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
 
                 try {
                     //  Open the image from the stream created from the resource file.
-                    image = loadDefaultSymbol();
+                    image = getDefaultSymbol();
                     originalWidth = image.getWidth();
                     originalHeight = image.getHeight();
                     svg = null;
@@ -885,7 +908,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
             return originalWidth;
         }
 
-        SVGContent getSVG() {
+        SVG getSVG() {
             return svg;
         }
 

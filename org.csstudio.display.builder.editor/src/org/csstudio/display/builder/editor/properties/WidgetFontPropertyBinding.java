@@ -39,7 +39,7 @@ public class WidgetFontPropertyBinding
     private EventHandler<ActionEvent> action_handler = event ->
     {
         if (popover == null)
-            popover = new WidgetFontPopOver(widget_property.getValue(), font ->
+            popover = new WidgetFontPopOver(widget_property, font ->
             {
                 undo.execute(new SetWidgetPropertyAction<WidgetFont>(widget_property, font));
                 if (! other.isEmpty())

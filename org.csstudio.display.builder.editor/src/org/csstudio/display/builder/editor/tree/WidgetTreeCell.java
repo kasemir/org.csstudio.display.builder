@@ -11,24 +11,66 @@ import static org.csstudio.display.builder.editor.Plugin.logger;
 
 import java.util.logging.Level;
 
+import org.csstudio.display.builder.editor.undo.SetMacroizedWidgetPropertyAction;
 import org.csstudio.display.builder.editor.util.WidgetIcons;
+import org.csstudio.display.builder.model.MacroizedWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.util.ResourceUtil;
+import org.csstudio.display.builder.util.undo.UndoableAction;
+import org.csstudio.display.builder.util.undo.UndoableActionManager;
 
-import javafx.scene.control.TreeCell;
+import javafx.scene.control.cell.TextFieldTreeCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.util.StringConverter;
 
 /** Tree cell that displays {@link WidgetOrTab} (name, icon, ..)
  *  @author Kay Kasemir
+ *  @author Claudio Rosati
  */
 @SuppressWarnings("nls")
-class WidgetTreeCell extends TreeCell<WidgetOrTab>
+class WidgetTreeCell extends TextFieldTreeCell<WidgetOrTab>
 {
+    private final UndoableActionManager undo;
     private Image tab_icon;
 
-    WidgetTreeCell()
+    private class Converter extends StringConverter<WidgetOrTab>
     {
+        @Override
+        public String toString (final WidgetOrTab item)
+        {
+            if (item == null)
+                return null;
+            else if (item.isWidget())
+
+                return item.getWidget().getName();
+            else
+                return item.getTab().name().getValue();
+        }
+
+        @Override
+        public WidgetOrTab fromString (final String string)
+        {
+            final WidgetOrTab item = WidgetTreeCell.this.getItem();
+
+            if (item != null  &&  string != null  &&  !string.isEmpty())
+            {
+                final UndoableAction action;
+                if (item.isWidget())
+                    action = new SetMacroizedWidgetPropertyAction((MacroizedWidgetProperty<String>) item.getWidget().propName(), string);
+                else
+                    action = new SetMacroizedWidgetPropertyAction((MacroizedWidgetProperty<String>) item.getTab().name(), string);
+                undo.execute(action);
+            }
+            return item;
+        }
+    }
+
+    WidgetTreeCell (final UndoableActionManager undo)
+    {
+        this.undo = undo;
+        setConverter(new Converter());
+
         try
         {
             tab_icon = new Image(ResourceUtil.openPlatformResource("platform:/plugin/org.csstudio.display.builder.editor/icons/tab_item.png"));

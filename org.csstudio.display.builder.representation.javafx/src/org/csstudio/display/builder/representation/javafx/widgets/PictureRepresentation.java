@@ -29,8 +29,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
-import se.europeanspallationsource.xaos.tools.svg.SVGContent;
-import se.europeanspallationsource.xaos.tools.svg.SVGLoader;
+import se.europeanspallationsource.xaos.components.SVG;
 
 /** Creates JavaFX item for model widget
  *  @author Megan Grodowitz
@@ -47,7 +46,7 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
 
     private volatile Image img_loaded;
     private volatile ImageView iv;
-    private volatile SVGContent svg;
+    private volatile SVG svg;
     private volatile String img_path;
     private volatile double native_offset_x = 0.0;
     private volatile double native_offset_y = 0.0;
@@ -71,7 +70,7 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
 
             if ( filename.toLowerCase().endsWith(".svg") ) {
 
-                final SVGContent svg = SVGLoader.load(ModelResourceUtil.openResourceStream(filename));
+                final SVG svg = SVG.load(ModelResourceUtil.openResourceStream(filename));
                 final Bounds bounds = svg.getLayoutBounds();
 
                 return new Dimension2D(bounds.getWidth(), bounds.getHeight());
@@ -167,7 +166,7 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
                 try {
 
                     // Open the image from the stream created from the resource file
-                    svg = SVGLoader.load(ModelResourceUtil.openResourceStream(img_path));
+                    svg = SVG.load(ModelResourceUtil.openResourceStream(img_path));
 
                     Bounds bounds = svg.getLayoutBounds();
 

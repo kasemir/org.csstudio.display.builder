@@ -45,6 +45,7 @@ import org.csstudio.display.builder.representation.javafx.FilenameSupport;
 import org.csstudio.display.builder.util.ResourceUtil;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.DialogHelper;
+import org.csstudio.javafx.InputUtils;
 import org.csstudio.javafx.MultiLineInputDialog;
 
 import javafx.event.ActionEvent;
@@ -240,7 +241,7 @@ public class PropertyPanelSection extends GridPane
         else if (property instanceof EnumWidgetProperty<?>)
         {
             final EnumWidgetProperty<?> enum_prop = (EnumWidgetProperty<?>) property;
-            final ComboBox<String> combo = new ComboBox<>();
+            final ComboBox<String> combo = InputUtils.wrap(new ComboBox<>());
             combo.setPromptText(property.getDefaultValue().toString());
             combo.getItems().addAll(enum_prop.getLabels());
             combo.setMaxWidth(Double.MAX_VALUE);
@@ -296,7 +297,7 @@ public class PropertyPanelSection extends GridPane
         else if (property instanceof BooleanWidgetProperty)
         {
             final BooleanWidgetProperty bool_prop = (BooleanWidgetProperty) property;
-            final ComboBox<String> combo = new ComboBox<>();
+            final ComboBox<String> combo = InputUtils.wrap(new ComboBox<>());
             combo.setPromptText(property.getDefaultValue().toString());
             combo.getItems().addAll("true", "false");
             combo.setMaxWidth(Double.MAX_VALUE);
@@ -354,7 +355,7 @@ public class PropertyPanelSection extends GridPane
         else if (property instanceof WidgetClassProperty)
         {
             final WidgetClassProperty widget_class_prop = (WidgetClassProperty) property;
-            final ComboBox<String> combo = new ComboBox<>();
+            final ComboBox<String> combo = InputUtils.wrap(new ComboBox<>());
             combo.setPromptText(property.getDefaultValue().toString());
             combo.setEditable(true);
             // List classes of this widget
@@ -370,7 +371,7 @@ public class PropertyPanelSection extends GridPane
         else if (property instanceof FilenameWidgetProperty)
         {
             final FilenameWidgetProperty file_prop = (FilenameWidgetProperty)property;
-            final TextField text = new TextField();
+            final TextField text = InputUtils.wrap(new TextField());
             text.setPromptText(file_prop.getDefaultValue().toString());
             text.setMaxWidth(Double.MAX_VALUE);
             final Button select_file = new Button("...");
@@ -402,7 +403,7 @@ public class PropertyPanelSection extends GridPane
         else if (property instanceof PVNameWidgetProperty)
         {
             final PVNameWidgetProperty pv_prop = (PVNameWidgetProperty)property;
-            final TextField text = new TextField();
+            final TextField text = InputUtils.wrap(new TextField());
             text.setPromptText(pv_prop.getDefaultValue().toString());
             final MacroizedWidgetPropertyBinding binding = new MacroizedWidgetPropertyBinding(undo, text, pv_prop, other)
             {
@@ -452,7 +453,8 @@ public class PropertyPanelSection extends GridPane
         else if (property instanceof MacroizedWidgetProperty)
         {   // MacroizedWidgetProperty needs to be checked _after_ subclasses like PVNameWidgetProperty, FilenameWidgetProperty
             final MacroizedWidgetProperty<?> macro_prop = (MacroizedWidgetProperty<?>)property;
-            final TextField text = new TextField();
+            final TextField text = InputUtils.wrap(new TextField());
+
             text.setPromptText(macro_prop.getDefaultValue().toString());
             final MacroizedWidgetPropertyBinding binding = new MacroizedWidgetPropertyBinding(undo, text, macro_prop, other);
             bindings.add(binding);

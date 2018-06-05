@@ -483,95 +483,98 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
     /** Perform autoscale for all axes that are marked as such */
     public void autoscale()
     {
-        // Determine range of each axes' traces in parallel
-        final List<YAxisImpl<XTYPE>> all_y_axes = plot.getYAxes();
-        final List<YAxisImpl<XTYPE>> y_axes = new ArrayList<>();
-        final List<Future<ValueRange>> ranges = new ArrayList<Future<ValueRange>>();
-        for (YAxisImpl<XTYPE> axis : all_y_axes)
-            if (axis.isAutoscale())
-            {
-                y_axes.add(axis);
-                ranges.add(determineValueRange(axis, plot.getXAxis().getValueRange()));
-            }
-        // If X axis is auto-scale, schedule fetching its range
-        final Future<AxisRange<XTYPE>> pos_range = plot.getXAxis().isAutoscale()
-            ? determinePositionRange(all_y_axes)
-            : null;
-
-        final int N = y_axes.size();
-        for (int i=0; i<N; ++i)
-        {
-            final YAxisImpl<XTYPE> axis = y_axes.get(i);
-            try
-            {
-                final ValueRange new_range = ranges.get(i).get();
-                double low = new_range.getLow(), high = new_range.getHigh();
-                if (low > high)
-                    continue;
-                if (low == high)
-                {   // Center trace with constant value (empty range)
-                    final double half = Math.abs(low/2);
-                    low -= half;
-                    high += half;
-                }
-                if (axis.isLogarithmic())
-                {   // Perform adjustment in log space.
-                    // But first, refuse to deal with <= 0
-                    if (low <= 0.0)
-                        low = 1;
-                    if (high <= low)
-                        high = 100;
-                    low = Log10.log10(low);
-                    high = Log10.log10(high);
-                }
-                final ValueRange rounded = roundValueRange(low, high);
-                low = rounded.getLow();
-                high = rounded.getHigh();
-                if (axis.isLogarithmic())
-                {
-                    low = Log10.pow10(low);
-                    high = Log10.pow10(high);
-                }
-                else
-                {   // Stretch range a little bit
-                    // (but not for log scale, where low just above 0
-                    //  could be stretched to <= 0)
-                    final double headroom = (high - low) * 0.05;
-                    low -= headroom;
-                    high += headroom;
-
-                }
-                // Autoscale happens 'all the time'.
-                // Do not use undo, but notify listeners.
-                if (low != high)
-                {
-                	final AxisRange<Double> orig = axis.getValueRange();
-                	final boolean normal = orig.getLow() < orig.getHigh();
-                	final boolean changed = normal ? axis.setValueRange(low, high)
-        										   : axis.setValueRange(high, low);
-        			if (changed)
-                        plot.fireYAxisChange(axis);
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.log(Level.WARNING, "Axis autorange error for " + axis, ex);
-            }
-        }
-
-        if (pos_range == null)
-            return;
+        // In low-memory situation, the following can fail because threads for determining
+        // range cannot be created.
+        // Catch any error to keep autoscale problem from totally skipping a plot update.
         try
         {
+            // Determine range of each axes' traces in parallel
+            final List<YAxisImpl<XTYPE>> all_y_axes = plot.getYAxes();
+            final List<YAxisImpl<XTYPE>> y_axes = new ArrayList<>();
+            final List<Future<ValueRange>> ranges = new ArrayList<Future<ValueRange>>();
+            for (YAxisImpl<XTYPE> axis : all_y_axes)
+                if (axis.isAutoscale())
+                {
+                    y_axes.add(axis);
+                    ranges.add(determineValueRange(axis, plot.getXAxis().getValueRange()));
+                }
+            // If X axis is auto-scale, schedule fetching its range
+            final Future<AxisRange<XTYPE>> pos_range = plot.getXAxis().isAutoscale()
+                ? determinePositionRange(all_y_axes)
+                : null;
+
+            final int N = y_axes.size();
+            for (int i=0; i<N; ++i)
+            {
+                final YAxisImpl<XTYPE> axis = y_axes.get(i);
+                try
+                {
+                    final ValueRange new_range = ranges.get(i).get();
+                    double low = new_range.getLow(), high = new_range.getHigh();
+                    if (low > high)
+                        continue;
+                    if (low == high)
+                    {   // Center trace with constant value (empty range)
+                        final double half = Math.abs(low/2);
+                        low -= half;
+                        high += half;
+                    }
+                    if (axis.isLogarithmic())
+                    {   // Perform adjustment in log space.
+                        // But first, refuse to deal with <= 0
+                        if (low <= 0.0)
+                            low = 1;
+                        if (high <= low)
+                            high = 100;
+                        low = Log10.log10(low);
+                        high = Log10.log10(high);
+                    }
+                    final ValueRange rounded = roundValueRange(low, high);
+                    low = rounded.getLow();
+                    high = rounded.getHigh();
+                    if (axis.isLogarithmic())
+                    {
+                        low = Log10.pow10(low);
+                        high = Log10.pow10(high);
+                    }
+                    else
+                    {   // Stretch range a little bit
+                        // (but not for log scale, where low just above 0
+                        //  could be stretched to <= 0)
+                        final double headroom = (high - low) * 0.05;
+                        low -= headroom;
+                        high += headroom;
+
+                    }
+                    // Autoscale happens 'all the time'.
+                    // Do not use undo, but notify listeners.
+                    if (low != high)
+                    {
+                    	final AxisRange<Double> orig = axis.getValueRange();
+                    	final boolean normal = orig.getLow() < orig.getHigh();
+                    	final boolean changed = normal ? axis.setValueRange(low, high)
+            										   : axis.setValueRange(high, low);
+            			if (changed)
+                            plot.fireYAxisChange(axis);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.log(Level.WARNING, "Axis autorange error for " + axis, ex);
+                }
+            }
+
+            if (pos_range == null)
+                return;
             final AxisRange<XTYPE> range = pos_range.get();
             if (range == null)
                 return;
             plot.getXAxis().setValueRange(range.getLow(), range.getHigh());
             plot.fireXAxisChange();
         }
-        catch (Exception ex)
+        catch (Throwable ex)
         {
-            logger.log(Level.WARNING, "Axis autorange error for " + plot.getXAxis(), ex);
+            logger.log(Level.WARNING, "Autorange error", ex);
         }
     }
 }
