@@ -119,6 +119,7 @@ import org.csstudio.display.builder.representation.javafx.widgets.WebBrowserRepr
 import org.csstudio.display.builder.representation.javafx.widgets.plots.ImageRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.plots.XYPlotRepresentation;
 import org.csstudio.javafx.DialogHelper;
+import org.csstudio.javafx.PlatformInfo;
 import org.csstudio.javafx.Styles;
 import org.csstudio.javafx.rtplot.ColorMappingFunction;
 import org.csstudio.javafx.rtplot.NamedColorMapping;
@@ -428,7 +429,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         if (isEditMode())
             model_root.addEventFilter(ScrollEvent.ANY, evt ->
             {
-                if (evt.isControlDown())
+                if (PlatformInfo.is_mac_os_x ? evt.isShortcutDown() : evt.isControlDown())
                 {
                     evt.consume();
                     doWheelZoom(evt.getDeltaY(), evt.getX(), evt.getY());
@@ -437,7 +438,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         else
             widget_parent.addEventHandler(ScrollEvent.ANY, evt ->
             {
-                if (evt.isControlDown())
+                if (PlatformInfo.is_mac_os_x ? evt.isShortcutDown() : evt.isControlDown())
                 {
                     evt.consume();
                     ScrollEvent gevt = evt.copyFor(model_root, scroll_body);
