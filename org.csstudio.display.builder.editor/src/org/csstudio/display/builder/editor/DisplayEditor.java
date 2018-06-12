@@ -41,7 +41,6 @@ import org.csstudio.display.builder.representation.ToolkitListener;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.util.ResourceUtil;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
-import org.csstudio.javafx.PlatformInfo;
 
 import javafx.application.Platform;
 import javafx.geometry.Point2D;
@@ -397,7 +396,7 @@ public class DisplayEditor
         {
             // Don't do that on control-click (to add/remove to current selection)
             // nor on right button (to open context menu)
-            if ( ( PlatformInfo.is_mac_os_x ? event.isShortcutDown() : event.isControlDown() ) || ! event.isPrimaryButtonDown())
+            if ( event.isShortcutDown() || ! event.isPrimaryButtonDown())
                 return;
             logger.log(Level.FINE, "Mouse pressed in 'editor', de-select all widgets");
             event.consume();

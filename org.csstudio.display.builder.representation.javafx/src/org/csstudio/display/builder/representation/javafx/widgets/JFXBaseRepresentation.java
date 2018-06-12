@@ -21,7 +21,6 @@ import org.csstudio.display.builder.model.widgets.TabsWidget;
 import org.csstudio.display.builder.model.widgets.TabsWidget.TabItemProperty;
 import org.csstudio.display.builder.representation.WidgetRepresentation;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
-import org.csstudio.javafx.PlatformInfo;
 
 import javafx.event.EventHandler;
 import javafx.scene.Node;
@@ -91,7 +90,7 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
                     if (event.isPrimaryButtonDown())
                     {
                         event.consume();
-                        toolkit.fireClick(model_widget, PlatformInfo.is_mac_os_x ? event.isShortcutDown() : event.isControlDown());
+                        toolkit.fireClick(model_widget, event.isShortcutDown());
                     }
                 };
                 if (isFilteringEditModeClicks())

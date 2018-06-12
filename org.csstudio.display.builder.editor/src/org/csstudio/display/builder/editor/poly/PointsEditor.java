@@ -13,7 +13,6 @@ import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.properties.Points;
 import org.csstudio.display.builder.util.ResourceUtil;
-import org.csstudio.javafx.PlatformInfo;
 
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
@@ -254,7 +253,7 @@ public class PointsEditor
                 y_offset = getY()+SIZE/2 - event.getY();
                 getScene().setCursor(Cursor.CLOSED_HAND);
 
-                if (PlatformInfo.is_mac_os_x ? event.isShortcutDown() : event.isControlDown())
+                if ( event.isShortcutDown() )
                 {
                     final double x, y;
                     if (index < points.size() - 1)
@@ -293,7 +292,7 @@ public class PointsEditor
             setOnMouseMoved(event ->
             {
                 event.consume();
-                if (( PlatformInfo.is_mac_os_x ? event.isShortcutDown() : event.isControlDown() ) && cursor_add != null)
+                if ( event.isShortcutDown() && cursor_add != null)
                     getScene().setCursor(cursor_add);
                 else if ((event.isShiftDown() || event.isAltDown())  &&  cursor_remove != null)
                     getScene().setCursor(cursor_remove);

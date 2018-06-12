@@ -7,8 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.util;
 
-import org.csstudio.javafx.PlatformInfo;
-
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
@@ -107,7 +105,7 @@ public class Rubberband
 
         handler.handleSelectedRegion(new Rectangle2D(Math.min(x0, x1), Math.min(y0, y1),
                                                      Math.abs(x1 - x0), Math.abs(y1 - y0)),
-                                     PlatformInfo.is_mac_os_x ? event.isShortcutDown() : event.isControlDown());
+                                     event.isShortcutDown());
         event.consume();
     }
 }

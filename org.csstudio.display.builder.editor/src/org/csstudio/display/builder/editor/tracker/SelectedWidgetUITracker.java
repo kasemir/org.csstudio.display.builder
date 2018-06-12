@@ -37,7 +37,6 @@ import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
 import org.csstudio.display.builder.util.undo.CompoundUndoableAction;
 import org.csstudio.display.builder.util.undo.UndoableAction;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
-import org.csstudio.javafx.PlatformInfo;
 import org.csstudio.javafx.Tracker;
 
 import javafx.geometry.Point2D;
@@ -119,14 +118,14 @@ public class SelectedWidgetUITracker extends Tracker
         // Pass control-click down to underlying widgets
         addEventFilter(MouseEvent.MOUSE_PRESSED, event ->
         {
-            if (PlatformInfo.is_mac_os_x ? event.isShortcutDown() : event.isControlDown())
+            if ( event.isShortcutDown() )
                 passClickToWidgets(event);
         });
 
         // Allow 'dragging' selected widgets
         setOnDragDetected(event ->
         {
-            if (! ( PlatformInfo.is_mac_os_x ? event.isShortcutDown() : event.isControlDown() ))
+            if ( !event.isShortcutDown() )
                 return;
 
             logger.log(Level.FINE, "Starting to drag {0}", widgets);
@@ -358,7 +357,7 @@ public class SelectedWidgetUITracker extends Tracker
             if (GeometryTools.getDisplayBounds(widget).contains(event.getX(), event.getY()))
             {
                 logger.log(Level.FINE, "Tracker passes click through to {0}", widget);
-                toolkit.fireClick(widget, PlatformInfo.is_mac_os_x ? event.isShortcutDown() : event.isControlDown());
+                toolkit.fireClick(widget, event.isShortcutDown());
             }
     }
 
