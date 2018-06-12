@@ -428,7 +428,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         if (isEditMode())
             model_root.addEventFilter(ScrollEvent.ANY, evt ->
             {
-                if (evt.isControlDown())
+                if ( evt.isShortcutDown() )
                 {
                     evt.consume();
                     doWheelZoom(evt.getDeltaY(), evt.getX(), evt.getY());
@@ -437,7 +437,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         else
             widget_parent.addEventHandler(ScrollEvent.ANY, evt ->
             {
-                if (evt.isControlDown())
+                if (  evt.isShortcutDown() )
                 {
                     evt.consume();
                     ScrollEvent gevt = evt.copyFor(model_root, scroll_body);
