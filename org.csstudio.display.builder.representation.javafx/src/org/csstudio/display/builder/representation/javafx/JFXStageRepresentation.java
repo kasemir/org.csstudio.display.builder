@@ -56,7 +56,7 @@ public class JFXStageRepresentation extends JFXRepresentation
         final String hexName = Integer.toHexString(name.hashCode()).toLowerCase();
         final String xPrefName = MessageFormat.format("stage.window.{0}.x", hexName);
         final String yPrefName = MessageFormat.format("stage.window.{0}.y", hexName);
-        final Preferences pref = Preferences.userNodeForPackage(JFXStageRepresentation.class);
+        final Preferences pref = Preferences.userNodeForPackage(JFXStageRepresentation.class).node(JFXStageRepresentation.class.getSimpleName());
 
         stage.setX(pref.getDouble(xPrefName, model.propX().getValue()));
         stage.setY(pref.getDouble(yPrefName,model.propY().getValue()));

@@ -31,6 +31,7 @@ import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.Messages;
+import org.csstudio.display.builder.representation.javafx.ModalityHack;
 import org.csstudio.display.builder.representation.javafx.PVTableItem;
 import org.csstudio.display.builder.representation.javafx.PVTableItem.AutoCompletedTableCell;
 import org.csstudio.display.builder.representation.javafx.ScriptsDialog;
@@ -52,6 +53,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -430,6 +432,36 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         return pi.toString();
     }
 
+    /**
+     * @param rules Rules to show/edit in the dialog.
+     * @param owner The node starting this dialog.
+     **/
+    public RulesDialog ( final UndoableActionManager undo, final List<RuleInfo> rules, final Widget attached_widget, final AutocompleteMenu menu, final Node owner ) {
+
+        this(undo, rules, attached_widget, menu);
+
+        initOwner(owner.getScene().getWindow());
+        ModalityHack.forDialog(this);
+
+        final Preferences pref = Preferences.userNodeForPackage(RulesDialog.class).node(RulesDialog.class.getSimpleName());
+
+        final double prefX = pref.getDouble("dialog.x", Double.NaN);
+        final double prefY = pref.getDouble("dialog.y", Double.NaN);
+
+        if ( !Double.isNaN(prefX) && !Double.isNaN(prefY) ) {
+            setX(prefX);
+            setY(prefY);
+        } else {
+
+            Bounds pos = owner.localToScreen(owner.getBoundsInLocal());
+
+            setX(pos.getMinX());
+            setY(pos.getMinY() + pos.getHeight());
+
+        }
+
+    }
+
     /** @param rules Rules to show/edit in the dialog */
     public RulesDialog(final UndoableActionManager undo, final List<RuleInfo> rules, final Widget attached_widget, final AutocompleteMenu menu)
     {
@@ -467,21 +499,23 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                              .collect(Collectors.toList());
         });
 
-        setOnHidden(event ->
-        {
-            final Preferences pref = Preferences.userNodeForPackage(RulesDialog.class);
+        setOnHidden(event -> {
+
+            final Preferences pref = Preferences.userNodeForPackage(RulesDialog.class).node(RulesDialog.class.getSimpleName());
+
+            pref.putDouble("dialog.x", getX());
+            pref.putDouble("dialog.y", getY());
             pref.putDouble("content.width", content.getWidth());
             pref.putDouble("content.height", content.getHeight());
             pref.putDouble("content.divider.position", content.getDividerPositions()[0]);
             pref.putDouble("rule.content.divider.position", ruleSplitPane.getDividerPositions()[0]);
-            try
-            {
+
+            try {
                 pref.flush();
+            } catch ( BackingStoreException ex ) {
+                logger.log(Level.WARNING, "Unable to flush preferences", ex);
             }
-            catch (BackingStoreException ex)
-            {
-               logger.log(Level.WARNING, "Unable to flush preferences", ex);
-            }
+
         });
     }
 
@@ -637,7 +671,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         HBox.setHgrow(pvs, Priority.ALWAYS);
         HBox.setHgrow(exprs, Priority.ALWAYS);
 
-        final Preferences pref = Preferences.userNodeForPackage(RulesDialog.class);
+        final Preferences pref = Preferences.userNodeForPackage(RulesDialog.class).node(RulesDialog.class.getSimpleName());
         final double prefRSPDividerPosition = pref.getDouble("rule.content.divider.position", 0.5);
 
         ruleSplitPane = new SplitPane(pvs, exprs);

@@ -79,7 +79,7 @@ public class SyntaxHighlightedMultiLineInputDialog extends Dialog<String> {
         getDialogPane().setContent(new BorderPane(new VirtualizedScrollPane<>(codeArea)));
         getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
-        Preferences readPref = Preferences.userNodeForPackage(SyntaxHighlightedMultiLineInputDialog.class);
+        Preferences readPref = Preferences.userNodeForPackage(SyntaxHighlightedMultiLineInputDialog.class).node(SyntaxHighlightedMultiLineInputDialog.class.getSimpleName());
         double prefWidth = readPref.getDouble("dialog.width", 600);
         double prefHeight = readPref.getDouble("dialog.height", 300);
 
@@ -89,8 +89,10 @@ public class SyntaxHighlightedMultiLineInputDialog extends Dialog<String> {
         setResultConverter(button -> ( button == ButtonType.OK ) ? codeArea.getText() : null);
         setOnHidden(event -> {
 
-            final Preferences writePref = Preferences.userNodeForPackage(SyntaxHighlightedMultiLineInputDialog.class);
+            final Preferences writePref = Preferences.userNodeForPackage(SyntaxHighlightedMultiLineInputDialog.class).node(SyntaxHighlightedMultiLineInputDialog.class.getSimpleName());
 
+            writePref.putDouble("dialog.x", getX());
+            writePref.putDouble("dialog.y", getY());
             writePref.putDouble("dialog.width", getDialogPane().getWidth());
             writePref.putDouble("dialog.height", getDialogPane().getHeight());
 
@@ -112,12 +114,25 @@ public class SyntaxHighlightedMultiLineInputDialog extends Dialog<String> {
     public SyntaxHighlightedMultiLineInputDialog ( final Node parent, final String initialText, final Language language ) {
 
         this(initialText, language);
+
         initOwner(parent.getScene().getWindow());
 
-        final Bounds bounds = parent.localToScreen(parent.getBoundsInLocal());
+        final Preferences pref = Preferences.userNodeForPackage(SyntaxHighlightedMultiLineInputDialog.class).node(SyntaxHighlightedMultiLineInputDialog.class.getSimpleName());
 
-        setX(bounds.getMinX());
-        setY(bounds.getMinY());
+        final double prefX = pref.getDouble("dialog.x", Double.NaN);
+        final double prefY = pref.getDouble("dialog.y", Double.NaN);
+
+        if ( !Double.isNaN(prefX) && !Double.isNaN(prefY) ) {
+            setX(prefX);
+            setY(prefY);
+        } else {
+
+            Bounds pos = parent.localToScreen(parent.getBoundsInLocal());
+
+            setX(pos.getMinX());
+            setY(pos.getMinY() + pos.getHeight());
+
+        }
 
     }
 
