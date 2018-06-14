@@ -165,6 +165,7 @@ public class DialogHelper {
     public static void positionAndSize ( final Dialog<?> dialog, final Node owner, final Preferences prefs, double initialWidth, double initialHeight, Consumer<Preferences> injector, Consumer<Preferences> projector ) {
 
         if ( dialog == null ) {
+            logger.log(Level.WARNING, "Null dialog.");
             return;
         }
 
@@ -175,36 +176,37 @@ public class DialogHelper {
             ( (Stage) window ).setAlwaysOnTop(true);
         }
 
-        if ( injector != null ) {
+        if ( injector != null && prefs != null ) {
             injector.accept(prefs);
         }
 
         if ( owner != null ) {
-
             dialog.initOwner(owner.getScene().getWindow());
+        }
 
-            final double prefX = prefs.getDouble("dialog.x", Double.NaN);
-            final double prefY = prefs.getDouble("dialog.y", Double.NaN);
-            final double prefWidth = prefs.getDouble("content.width", initialWidth);
-            final double prefHeight = prefs.getDouble("content.height", initialHeight);
+        final double prefX = ( prefs != null ) ? prefs.getDouble("dialog.x", Double.NaN) : Double.NaN;
+        final double prefY = ( prefs != null ) ? prefs.getDouble("dialog.y", Double.NaN) : Double.NaN;
+        final double prefWidth = ( prefs != null ) ? prefs.getDouble("content.width", initialWidth) : initialWidth;
+        final double prefHeight = ( prefs != null ) ? prefs.getDouble("content.height", initialHeight) : initialHeight;
 
-            if ( !Double.isNaN(prefX) && !Double.isNaN(prefY) ) {
-                dialog.setX(prefX);
-                dialog.setY(prefY);
-            } else {
+        if ( !Double.isNaN(prefX) && !Double.isNaN(prefY) ) {
+            dialog.setX(prefX);
+            dialog.setY(prefY);
+        } else if ( owner != null ) {
 
-                Bounds pos = owner.localToScreen(owner.getBoundsInLocal());
+            Bounds pos = owner.localToScreen(owner.getBoundsInLocal());
 
-                dialog.setX(pos.getMinX());
-                dialog.setY(pos.getMinY() + pos.getHeight());
+            dialog.setX(pos.getMinX());
+            dialog.setY(pos.getMinY() + pos.getHeight());
 
-            }
+        }
 
-            if ( !Double.isNaN(prefWidth) && !Double.isNaN(prefHeight) ) {
-                dialog.getDialogPane().setPrefSize(prefWidth, prefHeight);
-            }
+        if ( !Double.isNaN(prefWidth) && !Double.isNaN(prefHeight) ) {
+            dialog.getDialogPane().setPrefSize(prefWidth, prefHeight);
+        }
 
-            dialog.setOnHidden(event -> {
+        dialog.setOnHidden(event -> {
+            if ( prefs != null ) {
 
                 prefs.putDouble("dialog.x", dialog.getX());
                 prefs.putDouble("dialog.y", dialog.getY());
@@ -221,9 +223,8 @@ public class DialogHelper {
                     logger.log(Level.WARNING, "Unable to flush preferences", ex);
                 }
 
-            });
-
-        }
+            }
+        });
 
     }
 
