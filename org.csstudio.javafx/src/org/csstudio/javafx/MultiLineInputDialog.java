@@ -7,7 +7,6 @@
  ******************************************************************************/
 package org.csstudio.javafx;
 
-import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
@@ -42,10 +41,7 @@ public class MultiLineInputDialog extends Dialog<String>
     public MultiLineInputDialog(final Node parent, final String initial_text)
     {
         this(initial_text);
-        initOwner(parent.getScene().getWindow());
-        final Bounds bounds = parent.localToScreen(parent.getBoundsInLocal());
-        setX(bounds.getMinX());
-        setY(bounds.getMinY());
+        DialogHelper.positionAndSize(this, parent, PreferencesHelper.userNodeForClass(MultiLineInputDialog.class), 600, 300);
     }
 
     /** @param pixels Suggested height of text in pixels */

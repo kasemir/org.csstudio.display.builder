@@ -12,8 +12,6 @@ import static org.csstudio.display.builder.representation.ToolkitRepresentation.
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
 
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.macros.Macros;
@@ -28,11 +26,12 @@ import org.csstudio.display.builder.model.properties.OpenFileActionInfo;
 import org.csstudio.display.builder.model.properties.OpenWebpageActionInfo;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.WritePVActionInfo;
+import org.csstudio.javafx.DialogHelper;
+import org.csstudio.javafx.PreferencesHelper;
 
 import javafx.beans.InvalidationListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -151,51 +150,8 @@ public class ActionsDialog extends Dialog<ActionInfos>
      */
     public ActionsDialog(final Widget widget, final ActionInfos initial_actions, final AutocompleteMenu menu, final Node owner)
     {
-
         this(widget, initial_actions, menu);
-
-        initOwner(owner.getScene().getWindow());
-        ModalityHack.forDialog(this);
-
-        final Preferences pref = Preferences.userNodeForPackage(ActionsDialog.class).node(ActionsDialog.class.getSimpleName());
-        final double prefX = pref.getDouble("dialog.x", Double.NaN);
-        final double prefY = pref.getDouble("dialog.y", Double.NaN);
-        final double prefWidth = pref.getDouble("content.width", Double.NaN);
-        final double prefHeight = pref.getDouble("content.height", Double.NaN);
-
-        if ( !Double.isNaN(prefX) && !Double.isNaN(prefY) ) {
-            setX(prefX);
-            setY(prefY);
-        } else {
-
-            Bounds pos = owner.localToScreen(owner.getBoundsInLocal());
-
-            setX(pos.getMinX());
-            setY(pos.getMinY() + pos.getHeight());
-
-        }
-
-        if ( !Double.isNaN(prefWidth) && !Double.isNaN(prefHeight) ) {
-            getDialogPane().setPrefSize(prefWidth, prefHeight);
-        }
-
-        setOnHidden(event -> {
-
-            Preferences prf = Preferences.userNodeForPackage(ActionsDialog.class).node(ActionsDialog.class.getSimpleName());
-
-            prf.putDouble("dialog.x", getX());
-            prf.putDouble("dialog.y", getY());
-            prf.putDouble("content.width", getDialogPane().getWidth());
-            prf.putDouble("content.height", getDialogPane().getHeight());
-
-            try {
-                pref.flush();
-            } catch ( BackingStoreException ex ) {
-                logger.log(Level.WARNING, "Unable to flush preferences", ex);
-            }
-
-        });
-
+        DialogHelper.positionAndSize(this, owner, PreferencesHelper.userNodeForClass(ActionsDialog.class));
     }
 
     /** Create dialog

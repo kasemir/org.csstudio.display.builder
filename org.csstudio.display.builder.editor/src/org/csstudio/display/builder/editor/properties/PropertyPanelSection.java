@@ -42,7 +42,6 @@ import org.csstudio.display.builder.model.properties.ScriptsWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetClassProperty;
 import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
 import org.csstudio.display.builder.representation.javafx.FilenameSupport;
-import org.csstudio.display.builder.representation.javafx.ModalityHack;
 import org.csstudio.display.builder.util.ResourceUtil;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.DialogHelper;
@@ -467,8 +466,6 @@ public class PropertyPanelSection extends GridPane
                 open_editor.setOnAction(event ->
                 {
                     final MultiLineInputDialog dialog = new MultiLineInputDialog(open_editor, macro_prop.getSpecification());
-                    DialogHelper.positionDialog(dialog, open_editor, -600, 0);
-                    ModalityHack.forDialog(dialog);
                     final Optional<String> result = dialog.showAndWait();
                     if (!result.isPresent())
                         return;
