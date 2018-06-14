@@ -13,8 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.model.Widget;
@@ -22,10 +20,9 @@ import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.ScriptPV;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.representation.javafx.PVTableItem.AutoCompletedTableCell;
-import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
 import org.csstudio.javafx.DialogHelper;
 import org.csstudio.javafx.LineNumberTableCellFactory;
-import org.csstudio.javafx.MultiLineInputDialog;
+import org.csstudio.javafx.PreferencesHelper;
 import org.csstudio.javafx.SyntaxHighlightedMultiLineInputDialog;
 import org.csstudio.javafx.SyntaxHighlightedMultiLineInputDialog.Language;
 import org.csstudio.javafx.TableHelper;
@@ -177,6 +174,9 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
     private CheckBox btn_check_connections;
 
+    /** The main splitter */
+    private final SplitPane content;
+
     private ScriptItem selected_script_item = null;
 
     public ScriptsDialog(final Widget widget, final List<ScriptInfo> scripts)
@@ -184,9 +184,27 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         this(widget, scripts, new AutocompleteMenu());
     }
 
-    /** @param widget Widget
-     *  @param scripts Scripts to show/edit in the dialog
-     *  @param menu AutocompleteMenu
+    /**
+     * @param widget Widget
+     * @param scripts Scripts to show/edit in the dialog
+     * @param menu AutocompleteMenu
+     * @param owner The node starting this dialog.
+     */
+    public ScriptsDialog ( final Widget widget, final List<ScriptInfo> scripts, final AutocompleteMenu menu, final Node owner ) {
+        this(widget, scripts, menu);
+        DialogHelper.positionAndSize(
+            this,
+            owner,
+            PreferencesHelper.userNodeForClass(ScriptsDialog.class),
+            prefs -> content.setDividerPositions(prefs.getDouble("content.divider.position", 0.5)),
+            prefs -> prefs.putDouble("content.divider.position", content.getDividerPositions()[0])
+        );
+    }
+
+    /**
+     * @param widget Widget
+     * @param scripts Scripts to show/edit in the dialog
+     * @param menu AutocompleteMenu
      */
     public ScriptsDialog(final Widget widget, final List<ScriptInfo> scripts, final AutocompleteMenu menu)
     {
@@ -196,13 +214,10 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         setTitle(Messages.ScriptsDialog_Title);
         setHeaderText(Messages.ScriptsDialog_Info);
 
-        final Node node = JFXBaseRepresentation.getJFXNode(widget);
-        initOwner(node.getScene().getWindow());
-
         scripts.forEach(script -> script_items.add(ScriptItem.forInfo(script)));
         fixupScripts(0);
 
-        final SplitPane content = createContent();
+        content = createContent();
 
         getDialogPane().setContent(content);
         getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
@@ -217,23 +232,6 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 					           .filter(item -> ! item.file.get().isEmpty())
 					           .map(ScriptItem::getScriptInfo)
 					           .collect(Collectors.toList());
-        });
-
-        setOnHidden(event ->
-        {
-            final Preferences pref = Preferences.userNodeForPackage(ScriptsDialog.class);
-            pref.putDouble("content.width", content.getWidth());
-            pref.putDouble("content.height", content.getHeight());
-            pref.putDouble("content.divider.position", content.getDividerPositions()[0]);
-
-            try
-            {
-                pref.flush();
-            }
-            catch (BackingStoreException ex)
-            {
-                logger.log(Level.WARNING, "Unable to flush preferences", ex);
-            }
         });
     }
 
@@ -330,15 +328,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         scripts.setPadding(new Insets(0, 10, 0, 0));
         pvs.setPadding(new Insets(0, 0, 0, 10));
 
-        final Preferences pref = Preferences.userNodeForPackage(ScriptsDialog.class);
-        double prefWidth = pref.getDouble("content.width", -1);
-        double prefHeight = pref.getDouble("content.height", -1);
-        double prefDividerPosition = pref.getDouble("content.divider.position", 0.5);
-
         final SplitPane splitPane = new SplitPane(scripts, pvs);
-        splitPane.setDividerPositions(prefDividerPosition);
-        if (prefWidth > 0  &&  prefHeight > 0)
-            splitPane.setPrefSize(prefWidth, prefHeight);
 
         // Select the first script
         if ( !scripts_table.getItems().isEmpty())
@@ -648,9 +638,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
                     final Language language = ScriptInfo.isJython(selected_script_item.getScriptInfo().getPath())
                                             ? Language.Python : Language.JavaScript;
                     final SyntaxHighlightedMultiLineInputDialog dlg = new SyntaxHighlightedMultiLineInputDialog(
-                        scripts_table, selected_script_item.text, language);
-//                    final MultiLineInputDialog dlg = new MultiLineInputDialog(scripts_table, selected_script_item.text);
-                    DialogHelper.positionDialog(dlg, btn_edit, -300, -200);
+                            addMenuButton, selected_script_item.text, language);
                     dlg.showAndWait().ifPresent(result -> selected_script_item.text = result);
                 });
             }
@@ -759,12 +747,10 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         }
         else
         {
-//            final Language language = ScriptInfo.isJython(selected_script_item.getScriptInfo().getPath())
-//                                    ? Language.Python : Language.JavaScript;
-//            final SyntaxHighlightedMultiLineInputDialog dlg = new SyntaxHighlightedMultiLineInputDialog(
-//                btn_edit, selected_script_item.text, language);
-            final MultiLineInputDialog dlg = new MultiLineInputDialog(btn_edit, selected_script_item.text);
-            DialogHelper.positionDialog(dlg, btn_edit, -300, -200);
+            final Language language = ScriptInfo.isJython(selected_script_item.getScriptInfo().getPath())
+                                    ? Language.Python : Language.JavaScript;
+            final SyntaxHighlightedMultiLineInputDialog dlg = new SyntaxHighlightedMultiLineInputDialog(
+                btn_edit, selected_script_item.text, language);
             dlg.showAndWait().ifPresent(result -> selected_script_item.text = result);
         }
     }

@@ -9,6 +9,8 @@ package org.csstudio.display.builder.representation.javafx;
 
 import org.csstudio.display.builder.model.properties.ColorMap;
 import org.csstudio.display.builder.model.properties.PredefinedColorMaps;
+import org.csstudio.javafx.DialogHelper;
+import org.csstudio.javafx.PreferencesHelper;
 import org.csstudio.javafx.rtplot.ColorMappingFunction;
 
 import javafx.beans.InvalidationListener;
@@ -77,6 +79,15 @@ public class ColorMapDialog extends Dialog<ColorMap>
 
     /** Current 'value' of the dialog */
     private ColorMap map;
+
+    /**
+     * @param map {@link ColorMap} show/edit in the dialog
+     * @param owner The node starting this dialog.
+     **/
+    public ColorMapDialog ( final ColorMap map, final Node owner ) {
+        this(map);
+        DialogHelper.positionAndSize(this, owner, PreferencesHelper.userNodeForClass(ColorMapDialog.class));
+    }
 
     /** @param map {@link ColorMap} show/edit in the dialog */
     public ColorMapDialog(final ColorMap map)

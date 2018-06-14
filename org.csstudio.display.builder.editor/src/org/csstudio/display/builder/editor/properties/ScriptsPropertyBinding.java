@@ -17,10 +17,8 @@ import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.ScriptsWidgetProperty;
 import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
-import org.csstudio.display.builder.representation.javafx.ModalityHack;
 import org.csstudio.display.builder.representation.javafx.ScriptsDialog;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
-import org.csstudio.javafx.DialogHelper;
 import org.eclipse.osgi.util.NLS;
 
 import javafx.event.ActionEvent;
@@ -45,9 +43,7 @@ public class ScriptsPropertyBinding
     /** Update model from user input */
     private EventHandler<ActionEvent> action_handler = event ->
     {
-        final ScriptsDialog dialog = new ScriptsDialog(widget_property.getWidget(), widget_property.getValue(), menu);
-        DialogHelper.positionDialog(dialog, DialogHelper.getContainer(jfx_node), -200, -200);
-        ModalityHack.forDialog(dialog);
+        final ScriptsDialog dialog = new ScriptsDialog(widget_property.getWidget(), widget_property.getValue(), menu, jfx_node);
         final Optional<List<ScriptInfo>> result = dialog.showAndWait();
         if (result.isPresent())
         {

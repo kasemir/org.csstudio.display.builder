@@ -8,7 +8,10 @@
 package org.csstudio.display.builder.representation.javafx;
 
 import org.csstudio.display.builder.model.macros.Macros;
+import org.csstudio.javafx.DialogHelper;
+import org.csstudio.javafx.PreferencesHelper;
 
+import javafx.scene.Node;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 
@@ -19,8 +22,22 @@ public class MacrosDialog extends Dialog<Macros>
 {
     private final MacrosTable table;
 
-    /** Create dialog
-     *  @param initial_macros Initial {@link Macros}
+    /**
+     * Create dialog
+     *
+     * @param initial_macros Initial {@link Macros}.
+     * @param owner The node starting this dialog.
+     */
+    public MacrosDialog(final Macros initial_macros, final Node owner)
+    {
+        this(initial_macros);
+        DialogHelper.positionAndSize(this, owner, PreferencesHelper.userNodeForClass(MacrosDialog.class));
+    }
+
+    /**
+     * Create dialog
+     *
+     * @param initial_macros Initial {@link Macros}
      */
     public MacrosDialog(final Macros initial_macros)
     {

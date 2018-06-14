@@ -18,9 +18,7 @@ import org.csstudio.display.builder.model.properties.ColorMapWidgetProperty;
 import org.csstudio.display.builder.model.properties.PredefinedColorMaps;
 import org.csstudio.display.builder.representation.javafx.ColorMapDialog;
 import org.csstudio.display.builder.representation.javafx.Messages;
-import org.csstudio.display.builder.representation.javafx.ModalityHack;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
-import org.csstudio.javafx.DialogHelper;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -43,9 +41,7 @@ public class ColorMapPropertyBinding
 
     private final EventHandler<ActionEvent> edit_colormap = event ->
     {
-        final ColorMapDialog dialog = new ColorMapDialog(widget_property.getValue());
-        DialogHelper.positionDialog(dialog, DialogHelper.getContainer(jfx_node), -200, -200);
-        ModalityHack.forDialog(dialog);
+        final ColorMapDialog dialog = new ColorMapDialog(widget_property.getValue(), jfx_node);
         final Optional<ColorMap> result = dialog.showAndWait();
         if (result.isPresent())
         {

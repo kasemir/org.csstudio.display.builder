@@ -13,8 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.model.Widget;
@@ -34,10 +32,10 @@ import org.csstudio.display.builder.representation.javafx.Messages;
 import org.csstudio.display.builder.representation.javafx.PVTableItem;
 import org.csstudio.display.builder.representation.javafx.PVTableItem.AutoCompletedTableCell;
 import org.csstudio.display.builder.representation.javafx.ScriptsDialog;
-import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.DialogHelper;
 import org.csstudio.javafx.LineNumberTableCellFactory;
+import org.csstudio.javafx.PreferencesHelper;
 import org.csstudio.javafx.SyntaxHighlightedMultiLineInputDialog;
 import org.csstudio.javafx.SyntaxHighlightedMultiLineInputDialog.Language;
 import org.csstudio.javafx.TableHelper;
@@ -423,11 +421,35 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
     /** The splitter used in the rule side. */
     private SplitPane ruleSplitPane;
 
+    /** The main splitter */
+    private final SplitPane content;
+
     /** turn this rule's property into the long string form used in the combo box **/
     public String getPropLongString(RuleItem rule)
     {
         final PropInfo pi = new PropInfo(rule.attached_widget, rule.prop_id.get());
         return pi.toString();
+    }
+
+    /**
+     * @param rules Rules to show/edit in the dialog.
+     * @param owner The node starting this dialog.
+     **/
+    public RulesDialog ( final UndoableActionManager undo, final List<RuleInfo> rules, final Widget attached_widget, final AutocompleteMenu menu, final Node owner ) {
+        this(undo, rules, attached_widget, menu);
+        DialogHelper.positionAndSize(
+                this,
+                owner,
+                PreferencesHelper.userNodeForClass(RulesDialog.class),
+                prefs -> {
+                    content.setDividerPositions(prefs.getDouble("content.divider.position", 0.5));
+                    ruleSplitPane.setDividerPositions(prefs.getDouble("rule.content.divider.position", 0.5));
+                },
+                prefs -> {
+                    prefs.putDouble("content.divider.position", content.getDividerPositions()[0]);
+                    prefs.putDouble("rule.content.divider.position", ruleSplitPane.getDividerPositions()[0]);
+                }
+            );
     }
 
     /** @param rules Rules to show/edit in the dialog */
@@ -444,13 +466,11 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                       attached_widget.getType() + " " +
                       attached_widget.getName());
 
-        final Node node = JFXBaseRepresentation.getJFXNode(attached_widget);
-        initOwner(node.getScene().getWindow());
-
         rules.forEach(rule -> rule_items.add(RuleItem.forInfo(attached_widget, rule, undo)));
         fixupRules(0);
 
-        final SplitPane content = createContent();
+        content = createContent();
+
         getDialogPane().setContent(content);
         getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
         // use same stylesheet as ScriptsDialog, ActionsDialog
@@ -465,23 +485,6 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                              .filter(item -> ! item.name.get().isEmpty())
                              .map(RuleItem::getRuleInfo)
                              .collect(Collectors.toList());
-        });
-
-        setOnHidden(event ->
-        {
-            final Preferences pref = Preferences.userNodeForPackage(RulesDialog.class);
-            pref.putDouble("content.width", content.getWidth());
-            pref.putDouble("content.height", content.getHeight());
-            pref.putDouble("content.divider.position", content.getDividerPositions()[0]);
-            pref.putDouble("rule.content.divider.position", ruleSplitPane.getDividerPositions()[0]);
-            try
-            {
-                pref.flush();
-            }
-            catch (BackingStoreException ex)
-            {
-               logger.log(Level.WARNING, "Unable to flush preferences", ex);
-            }
         });
     }
 
@@ -637,12 +640,8 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         HBox.setHgrow(pvs, Priority.ALWAYS);
         HBox.setHgrow(exprs, Priority.ALWAYS);
 
-        final Preferences pref = Preferences.userNodeForPackage(RulesDialog.class);
-        final double prefRSPDividerPosition = pref.getDouble("rule.content.divider.position", 0.5);
-
         ruleSplitPane = new SplitPane(pvs, exprs);
         ruleSplitPane.setOrientation(Orientation.HORIZONTAL);
-        ruleSplitPane.setDividerPositions(prefRSPDividerPosition);
         ruleSplitPane.setStyle("-fx-background-insets: 0, 0;");
         VBox.setVgrow(ruleSplitPane, Priority.ALWAYS);
 
@@ -652,17 +651,9 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         subitems.setPadding(new Insets(0, 0, 0, 10));
         VBox.setVgrow(rules, Priority.ALWAYS);
         HBox.setHgrow(subitems, Priority.ALWAYS);
-
-        final double prefWidth = pref.getDouble("content.width", -1);
-        final double prefHeight = pref.getDouble("content.height", -1);
-        final double prefDividerPosition = pref.getDouble("content.divider.position", 0.3);
         final SplitPane splitPane = new SplitPane(rulebox, subitems);
 
         splitPane.setOrientation(Orientation.HORIZONTAL);
-        splitPane.setDividerPositions(prefDividerPosition);
-
-        if (prefWidth > 0 && prefHeight > 0)
-            splitPane.setPrefSize(prefWidth, prefHeight);
 
         // Select the first rule
         if (!rules_table.getItems().isEmpty())

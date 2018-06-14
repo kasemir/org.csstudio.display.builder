@@ -9,12 +9,6 @@
 package org.csstudio.javafx;
 
 
-import static org.csstudio.javafx.Activator.logger;
-
-import java.util.logging.Level;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
-
 import org.csstudio.javafx.richtext.JavaHighlighter;
 import org.csstudio.javafx.richtext.JavaScriptHighlighter;
 import org.csstudio.javafx.richtext.LanguageHighlighter;
@@ -23,7 +17,6 @@ import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
 
-import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
@@ -78,29 +71,10 @@ public class SyntaxHighlightedMultiLineInputDialog extends Dialog<String> {
 
         getDialogPane().setContent(new BorderPane(new VirtualizedScrollPane<>(codeArea)));
         getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-
-        Preferences readPref = Preferences.userNodeForPackage(SyntaxHighlightedMultiLineInputDialog.class);
-        double prefWidth = readPref.getDouble("dialog.width", 600);
-        double prefHeight = readPref.getDouble("dialog.height", 300);
-
-        getDialogPane().setPrefSize(prefWidth, prefHeight);
+        getDialogPane().setPrefSize(600, 300);
 
         setResizable(true);
         setResultConverter(button -> ( button == ButtonType.OK ) ? codeArea.getText() : null);
-        setOnHidden(event -> {
-
-            final Preferences writePref = Preferences.userNodeForPackage(SyntaxHighlightedMultiLineInputDialog.class);
-
-            writePref.putDouble("dialog.width", getDialogPane().getWidth());
-            writePref.putDouble("dialog.height", getDialogPane().getHeight());
-
-            try {
-                writePref.flush();
-            } catch ( BackingStoreException ex ) {
-                logger.log(Level.WARNING, "Unable to flush preferences", ex);
-            }
-
-        });
 
     }
 
@@ -110,15 +84,8 @@ public class SyntaxHighlightedMultiLineInputDialog extends Dialog<String> {
      * @param language The language this dialog will use to highlight syntax.
      */
     public SyntaxHighlightedMultiLineInputDialog ( final Node parent, final String initialText, final Language language ) {
-
         this(initialText, language);
-        initOwner(parent.getScene().getWindow());
-
-        final Bounds bounds = parent.localToScreen(parent.getBoundsInLocal());
-
-        setX(bounds.getMinX());
-        setY(bounds.getMinY());
-
+        DialogHelper.positionAndSize(this, parent, PreferencesHelper.userNodeForClass(SyntaxHighlightedMultiLineInputDialog.class), 600, 300);
     }
 
     /**
