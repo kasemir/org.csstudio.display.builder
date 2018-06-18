@@ -57,7 +57,7 @@ import org.w3c.dom.Element;
 /** Widget that displays a string table
  *
  *  <p>The 'value' can be either a VTable
- *  or a <code>List&lt;List&lt;String>></code>.
+ *  or a <code>List&lt;List&lt;String&gt;&gt;</code>.
  *  The latter includes 2-D string arrays written
  *  by Jython scripts.
  *

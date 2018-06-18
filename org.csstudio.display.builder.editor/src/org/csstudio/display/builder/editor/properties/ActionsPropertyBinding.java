@@ -17,9 +17,7 @@ import org.csstudio.display.builder.model.properties.ActionInfos;
 import org.csstudio.display.builder.model.properties.ActionsWidgetProperty;
 import org.csstudio.display.builder.representation.javafx.ActionsDialog;
 import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
-import org.csstudio.display.builder.representation.javafx.ModalityHack;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
-import org.csstudio.javafx.DialogHelper;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -42,9 +40,7 @@ public class ActionsPropertyBinding
     /** Update model from user input */
     private EventHandler<ActionEvent> action_handler = event ->
     {
-        final ActionsDialog dialog = new ActionsDialog(widget_property.getWidget(), widget_property.getValue(), menu);
-        DialogHelper.positionDialog(dialog, DialogHelper.getContainer(jfx_node), -200, -200);
-        ModalityHack.forDialog(dialog);
+        final ActionsDialog dialog = new ActionsDialog(widget_property.getWidget(), widget_property.getValue(), menu, jfx_node);
         final Optional<ActionInfos> result = dialog.showAndWait();
         if (result.isPresent())
         {

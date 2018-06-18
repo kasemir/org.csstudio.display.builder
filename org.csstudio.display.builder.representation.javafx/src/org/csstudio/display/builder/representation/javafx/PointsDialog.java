@@ -8,7 +8,10 @@
 package org.csstudio.display.builder.representation.javafx;
 
 import org.csstudio.display.builder.model.properties.Points;
+import org.csstudio.javafx.DialogHelper;
+import org.csstudio.javafx.PreferencesHelper;
 
+import javafx.scene.Node;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 
@@ -17,6 +20,16 @@ import javafx.scene.control.Dialog;
  */
 public class PointsDialog extends Dialog<Points>
 {
+
+    /**
+     * @param initial_points Initial value.
+     * @param owner The node starting this dialog.
+     **/
+    public PointsDialog ( final Points initial_points, final Node owner ) {
+        this(initial_points);
+        DialogHelper.positionAndSize(this, owner, PreferencesHelper.userNodeForClass(PointsDialog.class));
+    }
+
     /** @param initial_points Initial value */
     public PointsDialog(final Points initial_points)
     {

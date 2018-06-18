@@ -16,9 +16,7 @@ import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.MacrosWidgetProperty;
 import org.csstudio.display.builder.representation.javafx.MacrosDialog;
-import org.csstudio.display.builder.representation.javafx.ModalityHack;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
-import org.csstudio.javafx.DialogHelper;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -39,9 +37,7 @@ public class MacrosPropertyBinding
     /** Update model from user input */
     private EventHandler<ActionEvent> action_handler = event ->
     {
-        final MacrosDialog dialog = new MacrosDialog(widget_property.getValue());
-        DialogHelper.positionDialog(dialog, DialogHelper.getContainer(jfx_node), -200, -300);
-        ModalityHack.forDialog(dialog);
+        final MacrosDialog dialog = new MacrosDialog(widget_property.getValue(), jfx_node);
         final Optional<Macros> result = dialog.showAndWait();
         if (result.isPresent())
         {

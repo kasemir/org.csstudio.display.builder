@@ -13,7 +13,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 
-import org.csstudio.display.builder.model.Preferences;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.ActionInfo;
@@ -27,6 +26,8 @@ import org.csstudio.display.builder.model.properties.OpenFileActionInfo;
 import org.csstudio.display.builder.model.properties.OpenWebpageActionInfo;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.WritePVActionInfo;
+import org.csstudio.javafx.DialogHelper;
+import org.csstudio.javafx.PreferencesHelper;
 
 import javafx.beans.InvalidationListener;
 import javafx.collections.FXCollections;
@@ -137,6 +138,20 @@ public class ActionsDialog extends Dialog<ActionInfos>
     public ActionsDialog(final Widget widget, final ActionInfos initial_actions)
     {
         this(widget, initial_actions, new AutocompleteMenu());
+    }
+
+    /**
+     * Create dialog
+     *
+     * @param widget Widget
+     * @param initial_actions Initial list of actions
+     * @param menu {@link AutocompleteMenu} to use for PV names (must not be null)
+     * @param owner The node starting this dialog.
+     */
+    public ActionsDialog(final Widget widget, final ActionInfos initial_actions, final AutocompleteMenu menu, final Node owner)
+    {
+        this(widget, initial_actions, menu);
+        DialogHelper.positionAndSize(this, owner, PreferencesHelper.userNodeForClass(ActionsDialog.class));
     }
 
     /** Create dialog
@@ -397,7 +412,7 @@ public class ActionsDialog extends Dialog<ActionInfos>
             final RadioButton target = new RadioButton(modes[i].toString());
             target.setToggleGroup(open_display_targets);
             target.selectedProperty().addListener(update);
-            if (modes[i] == Target.STANDALONE  &&  !Preferences.isStandaloneWindowSupported())
+            if (modes[i] == Target.STANDALONE  &&  !org.csstudio.display.builder.model.Preferences.isStandaloneWindowSupported())
                 target.setDisable(true);
             modes_box.getChildren().add(target);
         }
