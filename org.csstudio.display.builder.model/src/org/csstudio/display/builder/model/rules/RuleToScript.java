@@ -72,7 +72,7 @@ public class RuleToScript
         case NUMERIC:
             // Set enum to its ordinal
             if (prop.getValue() instanceof Enum<?>)
-                return Integer.toString(((Enum)prop.getValue()).ordinal());
+                return Integer.toString(((Enum<?>)prop.getValue()).ordinal());
             // else: Format number as string
         default:
             return String.valueOf(prop.getValue());
