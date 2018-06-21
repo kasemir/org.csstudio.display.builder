@@ -11,8 +11,11 @@ import static org.csstudio.display.builder.rcp.Plugin.logger;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.logging.Logger;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
 
+import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.rcp.Messages;
 import org.csstudio.javafx.Screenshot;
 import org.csstudio.ui.util.dialogs.ExceptionDetailsErrorDialog;
@@ -110,53 +113,78 @@ public class PrintAction extends Action
         shell.getDisplay().asyncExec(() -> doPrint(snapshot, data));
     }
 
+    /** Interrupt the UI thread if still used by the printer */
+    private void killPrinter(final AtomicReference<Thread> ui_thread)
+    {
+        final Thread thread = ui_thread.get();
+        if (thread != null)
+        {
+            logger.log(Level.WARNING, "Killing print job");
+            thread.interrupt();
+        }
+    }
+
     private void doPrint(final Image snapshot, final PrinterData data)
     {
-        final Printer printer = new Printer(data);
+        // Printing has been shown to occasionally hang the UI thread,
+        // specifically in the Printer() constructor.
+        // Start timer to interrupt UI thread.
+        final AtomicReference<Thread> ui_thread = new AtomicReference<>(Thread.currentThread());
+        ModelThreadPool.getTimer().schedule(() -> killPrinter(ui_thread), 10, TimeUnit.SECONDS);
         try
         {
-            if (!printer.startJob("Display Builder"))
-            {
-                Logger.getLogger(getClass().getName()).fine("Cannot start print job");
-                return;
-            }
+            final Printer printer = new Printer(data);
             try
-            {   // Printer page info
-                final Rectangle area = printer.getClientArea();
-                final Rectangle trim = printer.computeTrim(0, 0, 0, 0);
-                final Point dpi = printer.getDPI();
+            {
+                if (!printer.startJob("Display Builder"))
+                {
+                    logger.log(Level.WARNING, "Cannot start print job");
+                    return;
+                }
+                try
+                {   // Printer page info
+                    final Rectangle area = printer.getClientArea();
+                    final Rectangle trim = printer.computeTrim(0, 0, 0, 0);
+                    final Point dpi = printer.getDPI();
 
-                // Compute layout
-                final Rectangle image_rect = snapshot.getBounds();
-                // Leave one inch on each border.
-                // (copied the computeTrim stuff from an SWT example.
-                //  Really no clue...)
-                final int left_right = dpi.x + trim.x;
-                final int top_bottom = dpi.y + trim.y;
-                final int printed_width = area.width - 2*left_right;
-                // Try to scale height according to on-screen aspect ratio.
-                final int max_height = area.height - 2*top_bottom;
-                final int printed_height = Math.min(max_height,
-                   image_rect.height * printed_width / image_rect.width);
+                    // Compute layout
+                    final Rectangle image_rect = snapshot.getBounds();
+                    // Leave one inch on each border.
+                    // (copied the computeTrim stuff from an SWT example.
+                    //  Really no clue...)
+                    final int left_right = dpi.x + trim.x;
+                    final int top_bottom = dpi.y + trim.y;
+                    final int printed_width = area.width - 2*left_right;
+                    // Try to scale height according to on-screen aspect ratio.
+                    final int max_height = area.height - 2*top_bottom;
+                    final int printed_height = Math.min(max_height,
+                       image_rect.height * printed_width / image_rect.width);
 
-                // Print one page
-                printer.startPage();
-                final GC gc = new GC(printer);
-                gc.drawImage(snapshot, 0, 0, image_rect.width, image_rect.height,
-                             left_right, top_bottom, printed_width, printed_height);
-                printer.endPage();
+                    // Print one page
+                    printer.startPage();
+                    final GC gc = new GC(printer);
+                    gc.drawImage(snapshot, 0, 0, image_rect.width, image_rect.height,
+                                 left_right, top_bottom, printed_width, printed_height);
+                    printer.endPage();
+                }
+                finally
+                {
+                    printer.endJob();
+                }
             }
             finally
             {
-                printer.endJob();
+                printer.dispose();
             }
+            // Image used by printer must only be disposed after the printer that used it.
+            // Otherwise crash, https://github.com/ControlSystemStudio/cs-studio/issues/1937
+            snapshot.dispose();
         }
-        finally
+        catch (Throwable ex)
         {
-            printer.dispose();
+            logger.log(Level.WARNING, "Printing failed", ex);
         }
-        // Image used by printer must only be disposed after the printer that used it.
-        // Otherwise crash, https://github.com/ControlSystemStudio/cs-studio/issues/1937
-        snapshot.dispose();
+        // Indicate that printing completed
+        ui_thread.set(null);
     }
 }
