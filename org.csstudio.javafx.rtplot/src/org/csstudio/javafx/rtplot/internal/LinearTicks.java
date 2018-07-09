@@ -12,9 +12,11 @@ import static org.csstudio.javafx.rtplot.Activator.logger;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
@@ -29,6 +31,12 @@ import org.csstudio.javafx.rtplot.internal.util.Log10;
 @SuppressWarnings("nls")
 public class LinearTicks extends Ticks<Double>
 {
+    /** Neutral locale */
+    private static final Locale LOCALE = Locale.ROOT;
+
+    /** Use 'E' for exponential notation, not 'x10' */
+    private static final DecimalFormatSymbols SYMBOLS = DecimalFormatSymbols.getInstance(LOCALE);
+
     /** Numbers smaller than this are considered "0"
      *
      *  <p>Avoids labels "-0.0" or "0.0000000001" for "0"
@@ -256,7 +264,7 @@ public class LinearTicks extends Ticks<Double>
      */
     protected static NumberFormat createDecimalFormat(final int precision)
     {
-        final NumberFormat fmt = NumberFormat.getNumberInstance();
+        final NumberFormat fmt = NumberFormat.getNumberInstance(LOCALE);
         fmt.setGroupingUsed(false);
         fmt.setMinimumFractionDigits(precision);
         fmt.setMaximumFractionDigits(precision);
@@ -281,7 +289,7 @@ public class LinearTicks extends Ticks<Double>
             for (int i=0; i<prec; ++i)
                 pattern.append('0');
             pattern.append("E0");
-            return new DecimalFormat(pattern.toString());
+            return new DecimalFormat(pattern.toString(), SYMBOLS);
         });
     }
 
