@@ -97,9 +97,6 @@ public class PlotConfigDialog<XTYPE extends Comparable<XTYPE>>  extends Dialog<V
 
     private int addAxisContent(final GridPane layout, int row, final Axis<?> axis)
     {
-
-        System.out.println("Axis " + axis.getName() + " is of type " + axis.getClass().getName());
-
         if (! axis.getName().trim().isEmpty())
             layout.add(new Label('"' + axis.getName() + '"'), 0, row);
 
