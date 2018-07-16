@@ -819,7 +819,7 @@ public class ImagePlot extends PlotCanvasBase
 
         if (!  (min < max))  // Implies min and max being finite, not-NaN
         {
-            logger.log(Level.WARNING, "Invalid value range {0} .. {1}", new Object[] { min, max });
+            logger.log(Level.CONFIG, "Invalid value range {0} .. {1}", new Object[] { min, max });
             min = 0.0;
             max = 1.0;
         }
