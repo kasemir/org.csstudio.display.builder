@@ -239,12 +239,14 @@ public class ContextMenuSupport
         if (context_menu_widget != null)
         {
             final Node node = JFXBaseRepresentation.getJFXNode(context_menu_widget);
-            final Scene scene = node.getScene();
-
-            manager.add(new SaveSnapshotAction(shell, scene));
-            manager.add(new PrintAction(shell, scene));
-            manager.add(new SendEMailAction(shell, scene));
-            manager.add(new SendLogbookAction(shell, scene));
+            if (node != null)
+            {
+                final Scene scene = node.getScene();
+                manager.add(new SaveSnapshotAction(shell, scene));
+                manager.add(new PrintAction(shell, scene));
+                manager.add(new SendEMailAction(shell, scene));
+                manager.add(new SendLogbookAction(shell, scene));
+            }
             manager.add(new FullScreenAction(view.getSite().getPage()));
 
             if (support_standalone)
