@@ -471,7 +471,6 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         // setText() only, otherwise it gets into an endless update due to getValue/setValue implementation in Editor. In Runtime was OK.
         // Drawback: return to a previous "combo driven" zoom level from any wheel level not possible directly (no value change in combo)
         setZoom(new_zoom);
-        zoom_listener.accept(Integer.toString((int)(new_zoom * 100)) + " %");
 
         repositionScroller(scroll_body, model_root, realFactor, scrollOffset, new Point2D(x, y));
     }
@@ -620,6 +619,8 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
 
         if (isEditMode())
             updateModelSizeIndicators();
+
+        zoom_listener.accept(Integer.toString((int)(zoom * 100)) + " %");
 
         return zoom;
     }
