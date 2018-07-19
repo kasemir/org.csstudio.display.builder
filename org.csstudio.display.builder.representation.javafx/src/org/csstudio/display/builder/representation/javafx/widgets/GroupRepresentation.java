@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -38,11 +38,10 @@ import javafx.scene.shape.StrokeType;
  */
 public class GroupRepresentation extends JFXBaseRepresentation<Pane, GroupWidget>
 {
-
     private static final Insets TITLE_PADDING = new Insets(1, 3, 1, 3);
     private static final int BORDER_WIDTH = 1;
-    private static final BorderWidths EDTI_NONE_BORDER = new BorderWidths(0.5, 0.5, 0.5, 0.5, false, false, false, false);
-    private static final BorderStrokeStyle EDTI_NONE_DASHED = new BorderStrokeStyle(
+    private static final BorderWidths EDIT_NONE_BORDER = new BorderWidths(0.5, 0.5, 0.5, 0.5, false, false, false, false);
+    private static final BorderStrokeStyle EDIT_NONE_DASHED = new BorderStrokeStyle(
         StrokeType.INSIDE,
         StrokeLineJoin.MITER,
         StrokeLineCap.BUTT,
@@ -52,7 +51,6 @@ public class GroupRepresentation extends JFXBaseRepresentation<Pane, GroupWidget
     );
 
     private final DirtyFlag dirty_border = new DirtyFlag();
-
 
     // top-level 'Pane' provides background color and border
 
@@ -112,17 +110,16 @@ public class GroupRepresentation extends JFXBaseRepresentation<Pane, GroupWidget
     }
 
     @Override
-    public void updateChanges ( ) {
-
+    public void updateChanges()
+    {
         super.updateChanges();
 
-        if ( dirty_border.checkAndClear() ) {
-
-            if ( model_widget.propTransparent().getValue() ) {
+        if (dirty_border.checkAndClear())
+        {
+            if (model_widget.propTransparent().getValue())
                 jfx_node.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, null, null)));
-            } else {
+            else
                 jfx_node.setBackground(new Background(new BackgroundFill(background_color, null, null)));
-            }
 
             final WidgetFont font = model_widget.propFont().getValue();
 
@@ -140,22 +137,20 @@ public class GroupRepresentation extends JFXBaseRepresentation<Pane, GroupWidget
 
             System.arraycopy(model_widget.runtimePropInsets().getValue(), 0, insets, 0, insets.length);
 
-            boolean hasChildren = !model_widget.runtimeChildren().getValue().isEmpty();
-
-            if ( hasChildren ) {
-
+            final boolean hasChildren = !model_widget.runtimeChildren().getValue().isEmpty();
+            if (hasChildren)
+            {
                 inner.relocate(- insets[0], - insets[1]);
-
                 x += insets[0];
                 y += insets[1];
                 width -= insets[2];
                 height -= insets[3];
-
             }
 
-            switch ( style ) {
-                case NONE: {
-
+            switch (style)
+            {
+                case NONE:
+                {
                     inset = 0;
                     insets[0] = 0;
                     insets[1] = 0;
@@ -164,19 +159,16 @@ public class GroupRepresentation extends JFXBaseRepresentation<Pane, GroupWidget
 
                     // In edit mode, show outline because otherwise hard to
                     // handle the totally invisible group
-                    if ( toolkit.isEditMode() ) {
-                        jfx_node.setBorder(new Border(new BorderStroke(foreground_color, EDTI_NONE_DASHED, CornerRadii.EMPTY, EDTI_NONE_BORDER)));
-                    } else {
+                    if (toolkit.isEditMode())
+                        jfx_node.setBorder(new Border(new BorderStroke(foreground_color, EDIT_NONE_DASHED, CornerRadii.EMPTY, EDIT_NONE_BORDER)));
+                    else
                         jfx_node.setBorder(null);
-                    }
 
                     label.setVisible(false);
-
                     break;
-
                 }
-                case LINE: {
-
+                case LINE:
+                {
                     inset = 0;
                     insets[0] = BORDER_WIDTH;
                     insets[1] = BORDER_WIDTH;
@@ -185,12 +177,10 @@ public class GroupRepresentation extends JFXBaseRepresentation<Pane, GroupWidget
 
                     jfx_node.setBorder(new Border(new BorderStroke(foreground_color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
                     label.setVisible(false);
-
                     break;
-
                 }
-                case TITLE: {
-
+                case TITLE:
+                {
                     inset = 2 + (int) ( 1.2 * font.getSize() );
                     insets[0] = BORDER_WIDTH;
                     insets[1] = inset + BORDER_WIDTH;
@@ -204,13 +194,11 @@ public class GroupRepresentation extends JFXBaseRepresentation<Pane, GroupWidget
                     label.setPrefSize(width + ( ( !firstUpdate && hasChildren ) ? insets[2] : 0 ), inset);
                     label.setTextFill(background_color);
                     label.setBackground(new Background(new BackgroundFill(foreground_color, CornerRadii.EMPTY, Insets.EMPTY)));
-
                     break;
-
                 }
                 case GROUP:
-                default: {
-
+                default:
+                {
                     inset = 2 + (int) ( 1.2 * font.getSize() );
                     insets[0] = inset;
                     insets[1] = inset;
@@ -224,19 +212,17 @@ public class GroupRepresentation extends JFXBaseRepresentation<Pane, GroupWidget
                     label.setPrefSize(Label.USE_COMPUTED_SIZE, Label.USE_COMPUTED_SIZE);
                     label.setTextFill(foreground_color);
                     label.setBackground(new Background(new BackgroundFill(background_color, CornerRadii.EMPTY, Insets.EMPTY)));
-
                     break;
-
                 }
             }
 
             inner.relocate(insets[0], insets[1]);
             model_widget.runtimePropInsets().setValue(insets);
 
-            if ( firstUpdate ) {
+            if (firstUpdate)
                 firstUpdate = false;
-            } else if ( hasChildren ) {
-
+            else if (hasChildren)
+            {
                 x -= insets[0];
                 y -= insets[1];
                 width += insets[2];
@@ -246,14 +232,10 @@ public class GroupRepresentation extends JFXBaseRepresentation<Pane, GroupWidget
                 model_widget.propY().setValue(y);
                 model_widget.propWidth().setValue(width);
                 model_widget.propHeight().setValue(height);
-
             }
 
             jfx_node.relocate(x, y);
             jfx_node.setPrefSize(width, height);
-
         }
-
     }
-
 }

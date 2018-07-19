@@ -147,6 +147,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
     @Override
     public Pane createJFXNode() throws Exception
     {
+System.out.println("CREATE IMAGE WIDGET");
         // Plot is only active in runtime mode, not edit mode
         image_plot = new RTImagePlot(! toolkit.isEditMode());
         image_plot.setUpdateThrottle(RepresentationUpdateThrottle.plot_update_delay, TimeUnit.MILLISECONDS);
@@ -404,6 +405,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
     @Override
     public void dispose()
     {
+System.out.println("DISPOSE IMAGE WIDGET");
         image_plot.dispose();
         super.dispose();
     }
