@@ -109,7 +109,7 @@ class CursorMarker implements Comparable<CursorMarker>
 
         final Color orig_fill = gc.getColor();
 
-        gc.setColor(new Color(1.0f, 1.0f, 1.0f, 0.8f));
+        gc.setColor(gc.getBackground());
         gc.fillPolygon(outline_x, outline_y, 5);
 
         gc.setColor(mark.rgb);
