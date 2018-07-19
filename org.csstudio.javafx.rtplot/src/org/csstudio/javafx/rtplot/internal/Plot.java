@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014-2017 Oak Ridge National Laboratory.
+ * Copyright (c) 2014-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -169,6 +169,16 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     public void setForeground(final javafx.scene.paint.Color color)
     {
         foreground = color;
+
+        // Use foreground color for the grid.
+        // For dark foreground (black on presumably white background),
+        // use a lighter shade as the grid.
+        // For bright foreground (white on presumably black background),
+        // use a darker shade.
+        if (foreground.getBrightness() > 0.5)
+            grid = GraphicsUtils.convert(foreground.darker());
+        else
+            grid = GraphicsUtils.convert(foreground.brighter());
     }
 
     /** @param color Background color */
@@ -681,14 +691,15 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         else if (show_crosshair  &&  plot_bounds.contains(current.getX(), current.getY()))
         {   // Cross-hair Cursor
             gc.setStroke(MOUSE_FEEDBACK_BACK);
-            gc.setColor(Color.WHITE);
+            gc.setColor(background);
             gc.drawLine(plot_bounds.x, (int)current.getY(), plot_bounds.x + plot_bounds.width, (int)current.getY());
             gc.drawLine((int)current.getX(), plot_bounds.y, (int)current.getX(), plot_bounds.y + plot_bounds.height);
             gc.setStroke(MOUSE_FEEDBACK_FRONT);
-            gc.setColor(Color.BLACK);
+            gc.setColor(GraphicsUtils.convert(foreground));
             gc.drawLine(plot_bounds.x, (int)current.getY(), plot_bounds.x + plot_bounds.width, (int)current.getY());
             gc.drawLine((int)current.getX(), plot_bounds.y, (int)current.getX(), plot_bounds.y + plot_bounds.height);
             // Corresponding axis ticks
+            gc.setBackground(background);
             x_axis.drawTickLabel(gc, x_axis.getValue((int)current.getX()));
             for (YAxisImpl<XTYPE> axis : y_axes)
                 axis.drawTickLabel(gc, axis.getValue((int)current.getY()));

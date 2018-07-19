@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010-2015 Oak Ridge National Laboratory.
+ * Copyright (c) 2010-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -159,7 +159,7 @@ public class DataBrowserPropertySheetPage extends Page
 
     private Text formula_txt, start_time, end_time, title, update_period, scroll_step;
 
-    private ColorBlob background;
+    private ColorBlob foreground, background;
 
     private Button title_font, label_font, scale_font, save_changes, show_grid, rescales[];
 
@@ -203,6 +203,7 @@ public class DataBrowserPropertySheetPage extends Page
         @Override
         public void changedColorsOrFonts()
         {
+            foreground.setColor(model.getPlotForeground());
             background.setColor(model.getPlotBackground());
             title_font.setText(SWTMediaPool.getFontDescription(model.getTitleFont()));
             label_font.setText(SWTMediaPool.getFontDescription(model.getLabelFont()));
@@ -906,9 +907,30 @@ public class DataBrowserPropertySheetPage extends Page
             }
         });
 
-        // Empty label to fill 2 grib boxes to alight the legend font below the rest of the fonts
+        // Foreground Color: ______
         label = new Label(parent, 0);
-        label = new Label(parent, 0);
+        label.setText("Foreground Color:");
+        label.setLayoutData(new GridData());
+
+        foreground = new ColorBlob(parent, model.getPlotForeground());
+        foreground.setToolTipText("Set graph's foreground color");
+        GridData gd = new GridData();
+        gd.minimumWidth = 80;
+        gd.widthHint = 80;
+        gd.heightHint = 15;
+        foreground.setLayoutData(gd);
+        foreground.addSelectionListener(new SelectionAdapter()
+        {
+            @Override
+            public void widgetSelected(final SelectionEvent e)
+            {
+                final ColorDialog dialog = new ColorDialog(parent.getShell());
+                dialog.setRGB(model.getPlotForeground());
+                final RGB value = dialog.open();
+                if (value != null)
+                    new ChangePlotForegroundCommand(model, operations_manager, value);
+            }
+        });
 
         label = new Label(parent, 0);
         label.setText(Messages.LegendFontLbl);
@@ -937,7 +959,7 @@ public class DataBrowserPropertySheetPage extends Page
 
         background = new ColorBlob(parent, model.getPlotBackground());
         background.setToolTipText(Messages.BackgroundColorTT);
-        final GridData gd = new GridData();
+        gd = new GridData();
         gd.minimumWidth = 80;
         gd.widthHint = 80;
         gd.heightHint = 15;
