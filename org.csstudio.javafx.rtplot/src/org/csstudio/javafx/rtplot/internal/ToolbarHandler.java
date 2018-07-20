@@ -38,6 +38,10 @@ import javafx.scene.image.ImageView;
 @SuppressWarnings("nls")
 public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
 {
+    // Button's auto-sizing doesn't work when toolbar is initially hidden.
+    // Fixed size seems only way around that.
+    private static final int BUTTON_WIDTH = 32, BUTTON_HEIGHT = 26;
+
     public enum ToolIcons
     {
         CONFIGURE,
@@ -94,6 +98,14 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
         final Button item = new Button();
         item.setGraphic(icon);
         item.setTooltip(new Tooltip(tool_tip));
+
+        // Buttons should size based on the icon, but
+        // without explicit size, they sometimes start out zero-sized.
+        // setMinSize tends to have icon end up in top-left corner.
+        // setPrefSize tends to show just the icon, no button.
+        // minSize with visible button is better than no button.
+        // Icon gets positioned once the button is pressed.
+        item.setMinSize(BUTTON_WIDTH, BUTTON_HEIGHT);
         toolbar.getItems().add(item);
         return item;
     }
@@ -273,6 +285,8 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
             item.setText(icon.toString());
         }
         item.setTooltip(new Tooltip(tool_tip));
+        // setMinSize tends to have all icons end up in top-left corner?!
+        item.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
         toolbar.getItems().add(item);
         return item;
