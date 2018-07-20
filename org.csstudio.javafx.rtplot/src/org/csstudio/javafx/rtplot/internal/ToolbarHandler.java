@@ -40,7 +40,7 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
 {
     // Button's auto-sizing doesn't work when toolbar is initially hidden.
     // Fixed size seems only way around that.
-    private static final int BUTTON_WIDTH = 32, BUTTON_HEIGHT = 26;
+    static final int BUTTON_WIDTH = 32, BUTTON_HEIGHT = 26;
 
     public enum ToolIcons
     {
