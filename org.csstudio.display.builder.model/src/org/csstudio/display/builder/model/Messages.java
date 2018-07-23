@@ -34,6 +34,10 @@ public class Messages extends NLS
     public static String ByteMonitor_NumBits;
     public static String ByteMonitor_StartBit;
     public static String Bottom;
+    public static String Checkbox_Confirm_NONE;
+    public static String Checkbox_Confirm_BOTH;
+    public static String Checkbox_Confirm_CHECKED;
+    public static String Checkbox_Confirm_UNCHECKED;
     public static String Checkbox_Label;
     public static String Center;
     public static String ComboWidget_Item;
