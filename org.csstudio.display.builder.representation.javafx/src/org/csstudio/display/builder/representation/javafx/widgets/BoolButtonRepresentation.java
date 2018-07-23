@@ -90,23 +90,15 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
     /** @param respond to button press */
     private void handlePress()
     {
-
         logger.log(Level.FINE, "{0} pressed", model_widget);
-
-        Platform.runLater(() -> {
-            if ( confirmed() ) {
-                int new_val = (rt_value ^ ((use_bit < 0) ? 1 : (1 << use_bit)) );
-                toolkit.fireWrite(model_widget, new_val);
-            }
-        });
-
+        Platform.runLater(this::confirm);
     }
 
-    private boolean confirmed ( ) {
-
-        boolean prompt;
-
-        switch ( model_widget.propConfirmDialog().getValue() ) {
+    private void confirm()
+    {
+        final boolean prompt;
+        switch (model_widget.propConfirmDialog().getValue())
+        {
             case BOTH:
                 prompt = true;
                 break;
@@ -119,28 +111,23 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
             case NONE:
             default:
                 prompt = false;
-                break;
         }
 
-        if ( prompt ) {
-
+        if (prompt)
+        {
             final String message = model_widget.propConfirmMessage().getValue();
             final String password = model_widget.propPassword().getValue();
-
-            if ( password.length() > 0 ) {
-                if ( toolkit.showPasswordDialog(model_widget, message, password) == null ) {
-                    return false;
-                }
-            } else {
-                if ( !toolkit.showConfirmationDialog(model_widget, message) ) {
-                    return false;
-                }
+            if (password.length() > 0)
+            {
+                if (toolkit.showPasswordDialog(model_widget, message, password) == null)
+                    return;
             }
-
+            else if ( !toolkit.showConfirmationDialog(model_widget, message))
+                return;
         }
 
-        return true;
-
+        final int new_val = (rt_value ^ ((use_bit < 0) ? 1 : (1 << use_bit)) );
+        toolkit.fireWrite(model_widget, new_val);
     }
 
     @Override

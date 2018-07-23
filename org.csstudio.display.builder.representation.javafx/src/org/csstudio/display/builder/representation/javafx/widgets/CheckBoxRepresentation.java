@@ -69,54 +69,43 @@ public class CheckBoxRepresentation extends RegionBaseRepresentation<CheckBox, C
         // so assert that widget always reflects the correct value.
         valueChanged(null, null, model_widget.runtimePropValue().getValue());
 
-        Platform.runLater(() -> {
-            if ( confirmed() ) {
-                int new_val = (bit < 0) ? (value == 0 ? 1 : 0) : (value ^ (1 << bit));
-                toolkit.fireWrite(model_widget, new_val);
-            }
-        });
-
+        Platform.runLater(this::confirm);
     }
 
-    private boolean confirmed ( ) {
-
-        boolean prompt;
-
-        switch ( model_widget.propConfirmDialog().getValue() ) {
+    private void confirm()
+    {
+        final boolean prompt;
+        switch (model_widget.propConfirmDialog().getValue())
+        {
             case BOTH:
                 prompt = true;
                 break;
-            case CHECKED:
+            case PUSH:
                 prompt = !state;
                 break;
-            case UNCHECKED:
+            case RELEASE:
                 prompt = state;
                 break;
             case NONE:
             default:
                 prompt = false;
-                break;
         }
 
-        if ( prompt ) {
-
+        if (prompt)
+        {
             final String message = model_widget.propConfirmMessage().getValue();
             final String password = model_widget.propPassword().getValue();
-
-            if ( password.length() > 0 ) {
-                if ( toolkit.showPasswordDialog(model_widget, message, password) == null ) {
-                    return false;
-                }
-            } else {
-                if ( !toolkit.showConfirmationDialog(model_widget, message) ) {
-                    return false;
-                }
+            if (password.length() > 0)
+            {
+                if (toolkit.showPasswordDialog(model_widget, message, password) == null)
+                    return;
             }
-
+            else if (!toolkit.showConfirmationDialog(model_widget, message))
+                return;
         }
 
-        return true;
-
+        final int new_val = (bit < 0) ? (value == 0 ? 1 : 0) : (value ^ (1 << bit));
+        toolkit.fireWrite(model_widget, new_val);
     }
 
     @Override

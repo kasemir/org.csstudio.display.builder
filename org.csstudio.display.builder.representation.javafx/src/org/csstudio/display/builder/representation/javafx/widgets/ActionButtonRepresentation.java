@@ -140,13 +140,7 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
         if (actions.isExecutedAsOne()  ||  actions.getActions().size() < 2)
         {
             final Button button = new Button();
-            button.setOnAction(event -> {
-                Platform.runLater(() -> {
-                    if ( confirmed() ) {
-                        handleActions(actions.getActions());
-                    }
-                });
-            });
+            button.setOnAction(event -> confirm(() ->  handleActions(actions.getActions())));
             result = button;
         }
         else
@@ -176,13 +170,7 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
                                                    new ImageView(new Image(action.getType().getIconStream()))
                                                   );
                 item.getStyleClass().add("action_button_item");
-                item.setOnAction(event -> {
-                    Platform.runLater(() -> {
-                        if ( confirmed() ) {
-                            handleAction(action);
-                        }
-                    });
-                });
+                item.setOnAction(event -> confirm(() ->  handleAction(action)));
                 button.getItems().add(item);
             }
             result = button;
@@ -207,27 +195,28 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
         return result;
     }
 
-    private boolean confirmed ( ) {
-
-        if ( model_widget.propConfirmDialog().getValue() ) {
-
-            final String message = model_widget.propConfirmMessage().getValue();
-            final String password = model_widget.propPassword().getValue();
-
-            if ( password.length() > 0 ) {
-                if ( toolkit.showPasswordDialog(model_widget, message, password) == null ) {
-                    return false;
+    private void confirm(final Runnable action)
+    {
+        Platform.runLater(() ->
+        {
+            // If confirmation is requested..
+            if (model_widget.propConfirmDialog().getValue())
+            {
+                final String message = model_widget.propConfirmMessage().getValue();
+                final String password = model_widget.propPassword().getValue();
+                // .. check either with password or generic Ok/Cancel prompt
+                if (password.length() > 0)
+                {
+                    if (toolkit.showPasswordDialog(model_widget, message, password) == null)
+                        return;
                 }
-            } else {
-                if ( !toolkit.showConfirmationDialog(model_widget, message) ) {
-                    return false;
-                }
+                else
+                    if (! toolkit.showConfirmationDialog(model_widget, message))
+                        return;
             }
 
-        }
-
-        return true;
-
+            action.run();
+        });
     }
 
     private String makeButtonText()

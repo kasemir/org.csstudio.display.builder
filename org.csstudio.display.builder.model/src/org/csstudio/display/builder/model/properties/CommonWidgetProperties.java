@@ -660,6 +660,29 @@ public class CommonWidgetProperties
     public static final WidgetPropertyDescriptor<Double> propMaximum =
             newDoublePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "maximum", Messages.WidgetProperties_Maximum);
 
+    /** 'show_confirm_dialog' property (with options): Prompt for confirmation before performing something? */
+    public static final WidgetPropertyDescriptor<ConfirmDialog> propConfirmDialogOptions =
+            new WidgetPropertyDescriptor<ConfirmDialog>(WidgetPropertyCategory.BEHAVIOR, "show_confirm_dialog", Messages.WidgetProperties_ConfirmDialog)
+    {
+        @Override
+        public EnumWidgetProperty<ConfirmDialog> createProperty(final Widget widget, final ConfirmDialog default_value)
+        {
+            return new EnumWidgetProperty<ConfirmDialog>(this, widget, default_value);
+        }
+    };
+
+    /** 'show_confirm_dialog' property (boolean): Prompt for confirmation before performing something? */
+    public static final WidgetPropertyDescriptor<Boolean> propConfirmDialog =
+            newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "show_confirm_dialog", Messages.WidgetProperties_ConfirmDialog);
+
+    /** 'confirm_message' property: Message for confirmation prompt */
+    public static final WidgetPropertyDescriptor<String> propConfirmMessage =
+            newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "confirm_message", Messages.WidgetProperties_ConfirmMessage);
+
+    /** 'password' property: Password for which to prompt (empty to disable) */
+    public static final WidgetPropertyDescriptor<String> propPassword =
+            newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "password", Messages.WidgetProperties_Password);
+
     /** Runtime 'pv_value' property: Typically read from primary PV */
     public static final WidgetPropertyDescriptor<VType> runtimePropPVValue =
             newRuntimeValue("pv_value", Messages.WidgetProperties_Value);

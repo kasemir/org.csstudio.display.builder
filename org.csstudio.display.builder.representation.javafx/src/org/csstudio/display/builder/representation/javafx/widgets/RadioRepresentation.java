@@ -123,11 +123,7 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
 	                                                      ((RadioButton) newval).getText(),
 	                                                      FormatOption.DEFAULT);
 	                logger.log(Level.FINE, "Writing " + value);
-                    Platform.runLater(() -> {
-                        if ( confirmed() ) {
-                            toolkit.fireWrite(model_widget, value);
-                        }
-                    });
+                    Platform.runLater(() -> confirm(value));
                 }
             }
             finally
@@ -137,27 +133,22 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
         }
     }
 
-    private boolean confirmed ( ) {
-
-        if ( model_widget.propConfirmDialog().getValue() ) {
-
+    private void confirm(final Object value)
+    {
+        if (model_widget.propConfirmDialog().getValue())
+        {
             final String message = model_widget.propConfirmMessage().getValue();
             final String password = model_widget.propPassword().getValue();
-
-            if ( password.length() > 0 ) {
-                if ( toolkit.showPasswordDialog(model_widget, message, password) == null ) {
-                    return false;
-                }
-            } else {
-                if ( !toolkit.showConfirmationDialog(model_widget, message) ) {
-                    return false;
-                }
+            if (password.length() > 0)
+            {
+                if (toolkit.showPasswordDialog(model_widget, message, password) == null)
+                    return;
             }
-
+            else if (!toolkit.showConfirmationDialog(model_widget, message))
+                return;
         }
 
-        return true;
-
+        toolkit.fireWrite(model_widget, value);
     }
 
     private void styleChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)

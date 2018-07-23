@@ -10,8 +10,11 @@ package org.csstudio.display.builder.model.widgets;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newStringPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBit;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propConfirmDialogOptions;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propConfirmMessage;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPassword;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,7 +28,7 @@ import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetFontService;
-import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
+import org.csstudio.display.builder.model.properties.ConfirmDialog;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 
 @SuppressWarnings("nls")
@@ -57,42 +60,6 @@ public class CheckBoxWidget extends WritablePVWidget
     public static final WidgetPropertyDescriptor<Boolean> propAutoSize =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "auto_size", Messages.AutoSize);
 
-    public enum ConfirmDialog
-    {
-        NONE(Messages.Checkbox_Confirm_NONE),
-        BOTH(Messages.Checkbox_Confirm_BOTH),
-        CHECKED(Messages.Checkbox_Confirm_CHECKED),
-        UNCHECKED(Messages.Checkbox_Confirm_UNCHECKED);
-
-        private final String label;
-
-        private ConfirmDialog(final String label)
-        {
-            this.label = label;
-        }
-
-        @Override
-        public String toString()
-        {
-            return label;
-        }
-    }
-
-    private static final WidgetPropertyDescriptor<String> propConfirmMessage =
-        newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "confirm_message", Messages.WidgetProperties_ConfirmMessage);
-    private static final WidgetPropertyDescriptor<String> propPassword =
-        newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "password", Messages.WidgetProperties_Password);
-    private static final WidgetPropertyDescriptor<ConfirmDialog> propConfirmDialog =
-        new WidgetPropertyDescriptor<ConfirmDialog>(WidgetPropertyCategory.BEHAVIOR, "show_confirm_dialog", Messages.WidgetProperties_ConfirmDialog)
-    {
-        @Override
-        public EnumWidgetProperty<ConfirmDialog> createProperty(final Widget widget,
-                                                                final ConfirmDialog default_value)
-        {
-            return new EnumWidgetProperty<ConfirmDialog>(this, widget, default_value);
-        }
-    };
-
     private volatile WidgetProperty<Boolean> enabled;
     private volatile WidgetProperty<Integer> bit;
     private volatile WidgetProperty<String> label;
@@ -111,7 +78,7 @@ public class CheckBoxWidget extends WritablePVWidget
         properties.add(font = propFont.createProperty(this, WidgetFontService.get(NamedWidgetFonts.DEFAULT)));
         properties.add(auto_size = propAutoSize.createProperty(this, false));
         properties.add(enabled = propEnabled.createProperty(this, true));
-        properties.add(confirm_dialog = propConfirmDialog.createProperty(this, ConfirmDialog.NONE));
+        properties.add(confirm_dialog = propConfirmDialogOptions.createProperty(this, ConfirmDialog.NONE));
         properties.add(confirm_message = propConfirmMessage.createProperty(this, "Are your sure you want to do this?"));
         properties.add(password = propPassword.createProperty(this, ""));
     }

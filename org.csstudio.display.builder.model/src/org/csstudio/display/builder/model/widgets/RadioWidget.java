@@ -7,13 +7,14 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newStringPropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propConfirmDialog;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propConfirmMessage;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHorizontal;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propItemsFromPV;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPassword;
 
 import java.util.Arrays;
 import java.util.List;
@@ -65,12 +66,6 @@ public class RadioWidget extends WritablePVWidget
             new ArrayWidgetProperty.Descriptor< WidgetProperty<String> >(WidgetPropertyCategory.BEHAVIOR, "items", Messages.ComboWidget_Items,
                                                                          (widget, index) -> propItem.createProperty(widget, "Item " + index));
 
-    private static final WidgetPropertyDescriptor<Boolean> propConfirmDialog =
-            newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "show_confirm_dialog", Messages.WidgetProperties_ConfirmDialog);
-    private static final WidgetPropertyDescriptor<String> propConfirmMessage =
-            newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "confirm_message", Messages.WidgetProperties_ConfirmMessage);
-    private static final WidgetPropertyDescriptor<String> propPassword =
-            newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "password", Messages.WidgetProperties_Password);
 
     private volatile WidgetProperty<WidgetColor> foreground;
     private volatile WidgetProperty<WidgetFont> font;

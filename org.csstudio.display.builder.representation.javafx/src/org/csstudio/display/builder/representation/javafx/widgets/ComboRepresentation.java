@@ -53,25 +53,18 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
             combo.setEditable(model_widget.propEditable().getValue());
 
             // Handle user's selection
-            combo.setOnAction((event)-> {
-
-                if ( active ) {
-                    // We are updating the UI, ignore
+            combo.setOnAction((event)->
+            {   // We are updating the UI, ignore
+                if (active)
                     return;
-                }
 
-                String value = combo.getValue();
-
-                if ( value != null ) {
+                final String value = combo.getValue();
+                if (value != null)
+                {
                     // Restore current value
                     contentChanged(null, null, null);
-                    // ... which should soon be replaced by updated value, if
-                    // accepted
-                    Platform.runLater(() -> {
-                        if ( confirmed() ) {
-                            toolkit.fireWrite(model_widget, value);
-                        }
-                    });
+                    // ... which should soon be replaced by updated value, if accepted
+                    Platform.runLater(() -> confirm(value));
                 }
 
             });
@@ -135,27 +128,22 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
         styleChanged(null, null, null);
     }
 
-    private boolean confirmed ( ) {
-
-        if ( model_widget.propConfirmDialog().getValue() ) {
-
+    private void confirm(final String value)
+    {
+        if ( model_widget.propConfirmDialog().getValue())
+        {
             final String message = model_widget.propConfirmMessage().getValue();
             final String password = model_widget.propPassword().getValue();
-
-            if ( password.length() > 0 ) {
-                if ( toolkit.showPasswordDialog(model_widget, message, password) == null ) {
-                    return false;
-                }
-            } else {
-                if ( !toolkit.showConfirmationDialog(model_widget, message) ) {
-                    return false;
-                }
+            if (password.length() > 0)
+            {
+                if (toolkit.showPasswordDialog(model_widget, message, password) == null)
+                    return;
             }
-
+            else if (!toolkit.showConfirmationDialog(model_widget, message))
+                return;
         }
 
-        return true;
-
+        toolkit.fireWrite(model_widget, value);
     }
 
     private void styleChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)

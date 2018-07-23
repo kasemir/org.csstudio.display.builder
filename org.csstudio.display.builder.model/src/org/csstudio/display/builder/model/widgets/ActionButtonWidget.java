@@ -7,13 +7,14 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newStringPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propConfirmDialog;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propConfirmMessage;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPassword;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propRotationStep;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propText;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propTransparent;
@@ -23,14 +24,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.csstudio.display.builder.model.MacroizedWidgetProperty;
-import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetConfigurator;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.model.WidgetPropertyCategory;
-import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
@@ -155,13 +153,6 @@ public class ActionButtonWidget extends VisibleWidget
             return true;
         }
     }
-
-    private static final WidgetPropertyDescriptor<Boolean> propConfirmDialog =
-            newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "show_confirm_dialog", Messages.WidgetProperties_ConfirmDialog);
-    private static final WidgetPropertyDescriptor<String> propConfirmMessage =
-            newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "confirm_message", Messages.WidgetProperties_ConfirmMessage);
-    private static final WidgetPropertyDescriptor<String> propPassword =
-            newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "password", Messages.WidgetProperties_Password);
 
     @Override
     public WidgetConfigurator getConfigurator(final Version persisted_version)
