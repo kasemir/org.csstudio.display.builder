@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newStringPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
@@ -21,11 +23,14 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.csstudio.display.builder.model.MacroizedWidgetProperty;
+import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetConfigurator;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyCategory;
+import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
@@ -151,6 +156,13 @@ public class ActionButtonWidget extends VisibleWidget
         }
     }
 
+    private static final WidgetPropertyDescriptor<Boolean> propConfirmDialog =
+            newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "show_confirm_dialog", Messages.WidgetProperties_ConfirmDialog);
+    private static final WidgetPropertyDescriptor<String> propConfirmMessage =
+            newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "confirm_message", Messages.WidgetProperties_ConfirmMessage);
+    private static final WidgetPropertyDescriptor<String> propPassword =
+            newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "password", Messages.WidgetProperties_Password);
+
     @Override
     public WidgetConfigurator getConfigurator(final Version persisted_version)
             throws Exception
@@ -168,6 +180,9 @@ public class ActionButtonWidget extends VisibleWidget
     private volatile WidgetProperty<Boolean> transparent;
     private volatile WidgetProperty<RotationStep> rotation_step;
     private volatile WidgetProperty<Boolean> pv_writable;
+    private volatile WidgetProperty<Boolean> confirm_dialog;
+    private volatile WidgetProperty<String> confirm_message;
+    private volatile WidgetProperty<String> password;
 
     public ActionButtonWidget()
     {
@@ -195,6 +210,9 @@ public class ActionButtonWidget extends VisibleWidget
         properties.add(rotation_step = propRotationStep.createProperty(this, RotationStep.NONE));
         properties.add(enabled = propEnabled.createProperty(this, true));
         properties.add(pv_writable = runtimePropPVWritable.createProperty(this, true));
+        properties.add(confirm_dialog = propConfirmDialog.createProperty(this, false));
+        properties.add(confirm_message = propConfirmMessage.createProperty(this, "Are your sure you want to do this?"));
+        properties.add(password = propPassword.createProperty(this, ""));
     }
 
     @Override
@@ -256,5 +274,22 @@ public class ActionButtonWidget extends VisibleWidget
     public final WidgetProperty<Boolean> runtimePropPVWritable()
     {
         return pv_writable;
+    }
+    /** @return 'confirm_dialog' property */
+    public WidgetProperty<Boolean> propConfirmDialog()
+    {
+        return confirm_dialog;
+    }
+
+    /** @return 'confirm_message' property */
+    public WidgetProperty<String> propConfirmMessage()
+    {
+        return confirm_message;
+    }
+
+    /** @return 'password' property */
+    public WidgetProperty<String> propPassword()
+    {
+        return password;
     }
 }

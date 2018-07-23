@@ -59,6 +59,13 @@ public class DialogHelper {
      */
     public static void positionDialog ( final Dialog<?> dialog, final Node node, final int x_offset, final int y_offset ) {
 
+        // Modality hack.
+        final Window window = dialog.getDialogPane().getScene().getWindow();
+
+        if ( window instanceof Stage ) {
+            ( (Stage) window ).setAlwaysOnTop(true);
+        }
+
         final Bounds pos = node.localToScreen(node.getBoundsInLocal());
 
         dialog.setX(pos.getMinX() + pos.getWidth() / 2 + x_offset);
@@ -170,7 +177,7 @@ public class DialogHelper {
         }
 
         // Modality hack.
-        final Window window = dialog.getDialogPane().getContent().getScene().getWindow();
+        final Window window = dialog.getDialogPane().getScene().getWindow();
 
         if ( window instanceof Stage ) {
             ( (Stage) window ).setAlwaysOnTop(true);
