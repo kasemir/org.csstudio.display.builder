@@ -28,6 +28,10 @@ public class Messages extends NLS
     public static String Arrows_To;
     public static String Arrows_Both;
     public static String AutoSize;
+    public static String BoolWidget_Confirm_NONE;
+    public static String BoolWidget_Confirm_BOTH;
+    public static String BoolWidget_Confirm_PUSH;
+    public static String BoolWidget_Confirm_RELEASE;
     public static String BoolWidget_OffLabel;
     public static String BoolWidget_OnLabel;
     public static String ByteMonitor_BitReverse;
