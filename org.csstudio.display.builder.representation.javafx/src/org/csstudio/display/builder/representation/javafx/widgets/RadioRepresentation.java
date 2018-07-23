@@ -26,6 +26,7 @@ import org.diirt.vtype.VEnum;
 import org.diirt.vtype.VType;
 import org.diirt.vtype.next.VNumber;
 
+import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -122,7 +123,11 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
 	                                                      ((RadioButton) newval).getText(),
 	                                                      FormatOption.DEFAULT);
 	                logger.log(Level.FINE, "Writing " + value);
-	                toolkit.fireWrite(model_widget, value);
+                    Platform.runLater(() -> {
+                        if ( confirmed() ) {
+                            toolkit.fireWrite(model_widget, value);
+                        }
+                    });
                 }
             }
             finally
@@ -130,6 +135,29 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
                 active = false;
             }
         }
+    }
+
+    private boolean confirmed ( ) {
+
+        if ( model_widget.propConfirmDialog().getValue() ) {
+
+            final String message = model_widget.propConfirmMessage().getValue();
+            final String password = model_widget.propPassword().getValue();
+
+            if ( password.length() > 0 ) {
+                if ( toolkit.showPasswordDialog(model_widget, message, password) == null ) {
+                    return false;
+                }
+            } else {
+                if ( !toolkit.showConfirmationDialog(model_widget, message) ) {
+                    return false;
+                }
+            }
+
+        }
+
+        return true;
+
     }
 
     private void styleChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
