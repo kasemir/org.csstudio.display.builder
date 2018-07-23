@@ -23,6 +23,7 @@ import org.csstudio.javafx.Styles;
 import org.diirt.vtype.VEnum;
 import org.diirt.vtype.VType;
 
+import javafx.application.Platform;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.image.Image;
@@ -89,35 +90,57 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
     /** @param respond to button press */
     private void handlePress()
     {
+
         logger.log(Level.FINE, "{0} pressed", model_widget);
 
+        Platform.runLater(() -> {
+            if ( confirmed() ) {
+                int new_val = (rt_value ^ ((use_bit < 0) ? 1 : (1 << use_bit)) );
+                toolkit.fireWrite(model_widget, new_val);
+            }
+        });
+
+    }
+
+    private boolean confirmed ( ) {
+
         boolean prompt;
-        switch (model_widget.propConfirmDialog().getValue())
-        {
-        case BOTH:     prompt = true;            break;
-        case PUSH:     prompt = on_state == 0;   break;
-        case RELEASE:  prompt = on_state == 1;   break;
-        case NONE:
-        default:       prompt = false;
-        }
-        if (prompt)
-        {   // Require password, or plain prompt?
-            final String message = model_widget.propConfirmMessage().getValue();
-            final String password = model_widget.propPassword().getValue();
-            if (password.length() > 0)
-            {
-                if (toolkit.showPasswordDialog(model_widget, message, password) == null)
-                    return;
-            }
-            else
-            {
-                if (! toolkit.showConfirmationDialog(model_widget, message))
-                    return;
-            }
+
+        switch ( model_widget.propConfirmDialog().getValue() ) {
+            case BOTH:
+                prompt = true;
+                break;
+            case PUSH:
+                prompt = on_state == 0;
+                break;
+            case RELEASE:
+                prompt = on_state == 1;
+                break;
+            case NONE:
+            default:
+                prompt = false;
+                break;
         }
 
-        int new_val = (rt_value ^ ((use_bit < 0) ? 1 : (1 << use_bit)) );
-        toolkit.fireWrite(model_widget, new_val);
+        if ( prompt ) {
+
+            final String message = model_widget.propConfirmMessage().getValue();
+            final String password = model_widget.propPassword().getValue();
+
+            if ( password.length() > 0 ) {
+                if ( toolkit.showPasswordDialog(model_widget, message, password) == null ) {
+                    return false;
+                }
+            } else {
+                if ( !toolkit.showConfirmationDialog(model_widget, message) ) {
+                    return false;
+                }
+            }
+
+        }
+
+        return true;
+
     }
 
     @Override

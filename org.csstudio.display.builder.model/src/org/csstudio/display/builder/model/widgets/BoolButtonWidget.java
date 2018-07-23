@@ -98,10 +98,10 @@ public class BoolButtonWidget extends WritablePVWidget
 
     public enum ConfirmDialog
     {
-        NONE("No"),
-        BOTH("Both"),
-        PUSH("Push"),
-        RELEASE("Release");
+        NONE(Messages.BoolWidget_Confirm_NONE),
+        BOTH(Messages.BoolWidget_Confirm_BOTH),
+        PUSH(Messages.BoolWidget_Confirm_PUSH),
+        RELEASE(Messages.BoolWidget_Confirm_RELEASE);
 
         private final String label;
 
