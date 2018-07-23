@@ -65,7 +65,6 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
                 if ( value != null ) {
                     // Restore current value
                     contentChanged(null, null, null);
-
                     // ... which should soon be replaced by updated value, if
                     // accepted
                     Platform.runLater(() -> {
@@ -73,7 +72,6 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
                             toolkit.fireWrite(model_widget, value);
                         }
                     });
-
                 }
 
             });
@@ -108,6 +106,7 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
             });
 
         }
+        contentChanged(null, null, null);
         return combo;
     }
 
