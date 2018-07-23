@@ -275,6 +275,7 @@ public class ActionButtonWidget extends VisibleWidget
     {
         return pv_writable;
     }
+
     /** @return 'confirm_dialog' property */
     public WidgetProperty<Boolean> propConfirmDialog()
     {

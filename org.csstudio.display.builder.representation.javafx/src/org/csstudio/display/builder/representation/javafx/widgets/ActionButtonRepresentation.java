@@ -28,6 +28,7 @@ import org.csstudio.display.builder.representation.javafx.Messages;
 import org.csstudio.javafx.Styles;
 import org.eclipse.osgi.util.NLS;
 
+import javafx.application.Platform;
 import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
@@ -140,9 +141,11 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
         {
             final Button button = new Button();
             button.setOnAction(event -> {
-                if ( confirmed() ) {
-                    handleActions(actions.getActions());
-                }
+                Platform.runLater(() -> {
+                    if ( confirmed() ) {
+                        handleActions(actions.getActions());
+                    }
+                });
             });
             result = button;
         }
@@ -174,9 +177,11 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
                                                   );
                 item.getStyleClass().add("action_button_item");
                 item.setOnAction(event -> {
-                    if ( confirmed() ) {
-                        handleAction(action);
-                    }
+                    Platform.runLater(() -> {
+                        if ( confirmed() ) {
+                            handleAction(action);
+                        }
+                    });
                 });
                 button.getItems().add(item);
             }
