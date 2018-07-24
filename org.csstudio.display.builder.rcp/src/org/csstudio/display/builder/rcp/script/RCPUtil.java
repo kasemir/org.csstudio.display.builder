@@ -10,17 +10,24 @@ package org.csstudio.display.builder.rcp.script;
 import static org.csstudio.display.builder.rcp.Plugin.logger;
 
 import java.util.Arrays;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
+import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.IParameter;
 import org.eclipse.core.commands.Parameterization;
 import org.eclipse.core.commands.ParameterizedCommand;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.handlers.IHandlerService;
+import org.eclipse.ui.ide.IDE;
 
 /** RCP-related Script Utilities
  *  @author Kay Kasemir
@@ -79,5 +86,39 @@ public class RCPUtil
         {
             logger.log(Level.WARNING, "Failed to execute eclipse command '" + commandId + "' " + Arrays.toString(parameters), ex);
         }
+    }
+
+
+    /** Open a file in the default tool.
+     *  @param widget Widget used to resolve resource that's relative to a display file
+     *  @param resource_name Name of resource
+     *  @throws Exception on error
+     */
+    public static void openFile(final Widget widget, final String resource_name) throws Exception
+    {
+        final String resolved = ModelResourceUtil.resolveResource(widget.getDisplayModel(), resource_name);
+
+        final IFile file = (IFile)ResourcesPlugin.getWorkspace().getRoot().findMember(resolved);
+        file.setPersistentProperty(IDE.EDITOR_KEY, null);
+
+        final CompletableFuture<Exception> result = new CompletableFuture<>();
+
+        PlatformUI.getWorkbench().getDisplay().asyncExec(() ->
+        {
+            final IWorkbenchWindow dw = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+            try
+            {
+                IDE.openEditor(dw.getActivePage(), file, true);
+                result.complete(null);
+            }
+            catch (PartInitException ex)
+            {
+                result.complete(ex);
+            }
+        });
+
+        final Exception error = result.get();
+        if (error != null)
+            throw error;
     }
 }
