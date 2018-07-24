@@ -27,6 +27,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
 import javafx.scene.Scene;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.StackPane;
 
 /** Outline view
@@ -63,6 +64,27 @@ public class OutlinePage extends Page implements IContentOutlinePage
         public void run()
         {
             editor.cutToClipboard();
+        }
+    }
+
+    private class FindWidgetAction extends Action
+    {
+        public FindWidgetAction()
+        {
+            super(Messages.FindWidget);
+            setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJ_ELEMENT));
+        }
+
+        @Override
+        public void run()
+        {
+            // Prompt for widget name
+            final TextInputDialog prompt = new TextInputDialog();
+            prompt.setTitle(Messages.FindWidget);
+            prompt.setHeaderText("Enter (partial) widget name");
+            final String pattern = prompt.showAndWait().orElse(null);
+            if (pattern != null)
+                editor.selectWidgetsByName(pattern);
         }
     }
 
@@ -121,6 +143,7 @@ public class OutlinePage extends Page implements IContentOutlinePage
         final MenuManager manager = new MenuManager();
         manager.add(new CopyAction());
         manager.add(new DeleteAction());
+        manager.add(new FindWidgetAction());
         manager.add(new ActionForActionDescription(ActionDescription.TO_BACK));
         manager.add(new ActionForActionDescription(ActionDescription.MOVE_UP));
         manager.add(new ActionForActionDescription(ActionDescription.MOVE_DOWN));

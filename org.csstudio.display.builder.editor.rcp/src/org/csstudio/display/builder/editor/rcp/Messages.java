@@ -24,6 +24,7 @@ public class Messages extends NLS
     public static String DownloadTitle;
     public static String EditEmbededDisplay;
     public static String ExecuteDisplay;
+    public static String FindWidget;
     public static String NewDisplay_Browse;
     public static String NewDisplay_BrowseTitle;
     public static String NewDisplay_Container;
