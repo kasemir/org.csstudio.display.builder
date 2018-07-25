@@ -210,7 +210,7 @@ public class DialogHelper {
             Bounds pos = owner.localToScreen(owner.getBoundsInLocal());
 
             dialog.setX(pos.getMinX());
-            dialog.setY(pos.getMinY() + pos.getHeight());
+            dialog.setY(pos.getMinY() + pos.getHeight()/3);
 
         }
 
