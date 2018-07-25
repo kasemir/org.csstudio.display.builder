@@ -37,6 +37,8 @@
         <include name="org.csstudio.display.builder.model/src/org/csstudio/display/builder/model/WidgetProperty.java"/>
         <include name="org.csstudio.display.builder.model/src/org/csstudio/display/builder/model/DisplayModel.java"/>
         <include name="org.csstudio.display.builder.model/src/org/csstudio/display/builder/model/macros/Macros.java"/>
+        <include name="org.csstudio.display.builder.model/src/org/csstudio/display/builder/model/macros/MacroValueProvider.java"/>
+        <include name="org.csstudio.display.builder.model/src/org/csstudio/display/builder/model/macros/MacroHandler.java"/>
         <include name="org.csstudio.display.builder.model/src/org/csstudio/display/builder/model/properties/FormatOption.java"/>
         <include name="org.csstudio.display.builder.model/src/org/csstudio/display/builder/model/util/FormatOptionHandler.java"/>
         <include name="org.csstudio.display.builder.model/src/org/csstudio/display/builder/model/**/*Widget.java"/>
