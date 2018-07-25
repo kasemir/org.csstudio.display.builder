@@ -13,6 +13,7 @@ import org.csstudio.display.builder.editor.actions.ActionDescription;
 import org.csstudio.display.builder.editor.tree.WidgetTree;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.javafx.DialogHelper;
+import org.csstudio.javafx.PreferencesHelper;
 import org.csstudio.javafx.swt.JFX_SWT_Wrapper;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.MenuManager;
@@ -83,7 +84,7 @@ public class OutlinePage extends Page implements IContentOutlinePage
             final TextInputDialog prompt = new TextInputDialog();
             prompt.setTitle(Messages.FindWidget);
             prompt.setHeaderText("Enter (partial) widget name");
-            DialogHelper.hackModality(prompt);
+            DialogHelper.positionAndSize(prompt, tree.getView(), PreferencesHelper.userNodeForClass(OutlinePage.class), 32, 32);
             final String pattern = prompt.showAndWait().orElse(null);
             if (pattern != null)
                 editor.selectWidgetsByName(pattern);
