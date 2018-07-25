@@ -86,7 +86,7 @@ public class OutlinePage extends Page implements IContentOutlinePage
             prompt.setHeaderText("Enter (partial) widget name");
             DialogHelper.positionAndSize(prompt, tree.getView(), PreferencesHelper.userNodeForClass(OutlinePage.class), 32, 32);
             final String pattern = prompt.showAndWait().orElse(null);
-            if (pattern != null)
+            if (pattern != null  &&  !pattern.isEmpty())
                 editor.selectWidgetsByName(pattern);
         }
     }
