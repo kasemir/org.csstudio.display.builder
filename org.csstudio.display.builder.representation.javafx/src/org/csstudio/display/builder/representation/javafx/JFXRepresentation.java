@@ -620,7 +620,8 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         if (isEditMode())
             updateModelSizeIndicators();
 
-        zoom_listener.accept(Integer.toString((int)(zoom * 100)) + " %");
+        if (zoom_listener != null)
+            zoom_listener.accept(Integer.toString((int)(zoom * 100)) + " %");
 
         return zoom;
     }
