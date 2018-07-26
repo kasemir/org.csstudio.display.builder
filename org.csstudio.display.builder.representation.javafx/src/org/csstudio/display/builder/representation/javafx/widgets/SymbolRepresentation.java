@@ -147,6 +147,25 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
         setTriggerContentUpdate(!isTriggerContentUpdate());
     }
 
+    //  ---- triggerImageUpdate property
+    private BooleanProperty triggerImageUpdate =  new SimpleBooleanProperty(false);
+
+    private boolean isTriggerImageUpdate ( ) {
+        return triggerImageUpdate.get();
+    }
+
+    private BooleanProperty triggerImageUpdateProperty ( ) {
+        return triggerImageUpdate;
+    }
+
+    private void setTriggerImageUpdate ( boolean triggerImageUpdate ) {
+        Platform.runLater(() -> this.triggerImageUpdate.set(triggerImageUpdate));
+    }
+
+    private void triggerImageUpdate() {
+        setTriggerImageUpdate(!isTriggerImageUpdate());
+    }
+
     /**
      * Compute the maximum width and height of the given {@code widget} based on
      * the its set of symbol images.
@@ -165,7 +184,9 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
             try {
 
                 final SymbolRepresentation representation = widget.getUserData(Widget.USER_DATA_REPRESENTATION);
-                final ImageContent ic = representation.createImageContent(imageFile);
+                final ImageContent ic = representation.imagesMap.containsKey(imageFile)
+                                      ? representation.imagesMap.get(imageFile)
+                                      : representation.createImageContent(imageFile);
 
                 if ( max_size[0] < ic.getOriginalWidth() ) {
                     max_size[0] = ic.getOriginalWidth();
@@ -451,7 +472,8 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
                 imageView.fitWidthProperty().bind(symbol.prefWidthProperty());
                 imageView.imageProperty().bind(Bindings.createObjectBinding(
                     () -> getDisplayable(ic -> ic.isImage(), ic -> ic.getImage(), getDefaultSymbol()),
-                    imageIndexProperty()
+                    imageIndexProperty(),
+                    triggerImageUpdateProperty()
                 ));
 
             imagePane.setPrefWidth(model_widget.propWidth().getValue());
@@ -771,7 +793,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
 
                         if ( imageContent == null ) {
 
-                            imageContent = new ImageContent(fileName);
+                            imageContent = createImageContent(fileName);
 
                             if ( imageContent.isValid() ) {
                                 imagesMap.put(fileName, imageContent);
@@ -804,6 +826,8 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
                     if ( ( imageContent.isSVG() && imagePane.getCenter() == imageView )
                       || ( imageContent.isImage() && imagePane.getCenter() != imageView ) ) {
                         Platform.runLater(() -> triggerContentUpdate());
+                    } else if ( imageContent.isImage() && getDefaultSymbol().equals(imageView.getImage()) ) {
+                        Platform.runLater(() -> triggerImageUpdate());
                     }
 
                 } else if ( oldIndex != newImageIndex ) {
