@@ -22,6 +22,7 @@ import org.csstudio.javafx.Styles;
 import org.diirt.vtype.VEnum;
 import org.diirt.vtype.VType;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.scene.control.ComboBox;
@@ -56,14 +57,16 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
             {   // We are updating the UI, ignore
                 if (active)
                     return;
-                String value = combo.getValue();
+
+                final String value = combo.getValue();
                 if (value != null)
                 {
                     // Restore current value
                     contentChanged(null, null, null);
                     // ... which should soon be replaced by updated value, if accepted
-                    toolkit.fireWrite(model_widget, value);
+                    Platform.runLater(() -> confirm(value));
                 }
+
             });
 
             combo.setCellFactory(list -> {
@@ -96,6 +99,7 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
             });
 
         }
+        contentChanged(null, null, null);
         return combo;
     }
 
@@ -122,6 +126,24 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
         model_widget.runtimePropPVWritable().addUntypedPropertyListener(this::enableChanged);
 
         styleChanged(null, null, null);
+    }
+
+    private void confirm(final String value)
+    {
+        if ( model_widget.propConfirmDialog().getValue())
+        {
+            final String message = model_widget.propConfirmMessage().getValue();
+            final String password = model_widget.propPassword().getValue();
+            if (password.length() > 0)
+            {
+                if (toolkit.showPasswordDialog(model_widget, message, password) == null)
+                    return;
+            }
+            else if (!toolkit.showConfirmationDialog(model_widget, message))
+                return;
+        }
+
+        toolkit.fireWrite(model_widget, value);
     }
 
     private void styleChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)

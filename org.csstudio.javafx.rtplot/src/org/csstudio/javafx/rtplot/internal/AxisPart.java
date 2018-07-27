@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010-2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2010-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -270,8 +270,8 @@ public abstract class AxisPart<T extends Comparable<T>> extends PlotPart impleme
             // Can axis handle this range?
             if (! ticks.isSupportedRange(low, high))
             {
-                logger.log(Level.WARNING, "Axis {0}: Bad value range {1} ... {2}",
-                                          new Object[] { getName(), low, high });
+                logger.log(Level.CONFIG, "Axis {0}: Bad value range {1} ... {2}",
+                                         new Object[] { getName(), low, high });
                 return false;
             }
             range = new AxisRange<T>(low, high);
@@ -381,7 +381,7 @@ public abstract class AxisPart<T extends Comparable<T>> extends PlotPart impleme
 
     /** Draw a floating tick label for cursor-related tick locations.
      *
-     *  @param gc GC to use
+     *  @param gc GC to use with current background and foreground color
      *  @param tick Location of the tick
      */
     abstract public void drawTickLabel(final Graphics2D gc, final T tick);

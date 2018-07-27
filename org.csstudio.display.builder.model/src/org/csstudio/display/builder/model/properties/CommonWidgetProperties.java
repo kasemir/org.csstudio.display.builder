@@ -20,6 +20,7 @@ import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.rules.RuleInfo;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
 import org.diirt.vtype.VType;
+import org.diirt.vtype.ValueFactory;
 
 /** Common widget properties.
  *
@@ -223,8 +224,14 @@ public class CommonWidgetProperties
                     @Override
                     public void setValueFromObject(final Object value) throws Exception
                     {
+                        // Value should be VType
                         if (value instanceof VType)
                             setValue((VType) value);
+                        // Questionable legacy scripts/rules set double and string
+                        else if (value instanceof Double)
+                            setValue(ValueFactory.newVDouble((Double) value));
+                        else if (value instanceof String)
+                            setValue(ValueFactory.newVString((String) value, ValueFactory.alarmNone(), ValueFactory.timeNow()));
                         else
                             throw new Exception("Need VType, got " + value);
                     }
@@ -659,6 +666,29 @@ public class CommonWidgetProperties
     /** 'maximum' property: Maximum display range */
     public static final WidgetPropertyDescriptor<Double> propMaximum =
             newDoublePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "maximum", Messages.WidgetProperties_Maximum);
+
+    /** 'show_confirm_dialog' property (with options): Prompt for confirmation before performing something? */
+    public static final WidgetPropertyDescriptor<ConfirmDialog> propConfirmDialogOptions =
+            new WidgetPropertyDescriptor<ConfirmDialog>(WidgetPropertyCategory.BEHAVIOR, "show_confirm_dialog", Messages.WidgetProperties_ConfirmDialog)
+    {
+        @Override
+        public EnumWidgetProperty<ConfirmDialog> createProperty(final Widget widget, final ConfirmDialog default_value)
+        {
+            return new EnumWidgetProperty<ConfirmDialog>(this, widget, default_value);
+        }
+    };
+
+    /** 'show_confirm_dialog' property (boolean): Prompt for confirmation before performing something? */
+    public static final WidgetPropertyDescriptor<Boolean> propConfirmDialog =
+            newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "show_confirm_dialog", Messages.WidgetProperties_ConfirmDialog);
+
+    /** 'confirm_message' property: Message for confirmation prompt */
+    public static final WidgetPropertyDescriptor<String> propConfirmMessage =
+            newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "confirm_message", Messages.WidgetProperties_ConfirmMessage);
+
+    /** 'password' property: Password for which to prompt (empty to disable) */
+    public static final WidgetPropertyDescriptor<String> propPassword =
+            newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "password", Messages.WidgetProperties_Password);
 
     /** Runtime 'pv_value' property: Typically read from primary PV */
     public static final WidgetPropertyDescriptor<VType> runtimePropPVValue =

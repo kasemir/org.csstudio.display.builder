@@ -108,4 +108,11 @@ public class TankRepresentation extends RegionBaseRepresentation<Pane, TankWidge
             tank.setEmptyColor(JFXUtil.convert(model_widget.propEmptyColor().getValue()));
         }
     }
+
+    @Override
+    public void dispose()
+    {
+        tank.dispose();
+        super.dispose();
+    }
 }

@@ -19,6 +19,7 @@ import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.javafx.Styles;
 import org.diirt.vtype.VType;
 
+import javafx.application.Platform;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.CheckBox;
 
@@ -53,19 +54,58 @@ public class CheckBoxRepresentation extends RegionBaseRepresentation<CheckBox, C
     /** @param respond to button press */
     private void handlePress()
     {
+
         if (! enabled)
         {   // Ignore, restore current state of PV
             jfx_node.setSelected(state);
             return;
         }
+
         logger.log(Level.FINE, "{0} pressed", model_widget);
-        int new_val = (bit < 0) ? (value == 0 ? 1 : 0) : (value ^ (1 << bit));
-        toolkit.fireWrite(model_widget, new_val);
+
         // Ideally, PV will soon report the written value.
         // But for now restore the 'current' value of the PV
         // because PV may not change as desired,
         // so assert that widget always reflects the correct value.
         valueChanged(null, null, model_widget.runtimePropValue().getValue());
+
+        Platform.runLater(this::confirm);
+    }
+
+    private void confirm()
+    {
+        final boolean prompt;
+        switch (model_widget.propConfirmDialog().getValue())
+        {
+            case BOTH:
+                prompt = true;
+                break;
+            case PUSH:
+                prompt = !state;
+                break;
+            case RELEASE:
+                prompt = state;
+                break;
+            case NONE:
+            default:
+                prompt = false;
+        }
+
+        if (prompt)
+        {
+            final String message = model_widget.propConfirmMessage().getValue();
+            final String password = model_widget.propPassword().getValue();
+            if (password.length() > 0)
+            {
+                if (toolkit.showPasswordDialog(model_widget, message, password) == null)
+                    return;
+            }
+            else if (!toolkit.showConfirmationDialog(model_widget, message))
+                return;
+        }
+
+        final int new_val = (bit < 0) ? (value == 0 ? 1 : 0) : (value ^ (1 << bit));
+        toolkit.fireWrite(model_widget, new_val);
     }
 
     @Override

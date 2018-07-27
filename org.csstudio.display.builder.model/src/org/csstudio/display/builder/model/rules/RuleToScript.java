@@ -70,6 +70,10 @@ public class RuleToScript
             else
                 return "colorCurrent";
         case NUMERIC:
+            // Set enum to its ordinal
+            if (prop.getValue() instanceof Enum<?>)
+                return Integer.toString(((Enum<?>)prop.getValue()).ordinal());
+            // else: Format number as string
         default:
             return String.valueOf(prop.getValue());
         }
@@ -133,8 +137,20 @@ public class RuleToScript
                 result.append(" or ");
                 i += 1;
             }
-            else if (text.charAt(i) == '!'  &&  ! matches(text, i, "!="))
+            else if (matches(text, i, "!="))
+            {
+                result.append("!=");
+                i += 1;
+            }
+            else if (text.charAt(i) == '!')  // and not "!=" since we just checked for that
                 result.append(" not ");
+            else if (matches(text, i, "==")) // and not "!="
+            {
+                result.append("==");
+                i += 1;
+            }
+            else if (text.charAt(i) == '=') // and neither "==" nor "!="
+                result.append("==");
             else
                 result.append(text.charAt(i));
         }
@@ -156,6 +172,8 @@ public class RuleToScript
             pform = PropFormat.NUMERIC;
         else if (prop.getDefaultValue() instanceof Boolean)
             pform = PropFormat.BOOLEAN;
+        else if (prop.getDefaultValue() instanceof Enum<?>)
+            pform = PropFormat.NUMERIC;
         else if (prop.getDefaultValue() instanceof WidgetColor)
             pform = PropFormat.COLOR;
 

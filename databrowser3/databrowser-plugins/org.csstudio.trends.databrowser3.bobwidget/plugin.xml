@@ -9,7 +9,7 @@
 		    class="org.csstudio.trends.databrowser3.bobwidget.DataBrowserWidget"
 		    description="DataBrowser widget"
 		    icon="platform:/plugin/org.csstudio.trends.databrowser3.bobwidget/icons/databrowser.png"
-		    name="DataBrowser"
+		    name="Data Browser"
 		    type="databrowser">
 			<alternates
 			    type="org.csstudio.trends.databrowser.opiwidget">

@@ -7,11 +7,14 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propConfirmDialog;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propConfirmMessage;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHorizontal;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propItemsFromPV;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPassword;
 
 import java.util.Arrays;
 import java.util.List;
@@ -63,12 +66,16 @@ public class RadioWidget extends WritablePVWidget
             new ArrayWidgetProperty.Descriptor< WidgetProperty<String> >(WidgetPropertyCategory.BEHAVIOR, "items", Messages.ComboWidget_Items,
                                                                          (widget, index) -> propItem.createProperty(widget, "Item " + index));
 
+
     private volatile WidgetProperty<WidgetColor> foreground;
     private volatile WidgetProperty<WidgetFont> font;
     private volatile WidgetProperty<List<WidgetProperty<String>>> items;
     private volatile WidgetProperty<Boolean> items_from_pv;
     private volatile WidgetProperty<Boolean> horizontal;
     private volatile WidgetProperty<Boolean> enabled;
+    private volatile WidgetProperty<Boolean> confirm_dialog;
+    private volatile WidgetProperty<String> confirm_message;
+    private volatile WidgetProperty<String> password;
 
     public RadioWidget()
     {
@@ -85,6 +92,9 @@ public class RadioWidget extends WritablePVWidget
         properties.add(items_from_pv = propItemsFromPV.createProperty(this, true));
         properties.add(horizontal = propHorizontal.createProperty(this, true));
         properties.add(enabled = propEnabled.createProperty(this, true));
+        properties.add(confirm_dialog = propConfirmDialog.createProperty(this, false));
+        properties.add(confirm_message = propConfirmMessage.createProperty(this, "Are your sure you want to do this?"));
+        properties.add(password = propPassword.createProperty(this, ""));
     }
 
     /** @return 'foreground_color' property */
@@ -121,6 +131,24 @@ public class RadioWidget extends WritablePVWidget
     public WidgetProperty<Boolean> propEnabled()
     {
         return enabled;
+    }
+
+    /** @return 'confirm_dialog' property */
+    public WidgetProperty<Boolean> propConfirmDialog()
+    {
+        return confirm_dialog;
+    }
+
+    /** @return 'confirm_message' property */
+    public WidgetProperty<String> propConfirmMessage()
+    {
+        return confirm_message;
+    }
+
+    /** @return 'password' property */
+    public WidgetProperty<String> propPassword()
+    {
+        return password;
     }
 
     //  TODO: CR: Changing the name of a radio button item has no immediate effect,

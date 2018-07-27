@@ -72,6 +72,7 @@ public class Messages extends NLS
     public static String MoveDown;
     public static String MoveUp;
     public static String Password;
+    public static String Password_Caption;
     public static String Password_Error;
     public static String Password_Prompt;
     public static String PointsDialog_Info;
@@ -119,7 +120,6 @@ public class Messages extends NLS
     public static String WidgetFontPopOver_FontsFamilies;
     public static String WidgetFontPopOver_Info;
     public static String WidgetFontPopOver_PredefinedFonts;
-    public static String WidgetFontPopOver_SearchFieldTT;
     public static String WidgetFontPopOver_Sizes;
     public static String WidgetFontPopOver_Styles;
     public static String WidgetInfoDialog_Category;
@@ -136,6 +136,26 @@ public class Messages extends NLS
     public static String Zoom_All;
     public static String Zoom_Height;
     public static String Zoom_Width;
+
+    // Used in FXML files, mention here to avoid "Warning: NLS unused message"
+    public static String WidgetColorPopOver_Alpha;
+    public static String WidgetColorPopOver_Blue;
+    public static String WidgetColorPopOver_Color;
+    public static String WidgetColorPopOver_CustomColor;
+    public static String WidgetColorPopOver_Default;
+    public static String WidgetColorPopOver_Green;
+    public static String WidgetColorPopOver_Original;
+    public static String WidgetColorPopOver_Red;
+    public static String WidgetColorPopOver_SearchField;
+    public static String WidgetFontPopOver_ExampleText;
+    public static String WidgetFontPopOver_Preview;
+    public static String WidgetFontPopOver_PreviewPrompt;
+    public static String WidgetFontPopOver_SearchPrompt;
+    public static String WidgetFontPopOver_SearchPromptTT;
+    public static String WidgetFontPopOver_SizeCaption;
+    public static String WidgetFontPopOver_SizePrompt;
+    public static String WidgetFontPopOver_StyleCaption;
+    public static String WidgetFontPopOver_StylePrompt;
 
     static
     {

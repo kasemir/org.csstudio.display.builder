@@ -9,6 +9,7 @@ package org.csstudio.javafx.rtplot.internal;
 
 import static org.csstudio.javafx.rtplot.Activator.logger;
 
+import java.util.concurrent.ForkJoinPool;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
@@ -22,6 +23,7 @@ import org.csstudio.javafx.rtplot.data.PlotDataItem;
 import org.eclipse.osgi.util.NLS;
 
 import javafx.application.Platform;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.Separator;
@@ -38,6 +40,46 @@ import javafx.scene.image.ImageView;
 @SuppressWarnings("nls")
 public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
 {
+    // Button's auto-sizing doesn't work when toolbar is initially hidden.
+    // Fixed size seems only way around that.
+    static final int BUTTON_WIDTH = 32, BUTTON_HEIGHT = 26;
+
+    /** Hack ill-sized toolbar buttons
+     *
+     *  <p>When toolbar is originally hidden and then later
+     *  shown, it tends to be garbled, all icons in pile at left end,
+     *  Manual fix is to hide and show again.
+     *  Workaround is to force another layout a little later.
+     */
+    public static void refreshHack(final ToolBar toolbar)
+    {
+        if (toolbar.getParent() == null)
+            return;
+        for (Node node : toolbar.getItems())
+        {
+            if (! (node instanceof ButtonBase))
+                continue;
+            final ButtonBase button = (ButtonBase) node;
+            final Node icon = button.getGraphic();
+            if (icon == null)
+                continue;
+            // Re-set the icon to force new layout of button
+            button.setGraphic(null);
+            button.setGraphic(icon);
+            if (button.getWidth() == 0  ||  button.getHeight() == 0)
+            {   // If button has no size, yet, try again later
+                ForkJoinPool.commonPool().submit(() ->
+                {
+                    Thread.sleep(500);
+                    Platform.runLater(() -> refreshHack(toolbar));
+                    return null;
+                });
+                return;
+            }
+        }
+        Platform.runLater(() -> toolbar.layout());
+    }
+
     public enum ToolIcons
     {
         CONFIGURE,
@@ -94,6 +136,14 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
         final Button item = new Button();
         item.setGraphic(icon);
         item.setTooltip(new Tooltip(tool_tip));
+
+        // Buttons should size based on the icon, but
+        // without explicit size, they sometimes start out zero-sized.
+        // setMinSize tends to have icon end up in top-left corner.
+        // setPrefSize tends to show just the icon, no button.
+        // minSize with visible button is better than no button.
+        // Icon gets positioned once the button is pressed.
+        item.setMinSize(BUTTON_WIDTH, BUTTON_HEIGHT);
         toolbar.getItems().add(item);
         return item;
     }
@@ -273,6 +323,8 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
             item.setText(icon.toString());
         }
         item.setTooltip(new Tooltip(tool_tip));
+        // setMinSize tends to have all icons end up in top-left corner?!
+        item.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
         toolbar.getItems().add(item);
         return item;

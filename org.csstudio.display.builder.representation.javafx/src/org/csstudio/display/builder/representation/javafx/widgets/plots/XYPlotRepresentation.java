@@ -39,6 +39,7 @@ import org.csstudio.javafx.rtplot.RTValuePlot;
 import org.csstudio.javafx.rtplot.Trace;
 import org.csstudio.javafx.rtplot.TraceType;
 import org.csstudio.javafx.rtplot.YAxis;
+import org.csstudio.javafx.rtplot.internal.NumericAxis;
 import org.diirt.util.array.ArrayDouble;
 import org.diirt.util.array.ListNumber;
 import org.diirt.vtype.VNumberArray;
@@ -271,17 +272,17 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
                 x_data = y_data = error = XYVTypeDataProvider.EMPTY;
 
             // Decouple from CAJ's PV thread
-            latest_data.set(new XYVTypeDataProvider(x_data, y_data, error));
-            toolkit.submit(this::updateData);
+            if (latest_data.getAndSet(new XYVTypeDataProvider(x_data, y_data, error)) == null)
+                toolkit.submit(this::updateData);
         }
 
         // Update XYPlot data on different thread, not from CAJ callback.
         // Void to be usable as Callable(..) with Exception on error
         private Void updateData() throws Exception
         {
-            // Flurry of N updates will schedule N updateData() calls.
-            // The first one that actually runs will handle the most
-            // recent data and the rest can then return with nothing else to do.
+            // Flurry of N updates should schedule only one updateData() call,
+            // while the remaining updates simply replace latest_data,
+            // but find that the update request has already been submitted.
             final XYVTypeDataProvider latest = latest_data.getAndSet(null);
             if (latest != null)
             {
@@ -393,6 +394,7 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
     {
         axis.title().addUntypedPropertyListener(config_listener);
         axis.autoscale().addUntypedPropertyListener(range_listener);
+        axis.logscale().addUntypedPropertyListener(config_listener);
         axis.minimum().addUntypedPropertyListener(range_listener);
         axis.maximum().addUntypedPropertyListener(range_listener);
         axis.grid().addUntypedPropertyListener(config_listener);
@@ -401,7 +403,6 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         if (axis instanceof YAxisWidgetProperty)
         {
             final YAxisWidgetProperty yaxis = (YAxisWidgetProperty) axis;
-            yaxis.logscale().addUntypedPropertyListener(config_listener);
             yaxis.visible().addUntypedPropertyListener(config_listener);
         }
     }
@@ -413,13 +414,12 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
     {
         axis.title().removePropertyListener(config_listener);
         axis.autoscale().removePropertyListener(range_listener);
+        axis.logscale().removePropertyListener(config_listener);
         axis.minimum().removePropertyListener(range_listener);
         axis.maximum().removePropertyListener(range_listener);
         axis.grid().removePropertyListener(config_listener);
         axis.titleFont().removePropertyListener(config_listener);
         axis.scaleFont().removePropertyListener(config_listener);
-        if (axis instanceof YAxisWidgetProperty)
-            ((YAxisWidgetProperty)axis).logscale().removePropertyListener(config_listener);
     }
 
     private void yAxesChanged(final WidgetProperty<List<YAxisWidgetProperty>> property,
@@ -522,7 +522,6 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
     {
         final YAxis<Double> plot_axis = plot.getYAxes().get(index);
         updateAxisConfig(plot_axis, model_axis);
-        plot_axis.setLogarithmic(model_axis.logscale().getValue());
 
         // Make axis and all its traces visible resp. not
         final Boolean visible = model_axis.visible().getValue();
@@ -539,6 +538,8 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
     private void updateAxisConfig(final Axis<Double> plot_axis, final AxisWidgetProperty model_axis)
     {
         plot_axis.setName(model_axis.title().getValue());
+        if (plot_axis instanceof NumericAxis)
+            ((NumericAxis)plot_axis).setLogarithmic(model_axis.logscale().getValue());
         plot_axis.setGridVisible(model_axis.grid().getValue());
         plot_axis.setLabelFont(JFXUtil.convert(model_axis.titleFont().getValue()));
         plot_axis.setScaleFont(JFXUtil.convert(model_axis.scaleFont().getValue()));

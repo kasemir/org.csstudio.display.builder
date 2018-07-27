@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014-2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2014-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
@@ -361,19 +360,9 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
         // Force layout to reclaim space used by hidden toolbar,
         // or make room for the visible toolbar
         layoutChildren();
-        // XX Hack: Toolbar is garbled, all icons in pile at left end,
-        // when shown the first time, i.e. it was hidden when the plot
-        // was first shown.
-        // Manual fix is to hide and show again.
-        // Workaround is to force another layout a little later
         if (show)
-            ForkJoinPool.commonPool().submit(() ->
-            {
-                Thread.sleep(1000);
-                Platform.runLater(() -> layoutChildren() );
-                return null;
-            });
-        //toggle_toolbar.updateText();
+            Platform.runLater(() -> ToolbarHandler.refreshHack(toolbar.getToolBar()));
+
         plot.fireToolbarChange(show);
     }
 
@@ -534,12 +523,14 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
         plot.setUpdateThrottle(dormant_time, unit);
     }
 
-    /** Request a complete redraw of the plot with new layout */
-    @Override
-    public void requestLayout()
-    {
-        plot.requestLayout();
-    }
+    // Used to request a complete redraw of the plot with new layout of node,
+    // but that creates loops:
+    // layout -> compute new image -> set image -> trigger another layout
+    // @Override
+    // public void requestLayout()
+    // {
+    //     plot.requestLayout();
+    // }
 
     /** Request a complete redraw of the plot */
     public void requestUpdate()

@@ -8,10 +8,13 @@
 package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propConfirmDialog;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propConfirmMessage;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPassword;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propRotationStep;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propText;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propTransparent;
@@ -168,6 +171,9 @@ public class ActionButtonWidget extends VisibleWidget
     private volatile WidgetProperty<Boolean> transparent;
     private volatile WidgetProperty<RotationStep> rotation_step;
     private volatile WidgetProperty<Boolean> pv_writable;
+    private volatile WidgetProperty<Boolean> confirm_dialog;
+    private volatile WidgetProperty<String> confirm_message;
+    private volatile WidgetProperty<String> password;
 
     public ActionButtonWidget()
     {
@@ -195,6 +201,9 @@ public class ActionButtonWidget extends VisibleWidget
         properties.add(rotation_step = propRotationStep.createProperty(this, RotationStep.NONE));
         properties.add(enabled = propEnabled.createProperty(this, true));
         properties.add(pv_writable = runtimePropPVWritable.createProperty(this, true));
+        properties.add(confirm_dialog = propConfirmDialog.createProperty(this, false));
+        properties.add(confirm_message = propConfirmMessage.createProperty(this, "Are your sure you want to do this?"));
+        properties.add(password = propPassword.createProperty(this, ""));
     }
 
     @Override
@@ -256,5 +265,23 @@ public class ActionButtonWidget extends VisibleWidget
     public final WidgetProperty<Boolean> runtimePropPVWritable()
     {
         return pv_writable;
+    }
+
+    /** @return 'confirm_dialog' property */
+    public WidgetProperty<Boolean> propConfirmDialog()
+    {
+        return confirm_dialog;
+    }
+
+    /** @return 'confirm_message' property */
+    public WidgetProperty<String> propConfirmMessage()
+    {
+        return confirm_message;
+    }
+
+    /** @return 'password' property */
+    public WidgetProperty<String> propPassword()
+    {
+        return password;
     }
 }

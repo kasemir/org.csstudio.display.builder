@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010-2015 Oak Ridge National Laboratory.
+ * Copyright (c) 2010-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -118,6 +118,9 @@ public class Model
 
     /** Show time axis grid line? */
     private volatile boolean show_grid = false;
+
+    /** Foreground color */
+    private volatile RGB foreground = new RGB(0, 0, 0);
 
     /** Background color */
     private volatile RGB background = new RGB(255, 255, 255);
@@ -754,6 +757,22 @@ public class Model
             return RelativeTime.NOW;
         else
             return TimestampHelper.format(end_time);
+    }
+
+    /** @return foreground color */
+    public RGB getPlotForeground()
+    {
+        return foreground;
+    }
+
+    /** @param rgb New foreground color */
+    public void setPlotForeground(final RGB rgb)
+    {
+        if (foreground.equals(Objects.requireNonNull(rgb)))
+            return;
+        foreground = rgb;
+        for (ModelListener listener : listeners)
+            listener.changedColorsOrFonts();
     }
 
     /** @return Background color */

@@ -19,6 +19,7 @@ import org.csstudio.archive.reader.ArchiveReader;
 import org.csstudio.archive.reader.ArchiveRepository;
 import org.csstudio.archive.reader.UnknownChannelException;
 import org.csstudio.archive.reader.ValueIterator;
+import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.trends.databrowser3.Activator;
 import org.csstudio.trends.databrowser3.Messages;
 import org.csstudio.trends.databrowser3.model.ArchiveDataSource;
@@ -237,6 +238,11 @@ public class ArchiveFetchJob extends Job
     protected IStatus run(final IProgressMonitor monitor)
     {
         if (item == null)
+            return Status.OK_STATUS;
+
+        // When creating a configuration with macros,
+        // data can only be fetched once the macros resolve
+        if (MacroHandler.containsMacros(item.getResolvedName()))
             return Status.OK_STATUS;
 
         monitor.beginTask(Messages.ArchiveFetchStart, IProgressMonitor.UNKNOWN);

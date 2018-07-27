@@ -94,6 +94,9 @@ public class RuntimeViewPart extends FXViewPart
     /** Memento key for DisplayInfo */
     private static final String MEMENTO_DISPLAY_INFO = "DISPLAY_INFO";
 
+    /** Memento key for Zoom */
+    private static final String MEMENTO_ZOOM = "ZOOM";
+
     /** Key for Memento in E4 model */
     private static final String TAG_MEMENTO = "memento";
 
@@ -102,6 +105,9 @@ public class RuntimeViewPart extends FXViewPart
 
     /** Display info that may have been received from memento */
     private volatile Optional<DisplayInfo> display_info = Optional.empty();
+
+    /** Zoom, might have been saved in memento */
+    private volatile int initial_zoom = 0;
 
     /** Widget that triggered a context menu */
     private volatile WeakReference<Widget> active_widget = null;
@@ -217,7 +223,12 @@ public class RuntimeViewPart extends FXViewPart
     	    memento = findMementoFromPlaceholder();
 
     	if (memento != null)
+    	{
     	    serialized_info = memento.getString(MEMENTO_DISPLAY_INFO);
+    	    final Integer mem_zoom = memento.getInteger(MEMENTO_ZOOM);
+    	    if (mem_zoom != null)
+    	        initial_zoom = mem_zoom;
+    	}
 
     	if (serialized_info != null)
     	{
@@ -456,6 +467,7 @@ public class RuntimeViewPart extends FXViewPart
 		try
 		{
 		    memento.putString(MEMENTO_DISPLAY_INFO, DisplayInfoXMLUtil.toXML(info));
+		    memento.putInteger(MEMENTO_ZOOM, (int) (representation.getZoom() * 100));
 		}
 		catch (Exception ex)
 		{
@@ -602,6 +614,11 @@ public class RuntimeViewPart extends FXViewPart
         {
             JFXRepresentation.getChildren(root).clear();
             representation.representModel(root, model);
+            if (initial_zoom > 0)
+            {
+                representation.requestZoom(initial_zoom + "%");
+                initial_zoom = 0;
+            }
         }
         catch (Exception ex)
         {
@@ -617,7 +634,6 @@ public class RuntimeViewPart extends FXViewPart
     private void createToolbarItems()
     {
 		final IToolBarManager toolbar = getViewSite().getActionBars().getToolBarManager();
-
 		toolbar.add(new ZoomAction(this));
 	    toolbar.add(NavigationAction.createBackAction(this, navigation));
 	    toolbar.add(NavigationAction.createForwardAction(this, navigation));

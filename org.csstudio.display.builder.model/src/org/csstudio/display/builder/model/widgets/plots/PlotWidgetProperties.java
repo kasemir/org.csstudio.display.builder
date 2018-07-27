@@ -97,6 +97,7 @@ public class PlotWidgetProperties
             return new AxisWidgetProperty(propXAxis, widget,
                   Arrays.asList(propTitle.createProperty(widget, title_text),
                                 propAutoscale.createProperty(widget, false),
+                                propLogscale.createProperty(widget, false),
                                 CommonWidgetProperties.propMinimum.createProperty(widget, 0.0),
                                 CommonWidgetProperties.propMaximum.createProperty(widget, 100.0),
                                 propGrid.createProperty(widget, false),
@@ -112,11 +113,12 @@ public class PlotWidgetProperties
 
         public WidgetProperty<String> title()           { return getElement(0); }
         public WidgetProperty<Boolean> autoscale()      { return getElement(1); }
-        public WidgetProperty<Double> minimum()         { return getElement(2); }
-        public WidgetProperty<Double> maximum()         { return getElement(3); }
-        public WidgetProperty<Boolean> grid()           { return getElement(4); }
-        public WidgetProperty<WidgetFont> titleFont()   { return getElement(5); }
-        public WidgetProperty<WidgetFont> scaleFont()   { return getElement(6); }
+        public WidgetProperty<Boolean> logscale()       { return getElement(2); }
+        public WidgetProperty<Double> minimum()         { return getElement(3); }
+        public WidgetProperty<Double> maximum()         { return getElement(4); }
+        public WidgetProperty<Boolean> grid()           { return getElement(5); }
+        public WidgetProperty<WidgetFont> titleFont()   { return getElement(6); }
+        public WidgetProperty<WidgetFont> scaleFont()   { return getElement(7); }
     };
 
     /** Structure for Y axis */
@@ -145,17 +147,6 @@ public class PlotWidgetProperties
             super(axis_descriptor, widget, elements);
         }
 
-        public WidgetProperty<Boolean> logscale()       { return getElement(2); }
-        @Override
-        public WidgetProperty<Double> minimum()         { return getElement(3); }
-        @Override
-        public WidgetProperty<Double> maximum()         { return getElement(4); }
-        @Override
-        public WidgetProperty<Boolean> grid()           { return getElement(5); }
-        @Override
-        public WidgetProperty<WidgetFont> titleFont()   { return getElement(6); }
-        @Override
-        public WidgetProperty<WidgetFont> scaleFont()   { return getElement(7); }
         public WidgetProperty<Boolean> visible()        { return getElement(8); }
     };
 

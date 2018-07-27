@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010-2015 Oak Ridge National Laboratory.
+ * Copyright (c) 2010-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -47,6 +47,7 @@ import org.csstudio.trends.databrowser3.preferences.Preferences;
 import org.diirt.util.time.TimeDuration;
 import org.eclipse.osgi.util.NLS;
 
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
 /** Controller that interfaces the {@link Model} with the {@link ModelBasedPlotSWT}:
@@ -305,6 +306,9 @@ public abstract class ControllerBase
             @Override
             public void changedColorsOrFonts()
             {
+                final Color color = SWTMediaPool.getJFX(model.getPlotForeground());
+                plot.getPlot().setForeground(color);
+                plot.getPlot().getXAxis().setColor(color);
                 plot.getPlot().setBackground(SWTMediaPool.getJFX(model.getPlotBackground()));
                 plot.getPlot().setTitleFont(SWTMediaPool.getJFX(model.getTitleFont()));
                 plot.getPlot().setLegendFont(SWTMediaPool.getJFX(model.getLegendFont()));
@@ -459,6 +463,9 @@ public abstract class ControllerBase
         if (isRunning())
             throw new IllegalStateException("Already started");
 
+        final Color color = SWTMediaPool.getJFX(model.getPlotForeground());
+        plot.getPlot().setForeground(color);
+        plot.getPlot().getXAxis().setColor(color);
         plot.getPlot().setBackground(SWTMediaPool.getJFX(model.getPlotBackground()));
         plot.getPlot().getXAxis().setGridVisible(model.isGridVisible());
         plot.getPlot().showToolbar(model.isToolbarVisible());

@@ -176,6 +176,10 @@ public class WidgetTree
         return tree_view;
     }
 
+    public Control getView() {
+        return tree_view;
+    }
+
     private void handleKeyPress(final KeyEvent event)
     {
         WidgetTree.handleWidgetOrderKeys(event, editor);
