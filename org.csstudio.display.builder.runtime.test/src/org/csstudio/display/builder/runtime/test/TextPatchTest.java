@@ -33,7 +33,7 @@ public class TextPatchTest
     @Test
     public void testConstantNumber() throws Exception
     {
-        final TextPatch pvm_string = new TextPatch("=([0-9]+)", "loc://const$1($1)");
+        final TextPatch pvm_string = new TextPatch("^=([0-9]+)", "loc://const$1($1)");
 
         String name = "=1";
         String patched = pvm_string.patch(name);
@@ -44,17 +44,29 @@ public class TextPatchTest
         patched = pvm_string.patch(name);
         System.out.println(name + " -> " + patched);
         assertThat(patched, equalTo("loc://const42(42)"));
+
+        // Can a PV name really contain '='?!
+        // Evidently, yes..
+        name = "test=0";
+        patched = pvm_string.patch(name);
+        System.out.println(name + " -> " + patched);
+        assertThat(patched, equalTo("test=0"));
     }
 
     @Test
     public void testConstantText() throws Exception
     {
-        final TextPatch pvm_string = new TextPatch("=\"([a-zA-Z]+)\"", "loc://str$1(\"$1\")");
+        final TextPatch pvm_string = new TextPatch("^=\"([a-zA-Z]+)\"", "loc://str$1(\"$1\")");
 
         String name = "=\"Fred\"";
         String patched = pvm_string.patch(name);
         System.out.println(name + " -> " + patched);
         assertThat(patched, equalTo("loc://strFred(\"Fred\")"));
-    }
 
+        // PV with '=' in the name?!
+        name = "test=egon";
+        patched = pvm_string.patch(name);
+        System.out.println(name + " -> " + patched);
+        assertThat(patched, equalTo("test=egon"));
+    }
 }
