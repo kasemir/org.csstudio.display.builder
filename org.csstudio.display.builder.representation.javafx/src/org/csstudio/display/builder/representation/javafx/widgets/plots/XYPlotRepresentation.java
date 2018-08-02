@@ -42,6 +42,7 @@ import org.csstudio.javafx.rtplot.YAxis;
 import org.csstudio.javafx.rtplot.internal.NumericAxis;
 import org.diirt.util.array.ArrayDouble;
 import org.diirt.util.array.ListNumber;
+import org.diirt.vtype.VNumber;
 import org.diirt.vtype.VNumberArray;
 import org.diirt.vtype.VType;
 
@@ -250,7 +251,6 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         {
             final ListNumber x_data, y_data, error;
             final VType y_value = model_trace.traceYValue().getValue();
-
             if (y_value instanceof VNumberArray)
             {
                 final VType x_value = model_trace.traceXValue().getValue();
@@ -268,7 +268,23 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
                 else
                     error = new ArrayDouble(VTypeUtil.getValueNumber(error_value).doubleValue());
             }
-            else // Clear all unless there's Y data
+            else if (y_value instanceof VNumber)
+            {
+                final VType x_value = model_trace.traceXValue().getValue();
+                x_data = (x_value instanceof VNumber) ? new ArrayDouble(((VNumber)x_value).getValue().doubleValue()) : null;
+
+                final VNumber y_array = (VNumber)y_value;
+                trace.setUnits(y_array.getUnits());
+                y_data = new ArrayDouble(y_array.getValue().doubleValue());
+
+                final VType error_value = model_trace.traceErrorValue().getValue();
+                if (error_value == null)
+                    error = null;
+                else
+                    error = new ArrayDouble(VTypeUtil.getValueNumber(error_value).doubleValue());
+            }
+            else
+                // Clear all unless there's Y data
                 x_data = y_data = error = XYVTypeDataProvider.EMPTY;
 
             // Decouple from CAJ's PV thread
