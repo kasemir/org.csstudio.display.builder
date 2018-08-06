@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.representation.javafx.widgets;
 
 import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
+import static org.csstudio.display.builder.representation.javafx.widgets.BaseLEDRepresentation.makeLEDGradient;
 
 import java.util.List;
 import java.util.logging.Level;
@@ -29,9 +30,6 @@ import javafx.scene.control.ButtonBase;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.CycleMethod;
-import javafx.scene.paint.RadialGradient;
-import javafx.scene.paint.Stop;
 import javafx.scene.shape.Ellipse;
 
 /** Creates JavaFX item for model widget
@@ -76,6 +74,7 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
     public ButtonBase createJFXNode() throws Exception
     {
         led = new Ellipse();
+        led.getStyleClass().add(model_widget.propFlat().getValue() ? "led_flat" : "led");
         button = new Button("BoolButton", led);
         button.getStyleClass().add("action_button");
         button.setOnAction(event -> handlePress());
@@ -144,6 +143,7 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
         model_widget.propOnImage().addUntypedPropertyListener(this::imagesChanged);
         model_widget.propOnColor().addUntypedPropertyListener(this::representationChanged);
         model_widget.propShowLED().addUntypedPropertyListener(this::representationChanged);
+        model_widget.propFlat().addUntypedPropertyListener(this::representationChanged);
         model_widget.propFont().addUntypedPropertyListener(this::representationChanged);
         model_widget.propForegroundColor().addUntypedPropertyListener(this::representationChanged);
         model_widget.propBackgroundColor().addUntypedPropertyListener(this::representationChanged);
@@ -261,6 +261,9 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
                 final int size = Math.min(wid, hei);
                 led.setRadiusX(size / 3.7);
                 led.setRadiusY(size / 3.7);
+                led.getStyleClass().remove("led_flat");
+                led.getStyleClass().remove("led");
+                led.getStyleClass().add(model_widget.propFlat().getValue() ? "led_flat" : "led");
             }
             else
             {
@@ -285,11 +288,7 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
             if (image == null)
             {
                 jfx_node.setGraphic(led);
-                // Put highlight in top-left corner, about 0.2 wide,
-                // relative to actual size of LED
-                led.setFill(new RadialGradient(0, 0, 0.3, 0.3, 0.4, true, CycleMethod.NO_CYCLE,
-                        new Stop(0, value_color.interpolate(Color.WHITESMOKE, 0.8)),
-                        new Stop(1, value_color)));
+                led.setFill(model_widget.propFlat().getValue() ? value_color : makeLEDGradient(value_color));
             }
             else
                 jfx_node.setGraphic(image);

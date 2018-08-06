@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.model.widgets;
 
 import static  org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFlat;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHorizontal;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOffColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOnColor;
@@ -108,6 +109,7 @@ public class ByteMonitorWidget extends PVWidget
     private volatile WidgetProperty<Boolean> bitReverse;
     private volatile WidgetProperty<Boolean> horizontal;
     private volatile WidgetProperty<Boolean> square;
+    private volatile WidgetProperty<Boolean> flat;
 
     public ByteMonitorWidget()
     {
@@ -123,6 +125,7 @@ public class ByteMonitorWidget extends PVWidget
         properties.add(bitReverse = propBitReverse.createProperty(this,false));
         properties.add(horizontal = propHorizontal.createProperty(this,true));
         properties.add(square = propSquare.createProperty(this,false));
+        properties.add(flat = propFlat.createProperty(this, false));
         properties.add(off_color = propOffColor.createProperty(this, new WidgetColor(60, 100, 60)));
         properties.add(on_color = propOnColor.createProperty(this, new WidgetColor(60, 255, 60)));
     }
@@ -174,5 +177,11 @@ public class ByteMonitorWidget extends PVWidget
     public WidgetProperty<Boolean> propSquare()
     {
         return square;
+    }
+
+    /** @return 'flat' property*/
+    public WidgetProperty<Boolean> propFlat()
+    {
+        return flat;
     }
 }

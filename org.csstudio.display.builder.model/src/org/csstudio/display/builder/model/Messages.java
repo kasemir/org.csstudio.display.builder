@@ -194,6 +194,7 @@ public class Messages extends NLS
     public static String WidgetProperties_ExtremaVisible;
     public static String WidgetProperties_File;
     public static String WidgetProperties_FillColor;
+    public static String WidgetProperties_Flat;
     public static String WidgetProperties_FlatBar;
     public static String WidgetProperties_Font;
     public static String WidgetProperties_ForegroundColor;

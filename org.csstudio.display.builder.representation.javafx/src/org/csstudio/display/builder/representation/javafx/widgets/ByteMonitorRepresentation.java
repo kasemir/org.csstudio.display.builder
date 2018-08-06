@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
+import static org.csstudio.display.builder.representation.javafx.widgets.BaseLEDRepresentation.makeLEDGradient;
+
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.VTypeUtil;
@@ -16,9 +18,6 @@ import org.diirt.vtype.VType;
 
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.CycleMethod;
-import javafx.scene.paint.LinearGradient;
-import javafx.scene.paint.Stop;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
@@ -41,6 +40,7 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
     private volatile boolean bitReverse = false;
     private volatile boolean horizontal = true;
     private volatile boolean square_led = false;
+    private volatile boolean flat_led = false;
 
     private volatile Shape[] leds = null;
 
@@ -51,6 +51,7 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
         final Pane pane = new Pane();
         numBits = model_widget.propNumBits().getValue();
         square_led = model_widget.propSquare().getValue();
+        flat_led = model_widget.propFlat().getValue();
         horizontal = model_widget.propHorizontal().getValue();
         addLEDs(pane);
         pane.setMinSize(Pane.USE_PREF_SIZE, Pane.USE_PREF_SIZE);
@@ -87,6 +88,7 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
     {
         final int save_bits = numBits;
         final boolean save_sq = square_led;
+        final boolean save_fl = flat_led;
         final Color [] save_colorVals = value_colors;
         final Shape [] leds = new Shape[save_bits];
         for (int i = 0; i < save_bits; i++)
@@ -112,21 +114,14 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
                 ell.setRadiusY(dv/2);
                 led = ell;
             }
-            led.getStyleClass().add("led");
+            led.getStyleClass().add(save_fl ? "led_flat" : "led");
             if (save_colorVals != null && i < save_colorVals.length)
-                led.setFill( makeGradient(save_colorVals[i]) );
+                led.setFill( save_fl ? save_colorVals[i] : makeLEDGradient(save_colorVals[i]) );
             leds[i] = led;
         }
         this.leds = leds;
         pane.getChildren().clear();
         pane.getChildren().addAll(leds);
-    }
-
-    private LinearGradient makeGradient(final Color color)
-    {
-        return new LinearGradient(0, 0, .7, .7, true, CycleMethod.NO_CYCLE,
-                new Stop(0, color.interpolate(Color.WHITESMOKE, 0.8)),
-                new Stop(1, color));
     }
 
     protected Color[] createColors()
@@ -170,6 +165,7 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
         model_widget.propNumBits().addUntypedPropertyListener(this::lookChanged);
         model_widget.propHorizontal().addUntypedPropertyListener(this::lookChanged);
         model_widget.propSquare().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propFlat().addUntypedPropertyListener(this::lookChanged);
 
         //initialization
         configChanged(null, null, null);
@@ -188,6 +184,7 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
         numBits = model_widget.propNumBits().getValue();
         horizontal = model_widget.propHorizontal().getValue();
         square_led = model_widget.propSquare().getValue();
+        flat_led = model_widget.propFlat().getValue();
         // note: copied to array to safeguard against mid-operation changes
         dirty_size.mark();
         contentChanged(model_widget.runtimePropValue(), null, model_widget.runtimePropValue().getValue());
@@ -244,12 +241,13 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
         {
             final Shape[] save_leds = leds;
             final Color[] save_values = value_colors;
+            final boolean save_fl = flat_led;
             if (save_leds == null  ||  save_values == null)
                 return;
 
             final int N = Math.min(save_leds.length, save_values.length);
             for (int i = 0; i < N; i++)
-                leds[i].setFill( makeGradient(save_values[i]));
+                leds[i].setFill( save_fl ? save_values[i] : makeLEDGradient(save_values[i]));
         }
     }
 }
