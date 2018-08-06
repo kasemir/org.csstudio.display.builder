@@ -19,7 +19,8 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
-import javafx.scene.paint.RadialGradient;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Paint;
 import javafx.scene.paint.Stop;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Rectangle;
@@ -31,6 +32,39 @@ import javafx.scene.shape.Shape;
 @SuppressWarnings("nls")
 abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBaseRepresentation<Pane, LED>
 {
+
+    public static Paint makeLEDGradient ( Color color ) {
+
+        //  Original BaseLEDRepresentation & BoolButtonRepresentation gradient
+        //      put highlight in top-left corner, about 0.2 wide,
+        //      relative to actual size of LED
+//        return new RadialGradient(
+//            0, 0,
+//            0.3, 0.3, 0.4,
+//            true, CycleMethod.NO_CYCLE,
+//            new Stop(0, color.interpolate(Color.WHITESMOKE, 0.8)),
+//            new Stop(1, color)
+//        );
+
+        // Original ByteMonitorRepresentation gradient
+//        return new LinearGradient(
+//            0, 0,
+//            .7, .7,
+//            true, CycleMethod.NO_CYCLE,
+//            new Stop(0, color.interpolate(Color.WHITESMOKE, 0.8)),
+//            new Stop(1, color)
+//        );
+
+        return new LinearGradient(
+            0, 0,
+            .6, .6,
+            true, CycleMethod.NO_CYCLE,
+            new Stop(0, color.interpolate(Color.WHITESMOKE, 0.777)),
+            new Stop(1, color)
+        );
+
+    }
+
     private final DirtyFlag typeChanged = new DirtyFlag();
     private final DirtyFlag styleChanged = new DirtyFlag();
     protected final DirtyFlag dirty_content = new DirtyFlag();
@@ -62,7 +96,7 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
             led = new Rectangle();
         else
             led = new Ellipse();
-        led.getStyleClass().add("led");
+        led.getStyleClass().add(model_widget.propFlat().getValue() ? "led_flat" : "led");
         label = new Label();
         label.getStyleClass().add("led_label");
         label.setAlignment(Pos.CENTER);
@@ -103,6 +137,7 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
     {
         super.registerListeners();
         model_widget.propSquare().addPropertyListener(this::typeChanged);
+        model_widget.propFlat().addPropertyListener(this::typeChanged);
         model_widget.propWidth().addUntypedPropertyListener(this::styleChanged);
         model_widget.propHeight().addUntypedPropertyListener(this::styleChanged);
         model_widget.propFont().addUntypedPropertyListener(this::styleChanged);
@@ -199,13 +234,9 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
         }
         if (dirty_content.checkAndClear())
         {
-            led.setFill(
-                // Put highlight in top-left corner, about 0.2 wide,
-                // relative to actual size of LED
-                new RadialGradient(0, 0, 0.3, 0.3, 0.4, true, CycleMethod.NO_CYCLE,
-                                   new Stop(0, value_color.interpolate(Color.WHITESMOKE, 0.8)),
-                                   new Stop(1, value_color)));
+            led.setFill(model_widget.propFlat().getValue() ? value_color : makeLEDGradient(value_color));
             label.setText(value_label);
         }
     }
+
 }

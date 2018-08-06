@@ -4,9 +4,15 @@
 /* LEDRepresentation */
 .led
 {
-    -fx-stroke-width: 2;
+    -fx-stroke-width: 2.11;
     -fx-stroke-type: inside;
-    -fx-stroke: linear-gradient(to bottom right, #808080, #f0f0f0);
+    -fx-stroke: linear-gradient(to bottom right, #6E6F6E, #E7E6E5);
+}
+.led_flat
+{
+    -fx-stroke-width: 2.44;
+    -fx-stroke-type: inside;
+    -fx-stroke: rgba(0, 0, 0, 0.7);
 }
 .led_label
 {

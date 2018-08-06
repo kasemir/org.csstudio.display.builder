@@ -535,6 +535,10 @@ public class CommonWidgetProperties
     public static final WidgetPropertyDescriptor<Boolean> propWrapWords =
             newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "wrap_words", Messages.WidgetProperties_WrapWords);
 
+    /** Flat or shaded LED? */
+    public static final WidgetPropertyDescriptor<Boolean> propFlat =
+            newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "flat", Messages.WidgetProperties_Flat);
+
     /** Property for the 'off' color */
     public static final WidgetPropertyDescriptor<WidgetColor> propOffColor = new WidgetPropertyDescriptor<WidgetColor>(
             WidgetPropertyCategory.DISPLAY, "off_color", Messages.WidgetProperties_OffColor)

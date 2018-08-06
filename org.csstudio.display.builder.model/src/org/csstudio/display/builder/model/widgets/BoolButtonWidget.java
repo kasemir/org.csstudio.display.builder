@@ -14,6 +14,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propConfirmDialogOptions;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propConfirmMessage;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFlat;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLabelsFromPV;
@@ -121,6 +122,7 @@ public class BoolButtonWidget extends WritablePVWidget
     private volatile WidgetProperty<ConfirmDialog> confirm_dialog;
     private volatile WidgetProperty<String> confirm_message;
     private volatile WidgetProperty<String> password;
+    private volatile WidgetProperty<Boolean> flat;
 
     public BoolButtonWidget()
     {
@@ -146,6 +148,7 @@ public class BoolButtonWidget extends WritablePVWidget
         properties.add(on_color = propOnColor.createProperty(this, new WidgetColor(60, 255, 60)));
         properties.add(on_image = propOnImage.createProperty(this, ""));
         properties.add(show_LED = propShowLED.createProperty(this, true));
+        properties.add(flat = propFlat.createProperty(this, false));
         properties.add(font = propFont.createProperty(this, WidgetFontService.get(NamedWidgetFonts.DEFAULT)));
         properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
         properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BUTTON_BACKGROUND)));
@@ -250,5 +253,11 @@ public class BoolButtonWidget extends WritablePVWidget
     public WidgetProperty<String> propPassword()
     {
         return password;
+    }
+
+    /** @return 'flat' property*/
+    public WidgetProperty<Boolean> propFlat()
+    {
+        return flat;
     }
 }

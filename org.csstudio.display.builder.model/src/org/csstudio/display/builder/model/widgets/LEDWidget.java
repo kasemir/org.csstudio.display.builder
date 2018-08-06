@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBit;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFlat;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLabelsFromPV;
@@ -115,6 +116,7 @@ public class LEDWidget extends BaseLEDWidget
         properties.add(font = propFont.createProperty(this, WidgetFontService.get(NamedWidgetFonts.DEFAULT)));
         properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
         properties.add(square = propSquare.createProperty(this, false));
+        properties.add(flat = propFlat.createProperty(this, false));
         // Ideally, widgets should fetch their information from a PV,
         // but the LED does not allow much room for text,
         // so the default text from the PV is likely too large..

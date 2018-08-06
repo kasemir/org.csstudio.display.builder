@@ -65,6 +65,7 @@ public class BaseLEDWidget extends PVWidget
     protected volatile WidgetProperty<WidgetFont> font;
     protected volatile WidgetProperty<WidgetColor> foreground;
     protected volatile WidgetProperty<Boolean> square;
+    protected volatile WidgetProperty<Boolean> flat;
 
     /** Widget constructor.
      *  @param type Widget type
@@ -101,5 +102,11 @@ public class BaseLEDWidget extends PVWidget
     public WidgetProperty<Boolean> propSquare()
     {
         return square;
+    }
+
+    /** @return 'flat' property*/
+    public WidgetProperty<Boolean> propFlat()
+    {
+        return flat;
     }
 }
