@@ -19,6 +19,8 @@ import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.csstudio.apputil.time.PeriodFormat;
 import org.csstudio.apputil.time.RelativeTime;
@@ -68,6 +70,8 @@ public class Model
 
     /** Default colors for newly added item */
     final private RGBFactory default_colors = new RGBFactory();
+
+    private final Pattern axis_name_pattern = Pattern.compile(Messages.Plot_ValueAxisName + " \\d+", Pattern.MULTILINE);
 
     /** Macros */
     private volatile MacroValueProvider macros = new MacroValueProvider() {
@@ -338,11 +342,26 @@ public class Model
     }
 
     /** Add value axis with default settings
+     *  Sets name of new axis to Value N
+     *  N is found by searching for all the existing axes with the name Value X; N is set to the highest value of X found + 1
+     *  (this scheme should avoid the creation of axes with duplicate names of the format Value N)
      *  @return Newly added axis configuration
      */
     public AxisConfig addAxis()
     {
-        final String name = NLS.bind(Messages.Plot_ValueAxisNameFMT, axes.size() + 1);
+        int max_default_axis_num = 0;
+        for (AxisConfig axis : axes)
+        {
+            String existing_axis_name = axis.getName();
+            Matcher matcher = axis_name_pattern.matcher(existing_axis_name);
+            while (matcher.find())
+            {
+                final int default_axis_num = Integer.parseInt(matcher.group(0).replace(Messages.Plot_ValueAxisName+" ",""));
+                if (default_axis_num > max_default_axis_num)
+                    max_default_axis_num = default_axis_num;
+            }
+        }
+        final String name = NLS.bind(Messages.Plot_ValueAxisNameFMT, max_default_axis_num + 1);
         final AxisConfig axis = new AxisConfig(name);
         axis.setColor(new RGB(0, 0, 0));
         addAxis(axis);
