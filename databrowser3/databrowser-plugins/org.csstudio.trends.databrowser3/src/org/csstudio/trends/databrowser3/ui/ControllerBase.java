@@ -530,8 +530,9 @@ public abstract class ControllerBase
             // Skip updates while nobody is watching
             if (window_is_iconized || suppress_redraws)
                 return;
-            // Check if anything changed, which also updates formulas
-            if (model.updateItemsAndCheckForNewSamples())
+            // Check if anything changed, which also updates formulas.
+            // When scrolling, need to update even when nothing changed to 'scroll'.
+            if (model.updateItemsAndCheckForNewSamples()  ||  model.isScrollEnabled())
                 plot.redrawTraces();
         }
         catch (Throwable ex)
