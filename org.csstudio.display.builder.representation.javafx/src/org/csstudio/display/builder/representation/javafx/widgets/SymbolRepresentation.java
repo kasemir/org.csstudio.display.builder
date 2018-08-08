@@ -36,6 +36,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
+import org.csstudio.display.builder.model.widgets.PVWidget;
 import org.csstudio.display.builder.model.widgets.SymbolWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.javafx.Styles;
@@ -352,7 +353,9 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
                 value = model_widget.runtimePropValue().getValue();
 
                 if ( value != null ) {
-                    if ( value instanceof VBoolean ) {
+                    if ( PVWidget.RUNTIME_VALUE_NO_PV == value ) {
+                        idx = model_widget.propInitialIndex().getValue();
+                    } else if ( value instanceof VBoolean ) {
                         idx = ((VBoolean) value).getValue() ? 1 : 0;
                     } else if ( value instanceof VString ) {
                         try {
@@ -456,7 +459,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
     @Override
     protected AnchorPane createJFXNode ( ) throws Exception {
 
-        imageIndex.set(Math.max(model_widget.propInitialIndex().getValue(), 0));
+        setImageIndex(Math.max(model_widget.propInitialIndex().getValue(), 0));
 
         autoSize = model_widget.propAutoSize().getValue();
 
@@ -831,7 +834,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
                     }
 
                 } else if ( oldIndex != newImageIndex ) {
-                    imageIndex.set(newImageIndex);
+                    setImageIndex(newImageIndex);
                 }
 
                 dirtyGeometry.mark();
