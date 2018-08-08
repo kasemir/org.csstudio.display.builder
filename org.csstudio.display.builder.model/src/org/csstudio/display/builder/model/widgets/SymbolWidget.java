@@ -9,6 +9,7 @@
 package org.csstudio.display.builder.model.widgets;
 
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newDoublePropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newFilenamePropertyDescriptor;
@@ -78,7 +79,8 @@ public class SymbolWidget extends PVWidget {
         WidgetPropertyCategory.WIDGET,
         "symbols",
         Messages.WidgetProperties_Symbols,
-        (widget, index) -> propSymbol(index).createProperty(widget, DEFAULT_SYMBOL)
+        (widget, index) -> propSymbol(index).createProperty(widget, DEFAULT_SYMBOL),
+        0
     );
 
     private volatile WidgetProperty<Boolean>                     auto_size;
@@ -107,8 +109,14 @@ public class SymbolWidget extends PVWidget {
         super(WIDGET_DESCRIPTOR.getType(), 100, 100);
     }
 
-    public void addSymbol( String fileName ) {
-        symbols.addElement(propSymbol(symbols.size()).createProperty(this, fileName));
+    public void addOrReplaceSymbol( int index, String fileName ) {
+        if ( index == symbols.size() ) {
+            symbols.addElement(propSymbol(index).createProperty(this, fileName));
+        } else if ( index < symbols.size() ) {
+            symbols.getElement(index).setValue(fileName);
+        } else {
+            logger.warning("Out of bound index: " + index);
+        }
     }
 
     public void clearImportedFrom ( ) {
@@ -169,7 +177,7 @@ public class SymbolWidget extends PVWidget {
 
         super.defineProperties(properties);
 
-        properties.add(symbols        = propSymbols.createProperty(this, Collections.emptyList()));
+        properties.add(symbols        = propSymbols.createProperty(this, Collections.singletonList(propSymbol(0).createProperty(this, "platform:/plugin/org.csstudio.display.builder.model/icons/default_symbol.png"))));
 
         properties.add(background     = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
         properties.add(initial_index  = propInitialIndex.createProperty(this, 0));
@@ -220,11 +228,7 @@ public class SymbolWidget extends PVWidget {
                 }
 
                 for ( int i = 0; i < fileNames.size(); i++ ) {
-                    if ( i < propSymbols.size() ) {
-                        propSymbols.getElement(i).setValue(fileNames.get(i));
-                    } else {
-                        symbol.addSymbol(fileNames.get(i));
-                    }
+                    symbol.addOrReplaceSymbol(i, fileNames.get(i));
                 }
 
                 XMLUtil.getChildBoolean(xml, "stretch_to_fit").ifPresent(stf -> symbol.propPreserveRatio().setValue(!stf));

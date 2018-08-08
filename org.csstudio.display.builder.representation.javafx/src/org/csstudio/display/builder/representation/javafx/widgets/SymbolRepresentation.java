@@ -547,7 +547,10 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
         model_widget.propPVName().addPropertyListener(this::contentChanged);
 
         model_widget.propSymbols().addPropertyListener(this::imagesChanged);
-        model_widget.propSymbols().getValue().stream().forEach(p -> p.addPropertyListener(imagePropertyListener));
+        model_widget.propSymbols().getValue().stream().forEach(p -> {
+            p.removePropertyListener(imagePropertyListener);
+            p.addPropertyListener(imagePropertyListener);
+        });
 
         model_widget.propInitialIndex().addPropertyListener(this::initialIndexChanged);
 
@@ -751,13 +754,8 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
                     return;
             }
 
-
             for ( int i = 0; i < fileNames.size(); i++ ) {
-                if ( i < propSymbols.size() ) {
-                    propSymbols.getElement(i).setValue(fileNames.get(i));
-                } else {
-                    model_widget.addSymbol(fileNames.get(i));
-                }
+                model_widget.addOrReplaceSymbol(i, fileNames.get(i));
             }
 
         } finally {
@@ -826,10 +824,9 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
 
                     ImageContent imageContent = imagesList.get(getImageIndex());
 
-                    if ( ( imageContent.isSVG() && imagePane.getCenter() == imageView )
-                      || ( imageContent.isImage() && imagePane.getCenter() != imageView ) ) {
+                    if ( imageContent.isSVG() || ( imageContent.isImage() && imagePane.getCenter() != imageView ) ) {
                         Platform.runLater(() -> triggerContentUpdate());
-                    } else if ( imageContent.isImage() && getDefaultSymbol().equals(imageView.getImage()) ) {
+                    } else if ( imageContent.isImage() ) {
                         Platform.runLater(() -> triggerImageUpdate());
                     }
 
