@@ -119,9 +119,15 @@ public class PrintAction extends Action
         final Thread thread = ui_thread.get();
         if (thread != null)
         {
-            logger.log(Level.WARNING, "Killing print job");
+            // Log message might end up in ConsoleViewHandler,
+            // i.e. in SWT code which needs to access the Display
+            // which is blocked by the printer, so kill hung printer before
+            // trying to log
             thread.interrupt();
+
+            logger.log(Level.WARNING, "Killing print job");
         }
+        // else: ui_thread for printing has completed
     }
 
     private void doPrint(final Image snapshot, final PrinterData data)
