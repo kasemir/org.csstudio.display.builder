@@ -109,8 +109,9 @@ public class PrintAction extends Action
 
         // Access to SWT Printer must be on UI thread.
         // Printing in other thread can deadlock with UI thread.
-        // We are on UI thread, but move to another UI update tick.
-        shell.getDisplay().asyncExec(() -> doPrint(snapshot, data));
+        // We are on UI thread, but move to another UI update tick?
+        // shell.getDisplay().asyncExec(() -> doPrint(snapshot, data));
+        doPrint(snapshot, data);
     }
 
     /** Interrupt the UI thread if still used by the printer */
