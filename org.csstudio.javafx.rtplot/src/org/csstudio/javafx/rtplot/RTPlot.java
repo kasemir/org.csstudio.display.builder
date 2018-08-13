@@ -338,7 +338,6 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
         if (isLegendVisible() == show)
             return;
         plot.showLegend(show);
-        //toggle_legend.updateText();
     }
 
     /** @return <code>true</code> if toolbar is visible */

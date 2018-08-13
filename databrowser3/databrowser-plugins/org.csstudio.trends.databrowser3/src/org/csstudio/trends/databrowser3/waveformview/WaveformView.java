@@ -250,8 +250,10 @@ public class WaveformView extends DataBrowserAwareView
         {
             plot = new RTValuePlot(true);
             plot.getXAxis().setName(Messages.WaveformIndex);
-            plot.getYAxes().get(0).setName(Messages.WaveformAmplitude);
             plot.getYAxes().get(0).setAutoscale(true);
+            plot.getYAxes().get(0).useAxisName(false);
+            plot.showLegend(false);
+            plot.requestUpdate();
             return new Scene(plot);
         });
         final Control plot_canvas = wrapper.getFXCanvas();
@@ -292,8 +294,8 @@ public class WaveformView extends DataBrowserAwareView
         getSite().registerContextMenu(mm, null);
         mm.addMenuListener(manager ->
         {
-            mm.add(new ToggleToolbarAction(plot, true));
-            mm.add(new ToggleLegendAction(plot, true));
+            mm.add(new ToggleToolbarAction(plot));
+            mm.add(new ToggleLegendAction(plot));
             mm.add(new Separator());
             mm.add(new ToggleYAxisAction());
         });

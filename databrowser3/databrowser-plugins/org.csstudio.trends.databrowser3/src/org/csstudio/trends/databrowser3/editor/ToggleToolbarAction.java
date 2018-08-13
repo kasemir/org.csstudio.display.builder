@@ -11,7 +11,6 @@ import org.csstudio.javafx.rtplot.Messages;
 import org.csstudio.javafx.rtplot.RTPlot;
 import org.csstudio.javafx.rtplot.RTPlotListener;
 import org.csstudio.trends.databrowser3.Activator;
-
 /** Action that shows/hides the toolbar
  *  @author Kay Kasemir
  */
@@ -22,28 +21,27 @@ public class ToggleToolbarAction extends Action
 {
     final private RTPlot<?> plot;
 
-    public ToggleToolbarAction(final RTPlot<?> plot, final boolean is_visible)
+    public ToggleToolbarAction(final RTPlot<?> plot)
     {
-        super(is_visible ? Messages.Toolbar_Hide : Messages.Toolbar_Show,
-                Activator.getRTPlotIconID("toolbar"));
+        super(Messages.Toolbar_Show, Action.AS_CHECK_BOX);
+        setImageDescriptor(Activator.getRTPlotIconID("toolbar"));
         this.plot = plot;
+        setChecked(plot.isToolbarVisible());
 
         plot.addListener(new RTPlotListener()
         {
             @Override public void changedToolbar(boolean visible)
             {
-                updateText();
+                update();
             }
         });
+    }
 
-        updateText();
-    }
-    //
-    public void updateText()
+    public void update()
     {
-        setText(plot.isToolbarVisible() ? Messages.Toolbar_Hide : Messages.Toolbar_Show);
+        setChecked(plot.isToolbarVisible());
     }
-    //
+
     @Override
     public void run()
     {
