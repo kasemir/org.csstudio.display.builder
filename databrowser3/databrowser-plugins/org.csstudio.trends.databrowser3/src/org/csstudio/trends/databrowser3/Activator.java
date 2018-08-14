@@ -26,6 +26,8 @@ import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -57,6 +59,9 @@ public class Activator extends AbstractUIPlugin
     */
    public static final ScheduledExecutorService thread_pool;
 
+   /** Width of the display in pixels. Used to scale negative plot_bins */
+   public static int display_pixel_width = 0;
+
    static
    {
        // After 10 seconds, delete all idle threads
@@ -69,6 +74,20 @@ public class Activator extends AbstractUIPlugin
     public void start(BundleContext context) throws Exception
     {
         super.start(context);
+
+        // Determine width if widest monitor
+        for (Monitor monitor : Display.getCurrent().getMonitors())
+        {
+            final int wid = monitor.getBounds().width;
+            if (wid > display_pixel_width)
+                display_pixel_width = wid;
+        }
+        if (display_pixel_width <= 0)
+        {
+            logger.log(Level.WARNING, "Cannot determine display pixel width, using 1000");
+            display_pixel_width = 1000;
+        }
+
         if (SingleSourcePlugin.getUIHelper().getUI() == UI.RAP)
         {
             // Is this necessary?
