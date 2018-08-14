@@ -59,6 +59,9 @@ public class BaseLEDWidget extends PVWidget
 
             // Legacy used "square_led" instead of "square"
             led.propSquare().setValue(XMLUtil.getChildBoolean(xml, "square_led").orElse(false));
+
+            // Legacy used "bulb_border_color" instead of "line_color"
+            led.propLineColor().setValue(XMLUtil.getChildColor(xml, "bulb_border_color").orElse(new WidgetColor(50, 50, 50, 178)));
         }
     }
 
