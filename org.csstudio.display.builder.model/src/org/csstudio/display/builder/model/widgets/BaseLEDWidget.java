@@ -64,6 +64,7 @@ public class BaseLEDWidget extends PVWidget
 
     protected volatile WidgetProperty<WidgetFont> font;
     protected volatile WidgetProperty<WidgetColor> foreground;
+    protected volatile WidgetProperty<WidgetColor> line_color;
     protected volatile WidgetProperty<Boolean> square;
 
     /** Widget constructor.
@@ -95,6 +96,12 @@ public class BaseLEDWidget extends PVWidget
     public WidgetProperty<WidgetColor> propForegroundColor()
     {
         return foreground;
+    }
+
+    /** @return 'line_color' property */
+    public WidgetProperty<WidgetColor> propLineColor()
+    {
+        return line_color;
     }
 
     /** @return 'square' property*/
