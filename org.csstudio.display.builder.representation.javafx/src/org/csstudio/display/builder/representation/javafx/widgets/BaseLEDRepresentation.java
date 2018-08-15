@@ -60,6 +60,7 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
         else
             led = new Ellipse();
         led.getStyleClass().add("led");
+        led.setStyle("-fx-stroke: " + JFXUtil.webRGB(model_widget.propLineColor().getValue()));
         label = new Label();
         label.getStyleClass().add("led_label");
         label.setAlignment(Pos.CENTER);
@@ -104,6 +105,7 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
         model_widget.propHeight().addUntypedPropertyListener(this::styleChanged);
         model_widget.propFont().addUntypedPropertyListener(this::styleChanged);
         model_widget.propForegroundColor().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propLineColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.runtimePropValue().addPropertyListener(this::contentChanged);
         contentChanged(null, null, null);
     }
@@ -171,6 +173,8 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
             final Color color = JFXUtil.convert(model_widget.propForegroundColor().getValue());
             label.setTextFill(color);
             label.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
+
+            led.setStyle("-fx-stroke: " + JFXUtil.webRGB(model_widget.propLineColor().getValue()));
 
             final int w = model_widget.propWidth().getValue();
             final int h = model_widget.propHeight().getValue();
