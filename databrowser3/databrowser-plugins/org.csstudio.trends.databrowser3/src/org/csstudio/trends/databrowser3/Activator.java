@@ -75,22 +75,21 @@ public class Activator extends AbstractUIPlugin
     {
         super.start(context);
 
-        try {
+        Display.getDefault().syncExec(() ->
+        {
             // Determine width of widest monitor
-            for (Monitor monitor : Display.getCurrent().getMonitors())
+            for (Monitor monitor : Display.getDefault().getMonitors())
             {
                 final int wid = monitor.getBounds().width;
                 if (wid > display_pixel_width)
                     display_pixel_width = wid;
             }
-        } catch ( Exception ex ) {
-            logger.log(Level.WARNING, "Errors determining display pixel width.", ex);
-        }
-        if (display_pixel_width <= 0)
-        {
-            logger.log(Level.WARNING, "Cannot determine display pixel width, using 1000");
-            display_pixel_width = 1000;
-        }
+            if (display_pixel_width <= 0)
+            {
+                logger.log(Level.WARNING, "Cannot determine display pixel width, using 1000");
+                display_pixel_width = 1000;
+            }
+        });
 
         if (SingleSourcePlugin.getUIHelper().getUI() == UI.RAP)
         {
