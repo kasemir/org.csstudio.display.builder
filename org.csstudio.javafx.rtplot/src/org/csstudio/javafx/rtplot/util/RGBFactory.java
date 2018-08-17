@@ -1,11 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2014-2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2014-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
 package org.csstudio.javafx.rtplot.util;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javafx.scene.paint.Color;
 
@@ -14,6 +17,17 @@ import javafx.scene.paint.Color;
  */
 public class RGBFactory
 {
+    /** Subset of suggested colors */
+    public static List<Color> PALETTE;
+
+    static
+    {
+        PALETTE = new ArrayList<>(12);
+        final RGBFactory rgb = new RGBFactory();
+        for (int i=0; i<12; ++i)
+            PALETTE.add(rgb.next());
+    }
+
     private double hue = -120.0;
     private double saturation = 1.0;
     private double brightness = 1.0;
