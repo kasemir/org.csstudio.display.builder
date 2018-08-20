@@ -19,7 +19,6 @@ import org.csstudio.display.builder.rcp.RuntimePerspective;
 import org.csstudio.display.builder.rcp.RuntimeViewPart;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
-import org.csstudio.display.builder.representation.javafx.JFXStageRepresentation;
 import org.csstudio.ui.util.dialogs.ResourceSelectionDialog;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -29,6 +28,9 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.e4.ui.model.application.ui.basic.MPart;
+import org.eclipse.e4.ui.model.application.ui.basic.MPartSashContainerElement;
+import org.eclipse.e4.ui.workbench.modeling.EModelService;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -41,7 +43,6 @@ import org.eclipse.ui.ide.IDE;
 
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.stage.Stage;
 
 /** Represent display builder in JFX inside RCP Views
  *
@@ -92,16 +93,31 @@ public class RCP_JFXRepresentation extends JFXRepresentation
         return new_representation;
     }
 
+    // 'Standalone' creates a detached RCP part
     @Override
     public ToolkitRepresentation<Parent, Node> openStandaloneWindow(final DisplayModel model,
                                                                     final Consumer<DisplayModel> close_handler) throws Exception
     {
-        final Stage stage = new Stage();
-        final JFXStageRepresentation toolkit = new JFXStageRepresentation(stage);
-        final Parent root = toolkit.configureStage(model, close_handler);
-        stage.show();
-        toolkit.representModel(root, model);
-        return toolkit;
+        final DisplayInfo info = DisplayInfo.forModel(model);
+        final RuntimeViewPart part = RuntimeViewPart.open(null, close_handler, info);
+
+        // See http://tomsondev.bestsolution.at/2012/07/13/so-you-used-internal-api/
+        final EModelService model_service = part.getSite().getService(EModelService.class);
+        MPartSashContainerElement p = part.getSite().getService(MPart.class);
+        // Part may be shared by several perspectives, get the shared instance
+        if (p.getCurSharedRef() != null)
+            p = p.getCurSharedRef();
+
+        // Position as configured in display model
+        model_service.detach(p,
+                model.propX().getValue(),
+                model.propY().getValue(),
+                model.propWidth().getValue(),
+                model.propHeight().getValue());
+
+        final RCP_JFXRepresentation new_representation = part.getRepresentation();
+        new_representation.representModel(part.getRoot(), model);
+        return new_representation;
     }
 
     @Override
