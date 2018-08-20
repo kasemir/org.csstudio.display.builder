@@ -37,7 +37,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.csstudio.display.builder.representation.javafx;bundle-version="1.0.0",
  org.csstudio.display.builder.runtime;bundle-version="1.0.0",
  org.csstudio.display.builder.util;bundle-version="1.0.0",
- org.python.jython;bundle-version="2.7.0"
+ org.python.jython;bundle-version="2.7.0",
+ org.apache.commons.lang3;bundle-version="3.7.0"
 Import-Package: javax.annotation
 Export-Package: org.csstudio.display.builder.rcp,
  org.csstudio.display.builder.rcp.script
