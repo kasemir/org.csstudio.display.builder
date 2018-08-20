@@ -11,6 +11,7 @@ import java.net.URL;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.rcp.DisplayInfo;
@@ -108,12 +109,29 @@ public class RCP_JFXRepresentation extends JFXRepresentation
         if (p.getCurSharedRef() != null)
             p = p.getCurSharedRef();
 
+        int extra_width = 0;
+        int extra_height = 0;
+
+        if ( SystemUtils.IS_OS_MAC ) {
+            //  Tested on MacOS X 10.13.6
+            extra_width = 8;
+            extra_height = 55;
+        } else if ( SystemUtils.IS_OS_LINUX ) {
+            //  Tested on CentOS 7.5
+            extra_width = 8;
+            extra_height = 83;
+        } else if ( SystemUtils.IS_OS_WINDOWS) {
+            //  Tested on Windows 7 Professional
+            extra_width = 24;
+            extra_height = 71;
+        }
+
         // Position as configured in display model
         model_service.detach(p,
                 model.propX().getValue(),
                 model.propY().getValue(),
-                model.propWidth().getValue(),
-                model.propHeight().getValue());
+                model.propWidth().getValue() + extra_width,
+                model.propHeight().getValue() + extra_height);
 
         final RCP_JFXRepresentation new_representation = part.getRepresentation();
         new_representation.representModel(part.getRoot(), model);
