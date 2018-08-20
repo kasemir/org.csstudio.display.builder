@@ -109,7 +109,7 @@ public class RCP_JFXRepresentation extends JFXRepresentation
         if (p.getCurSharedRef() != null)
             p = p.getCurSharedRef();
 
-
+        // Add room for tab and borders
         final int extra_width, extra_height;
         if (PlatformInfo.is_mac_os_x)
         {
