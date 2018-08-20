@@ -19,6 +19,7 @@ import org.csstudio.display.builder.rcp.RuntimePerspective;
 import org.csstudio.display.builder.rcp.RuntimeViewPart;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
+import org.csstudio.javafx.PlatformInfo;
 import org.csstudio.ui.util.dialogs.ResourceSelectionDialog;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -108,12 +109,33 @@ public class RCP_JFXRepresentation extends JFXRepresentation
         if (p.getCurSharedRef() != null)
             p = p.getCurSharedRef();
 
+
+        final int extra_width, extra_height;
+        if (PlatformInfo.is_mac_os_x)
+        {
+            // Tested on MacOS X 10.13.6
+            extra_width = 8;
+            extra_height = 55;
+        }
+        else if (PlatformInfo.is_linux)
+        {
+            // Tested on CentOS 7.5
+            extra_width = 8;
+            extra_height = 83;
+        }
+        else
+        {
+            // Tested on Windows 7 Professional
+            extra_width = 24;
+            extra_height = 71;
+        }
+
         // Position as configured in display model
         model_service.detach(p,
                 model.propX().getValue(),
                 model.propY().getValue(),
-                model.propWidth().getValue(),
-                model.propHeight().getValue());
+                model.propWidth().getValue() + extra_width,
+                model.propHeight().getValue() + extra_height);
 
         final RCP_JFXRepresentation new_representation = part.getRepresentation();
         new_representation.representModel(part.getRoot(), model);
