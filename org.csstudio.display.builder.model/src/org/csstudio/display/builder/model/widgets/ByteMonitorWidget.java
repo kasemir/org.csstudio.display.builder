@@ -117,7 +117,9 @@ public class ByteMonitorWidget extends PVWidget
     @Override
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
+
         super.defineProperties(properties);
+
         properties.add(startBit = propStartBit.createProperty(this,0));
         properties.add(numBits = propNumBits.createProperty(this,8));
         properties.add(bitReverse = propBitReverse.createProperty(this,false));
@@ -125,6 +127,17 @@ public class ByteMonitorWidget extends PVWidget
         properties.add(square = propSquare.createProperty(this,false));
         properties.add(off_color = propOffColor.createProperty(this, new WidgetColor(60, 100, 60)));
         properties.add(on_color = propOnColor.createProperty(this, new WidgetColor(60, 255, 60)));
+
+        horizontal.addPropertyListener(( p, o, n ) -> {
+
+            final int w = propWidth().getValue();
+            final int h = propHeight().getValue();
+
+            propWidth().setValue(h);
+            propHeight().setValue(w);
+
+        });
+
     }
 
     @Override
