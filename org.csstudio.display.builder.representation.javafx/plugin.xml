@@ -120,6 +120,10 @@
             type="scrollbar">
       </representation>
       <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.SlideButtonRepresentation"
+            type="slide_button">
+      </representation>
+      <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.SpinnerRepresentation"
             type="spinner">
       </representation>
