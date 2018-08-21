@@ -12,6 +12,7 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
 import org.controlsfx.control.ToggleSwitch;
@@ -62,6 +63,8 @@ public class SlideButtonRepresentation extends RegionBaseRepresentation<HBox, Sl
     private volatile String   state_colors;
     private volatile String[] state_labels;
     private volatile String   value_label;
+
+    private volatile AtomicBoolean updating = new AtomicBoolean();
 
     @Override
     public HBox createJFXNode ( ) throws Exception {
@@ -124,8 +127,14 @@ public class SlideButtonRepresentation extends RegionBaseRepresentation<HBox, Sl
         }
 
         if ( update_value ) {
+
             label.setText(value_label);
-            button.setSelected(on_state == 1);
+
+            if ( updating.compareAndSet(false, true) ) {
+                button.setSelected(on_state == 1);
+                updating.set(false);
+            }
+
         }
 
     }
@@ -210,8 +219,10 @@ public class SlideButtonRepresentation extends RegionBaseRepresentation<HBox, Sl
     }
 
     private void handleSlide ( ) {
-        logger.log(Level.FINE, "{0} slided", model_widget);
-        Platform.runLater(this::confirm);
+        if ( !updating.get() ) {
+            logger.log(Level.FINE, "{0} slided", model_widget);
+            Platform.runLater(this::confirm);
+        }
     }
 
     private void representationChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
