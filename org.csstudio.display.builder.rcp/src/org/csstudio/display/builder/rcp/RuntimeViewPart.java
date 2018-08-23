@@ -47,6 +47,7 @@ import org.eclipse.swt.dnd.DragSource;
 import org.eclipse.swt.dnd.DragSourceEvent;
 import org.eclipse.swt.dnd.DragSourceListener;
 import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -370,7 +371,7 @@ public class RuntimeViewPart extends FXViewPart
             // Want to allow dragging widget's PV name,
             // so it can for example be dropped into data browser.
             // In principle, that should be done via JavaFX onDrag*() calls
-            // on the widget's representation.
+            // on the widget's representation - as it is in the pure JFX Phobus version.
             // But when running inside FXCanvas, those drag events are
             // delivered to an outside editor or to another SWT target.
             // They are not, however, delivered to another JFX drop target
@@ -388,6 +389,20 @@ public class RuntimeViewPart extends FXViewPart
                 @Override
                 public void dragStart(final DragSourceEvent event)
                 {
+                    // One more hack: SWT DnD would start from anywhere within the JFX scene,
+                    // but that scene might include scrollbars on the right and/or bottom.
+                    // A little hard to tell if they are active right now,
+                    // and their exact size is also not known.
+                    // As a hack, simply avoid dragging from some BORDER at right and bottom.
+                    final Point size = fx_canvas.getSize();
+                    final int BORDER = 20;
+                    if (event.x > size.x - BORDER   ||
+                        event.y > size.y - BORDER)
+                    {
+                        event.doit = false;
+                        return;
+                    }
+
                     final Widget widget = getActiveWidget();
                     if (widget == null  ||  !widget.checkProperty("pv_name").isPresent())
                         event.doit = false;
