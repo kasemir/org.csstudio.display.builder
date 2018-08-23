@@ -237,6 +237,7 @@ public class ThumbWheelRepresentation extends RegionBaseRepresentation<ThumbWhee
             dirtyValue.checkAndClear();
         } else {
             model_widget.runtimePropValue().addPropertyListener(this::valueChanged);
+            valueChanged(null, null, null);
         }
 
     }

@@ -9,6 +9,7 @@ package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLineColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propSquare;
 
 import java.util.Arrays;
@@ -192,6 +193,7 @@ public class MultiStateLEDWidget extends BaseLEDWidget
         properties.add(fallback_color = propFallbackColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.ALARM_INVALID)));
         properties.add(font = propFont.createProperty(this, WidgetFontService.get(NamedWidgetFonts.DEFAULT)));
         properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
+        properties.add(line_color = propLineColor.createProperty(this, new WidgetColor(50, 50, 50, 178)));
         properties.add(square = propSquare.createProperty(this, false));
     }
 

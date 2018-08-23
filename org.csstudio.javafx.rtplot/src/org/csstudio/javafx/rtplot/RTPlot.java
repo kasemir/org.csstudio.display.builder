@@ -302,6 +302,12 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
         plot.setGridColor(GraphicsUtils.convert(Objects.requireNonNull(color)));
     }
 
+    /** return Title text */
+    public String getTitle()
+    {
+        return plot.getTitle();
+    }
+
     /** @param title Title text */
     public void setTitle(final String title)
     {
@@ -338,7 +344,6 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
         if (isLegendVisible() == show)
             return;
         plot.showLegend(show);
-        //toggle_legend.updateText();
     }
 
     /** @return <code>true</code> if toolbar is visible */

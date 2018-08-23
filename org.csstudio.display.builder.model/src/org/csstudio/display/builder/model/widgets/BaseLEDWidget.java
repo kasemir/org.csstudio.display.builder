@@ -59,11 +59,15 @@ public class BaseLEDWidget extends PVWidget
 
             // Legacy used "square_led" instead of "square"
             led.propSquare().setValue(XMLUtil.getChildBoolean(xml, "square_led").orElse(false));
+
+            // Legacy used "bulb_border_color" instead of "line_color"
+            led.propLineColor().setValue(XMLUtil.getChildColor(xml, "bulb_border_color").orElse(new WidgetColor(50, 50, 50, 178)));
         }
     }
 
     protected volatile WidgetProperty<WidgetFont> font;
     protected volatile WidgetProperty<WidgetColor> foreground;
+    protected volatile WidgetProperty<WidgetColor> line_color;
     protected volatile WidgetProperty<Boolean> square;
 
     /** Widget constructor.
@@ -95,6 +99,12 @@ public class BaseLEDWidget extends PVWidget
     public WidgetProperty<WidgetColor> propForegroundColor()
     {
         return foreground;
+    }
+
+    /** @return 'line_color' property */
+    public WidgetProperty<WidgetColor> propLineColor()
+    {
+        return line_color;
     }
 
     /** @return 'square' property*/

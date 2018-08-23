@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,34 +7,25 @@
  *******************************************************************************/
 package org.csstudio.display.builder.rcp.run;
 
-import static org.csstudio.display.builder.rcp.Plugin.logger;
+import java.util.Objects;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Level;
-
-import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.rcp.Messages;
-import org.csstudio.javafx.Screenshot;
 import org.csstudio.ui.util.dialogs.ExceptionDetailsErrorDialog;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.graphics.ImageLoader;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.printing.PrintDialog;
-import org.eclipse.swt.printing.Printer;
-import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
+import javafx.print.PageLayout;
+import javafx.print.PageOrientation;
+import javafx.print.Paper;
+import javafx.print.Printer;
+import javafx.print.PrinterJob;
 import javafx.scene.Scene;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
+import javafx.scene.transform.Scale;
 
 /** Action for printing snapshot of display
  *  @author Kay Kasemir
@@ -51,140 +42,46 @@ public class PrintAction extends Action
               PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ETOOL_PRINT_EDIT));
         this.shell = shell;
         this.scene = scene;
-
-        // Skip printer check on GTK because of hangups:
-        // https://bugs.eclipse.org/bugs/show_bug.cgi?id=153936,
-        // -Dorg.eclipse.swt.internal.gtk.disablePrinting if there are no printers,
-        // https://github.com/ControlSystemStudio/cs-studio/issues/83
-        if (! SWT.getPlatform().equals("gtk"))
-        {
-            // Only enable if printing is supported.
-            final PrinterData[] printers = Printer.getPrinterList();
-            if (printers != null)
-            {
-                logger.fine("Available printers:");
-                for (PrinterData p : printers)
-                    logger.fine("Printer: " + p.name + " (" + p.driver + ")");
-                setEnabled(printers.length > 0);
-            }
-            else
-            {
-                logger.fine("No available printers");
-                setEnabled(false);
-            }
-        }
     }
 
     @Override
     public void run()
     {
-        // Not optimal:
-        // Creates screenshot file for JFX scene,
-        // then loads that file as SWT image..
-        final Image snapshot;
         try
         {
-            final Screenshot screenshot = new Screenshot(scene);
-            final File image_file = screenshot.writeToTempfile("display");
-            final ImageLoader loader = new ImageLoader();
-            final ImageData[] data = loader.load(new FileInputStream(image_file));
-            snapshot = new Image(shell.getDisplay(), data[0]);
+            // Select printer
+            final PrinterJob job = Objects.requireNonNull(PrinterJob.createPrinterJob(), "Cannot create printer job");
+
+            if (! job.showPrintDialog(scene.getWindow()))
+                return;
+
+            // Get Screenshot
+            final WritableImage screenshot = scene.getRoot().snapshot(null, null);
+
+            // Scale image to full page
+            final Printer printer = job.getPrinter();
+            final Paper paper = job.getJobSettings().getPageLayout().getPaper();
+            final PageLayout pageLayout = printer.createPageLayout(paper,
+                                                                   PageOrientation.LANDSCAPE,
+                                                                   Printer.MarginType.DEFAULT);
+            final double scaleX = pageLayout.getPrintableWidth() / screenshot.getWidth();
+            final double scaleY = pageLayout.getPrintableHeight() / screenshot.getHeight();
+            final double scale = Math.min(scaleX, scaleY);
+            final ImageView print_node = new ImageView(screenshot);
+            print_node.getTransforms().add(new Scale(scale, scale));
+
+            // Print off the UI thread
+            Job.create(Messages.Print, monitor ->
+            {
+                if (job.printPage(print_node))
+                    job.endJob();
+            }).schedule();
+
         }
         catch (Exception ex)
         {
             ExceptionDetailsErrorDialog.openError(shell, "Cannot obtain screenshot", ex);
             return;
         }
-
-        // SWT Printer GUI
-        final PrintDialog dlg = new PrintDialog(shell);
-        PrinterData data = dlg.open();
-        if (data == null)
-        {
-            logger.fine("Cannot obtain printer");
-            // Disposed unused snapshot
-            snapshot.dispose();
-            return;
-        }
-
-        // Access to SWT Printer must be on UI thread.
-        // Printing in other thread can deadlock with UI thread.
-        // We are on UI thread, but move to another UI update tick.
-        shell.getDisplay().asyncExec(() -> doPrint(snapshot, data));
-    }
-
-    /** Interrupt the UI thread if still used by the printer */
-    private void killPrinter(final AtomicReference<Thread> ui_thread)
-    {
-        final Thread thread = ui_thread.get();
-        if (thread != null)
-        {
-            logger.log(Level.WARNING, "Killing print job");
-            thread.interrupt();
-        }
-    }
-
-    private void doPrint(final Image snapshot, final PrinterData data)
-    {
-        // Printing has been shown to occasionally hang the UI thread,
-        // specifically in the Printer() constructor.
-        // Start timer to interrupt UI thread.
-        final AtomicReference<Thread> ui_thread = new AtomicReference<>(Thread.currentThread());
-        ModelThreadPool.getTimer().schedule(() -> killPrinter(ui_thread), 10, TimeUnit.SECONDS);
-        try
-        {
-            final Printer printer = new Printer(data);
-            try
-            {
-                if (!printer.startJob("Display Builder"))
-                {
-                    logger.log(Level.WARNING, "Cannot start print job");
-                    return;
-                }
-                try
-                {   // Printer page info
-                    final Rectangle area = printer.getClientArea();
-                    final Rectangle trim = printer.computeTrim(0, 0, 0, 0);
-                    final Point dpi = printer.getDPI();
-
-                    // Compute layout
-                    final Rectangle image_rect = snapshot.getBounds();
-                    // Leave one inch on each border.
-                    // (copied the computeTrim stuff from an SWT example.
-                    //  Really no clue...)
-                    final int left_right = dpi.x + trim.x;
-                    final int top_bottom = dpi.y + trim.y;
-                    final int printed_width = area.width - 2*left_right;
-                    // Try to scale height according to on-screen aspect ratio.
-                    final int max_height = area.height - 2*top_bottom;
-                    final int printed_height = Math.min(max_height,
-                       image_rect.height * printed_width / image_rect.width);
-
-                    // Print one page
-                    printer.startPage();
-                    final GC gc = new GC(printer);
-                    gc.drawImage(snapshot, 0, 0, image_rect.width, image_rect.height,
-                                 left_right, top_bottom, printed_width, printed_height);
-                    printer.endPage();
-                }
-                finally
-                {
-                    printer.endJob();
-                }
-            }
-            finally
-            {
-                printer.dispose();
-            }
-            // Image used by printer must only be disposed after the printer that used it.
-            // Otherwise crash, https://github.com/ControlSystemStudio/cs-studio/issues/1937
-            snapshot.dispose();
-        }
-        catch (Throwable ex)
-        {
-            logger.log(Level.WARNING, "Printing failed", ex);
-        }
-        // Indicate that printing completed
-        ui_thread.set(null);
     }
 }

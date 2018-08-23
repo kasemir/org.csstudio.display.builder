@@ -38,12 +38,10 @@ import org.csstudio.display.builder.editor.EditorUtil;
 import org.csstudio.display.builder.editor.Messages;
 import org.csstudio.display.builder.editor.palette.Palette;
 import org.csstudio.display.builder.editor.tracker.SelectedWidgetUITracker;
-import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetFactory;
-import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.persist.WidgetClassesService;
@@ -497,14 +495,9 @@ public class WidgetTransfer {
 
         final DisplayModel model = selection_tracker.getModel();
         final SymbolWidget widget = (SymbolWidget) SymbolWidget.WIDGET_DESCRIPTOR.createWidget();
-        ArrayWidgetProperty<WidgetProperty<String>> propSymbols = widget.propSymbols();
 
         for ( int i = 0; i < fileNames.size(); i++ ) {
-            if ( i < propSymbols.size() ) {
-                propSymbols.getElement(i).setValue(fileNames.get(i));
-            } else {
-                widget.addSymbol(fileNames.get(i));
-            }
+            widget.addOrReplaceSymbol(i, fileNames.get(i));
         }
 
         final int index = widgets.size();
