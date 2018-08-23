@@ -22,6 +22,7 @@ import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.macros.DisplayMacroExpander;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.ModelLoader;
@@ -41,6 +42,11 @@ import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.e4.ui.workbench.modeling.EModelService;
 import org.eclipse.fx.ui.workbench3.FXViewPart;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSource;
+import org.eclipse.swt.dnd.DragSourceEvent;
+import org.eclipse.swt.dnd.DragSourceListener;
+import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -356,6 +362,55 @@ public class RuntimeViewPart extends FXViewPart
         createToolbarItems();
 
         new ContextMenuSupport(this, fx_canvas, representation);
+
+
+        if (! representation.isEditMode())
+        {
+            // DnD hack
+            // Want to allow dragging widget's PV name,
+            // so it can for example be dropped into data browser.
+            // In principle, that should be done via JavaFX onDrag*() calls
+            // on the widget's representation.
+            // But when running inside FXCanvas, those drag events are
+            // delivered to an outside editor or to another SWT target.
+            // They are not, however, delivered to another JFX drop target
+            // inside another FXCanvas
+            // -> Use SWT drag & drop, configured on the FXCanvas.
+            //    This needs to know which widget to use,
+            //    which is done via getActiveWidget(),
+            //    updated by a 'click' filter in JFXBaseRepresentation.
+            // This might require first clicking, then click-dragging
+            // to be 100% certain that the correct widget is dragged...
+            final DragSource source = new DragSource(fx_canvas, DND.DROP_COPY);
+            source.setTransfer(TextTransfer.getInstance());
+            source.addDragListener(new DragSourceListener()
+            {
+                @Override
+                public void dragStart(final DragSourceEvent event)
+                {
+                    final Widget widget = getActiveWidget();
+                    if (widget == null  ||  !widget.checkProperty("pv_name").isPresent())
+                        event.doit = false;
+                }
+
+                @Override
+                public void dragSetData(final DragSourceEvent event)
+                {
+                    final Widget widget = getActiveWidget();
+                    if (widget == null)
+                        return;
+                    Optional<WidgetProperty<String>> prop = widget.checkProperty("pv_name");
+                    if (prop.isPresent())
+                        event.data = prop.get().getValue();
+                }
+
+                @Override
+                public void dragFinished(final DragSourceEvent event)
+                {
+                    // NOP
+                }
+            });
+        }
 
         parent.addDisposeListener(e -> onDispose());
 

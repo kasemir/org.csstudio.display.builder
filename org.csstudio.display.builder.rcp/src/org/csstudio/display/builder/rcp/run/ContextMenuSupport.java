@@ -181,6 +181,13 @@ public class ContextMenuSupport
                 view.setActiveWidget(widget);
                 menu.setVisible(true);
             }
+
+            @Override
+            public void handleClick(final Widget widget, final boolean with_control)
+            {
+                // Track the widget that was last clicked (for DnD hack)
+                view.setActiveWidget(widget);
+            }
         };
         representation.addListener(tkl);
         parent.addDisposeListener(event -> representation.removeListener(tkl));
