@@ -99,11 +99,19 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
                     jfx_node.addEventHandler(MouseEvent.MOUSE_PRESSED, detect_click);
             }
             else
+            {
+                jfx_node.addEventFilter(MouseEvent.MOUSE_PRESSED, event ->
+                {
+                    // Track the last item clicked for runtime DnD hack
+                    toolkit.fireClick(model_widget, event.isShortcutDown());
+                    // Don't consume, pass on to widget so e.g. normal button behavior still applies
+                });
                 jfx_node.setOnContextMenuRequested((event) ->
                 {
                     event.consume();
                     toolkit.fireContextMenu(model_widget);
                 });
+            }
         }
         return getChildParent(parent);
     }

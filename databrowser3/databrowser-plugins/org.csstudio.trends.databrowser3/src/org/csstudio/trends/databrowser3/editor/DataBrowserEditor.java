@@ -394,8 +394,8 @@ public class DataBrowserEditor extends EditorPart
             public void partActivated(final IWorkbenchPartReference part)    { /* NOP */ }
         });
 
-        toggle_legend = new ToggleLegendAction(plot.getPlot(), true);
-        toggle_toolbar = new ToggleToolbarAction(plot.getPlot(), true);
+        toggle_legend = new ToggleLegendAction(plot.getPlot());
+        toggle_toolbar = new ToggleToolbarAction(plot.getPlot());
         snapshot = new SnapshotAction(plot.getPlot(), parent.getShell());
         createContextMenu(plot_canvas);
     }

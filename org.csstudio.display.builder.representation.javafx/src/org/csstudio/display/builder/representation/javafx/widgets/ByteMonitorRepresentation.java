@@ -16,9 +16,6 @@ import org.diirt.vtype.VType;
 
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.CycleMethod;
-import javafx.scene.paint.LinearGradient;
-import javafx.scene.paint.Stop;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
@@ -114,19 +111,12 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
             }
             led.getStyleClass().add("led");
             if (save_colorVals != null && i < save_colorVals.length)
-                led.setFill( makeGradient(save_colorVals[i]) );
+                led.setFill(save_colorVals[i]);
             leds[i] = led;
         }
         this.leds = leds;
         pane.getChildren().clear();
         pane.getChildren().addAll(leds);
-    }
-
-    private LinearGradient makeGradient(final Color color)
-    {
-        return new LinearGradient(0, 0, .7, .7, true, CycleMethod.NO_CYCLE,
-                new Stop(0, color.interpolate(Color.WHITESMOKE, 0.8)),
-                new Stop(1, color));
     }
 
     protected Color[] createColors()
@@ -168,20 +158,37 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
         model_widget.propBitReverse().addUntypedPropertyListener(this::configChanged);
 
         model_widget.propNumBits().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propHorizontal().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propHorizontal().addPropertyListener(this::orientationChanged);
         model_widget.propSquare().addUntypedPropertyListener(this::lookChanged);
 
         //initialization
         configChanged(null, null, null);
         lookChanged(null, null, null);
+        contentChanged(null, null, model_widget.runtimePropValue().getValue());
     }
 
-    /**
-     * Invoked when LED shape, number, or arrangement
-     * changed (square_led, numBits, horizontal)
-     * @param property Ignored
-     * @param old_value Ignored
-     * @param new_value Ignored
+    private void orientationChanged(final WidgetProperty<Boolean> prop, final Boolean old, final Boolean horizontal)
+    {
+        // When interactively changing orientation, swap width <-> height.
+        // This will only affect interactive changes once the widget is represented on the screen.
+        // Initially, when the widget is loaded from XML, the representation
+        // doesn't exist and the original width, height and orientation are applied
+        // without triggering a swap.
+        if (toolkit.isEditMode())
+        {
+            final int w = model_widget.propWidth().getValue();
+            final int h = model_widget.propHeight().getValue();
+            model_widget.propWidth().setValue(h);
+            model_widget.propHeight().setValue(w);
+        }
+        lookChanged(prop, old, horizontal);
+    }
+
+    /** Invoked when LED shape, number, or (via orientationChanged) arrangement
+     *  changed (square_led, numBits, horizontal)
+     *  @param property Ignored
+     *  @param old_value Ignored
+     *  @param new_value Ignored
      */
     protected void lookChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
@@ -249,7 +256,7 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
 
             final int N = Math.min(save_leds.length, save_values.length);
             for (int i = 0; i < N; i++)
-                leds[i].setFill( makeGradient(save_values[i]));
+                leds[i].setFill(save_values[i]);
         }
     }
 }

@@ -126,6 +126,7 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
         model_widget.runtimePropPVWritable().addUntypedPropertyListener(this::enableChanged);
 
         styleChanged(null, null, null);
+        contentChanged(null, null, null);
     }
 
     private void confirm(final String value)

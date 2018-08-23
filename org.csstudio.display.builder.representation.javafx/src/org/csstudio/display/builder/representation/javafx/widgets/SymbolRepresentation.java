@@ -36,6 +36,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
+import org.csstudio.display.builder.model.widgets.PVWidget;
 import org.csstudio.display.builder.model.widgets.SymbolWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.javafx.Styles;
@@ -352,7 +353,9 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
                 value = model_widget.runtimePropValue().getValue();
 
                 if ( value != null ) {
-                    if ( value instanceof VBoolean ) {
+                    if ( PVWidget.RUNTIME_VALUE_NO_PV == value ) {
+                        idx = model_widget.propInitialIndex().getValue();
+                    } else if ( value instanceof VBoolean ) {
                         idx = ((VBoolean) value).getValue() ? 1 : 0;
                     } else if ( value instanceof VString ) {
                         try {
@@ -456,7 +459,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
     @Override
     protected AnchorPane createJFXNode ( ) throws Exception {
 
-        imageIndex.set(Math.max(model_widget.propInitialIndex().getValue(), 0));
+        setImageIndex(Math.max(model_widget.propInitialIndex().getValue(), 0));
 
         autoSize = model_widget.propAutoSize().getValue();
 
@@ -544,7 +547,10 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
         model_widget.propPVName().addPropertyListener(this::contentChanged);
 
         model_widget.propSymbols().addPropertyListener(this::imagesChanged);
-        model_widget.propSymbols().getValue().stream().forEach(p -> p.addPropertyListener(imagePropertyListener));
+        model_widget.propSymbols().getValue().stream().forEach(p -> {
+            p.removePropertyListener(imagePropertyListener);
+            p.addPropertyListener(imagePropertyListener);
+        });
 
         model_widget.propInitialIndex().addPropertyListener(this::initialIndexChanged);
 
@@ -566,6 +572,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
             dirtyValue.checkAndClear();
         } else {
             model_widget.runtimePropValue().addPropertyListener(this::valueChanged);
+            valueChanged(null, null, null);
         }
 
     }
@@ -748,13 +755,8 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
                     return;
             }
 
-
             for ( int i = 0; i < fileNames.size(); i++ ) {
-                if ( i < propSymbols.size() ) {
-                    propSymbols.getElement(i).setValue(fileNames.get(i));
-                } else {
-                    model_widget.addSymbol(fileNames.get(i));
-                }
+                model_widget.addOrReplaceSymbol(i, fileNames.get(i));
             }
 
         } finally {
@@ -823,15 +825,14 @@ public class SymbolRepresentation extends RegionBaseRepresentation<AnchorPane, S
 
                     ImageContent imageContent = imagesList.get(getImageIndex());
 
-                    if ( ( imageContent.isSVG() && imagePane.getCenter() == imageView )
-                      || ( imageContent.isImage() && imagePane.getCenter() != imageView ) ) {
+                    if ( imageContent.isSVG() || ( imageContent.isImage() && imagePane.getCenter() != imageView ) ) {
                         Platform.runLater(() -> triggerContentUpdate());
-                    } else if ( imageContent.isImage() && getDefaultSymbol().equals(imageView.getImage()) ) {
+                    } else if ( imageContent.isImage() ) {
                         Platform.runLater(() -> triggerImageUpdate());
                     }
 
                 } else if ( oldIndex != newImageIndex ) {
-                    imageIndex.set(newImageIndex);
+                    setImageIndex(newImageIndex);
                 }
 
                 dirtyGeometry.mark();
