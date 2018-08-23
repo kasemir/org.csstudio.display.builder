@@ -47,6 +47,7 @@ import org.eclipse.swt.dnd.DragSource;
 import org.eclipse.swt.dnd.DragSourceEvent;
 import org.eclipse.swt.dnd.DragSourceListener;
 import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -383,7 +384,7 @@ public class RuntimeViewPart extends FXViewPart
             // This might require first clicking, then click-dragging
             // to be 100% certain that the correct widget is dragged...
             final DragSource source = new DragSource(fx_canvas, DND.DROP_COPY);
-            source.setTransfer(TextTransfer.getInstance());
+            source.setTransfer(new Transfer[] { TextTransfer.getInstance() });
             source.addDragListener(new DragSourceListener()
             {
                 @Override
