@@ -18,6 +18,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -25,7 +26,6 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 
 import org.csstudio.apputil.time.AbsoluteTimeParser;
-import org.csstudio.apputil.time.PeriodFormat;
 import org.csstudio.apputil.time.RelativeTime;
 import org.csstudio.javafx.rtplot.Annotation;
 import org.csstudio.javafx.rtplot.Trace;
@@ -159,6 +159,39 @@ public abstract class ControllerBase
         }
     };
 
+    /** Seconds per minute */
+    private static final double SEC_PER_MIN = 60.0;
+
+    /** Seconds per hour */
+    private static final double SEC_PER_HOUR = 60.0*SEC_PER_MIN;
+
+    /** Seconds per day */
+    private static final double SEC_PER_DAY = 24.0*SEC_PER_HOUR;
+
+    // Like SecondsParser.formatSeconds(seconds), but using Locale.ROOT,
+    // returning known format that can be parsed,
+    // while SecondsParser.formatSeconds with -nl de_DE will return "3,4"
+    // which StartEndTimeParser won't parse.
+    public static String formatSeconds(double seconds)
+    {
+        if (seconds >= SEC_PER_DAY)
+        {
+            final double days = seconds/SEC_PER_DAY;
+            return String.format(Locale.ROOT, "%.2f days", days);
+        }
+        if (seconds >= SEC_PER_HOUR)
+        {
+            final double hours = seconds/SEC_PER_HOUR;
+            return String.format(Locale.ROOT, "%.2f h", hours);
+        }
+        if (seconds >= SEC_PER_MIN)
+        {
+            final double minutes = seconds/SEC_PER_MIN;
+            return String.format(Locale.ROOT, "%.2f min", minutes);
+        }
+        return String.format(Locale.ROOT, "%.2f sec", seconds);
+    }
+
     abstract class BasePlotListener implements PlotListener
     {
         //abstract Shell getShell();
@@ -172,7 +205,7 @@ public abstract class ControllerBase
             if (scrolling)
             {   // Scrolling, adjust relative time, i.e. width of plot
                 final Duration duration = Duration.between(start, end);
-                start_spec = "-" + PeriodFormat.formatSeconds(TimeDuration.toSecondsDouble(duration));
+                start_spec = "-" + formatSeconds(TimeDuration.toSecondsDouble(duration));
                 end_spec = RelativeTime.NOW;
             }
             else
