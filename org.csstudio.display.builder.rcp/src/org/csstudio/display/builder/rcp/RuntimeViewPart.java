@@ -26,9 +26,11 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.macros.DisplayMacroExpander;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.ModelLoader;
+import org.csstudio.display.builder.model.widgets.KnobWidget;
 import org.csstudio.display.builder.model.widgets.ScaledSliderWidget;
 import org.csstudio.display.builder.model.widgets.ScrollBarWidget;
 import org.csstudio.display.builder.model.widgets.TableWidget;
+import org.csstudio.display.builder.model.widgets.plots.ImageWidget;
 import org.csstudio.display.builder.rcp.run.ContextMenuSupport;
 import org.csstudio.display.builder.rcp.run.DisplayNavigation;
 import org.csstudio.display.builder.rcp.run.NavigationAction;
@@ -415,7 +417,9 @@ public class RuntimeViewPart extends FXViewPart
                         !widget.checkProperty("pv_name").isPresent() ||
                         widget instanceof ScaledSliderWidget ||
                         widget instanceof ScrollBarWidget ||
-                        widget instanceof TableWidget)
+                        widget instanceof TableWidget ||
+                        widget instanceof ImageWidget ||
+                        widget instanceof KnobWidget)
                         event.doit = false;
                 }
 
