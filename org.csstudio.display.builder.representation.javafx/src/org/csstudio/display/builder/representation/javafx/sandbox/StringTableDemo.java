@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,12 +25,12 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
-/** Table demo
+/** {@link StringTable} demo
  *
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class TableDemo extends Application
+public class StringTableDemo extends Application
 {
     public static void main(final String[] args)
     {
@@ -96,7 +96,6 @@ public class TableDemo extends Application
         final Button new_data = new Button("New Data");
         new_data.setOnAction(event ->
         {
-            table.setHeaders(Arrays.asList("A", "B"));
             table.setData(Arrays.asList(
                     Arrays.asList("A 1", "B 1"),
                     Arrays.asList("A 2", "B 2")));
