@@ -69,15 +69,17 @@ This allows updating selected displays as necessary, while the legacy displays r
         <description>gauges.opi</description>
       </action>
     </actions>
-    <y>280</y>
+    <y>330</y>
     <width>130</width>
     <tooltip>$(actions)</tooltip>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_3</name>
-    <text>When a display is listed in the `use_boy` preference, BOY will be used:</text>
+    <text>When a display is listed in the `org.csstudio.display.builder.runtime/use_boy` preference, BOY will be used.
+BOY displays will always open in a new tab because they cannot replace the current Display Builder tab.
+BOY support naturally requires that BOY is included in the CS-Studio product.</text>
     <y>230</y>
     <width>500</width>
-    <height>40</height>
+    <height>100</height>
   </widget>
 </display>
