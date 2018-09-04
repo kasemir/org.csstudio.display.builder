@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@ import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
 
 import java.io.File;
 import java.util.concurrent.Future;
+import java.util.function.BiConsumer;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DisplayModel;
@@ -35,6 +36,13 @@ import org.csstudio.display.builder.runtime.script.ScriptUtil;
 @SuppressWarnings("nls")
 public class ActionUtil
 {
+    /** Handler for opening a (display_path, macros) in the BOY runtime.
+     *
+     *  <p>Support is installed by org.csstudio.display.builder.rcp.Plugin
+     *  and only available when BOY is included in product.
+     */
+    public static BiConsumer<String, String> openBOYRuntime = null;
+
     /** Handle an action
      *  @param source_widget Widget from which the action is invoked.
      *  @param action Information about the action to perform
@@ -89,6 +97,23 @@ public class ActionUtil
             // Resolve new display file relative to the source widget model (not 'top'!)
             final DisplayModel widget_model = source_widget.getDisplayModel();
             final String parent_file = widget_model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
+
+            // TODO Preference
+            if (expanded_path.contains("gauges.opi"))
+            {
+                final String resolved_path = ModelResourceUtil.resolveResource(parent_file, expanded_path);
+                if (openBOYRuntime == null)
+                    throw new Exception("No support for opening BOY runtime");
+                final StringBuilder macro_spec = new StringBuilder();
+                for (String name : macros.getNames())
+                {
+                    if (macro_spec.length() > 0)
+                        macro_spec.append(',');
+                    macro_spec.append(name).append('=').append(macros.getValue(name));
+                }
+                openBOYRuntime.accept(resolved_path, macro_spec.toString());
+                return;
+            }
 
             // Load new model. If that fails, no reason to continue.
             final DisplayModel new_model = ModelLoader.resolveAndLoadModel(parent_file, expanded_path);

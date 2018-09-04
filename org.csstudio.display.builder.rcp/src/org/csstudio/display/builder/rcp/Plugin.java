@@ -14,6 +14,8 @@ import org.csstudio.display.builder.model.persist.WidgetClassesService;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.persist.WidgetFontService;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
+import org.csstudio.display.builder.rcp.run.BOYHelper;
+import org.csstudio.display.builder.runtime.ActionUtil;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -52,6 +54,7 @@ public class Plugin implements BundleActivator
     public void start(final BundleContext context) throws Exception
     {
         reloadConfigurationFiles();
+        ActionUtil.openBOYRuntime = BOYHelper::openLegacyRuntime;
     }
 
     @Override
