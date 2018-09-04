@@ -27,6 +27,7 @@ public class Preferences
     public static final String PYTHON_PATH = "python_path";
     public static final String PV_FACTORY = "pv_factory";
     public static final String PV_NAME_PATCHES = "pv_name_patches";
+    public static final String USE_BOY = "use_boy";
 
     /** @return Python path */
     public static String getPythonPath()
@@ -72,6 +73,24 @@ public class Preferences
                                          ", need even number of items (pairs of pattern@replacement)");
         }
         return patches;
+    }
+
+    public static List<String> getPartialNamesForUsingBOY()
+    {
+        final List<String> use_boy = new ArrayList<>();
+
+        final String setting = get(USE_BOY, "");
+        if (! setting.isEmpty())
+        {
+            for (String part : setting.split("\\s*,\\s*"))
+            {
+                final String partial = part.trim();
+                if (partial.length() > 0)
+                    use_boy.add(partial);
+            }
+        }
+
+        return use_boy;
     }
 
     private static String get(final String setting, final String default_value)

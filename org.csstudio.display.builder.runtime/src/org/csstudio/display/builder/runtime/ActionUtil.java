@@ -10,6 +10,7 @@ package org.csstudio.display.builder.runtime;
 import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
 
 import java.io.File;
+import java.util.List;
 import java.util.concurrent.Future;
 import java.util.function.BiConsumer;
 import java.util.logging.Level;
@@ -43,6 +44,9 @@ public class ActionUtil
      */
     public static BiConsumer<String, String> openBOYRuntime = null;
 
+    /** Partial file names that should be opened in BOY Runtime */
+    private static final List<String> use_boy = Preferences.getPartialNamesForUsingBOY();
+
     /** Handle an action
      *  @param source_widget Widget from which the action is invoked.
      *  @param action Information about the action to perform
@@ -64,6 +68,19 @@ public class ActionUtil
             RuntimeUtil.getExecutor().execute(() -> openWebpage(source_widget, (OpenWebpageActionInfo) action));
         else
             logger.log(Level.SEVERE, "Cannot handle unknown " + action);
+    }
+
+    /** @param expanded_path Display path
+     *  @return Should this display use BOY?
+     */
+    private static boolean shouldUseBOY(final String expanded_path)
+    {
+        if (! expanded_path.endsWith(".opi"))
+            return false;
+        for (String partial : use_boy)
+            if (expanded_path.contains(partial))
+                return true;
+        return false;
     }
 
     /** Open a display
@@ -98,10 +115,12 @@ public class ActionUtil
             final DisplayModel widget_model = source_widget.getDisplayModel();
             final String parent_file = widget_model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
 
-            // TODO Preference
-            if (expanded_path.contains("gauges.opi"))
+            // Should this display opened in BOY runtime?
+            // Resolve the path.
+            // If there is a *.bob version, this will resolve to the display builder after all
+            final String resolved_path = ModelResourceUtil.resolveResource(parent_file, expanded_path);
+            if (shouldUseBOY(resolved_path))
             {
-                final String resolved_path = ModelResourceUtil.resolveResource(parent_file, expanded_path);
                 if (openBOYRuntime == null)
                     throw new Exception("No support for opening BOY runtime");
                 final StringBuilder macro_spec = new StringBuilder();
