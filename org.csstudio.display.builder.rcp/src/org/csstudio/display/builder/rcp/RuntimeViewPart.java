@@ -14,6 +14,7 @@ import java.io.PrintStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -124,6 +125,9 @@ public class RuntimeViewPart extends FXViewPart
 
     /** Widget that triggered a context menu */
     private volatile WeakReference<Widget> active_widget = null;
+
+    /** The 'FXCanvas', which Eclipse class loader cannot see, so held as generic Control */
+    private Control fx_canvas;
 
     private RCP_JFXRepresentation representation;
 
@@ -360,7 +364,7 @@ public class RuntimeViewPart extends FXViewPart
 
         // The child added last should be the new FXCanvas
         final Control[] children = parent.getChildren();
-        final Control fx_canvas = children[children.length - 1];
+        fx_canvas = children[children.length - 1];
         if (!  fx_canvas.getClass().getName().contains("FXCanvas"))
             throw new IllegalStateException("Expected FXCanvas, got " + fx_canvas);
 
@@ -736,9 +740,33 @@ public class RuntimeViewPart extends FXViewPart
     /** View is closed. Dispose model and toolkit representation */
     private void onDispose()
     {
-        disposeModel();
-        representation.shutdown();
         // No longer track when view is hidden/restored
         getSite().getPage().removePartListener(show_hide_listener);
+
+        disposeModel();
+        representation.shutdown();
+        representation = null;
+
+        // RCP keeps references to this part
+        // Avoid memory leaks by releasing everything that points to the model, widgets, nodes, ..
+        navigation.clear();
+        display_info = Optional.empty();
+        active_widget = null;
+        scene = null;
+        root = null;
+        close_handler = null;
+        active_model = null;
+
+        // Clear the 'scene', since for example Scene.dirtyNodes can still leak memory of disposed model & representation
+        try
+        {   // Need reflection to access the unknown FXCanvas.setScene
+            final Method setScene = fx_canvas.getClass().getMethod("setScene", Scene.class);
+            final Scene new_scene = null;
+            setScene.invoke(fx_canvas, new_scene);
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Cannot clear scene", ex);
+        }
     }
 }
