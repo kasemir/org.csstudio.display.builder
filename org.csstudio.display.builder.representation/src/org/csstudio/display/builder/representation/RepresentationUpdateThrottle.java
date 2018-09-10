@@ -80,6 +80,7 @@ public class RepresentationUpdateThrottle
     public RepresentationUpdateThrottle(final Executor gui_executor)
     {
         final String name = "RepresentationUpdateThrottle" + instance.incrementAndGet();
+        logger.log(Level.FINE, "Create " + name);
         this.gui_executor = gui_executor;
         throttle_thread = new Thread(this::doRun);
         throttle_thread.setName(name);
@@ -182,6 +183,10 @@ public class RepresentationUpdateThrottle
         catch (final Exception ex)
         {
             logger.log(Level.SEVERE, "Update throttle failure", ex);
+        }
+        finally
+        {
+            logger.log(Level.FINE, "Exiting " + throttle_thread.getName());
         }
     }
 
