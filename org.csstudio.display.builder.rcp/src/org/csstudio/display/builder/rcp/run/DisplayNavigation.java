@@ -77,13 +77,6 @@ public class DisplayNavigation
             notifyListeners();
     }
 
-    /** Clear history */
-    public void clear()
-    {
-        forwardStack.clear();
-        backwardStack.clear();
-    }
-
     /** @return List of displays available for navigating backward */
     public List<DisplayInfo> getBackwardDisplays()
     {
@@ -126,6 +119,15 @@ public class DisplayNavigation
         }
         notifyListeners();
         return current;
+    }
+
+    /** Clear history etc. */
+    public void dispose()
+    {
+        forwardStack.clear();
+        backwardStack.clear();
+        current = null;
+        listeners.clear();
     }
 
     /** @return Debug representation */

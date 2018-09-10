@@ -749,7 +749,7 @@ public class RuntimeViewPart extends FXViewPart
 
         // RCP keeps references to this part
         // Avoid memory leaks by releasing everything that points to the model, widgets, nodes, ..
-        navigation.clear();
+        navigation.dispose();
         display_info = Optional.empty();
         active_widget = null;
         scene = null;
