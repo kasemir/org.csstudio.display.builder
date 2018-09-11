@@ -122,6 +122,8 @@ public class DataBrowserEditor extends EditorPart
     /** @see #isDirty() */
     private boolean is_dirty = false;
 
+    private IPartListener2 part_listener;
+
     /** Create data browser editor
      *  @param input Input for editor, must be data browser config file
      *  @return DataBrowserEditor or <code>null</code> on error
@@ -351,7 +353,7 @@ public class DataBrowserEditor extends EditorPart
 
         // Only the 'page' seems to know if a part is visible or not,
         // so use PartListener to update controller's redraw handling
-        getSite().getPage().addPartListener(new IPartListener2()
+        part_listener = new IPartListener2()
         {
             private boolean isThisEditor(final IWorkbenchPartReference part)
             {
@@ -392,7 +394,9 @@ public class DataBrowserEditor extends EditorPart
             public void partBroughtToTop(final IWorkbenchPartReference part) { /* NOP */ }
             @Override
             public void partActivated(final IWorkbenchPartReference part)    { /* NOP */ }
-        });
+        };
+
+        getSite().getPage().addPartListener(part_listener);
 
         toggle_legend = new ToggleLegendAction(plot.getPlot());
         toggle_toolbar = new ToggleToolbarAction(plot.getPlot());
@@ -598,6 +602,8 @@ public class DataBrowserEditor extends EditorPart
     @Override
     public void dispose()
     {
+        getSite().getPage().removePartListener(part_listener);
+
         if (plot != null)
             plot.dispose();
         // If editor is disposed because of error during init(),
