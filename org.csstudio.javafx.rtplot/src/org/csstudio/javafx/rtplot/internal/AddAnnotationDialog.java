@@ -109,6 +109,7 @@ public class AddAnnotationDialog<XTYPE extends Comparable<XTYPE>> extends Dialog
         {
             // Release plot since dialog is held in memory for a while
             this.plot = null;
+            traces.clear();
             return button == ButtonType.OK;
         });
     }

@@ -98,15 +98,21 @@ public class EditAnnotationDialog<XTYPE extends Comparable<XTYPE>> extends Dialo
 
         setResultConverter(button ->
         {
-            // Release plot since dialog is held in memory for a while
-        	if (button == ButtonType.OK)
-        	{
-        	    this.plot = null;
-        		updateAnnotations();
-        		return true;
-        	}
-            this.plot = null;
-        	return false;
+            try
+            {
+                if (button == ButtonType.OK)
+                {
+                    updateAnnotations();
+                    return true;
+                }
+                return false;
+            }
+            finally
+            {
+                // Release plot since dialog is held in memory for a while
+                this.plot = null;
+                annotations.clear();
+            }
         });
     }
 
