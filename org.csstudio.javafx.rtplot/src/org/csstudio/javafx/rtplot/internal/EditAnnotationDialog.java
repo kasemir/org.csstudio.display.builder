@@ -44,7 +44,7 @@ public class EditAnnotationDialog<XTYPE extends Comparable<XTYPE>> extends Dialo
 		}
 	}
 
-	private final RTPlot<XTYPE> plot;
+	private RTPlot<XTYPE> plot;
     private final ObservableList<AnnotationItem> annotations = FXCollections.observableArrayList();
     private ListView<AnnotationItem> annotation_list;
 
@@ -98,11 +98,14 @@ public class EditAnnotationDialog<XTYPE extends Comparable<XTYPE>> extends Dialo
 
         setResultConverter(button ->
         {
+            // Release plot since dialog is held in memory for a while
         	if (button == ButtonType.OK)
         	{
+        	    this.plot = null;
         		updateAnnotations();
         		return true;
         	}
+            this.plot = null;
         	return false;
         });
     }
