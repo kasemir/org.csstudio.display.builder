@@ -7,6 +7,8 @@
  ******************************************************************************/
 package org.csstudio.trends.databrowser3.editor;
 
+import java.lang.ref.WeakReference;
+
 import org.csstudio.trends.databrowser3.model.Model;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IEditorInput;
@@ -54,17 +56,21 @@ import org.eclipse.ui.IPersistableElement;
 public class DataBrowserModelEditorInput implements IEditorInput, IPersistableElement
 {
     final private IEditorInput input;
-    final private Model model;
+
+    // RCP keeps references to editor inputs in the navigation history, context service, ..
+    // Use a weak reference to the model to allow it to be removed from memory
+    // after the data browser closes.
+    final private WeakReference<Model> model;
 
     public DataBrowserModelEditorInput(final IEditorInput input, final Model model)
     {
         this.input = input;
-        this.model = model;
+        this.model = new WeakReference<>(model);
     }
 
     public Model getModel()
     {
-        return model;
+        return model.get();
     }
 
     @Override
