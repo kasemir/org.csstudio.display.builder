@@ -591,6 +591,7 @@ public abstract class ControllerBase
         // Stop update task
         model.stop();
         model.removeListener(model_listener);
+        model.clear();
         update_task.cancel(true);
         update_task = null;
     }
