@@ -28,6 +28,7 @@ import org.csstudio.ui.util.dialogs.ExceptionDetailsErrorDialog;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.events.ShellListener;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
@@ -48,6 +49,22 @@ public class ControllerSWT extends ControllerBase
     /** Display used for dialog boxes etc. */
     final private Display display;
 
+    final private ShellListener shell_listener = new ShellAdapter()
+    {
+        //Remove Override annotation, because this method does not exist in RAP
+        //@Override
+        public void shellIconified(ShellEvent e)
+        {
+            window_is_iconized = true;
+        }
+
+        //Remove Override annotation, because this method does not exist in RAP
+        //@Override
+        public void shellDeiconified(ShellEvent e)
+        {
+            window_is_iconized = false;
+        }
+    };
 
     class SWTArchiveFetchJobListener extends BaseArchiveFetchJobListener
     {
@@ -174,12 +191,6 @@ public class ControllerSWT extends ControllerBase
 
     };
 
-    @Override
-    protected ArchiveFetchJob makeArchiveFetchJob(PVItem pv_item, Instant start, Instant end)
-    {
-        return new ArchiveFetchJob(pv_item, start, end, archive_fetch_listener);
-    }
-
     /** Initialize
      *  @param shell Shell
      *  @param model Model that has the data
@@ -202,28 +213,24 @@ public class ControllerSWT extends ControllerBase
         {
             display = shell.getDisplay();
             // Update 'iconized' state from shell
-            shell.addShellListener(new ShellAdapter()
-            {
-                //Remove Override annotation, because this method does not exist in RAP
-                //@Override
-                @Override
-                public void shellIconified(ShellEvent e)
-                {
-                    window_is_iconized = true;
-                }
-
-                //Remove Override annotation, because this method does not exist in RAP
-                //@Override
-                @Override
-                public void shellDeiconified(ShellEvent e)
-                {
-                    window_is_iconized = false;
-                }
-            });
+            shell.addShellListener(shell_listener);
             window_is_iconized = shell.getMinimized();
         }
 
         // Listen to user input from Plot UI, update model
         plot.addListener(new SWTPlotListener());
+    }
+
+    @Override
+    protected ArchiveFetchJob makeArchiveFetchJob(PVItem pv_item, Instant start, Instant end)
+    {
+        return new ArchiveFetchJob(pv_item, start, end, archive_fetch_listener);
+    }
+
+    @Override
+    public void stop()
+    {
+        shell.removeShellListener(shell_listener);
+        super.stop();
     }
 }
