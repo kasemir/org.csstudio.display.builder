@@ -56,6 +56,9 @@
          <alternates
                type="org.csstudio.opibuilder.widgets.ImageBoolButton">
          </alternates>
+         <alternates
+               type="org.csstudio.opibuilder.widgets.BoolSwitch">
+         </alternates>
       </widget>
       <widget
             category="MONITOR"
@@ -329,7 +332,7 @@
             name="%SlideButtonWidget_Name"
             type="slide_button">
          <alternates
-               type="org.csstudio.opibuilder.widgets.BoolSwitch">
+               type="org.csstudio.opibuilder.widgets.checkbox">
          </alternates>
       </widget>
       <widget

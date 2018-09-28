@@ -11,7 +11,6 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 
 import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
 
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
@@ -22,12 +21,13 @@ import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.SlideButtonWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.javafx.Styles;
-import org.diirt.vtype.VEnum;
 import org.diirt.vtype.VType;
 
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
@@ -42,27 +42,29 @@ import javafx.scene.paint.Color;
 public class SlideButtonRepresentation extends RegionBaseRepresentation<HBox, SlideButtonWidget> {
 
     /*
-     * This code come as close as possible from BoolButtonRepresentation.
+     * This code was written as close as possible to the CheckBoxRepresentation's one.
      */
 
-    private final DirtyFlag dirty_representation = new DirtyFlag();
-    private final DirtyFlag dirty_enablement     = new DirtyFlag();
-    private final DirtyFlag dirty_value          = new DirtyFlag();
+    private final DirtyFlag dirty_size    = new DirtyFlag();
+    private final DirtyFlag dirty_content = new DirtyFlag();
+    private final DirtyFlag dirty_style   = new DirtyFlag();
 
-    /**
-     * State: 0 or 1
-     */
-    private volatile int     on_state = 1;
-    private volatile int     use_bit  = 0;
-    private volatile Integer rt_value = 0;
+    private final EventHandler<MouseEvent> filter = e -> {
+        jfx_node.fireEvent(e);
+        e.consume();
+    };
+
+    protected volatile int     bit          = 0;
+    protected volatile boolean enabled      = true;
+    protected volatile String  labelContent = "";
+    protected volatile boolean state        = false;
+    protected volatile int     value        = 0;
 
     private volatile ToggleSwitch button;
     private volatile Label        label;
 
-    private volatile Color    foreground;
-    private volatile String   state_colors;
-    private volatile String[] state_labels;
-    private volatile String   value_label;
+    private volatile Color  foreground;
+    private volatile String state_colors;
 
     private volatile AtomicBoolean updating = new AtomicBoolean();
 
@@ -76,11 +78,16 @@ public class SlideButtonRepresentation extends RegionBaseRepresentation<HBox, Sl
         button.setGraphicTextGap(0);
         button.setMnemonicParsing(false);
 
-        if ( !toolkit.isEditMode() ) {
+        if ( toolkit.isEditMode() ) {
+            //  Event filtering to prevent sliding on click and allowing widget's selection.
+            button.addEventFilter(MouseEvent.MOUSE_CLICKED, filter);
+            button.addEventFilter(MouseEvent.MOUSE_PRESSED, filter);
+            button.addEventFilter(MouseEvent.MOUSE_RELEASED, filter);
+        } else {
             button.selectedProperty().addListener( ( p, o, n ) -> handleSlide());
         }
 
-        label = new Label();
+        label = new Label(labelContent);
 
         label.setMaxWidth(Double.MAX_VALUE);
         label.setMnemonicParsing(false);
@@ -99,42 +106,38 @@ public class SlideButtonRepresentation extends RegionBaseRepresentation<HBox, Sl
 
         super.updateChanges();
 
-        boolean update_value = dirty_value.checkAndClear();
+        if ( dirty_size.checkAndClear() ) {
 
-        if ( dirty_representation.checkAndClear() ) {
+            jfx_node.setPrefWidth(model_widget.propWidth().getValue());
+            jfx_node.setPrefHeight(model_widget.propHeight().getValue());
 
-            final int w = model_widget.propWidth().getValue();
-            final int h = model_widget.propHeight().getValue();
+            if ( model_widget.propAutoSize().getValue() ) {
+                jfx_node.autosize();
+            }
 
-            jfx_node.setPrefSize(w, h);
+        }
+
+        if ( dirty_style.checkAndClear() ) {
 
             button.setStyle(state_colors);
 
             label.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
+            label.setText(labelContent);
             label.setTextFill(foreground);
 
-            update_value = true;
+            // Don't disable the widget, because that would also remove the context menu etc.
+            // Just apply a style that matches the disabled look.
+            enabled = model_widget.propEnabled().getValue() && model_widget.runtimePropPVWritable().getValue();
+
+            Styles.update(jfx_node, Styles.NOT_ENABLED, !enabled);
 
         }
 
-        if ( dirty_enablement.checkAndClear() ) {
-
-            final boolean enabled = model_widget.propEnabled().getValue() && model_widget.runtimePropPVWritable().getValue();
-
-            button.setDisable(!enabled);
-            Styles.update(label, Styles.NOT_ENABLED, !enabled);
-
-        }
-
-        if ( update_value ) {
-
-            label.setText(value_label);
-
+        if ( dirty_content.checkAndClear() ) {
             if ( updating.compareAndSet(false, true) ) {
-                button.setSelected(on_state == 1);
+                button.setSelected(state);
                 updating.set(false);
             }
-
         }
 
     }
@@ -144,32 +147,38 @@ public class SlideButtonRepresentation extends RegionBaseRepresentation<HBox, Sl
 
         super.registerListeners();
 
-        representationChanged(null, null, null);
+        model_widget.propAutoSize().addUntypedPropertyListener(this::sizeChanged);
+        model_widget.propHeight().addUntypedPropertyListener(this::sizeChanged);
+        model_widget.propWidth().addUntypedPropertyListener(this::sizeChanged);
 
-        model_widget.propWidth().addUntypedPropertyListener(this::representationChanged);
-        model_widget.propHeight().addUntypedPropertyListener(this::representationChanged);
-        model_widget.propOffLabel().addUntypedPropertyListener(this::representationChanged);
-        model_widget.propOffColor().addUntypedPropertyListener(this::representationChanged);
-        model_widget.propOnLabel().addUntypedPropertyListener(this::representationChanged);
-        model_widget.propOnColor().addUntypedPropertyListener(this::representationChanged);
-        model_widget.propFont().addUntypedPropertyListener(this::representationChanged);
-        model_widget.propForegroundColor().addUntypedPropertyListener(this::representationChanged);
-        model_widget.propEnabled().addPropertyListener(this::enablementChanged);
-        model_widget.runtimePropPVWritable().addPropertyListener(this::enablementChanged);
+        labelChanged(model_widget.propLabel(), null, model_widget.propLabel().getValue());
+
+        model_widget.propLabel().addPropertyListener(this::labelChanged);
+
+        styleChanged(null, null, null);
+
+        model_widget.propEnabled().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propFont().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propForegroundColor().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propOffColor().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propOnColor().addUntypedPropertyListener(this::styleChanged);
+        model_widget.runtimePropPVWritable().addUntypedPropertyListener(this::styleChanged);
+
+        bitChanged(model_widget.propBit(), null, model_widget.propBit().getValue());
+
         model_widget.propBit().addPropertyListener(this::bitChanged);
         model_widget.runtimePropValue().addPropertyListener(this::valueChanged);
 
-        bitChanged(model_widget.propBit(), null, model_widget.propBit().getValue());
-        enablementChanged(null, null, null);
+        // Initial Update
         valueChanged(null, null, model_widget.runtimePropValue().getValue());
 
     }
 
     private void bitChanged ( final WidgetProperty<Integer> property, final Integer old_value, final Integer new_value ) {
 
-        use_bit = new_value;
+        bit = ( new_value != null ? new_value : model_widget.propBit().getValue() );
 
-        stateChanged();
+        stateChanged(bit, value);
 
     }
 
@@ -182,10 +191,10 @@ public class SlideButtonRepresentation extends RegionBaseRepresentation<HBox, Sl
                 prompt = true;
                 break;
             case PUSH:
-                prompt = on_state == 0;
+                prompt = !state;
                 break;
             case RELEASE:
-                prompt = on_state == 1;
+                prompt = state;
                 break;
             case NONE:
             default:
@@ -207,63 +216,73 @@ public class SlideButtonRepresentation extends RegionBaseRepresentation<HBox, Sl
 
         }
 
-        final int new_val = ( rt_value ^ ( ( use_bit < 0 ) ? 1 : ( 1 << use_bit ) ) );
+        final int new_val = ( bit < 0 ) ? ( value == 0 ? 1 : 0 ) : ( value ^ ( 1 << bit ) );
 
         toolkit.fireWrite(model_widget, new_val);
 
     }
 
-    private void enablementChanged ( final WidgetProperty<Boolean> property, final Boolean old_value, final Boolean new_value ) {
-        dirty_enablement.mark();
+    private void handleSlide ( ) {
+
+        if ( !updating.get() ) {
+
+            if ( !enabled ) {
+                // Ignore, restore current state of PV
+                button.setSelected(state);
+                return;
+            }
+
+            logger.log(Level.FINE, "{0} slided", model_widget);
+
+            // Ideally, PV will soon report the written value.
+            // But for now restore the 'current' value of the PV
+            // because PV may not change as desired,
+            // so assert that widget always reflects the correct value.
+            valueChanged(null, null, model_widget.runtimePropValue().getValue());
+            Platform.runLater(this::confirm);
+
+        }
+
+    }
+
+    private void labelChanged ( final WidgetProperty<String> property, final String old_value, final String new_value ) {
+
+        labelContent = ( new_value != null ) ? new_value : model_widget.propLabel().getValue();
+
+        dirty_style.mark();
+        toolkit.scheduleUpdate(this);
+
+    }
+
+    private void sizeChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
+        dirty_size.mark();
         toolkit.scheduleUpdate(this);
     }
 
-    private void handleSlide ( ) {
-        if ( !updating.get() ) {
-            logger.log(Level.FINE, "{0} slided", model_widget);
-            Platform.runLater(this::confirm);
-        }
+    private void stateChanged ( final int new_bit, final int new_value ) {
+
+        state = ( new_bit < 0 ) ? new_value != 0 : ( ( new_value >> new_bit ) & 1 ) == 1;
+
+        dirty_content.mark();
+        toolkit.scheduleUpdate(this);
+
     }
 
-    private void representationChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
+    private void styleChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
 
         foreground = JFXUtil.convert(model_widget.propForegroundColor().getValue());
-        state_colors = "-db-toggle-switch-off: " + JFXUtil.webRGB(model_widget.propOffColor().getValue()) + ";"
-                     + "-db-toggle-switch-on: " + JFXUtil.webRGB(model_widget.propOnColor().getValue()) + ";";
-        state_labels = new String[] { model_widget.propOffLabel().getValue(), model_widget.propOnLabel().getValue() };
-        value_label = state_labels[on_state];
+        state_colors = "-db-toggle-switch-off: " + JFXUtil.webRGB(model_widget.propOffColor().getValue()) + ";" + "-db-toggle-switch-on: " + JFXUtil.webRGB(model_widget.propOnColor().getValue()) + ";";
 
-        dirty_representation.mark();
-        toolkit.scheduleUpdate(this);
-
-    }
-
-    private void stateChanged ( ) {
-
-        on_state = ( ( use_bit < 0 ) ? ( rt_value != 0 ) : ( ( ( rt_value >> use_bit ) & 1 ) == 1 ) ) ? 1 : 0;
-        value_label = state_labels[on_state];
-
-        dirty_value.mark();
+        dirty_style.mark();
         toolkit.scheduleUpdate(this);
 
     }
 
     private void valueChanged ( final WidgetProperty<VType> property, final VType old_value, final VType new_value ) {
 
-        if ( ( new_value instanceof VEnum ) && model_widget.propLabelsFromPV().getValue() ) {
+        value = VTypeUtil.getValueNumber(new_value).intValue();
 
-            final List<String> labels = ( (VEnum) new_value ).getLabels();
-
-            if ( labels.size() == 2 ) {
-                model_widget.propOffLabel().setValue(labels.get(0));
-                model_widget.propOnLabel().setValue(labels.get(1));
-            }
-
-        }
-
-        rt_value = VTypeUtil.getValueNumber(new_value).intValue();
-
-        stateChanged();
+        stateChanged(bit, value);
 
     }
 

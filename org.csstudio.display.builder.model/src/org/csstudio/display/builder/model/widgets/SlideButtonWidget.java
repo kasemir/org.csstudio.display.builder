@@ -8,38 +8,35 @@
  */
 package org.csstudio.display.builder.model.widgets;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newStringPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBit;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propConfirmDialogOptions;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propConfirmMessage;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLabelsFromPV;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOffColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOffLabel;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOnColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOnLabel;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPassword;
 
 import java.util.Arrays;
 import java.util.List;
 
+import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
-import org.csstudio.display.builder.model.WidgetConfigurator;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.model.persist.ModelReader;
+import org.csstudio.display.builder.model.WidgetPropertyCategory;
+import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.persist.WidgetFontService;
-import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.ConfirmDialog;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
-import org.osgi.framework.Version;
-import org.w3c.dom.Element;
 
 /**
  * Widget that provides button for making a binary change.
@@ -57,7 +54,7 @@ public class SlideButtonWidget extends WritablePVWidget {
             "Slide Button",
             "platform:/plugin/org.csstudio.display.builder.model/icons/slide_button.png",
             "Slide button that can toggle one bit of a PV value between 1 and 0",
-            Arrays.asList( "org.csstudio.opibuilder.widgets.BoolSwitch"))
+            Arrays.asList( "org.csstudio.opibuilder.widgets.checkbox"))
     {
 
         @Override
@@ -66,61 +63,30 @@ public class SlideButtonWidget extends WritablePVWidget {
         }
     };
 
-    /**
-     * Handle legacy widget configuration.
-     */
-    private static class CustomConfigurator extends WidgetConfigurator {
+    public static final WidgetPropertyDescriptor<String>  propLabel    = newStringPropertyDescriptor (WidgetPropertyCategory.WIDGET, "label",      Messages.SlideButton_Label);
+    public static final WidgetPropertyDescriptor<Boolean> propAutoSize = newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "auto_size", Messages.AutoSize);
 
-        public CustomConfigurator ( Version xml_version ) {
-            super(xml_version);
-        }
-
-        @Override
-        public boolean configureFromXML ( final ModelReader model_reader, final Widget widget, final Element xml )
-            throws Exception
-        {
-
-            if ( !super.configureFromXML(model_reader, widget, xml) )
-                return false;
-
-            final SlideButtonWidget button = (SlideButtonWidget) widget;
-
-            // If legacy widgets was configured to not use labels, clear them
-            XMLUtil.getChildBoolean(xml, "show_boolean_label").ifPresent(show -> {
-                if ( !show ) {
-                    button.propOffLabel().setValue("");
-                    button.propOnLabel().setValue("");
-                }
-            });
-
-            return true;
-
-        }
-
-    };
-
+    private volatile WidgetProperty<Boolean>       auto_size;
     private volatile WidgetProperty<Integer>       bit;
     private volatile WidgetProperty<ConfirmDialog> confirm_dialog;
     private volatile WidgetProperty<String>        confirm_message;
     private volatile WidgetProperty<Boolean>       enabled;
     private volatile WidgetProperty<WidgetFont>    font;
     private volatile WidgetProperty<WidgetColor>   foreground;
-    private volatile WidgetProperty<Boolean>       labels_from_pv;
+    private volatile WidgetProperty<String>        label;
     private volatile WidgetProperty<WidgetColor>   off_color;
-    private volatile WidgetProperty<String>        off_label;
     private volatile WidgetProperty<WidgetColor>   on_color;
-    private volatile WidgetProperty<String>        on_label;
     private volatile WidgetProperty<String>        password;
 
     public SlideButtonWidget () {
         super(WIDGET_DESCRIPTOR.getType(), 100, 30);
     }
 
-    @Override
-    public WidgetConfigurator getConfigurator ( Version persisted_version )
-        throws Exception
-    {
-        return new CustomConfigurator(persisted_version);
+    /**
+     *  @return 'auto_size' property
+     */
+    public WidgetProperty<Boolean> propAutoSize ( ) {
+        return auto_size;
     }
 
     /**
@@ -166,10 +132,10 @@ public class SlideButtonWidget extends WritablePVWidget {
     }
 
     /**
-     * @return 'labels_from_pv' property.
+     * @return 'label' property.
      */
-    public WidgetProperty<Boolean> propLabelsFromPV ( ) {
-        return labels_from_pv;
+    public WidgetProperty<String> propLabel ( ) {
+        return label;
     }
 
     /**
@@ -180,24 +146,10 @@ public class SlideButtonWidget extends WritablePVWidget {
     }
 
     /**
-     * @return 'off_label' property.
-     */
-    public WidgetProperty<String> propOffLabel ( ) {
-        return off_label;
-    }
-
-    /**
      * @return 'on_color' property.
      */
     public WidgetProperty<WidgetColor> propOnColor ( ) {
         return on_color;
-    }
-
-    /**
-     * @return 'on_label' property.
-     */
-    public WidgetProperty<String> propOnLabel ( ) {
-        return on_label;
     }
 
     /**
@@ -213,13 +165,12 @@ public class SlideButtonWidget extends WritablePVWidget {
         super.defineProperties(properties);
 
         properties.add(bit = propBit.createProperty(this, 0));
-        properties.add(off_label = propOffLabel.createProperty(this, "Off"));
+        properties.add(label = propLabel.createProperty(this, Messages.SlideButton_Label));
         properties.add(off_color = propOffColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BUTTON_BACKGROUND)));
-        properties.add(on_label = propOnLabel.createProperty(this, "On"));
         properties.add(on_color = propOnColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.ALARM_OK)));
         properties.add(font = propFont.createProperty(this, WidgetFontService.get(NamedWidgetFonts.DEFAULT)));
         properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
-        properties.add(labels_from_pv = propLabelsFromPV.createProperty(this, false));
+        properties.add(auto_size = propAutoSize.createProperty(this, false));
         properties.add(enabled = propEnabled.createProperty(this, true));
         properties.add(confirm_dialog = propConfirmDialogOptions.createProperty(this, ConfirmDialog.NONE));
         properties.add(confirm_message = propConfirmMessage.createProperty(this, "Are your sure you want to do this?"));
