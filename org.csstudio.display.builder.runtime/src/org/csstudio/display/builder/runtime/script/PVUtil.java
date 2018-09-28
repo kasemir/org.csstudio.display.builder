@@ -344,13 +344,14 @@ public class PVUtil
     	return ValueUtil.getStructureElement(getVType(pv), name);
     }
 
-    /**
-     * Get an element from a PV structure by field name and array index. If index is valid,
-     * this method is equivalent to getStructureElement(value, name).get(index).
-	*  @param pv PV
-	*  @param name Structure element name
-	*  @param index Element index in range [0, n-1], where n is the length of the structure element
-	*  @return Either String or Number for the cell's value, null if invalid name/index
+    /** Get an element from a PV structure by field name and array index.
+     *
+     *  <p>If index is valid, this method is equivalent to getStructureElement(pv, name).get(index).
+     *
+     *  @param pv RuntimePV
+     *  @param name Structure element name
+     *  @param index Element index in range [0, n-1], where n is the length of the structure element
+     *  @return Either String or Number for the cell's value, null if invalid name/index
      */
     public static Object getStructureElement(final RuntimePV pv, final String name, final int index)
     {
