@@ -14,6 +14,7 @@ import java.io.PrintStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,6 +27,11 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.macros.DisplayMacroExpander;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.ModelLoader;
+import org.csstudio.display.builder.model.widgets.KnobWidget;
+import org.csstudio.display.builder.model.widgets.ScaledSliderWidget;
+import org.csstudio.display.builder.model.widgets.ScrollBarWidget;
+import org.csstudio.display.builder.model.widgets.TableWidget;
+import org.csstudio.display.builder.model.widgets.plots.ImageWidget;
 import org.csstudio.display.builder.rcp.run.ContextMenuSupport;
 import org.csstudio.display.builder.rcp.run.DisplayNavigation;
 import org.csstudio.display.builder.rcp.run.NavigationAction;
@@ -119,6 +125,9 @@ public class RuntimeViewPart extends FXViewPart
 
     /** Widget that triggered a context menu */
     private volatile WeakReference<Widget> active_widget = null;
+
+    /** The 'FXCanvas', which Eclipse class loader cannot see, so held as generic Control */
+    private Control fx_canvas;
 
     private RCP_JFXRepresentation representation;
 
@@ -355,7 +364,7 @@ public class RuntimeViewPart extends FXViewPart
 
         // The child added last should be the new FXCanvas
         final Control[] children = parent.getChildren();
-        final Control fx_canvas = children[children.length - 1];
+        fx_canvas = children[children.length - 1];
         if (!  fx_canvas.getClass().getName().contains("FXCanvas"))
             throw new IllegalStateException("Expected FXCanvas, got " + fx_canvas);
 
@@ -390,7 +399,7 @@ public class RuntimeViewPart extends FXViewPart
                 @Override
                 public void dragStart(final DragSourceEvent event)
                 {
-                    // One more hack: SWT DnD would start from anywhere within the JFX scene,
+                    // More hack: SWT DnD would start from anywhere within the JFX scene,
                     // but that scene might include scrollbars on the right and/or bottom.
                     // A little hard to tell if they are active right now,
                     // and their exact size is also not known.
@@ -405,7 +414,16 @@ public class RuntimeViewPart extends FXViewPart
                     }
 
                     final Widget widget = getActiveWidget();
-                    if (widget == null  ||  !widget.checkProperty("pv_name").isPresent())
+                    // Only drag from widgets that have a "pv_name".
+                    // Skip slider type widgets where we want to operate the widget by dragging.
+                    // Skip table widget because we drag to resize columns or operate its scroll bars.
+                    if (widget == null  ||
+                        !widget.checkProperty("pv_name").isPresent() ||
+                        widget instanceof ScaledSliderWidget ||
+                        widget instanceof ScrollBarWidget ||
+                        widget instanceof TableWidget ||
+                        widget instanceof ImageWidget ||
+                        widget instanceof KnobWidget)
                         event.doit = false;
                 }
 
@@ -722,9 +740,33 @@ public class RuntimeViewPart extends FXViewPart
     /** View is closed. Dispose model and toolkit representation */
     private void onDispose()
     {
-        disposeModel();
-        representation.shutdown();
         // No longer track when view is hidden/restored
         getSite().getPage().removePartListener(show_hide_listener);
+
+        disposeModel();
+        representation.shutdown();
+        representation = null;
+
+        // RCP keeps references to this part
+        // Avoid memory leaks by releasing everything that points to the model, widgets, nodes, ..
+        navigation.dispose();
+        display_info = Optional.empty();
+        active_widget = null;
+        scene = null;
+        root = null;
+        close_handler = null;
+        active_model = null;
+
+        // Clear the 'scene', since for example Scene.dirtyNodes can still leak memory of disposed model & representation
+        try
+        {   // Need reflection to access the unknown FXCanvas.setScene
+            final Method setScene = fx_canvas.getClass().getMethod("setScene", Scene.class);
+            final Scene new_scene = null;
+            setScene.invoke(fx_canvas, new_scene);
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Cannot clear scene", ex);
+        }
     }
 }

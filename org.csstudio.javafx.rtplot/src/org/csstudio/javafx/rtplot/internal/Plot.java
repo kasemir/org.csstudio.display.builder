@@ -384,6 +384,9 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         final int x = (int) (mouse_start.get().getX() + 0.5);
         for (PlotMarker<XTYPE> marker : plot_markers)
         {
+            // Ignore non-interactive marker
+            if (! marker.isInteractive())
+                continue;
             final int mx = x_axis.getScreenCoord(marker.getPosition());
             if (Math.abs(mx - x) < 5)
             {
@@ -1300,5 +1303,21 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     {
         for (RTPlotListener<XTYPE> listener : listeners)
             listener.changedToolbar(show);
+    }
+
+    /** Should be invoked when plot no longer used to release resources */
+    @Override
+    public void dispose()
+    {
+        super.dispose();
+
+        // Release memory ASAP
+        traces.clear();
+        y_axes.clear();
+        annotations.clear();
+        listeners.clear();
+        plot_markers.clear();
+        plot_marker = null;
+        cursor_markers = null;
     }
 }
