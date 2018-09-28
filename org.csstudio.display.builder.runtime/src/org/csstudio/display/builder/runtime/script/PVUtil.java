@@ -281,7 +281,7 @@ public class PVUtil
 	 * 			  scalar_t[] x
      * </pre>
      * can match "Foo" (which returns data for Foo/a, Bar/a, and x) or "Foo/Bar" (which returns data for Bar/a and x),
-     * but not "Foo/a" or "Bar/x". For those, use {@link getStructureElement(VType,String)}.
+     * but not "Foo/a" or "Bar/x". For those, use {@link #getStructureElement(RuntimePV, String, int)}.
      * Ambiguous names will find the first structure with a matching name.
      *
      * @param pv PV
@@ -330,7 +330,7 @@ public class PVUtil
 	*
 	*  @param pv PV
 	*  @param name Structure element name
-	*  @return If the value has an elements with a matching name, a List<String> or List<Number>
+	*  @return If the value has an elements with a matching name, a List&lt;String&gt; or List&lt;Number&gt;
 	*  		is returned, depending on the element's data type. If not, and the value is a VTable,
 	*  		an empty list is returned. Otherwise, a List containing one element, a String representation
 	*  		of the value.
@@ -361,7 +361,7 @@ public class PVUtil
      *  in which case the script <b>must</b> then also release the PV.
      *
      *  @param pv_name Mame of the PV
-     *  @param timeout Connection timeout in milliseconds
+     *  @param timeout_ms Connection timeout in milliseconds
      *  @return PV
      *  @throws Exception on error
      *  @see #releasePV(RuntimePV)
@@ -413,8 +413,8 @@ public class PVUtil
      *
      *  @param pv_name Mame of the PV
      *  @param value Value to write
-     *  @param timeout Connection timeout in milliseconds
-     *  @throws Exception
+     *  @param timeout_ms Connection timeout in milliseconds
+     *  @throws Exception If write cannot be performed.
      */
     public final static void writePV(final String pv_name, final Object value, final int timeout_ms) throws Exception
     {
