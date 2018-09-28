@@ -379,7 +379,7 @@ public class ValueUtil
 
     /** Get a structure element from a PV by field name.
      *
-     *  <p>PV should hold a VTable which represents the structure.
+     *  <p>Value should hold a VTable which represents the structure.
      *
      *  <p> For nested structure elements represented with slash-separated names,
      *  full and partial field names are accepted. For instance, a structure "value"
