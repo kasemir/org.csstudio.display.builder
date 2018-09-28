@@ -11,7 +11,6 @@ import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
 
 import java.util.logging.Level;
 
-import org.csstudio.vtype.pv.PVListener;
 import org.csstudio.vtype.pv.PVPool;
 import org.diirt.vtype.VType;
 
@@ -40,7 +39,7 @@ public interface RuntimePV
      *  will <b>not</b> automatically remove listeners!
      *
      *  @param listener Listener that will receive value updates
-     *  @see #removeListener(PVListener)
+     *  @see #removeListener(RuntimePVListener)
      */
     public void addListener(final RuntimePVListener listener);
 
@@ -61,15 +60,14 @@ public interface RuntimePV
 
     /** Write value, no confirmation
      *  @param new_value Value to write to the PV
-     *  @see RuntimePV#write(Object, PVWriteListener)
      *  @exception Exception on error
      */
     abstract public void write(final Object new_value) throws Exception;
 
     /** Legacy API that was accessed by some scripts
-     *  @param new_value
-     *  @throws Exception
-     *  @Deprecated
+     *  @param new_value Value to write to the PV
+     *  @throws Exception If the new value cannot be set.
+     *  @deprecated Use {@link #write(Object)} instead.
      *  @see #write(Object)
      */
     @Deprecated

@@ -277,7 +277,7 @@ public class ValueUtil
 
         return data;
     }
-    
+
     /**
      * Get data from a structured value by name.
      * <p>As with other structure-related get methods, full and partial names may be used. However, the
@@ -291,9 +291,9 @@ public class ValueUtil
 	 * 			  scalar_t[] x
      * </pre>
      * can match "Foo" (which returns data for Foo/a, Bar/a, and x) or "Foo/Bar" (which returns data for Bar/a and x),
-     * but not "Foo/a" or "Bar/x". For those, use {@link getStructureElement(int)}.
+     * but not "Foo/a" or "Bar/x". For those, use {@link #getStructureElement(VType, String, int)}.
      * Ambiguous names will find the first structure with a matching name.
-     * 
+     *
      * @param value Value of a structured PV; should be VTable
      * @param name Name of the substructure to get; if blank (empty String, ""), the entire structure is returned
 
@@ -360,7 +360,7 @@ public class ValueUtil
         else
             return Objects.toString(value);
     }
-    
+
     @SuppressWarnings("rawtypes")
     private static Object getColumnCell(final Object col_data, final int row)
     {
@@ -373,7 +373,7 @@ public class ValueUtil
         else
             return Objects.toString(col_data);
     }
-    
+
 	/**
 	* Get a structure element from a PV by field name.
 	* <p>PV should hold a VTable which represents the structure.
@@ -393,7 +393,7 @@ public class ValueUtil
 	*
 	*  @param value Value of a PV (should be a VTable)
 	*  @param name Structure element name
-	*  @return If the value has an elements with a matching name, a List<String> or List<Number>
+	*  @return If the value has an elements with a matching name, a List&lt;String&gt; or List&lt;Number&gt;
 	*  		is returned, depending on the element's data type. If not, and the value is a VTable,
 	*  		an empty list is returned. Otherwise, a List containing one element, a String representation
 	*  		of the value.
@@ -417,7 +417,7 @@ public class ValueUtil
     	}
     	return Arrays.asList(Objects.toString(value));
     }
-    
+
     /**
      * Get an element from a PV structure by field name and array index. If index is valid,
      * this method is equivalent to getStructureElement(value, name).get(index).
@@ -443,7 +443,7 @@ public class ValueUtil
         }
         return Objects.toString(value);
     }
-    
+
     //a colName "x/yy/z" must match "x/yy/z", "yy/z", and "z",
     //but not "y/z"
     private static boolean isMatchColName(String colName, String searchName)

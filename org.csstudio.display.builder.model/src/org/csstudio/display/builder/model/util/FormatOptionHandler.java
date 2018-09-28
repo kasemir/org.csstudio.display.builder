@@ -58,7 +58,6 @@ public class FormatOptionHandler
      * Return the actual number of fraction digits.
      *
      * @param value Value to format.
-     * @param precision
      * @param precision Precision to use. -1 will try to fetch precision from
      *            the given {@code value} ({@link VType}).
      * @return The actual number of fraction digits.
