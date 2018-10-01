@@ -59,8 +59,7 @@ public class BoolButtonWidget extends WritablePVWidget
             "platform:/plugin/org.csstudio.display.builder.model/icons/bool_button.png",
             "Button that can toggle one bit of a PV value between 1 and 0",
             Arrays.asList("org.csstudio.opibuilder.widgets.BoolButton",
-                          "org.csstudio.opibuilder.widgets.ImageBoolButton",
-                          "org.csstudio.opibuilder.widgets.BoolSwitch"))
+                          "org.csstudio.opibuilder.widgets.ImageBoolButton"))
     {
         @Override
         public Widget createWidget()
