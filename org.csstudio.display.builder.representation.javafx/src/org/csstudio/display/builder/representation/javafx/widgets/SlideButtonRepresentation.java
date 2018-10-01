@@ -84,7 +84,10 @@ public class SlideButtonRepresentation extends RegionBaseRepresentation<HBox, Sl
             button.addEventFilter(MouseEvent.MOUSE_PRESSED, filter);
             button.addEventFilter(MouseEvent.MOUSE_RELEASED, filter);
         } else {
-            button.selectedProperty().addListener( ( p, o, n ) -> handleSlide());
+            button.addEventFilter(MouseEvent.MOUSE_RELEASED, e -> {
+                handleSlide();
+                e.consume();
+            });
         }
 
         label = new Label(labelContent);
@@ -223,26 +226,12 @@ public class SlideButtonRepresentation extends RegionBaseRepresentation<HBox, Sl
     }
 
     private void handleSlide ( ) {
-
         if ( !updating.get() ) {
-
-            if ( !enabled ) {
-                // Ignore, restore current state of PV
-                button.setSelected(state);
-                return;
+            if ( enabled ) {
+                logger.log(Level.FINE, "{0} slided", model_widget);
+                Platform.runLater(this::confirm);
             }
-
-            logger.log(Level.FINE, "{0} slided", model_widget);
-
-            // Ideally, PV will soon report the written value.
-            // But for now restore the 'current' value of the PV
-            // because PV may not change as desired,
-            // so assert that widget always reflects the correct value.
-            valueChanged(null, null, model_widget.runtimePropValue().getValue());
-            Platform.runLater(this::confirm);
-
         }
-
     }
 
     private void labelChanged ( final WidgetProperty<String> property, final String old_value, final String new_value ) {
