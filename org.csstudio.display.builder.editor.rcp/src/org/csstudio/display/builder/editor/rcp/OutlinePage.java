@@ -191,4 +191,11 @@ public class OutlinePage extends Page implements IContentOutlinePage
     public void setSelection(ISelection selection)
     {
     }
+
+    @Override
+    public void dispose()
+    {
+        tree.setModel(null);
+        super.dispose();
+    }
 }

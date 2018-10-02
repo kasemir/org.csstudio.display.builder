@@ -60,6 +60,7 @@ import org.csstudio.display.builder.model.widgets.RadioWidget;
 import org.csstudio.display.builder.model.widgets.RectangleWidget;
 import org.csstudio.display.builder.model.widgets.ScaledSliderWidget;
 import org.csstudio.display.builder.model.widgets.ScrollBarWidget;
+import org.csstudio.display.builder.model.widgets.SlideButtonWidget;
 import org.csstudio.display.builder.model.widgets.SpinnerWidget;
 import org.csstudio.display.builder.model.widgets.SymbolWidget;
 import org.csstudio.display.builder.model.widgets.TableWidget;
@@ -105,6 +106,7 @@ import org.csstudio.display.builder.representation.javafx.widgets.RadioRepresent
 import org.csstudio.display.builder.representation.javafx.widgets.RectangleRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.ScaledSliderRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.ScrollBarRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.SlideButtonRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.SpinnerRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.SymbolRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TableRepresentation;
@@ -316,6 +318,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         factories.put(RectangleWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new RectangleRepresentation());
         factories.put(ScaledSliderWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new ScaledSliderRepresentation());
         factories.put(ScrollBarWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new ScrollBarRepresentation());
+        factories.put(SlideButtonWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new SlideButtonRepresentation());
         factories.put(SpinnerWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new SpinnerRepresentation());
         factories.put(SymbolWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new SymbolRepresentation());
         factories.put(TableWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new TableRepresentation());
@@ -1140,5 +1143,13 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
             logger.log(Level.WARNING, "Audio playback error for " + url, ex);
         }
         return CompletableFuture.completedFuture(false);
+    }
+
+    @Override
+    public void shutdown()
+    {
+        if (! widget_parent.getChildren().isEmpty())
+            logger.log(Level.WARNING, "Display representation still contains items on shutdown", widget_parent.getChildren());
+        super.shutdown();
     }
 }

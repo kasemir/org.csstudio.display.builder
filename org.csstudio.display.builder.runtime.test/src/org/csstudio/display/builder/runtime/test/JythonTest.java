@@ -27,6 +27,12 @@ import org.python.util.PythonInterpreter;
 
 /** Jython Demo
  *
+ *  <p>This test only functions if it's the one that
+ *  initializes the {@link PythonInterpreter}.
+ *  If started in a VM where the interpreter has already
+ *  been initialized, the "/tmp/always" entry will be
+ *  missing from the python.path.
+ *
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")

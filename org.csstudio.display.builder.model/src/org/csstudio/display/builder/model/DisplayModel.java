@@ -143,7 +143,9 @@ public class DisplayModel extends Widget
         return name;
     }
 
-    /** Is this display model for a class file? */
+    /** Is this display model for a class file?
+     *  @return {@code true} if this is the display model for a class file.
+     */
     public final boolean isClassModel()
     {
         final String filename = getUserData(USER_DATA_INPUT_FILE);

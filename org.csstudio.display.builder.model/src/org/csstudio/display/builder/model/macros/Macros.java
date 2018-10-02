@@ -68,7 +68,7 @@ public class Macros implements MacroValueProvider
     }
 
     /** Create copy of existing macros
-     *  @param other
+     *  @param other The source macro to be copied.
      */
     public Macros(final Macros other)
     {

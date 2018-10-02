@@ -28,6 +28,7 @@ public class Preferences
     public static final String MACROS = "macros";
     public static final String MAX_REPARSE_ITERATIONS = "max_reparse_iterations";
     public static final String SUPPORT_STANDALONE_WINDOW = "support_standalone_window";
+    public static final String SKIP_DEFAULTS = "skip_defaults";
 
     public static String[] getClassFiles()
     {
@@ -114,6 +115,12 @@ public class Preferences
     public static boolean isStandaloneWindowSupported()
     {
         return Boolean.parseBoolean(getPreference(SUPPORT_STANDALONE_WINDOW, "true"));
+    }
+
+    /** @return Do skip saving default values? */
+    public static boolean isSkippingDefaults()
+    {
+        return Boolean.parseBoolean(getPreference(SKIP_DEFAULTS, "true"));
     }
 
     /** @param key Preference key

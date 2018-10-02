@@ -10,12 +10,19 @@
 <project name="api" default="all">
   <!-- Output directory -->
   <property name="out" value="doc/java"/>
+  <!-- SET TO CS-STUDIO TARGET PLUGINS REPOSITORY TO TRACK JAVADOC ERRORS & WARNINGS -->
+  <property name="csstudio-product-target" value ="/Users/claudiorosati/Projects/GitHub/org.csstudio.ess.product/repository/target/repository/plugins"/>
   <path id="classpath">
+    <!-- UNCOMMENT TO TRACK JAVADOC ERRORS & WARNINGS
+      <fileset dir="${csstudio-product-target}">
+        <include name="**/*.jar"/>
+      </fileset>
+    -->
     <!--
         <fileset dir="/Kram/Eclipse/3_7_2/rcp/eclipse/plugins/org.junit_4.8.2.v4_8_2_v20110321-1705">
             <include name="**/*.jar"/>
         </fileset>
-        -->
+    -->
   </path>
   <!-- Remove all that might have been created -->
   <target name="clean">
@@ -30,7 +37,7 @@
     <javadoc classpathref="classpath" destdir="${out}" author="false" access="public"
     	     version="true" use="false" windowtitle="Display Builder API"
     	     overview="doc/javadoc_overview.html"
-    	     useexternalfile="yes" additionalparam="-notimestamp">
+    	     useexternalfile="yes" additionalparam="-notimestamp -quiet">
       <doctitle><![CDATA[<h1>Display Builder API</h1>]]></doctitle>
       <fileset dir="..">
         <include name="org.csstudio.display.builder.model/src/org/csstudio/display/builder/model/Widget.java"/>

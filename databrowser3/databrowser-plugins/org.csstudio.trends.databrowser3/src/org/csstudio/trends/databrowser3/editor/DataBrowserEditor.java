@@ -122,6 +122,8 @@ public class DataBrowserEditor extends EditorPart
     /** @see #isDirty() */
     private boolean is_dirty = false;
 
+    private IPartListener2 part_listener;
+
     /** Create data browser editor
      *  @param input Input for editor, must be data browser config file
      *  @return DataBrowserEditor or <code>null</code> on error
@@ -286,18 +288,19 @@ public class DataBrowserEditor extends EditorPart
 
             @Override
             public void changedAnnotations()
-            {   setDirty(true);   }
+            {
+                site.getShell().getDisplay().asyncExec(() -> setDirty(true));
+            }
         };
         model.addListener(model_listener);
     }
 
     /** Provide custom property sheet for this editor */
-    @SuppressWarnings("rawtypes")
     @Override
-    public Object getAdapter(final Class adapter)
+    public <T> T getAdapter(final Class<T> adapter)
     {
         if (adapter == IPropertySheetPage.class)
-            return new DataBrowserPropertySheetPage(model, plot.getPlot().getUndoableActionManager());
+            return adapter.cast(new DataBrowserPropertySheetPage(model, plot.getPlot().getUndoableActionManager()));
         return super.getAdapter(adapter);
     }
 
@@ -351,7 +354,7 @@ public class DataBrowserEditor extends EditorPart
 
         // Only the 'page' seems to know if a part is visible or not,
         // so use PartListener to update controller's redraw handling
-        getSite().getPage().addPartListener(new IPartListener2()
+        part_listener = new IPartListener2()
         {
             private boolean isThisEditor(final IWorkbenchPartReference part)
             {
@@ -392,7 +395,9 @@ public class DataBrowserEditor extends EditorPart
             public void partBroughtToTop(final IWorkbenchPartReference part) { /* NOP */ }
             @Override
             public void partActivated(final IWorkbenchPartReference part)    { /* NOP */ }
-        });
+        };
+
+        getSite().getPage().addPartListener(part_listener);
 
         toggle_legend = new ToggleLegendAction(plot.getPlot());
         toggle_toolbar = new ToggleToolbarAction(plot.getPlot());
@@ -598,6 +603,8 @@ public class DataBrowserEditor extends EditorPart
     @Override
     public void dispose()
     {
+        getSite().getPage().removePartListener(part_listener);
+
         if (plot != null)
             plot.dispose();
         // If editor is disposed because of error during init(),

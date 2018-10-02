@@ -326,6 +326,14 @@
       </widget>
       <widget
             category="CONTROL"
+            class="org.csstudio.display.builder.model.widgets.SlideButtonWidget"
+            description="%SlideButtonWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/slide_button.png"
+            name="%SlideButtonWidget_Name"
+            type="slide_button">
+      </widget>
+      <widget
+            category="CONTROL"
             class="org.csstudio.display.builder.model.widgets.ScrollBarWidget"
             description="%ScrollBarWidget_Description"
             icon="platform:/plugin/org.csstudio.display.builder.model/icons/scrollbar.png"

@@ -19,7 +19,8 @@ Require-Bundle: org.eclipse.osgi,
  se.europeanspallationsource.javafx.control.knobs,
  se.europeanspallationsource.javafx.control.medusa,
  se.europeanspallationsource.javafx.control.thumbwheel,
- se.europeanspallationsource.xaos
+ se.europeanspallationsource.xaos,
+ org.controlsfx;bundle-version="8.40.14"
 Export-Package: org.csstudio.display.builder.representation.javafx,
  org.csstudio.display.builder.representation.javafx.sandbox,
  org.csstudio.display.builder.representation.javafx.widgets

@@ -57,6 +57,8 @@ import javafx.scene.paint.Color;
 @SuppressWarnings("nls")
 public class Model
 {
+    private static final Pattern axis_name_pattern = Pattern.compile(Messages.Plot_ValueAxisName + " \\d+", Pattern.MULTILINE);
+
     /** File extension for data browser config files.
      *  plugin.xml registers the editor for this file extension
      */
@@ -71,16 +73,10 @@ public class Model
     /** Default colors for newly added item */
     final private RGBFactory default_colors = new RGBFactory();
 
-    private final Pattern axis_name_pattern = Pattern.compile(Messages.Plot_ValueAxisName + " \\d+", Pattern.MULTILINE);
+    private static final MacroValueProvider EMPTY_MACROS = name -> null;
 
     /** Macros */
-    private volatile MacroValueProvider macros = new MacroValueProvider() {
-        @Override
-        public String getValue(String name)
-        {
-            return null;
-        }
-    };
+    private volatile MacroValueProvider macros = EMPTY_MACROS;
 
     /** Listeners to model changes */
     final private List<ModelListener> listeners = new CopyOnWriteArrayList<>();
@@ -192,6 +188,9 @@ public class Model
 
         while (getAxisCount() > 1)
             removeAxis(getAxis(getAxisCount()-1));
+
+        annotations.clear();
+        macros = EMPTY_MACROS;
     }
 
     /** @return Should UI ask to save changes to the model? */
