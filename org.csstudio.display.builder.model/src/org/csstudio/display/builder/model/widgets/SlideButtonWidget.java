@@ -20,6 +20,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOnColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPassword;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.csstudio.display.builder.model.Messages;
@@ -52,7 +53,8 @@ public class SlideButtonWidget extends WritablePVWidget {
         new WidgetDescriptor("slide_button", WidgetCategory.CONTROL,
             "Slide Button",
             "platform:/plugin/org.csstudio.display.builder.model/icons/slide_button.png",
-            "Slide button that can toggle one bit of a PV value between 1 and 0")
+            "Slide button that can toggle one bit of a PV value between 1 and 0",
+            Arrays.asList("org.csstudio.opibuilder.widgets.BoolSwitch"))
     {
 
         @Override
