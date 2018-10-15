@@ -9,23 +9,49 @@
 package org.csstudio.display.builder.representation.javafx.widgets;
 
 
-import java.util.Objects;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
 
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
+
+import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyListener;
+import org.csstudio.display.builder.model.macros.MacroHandler;
+import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.widgets.SymbolWidget;
+import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.javafx.Styles;
 import org.diirt.vtype.VType;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.geometry.Bounds;
+import javafx.geometry.Dimension2D;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -36,6 +62,7 @@ import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import se.europeanspallationsource.xaos.components.SVG;
 
 
 /**
@@ -44,18 +71,27 @@ import javafx.scene.text.FontWeight;
  */
 public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, SymbolWidget> {
 
-    private static final Executor EXECUTOR = Executors.newFixedThreadPool(8);
+    private static final ExecutorService EXECUTOR         = Executors.newFixedThreadPool(8);
+    private static final double          INDEX_LABEL_SIZE = 32.0;
 
-    private Node                                 content;
-    private final DirtyFlag                      dirtyGeometry         = new DirtyFlag();
-    private final DirtyFlag                      dirtyStyle            = new DirtyFlag();
-    private final DirtyFlag                      dirtyValue            = new DirtyFlag();
-    private volatile boolean                     enabled               = true;
-    private final Label                          indexLabel            = new Label();
-    private final Circle                         indexLabelBackground  = new Circle(16.0, Color.BLACK.deriveColor(0.0, 0.0, 0.0, 0.75));
+    private int                                  arrayIndex             = 0;
+    private volatile boolean                     autoSize               = false;
+    private Symbol                               content;
+    private DefaultSymbol                        defaultSymbol          = new DefaultSymbol();
+    private final DirtyFlag                      dirtyContent           = new DirtyFlag();
+    private final DirtyFlag                      dirtyGeometry          = new DirtyFlag();
+    private final DirtyFlag                      dirtyIndex             = new DirtyFlag();
+    private final DirtyFlag                      dirtyStyle             = new DirtyFlag();
+    private final DirtyFlag                      dirtyValue             = new DirtyFlag();
+    private volatile boolean                     enabled                = true;
+    private final Label                          indexLabel             = new Label();
+    private final Circle                         indexLabelBackground   = new Circle(INDEX_LABEL_SIZE / 2, Color.BLACK.deriveColor(0.0, 0.0, 0.0, 0.75));
+    private Dimension2D                          maxSize                = new Dimension2D(0, 0);
+    private final WidgetPropertyListener<String> symbolPropertyListener = this::symbolChanged;
+    private final AtomicReference<List<Symbol>>  symbols                = new AtomicReference<>(Collections.emptyList());
 
-    //  ---- imageIndex property
-    private IntegerProperty imageIndex =  new SimpleIntegerProperty(-1);
+    // ---- imageIndex property
+    private IntegerProperty imageIndex = new SimpleIntegerProperty(-1);
 
     private int getImageIndex ( ) {
         return imageIndex.get();
@@ -66,17 +102,65 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
     }
 
     private void setImageIndex ( int imageIndex ) {
-//        EXECUTOR.execute(() -> {
-//
-//            updatingSymbols.lock();
-//
-//            try {
-//                Platform.runLater(() -> this.imageIndex.set(imageIndex));
-//            } finally {
-//                updatingSymbols.unlock();
-//            }
-//
-//        });
+        toolkit.execute(() -> this.imageIndex.set(imageIndex));
+    }
+
+    public static String resolveImageFile ( SymbolWidget widget, String imageFileName ) {
+
+        try {
+
+            String expandedFileName = MacroHandler.replace(widget.getMacrosOrProperties(), imageFileName);
+
+            // Resolve new image file relative to the source widget model (not 'top'!).
+            // Get the display model from the widget tied to this representation.
+            final DisplayModel widgetModel = widget.getDisplayModel();
+
+            // Resolve the image path using the parent model file path.
+            return ModelResourceUtil.resolveResource(widgetModel, expandedFileName);
+
+        } catch ( Exception ex ) {
+
+            logger.log(Level.WARNING, "Failure resolving image path: {0} [{1}].", new Object[] { imageFileName, ex.getMessage() });
+
+            return null;
+
+        }
+
+    }
+
+    private static boolean resourceExists ( String fileName ) {
+
+        try {
+            ModelResourceUtil.openResourceStream(fileName);
+        } catch ( Exception ex ) {
+            return false;
+        }
+
+        return true;
+
+    }
+
+    @Override
+    public void dispose ( ) {
+
+        model_widget.propSymbols().getValue().stream().forEach(p -> p.removePropertyListener(symbolPropertyListener));
+
+        EXECUTOR.shutdown();
+
+        try {
+            while ( !EXECUTOR.awaitTermination(10, TimeUnit.SECONDS) ) {
+                Thread.yield();
+            }
+        } catch ( InterruptedException ex ) {
+            logger.log(
+                Level.WARNING,
+                MessageFormat.format("Interrupted while awaiting for shutdown termination [widget: {0} - {1}].", model_widget.getType(), model_widget.getName()),
+                ex
+            );
+        }
+
+        super.dispose();
+
     }
 
     @Override
@@ -84,7 +168,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
 
         super.updateChanges();
 
-//        boolean needsSVGResize = false;
+        boolean needsSVGResize = false;
         Object value;
 
         if ( dirtyGeometry.checkAndClear() ) {
@@ -95,21 +179,21 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
                 jfx_node.setVisible((boolean) value);
             }
 
-//            value = model_widget.propAutoSize().getValue();
-//
-//            if ( !Objects.equals(value, autoSize) ) {
-//                autoSize = (boolean) value;
-//            }
-//
-//            if ( autoSize ) {
-//                model_widget.propWidth().setValue((int) Math.round(maxSize.getWidth()));
-//                model_widget.propHeight().setValue((int) Math.round(maxSize.getHeight()));
-//            }
+            value = model_widget.propAutoSize().getValue();
+
+            if ( !Objects.equals(value, autoSize) ) {
+                autoSize = (boolean) value;
+            }
+
+            if ( autoSize ) {
+                model_widget.propWidth().setValue((int) Math.round(maxSize.getWidth()));
+                model_widget.propHeight().setValue((int) Math.round(maxSize.getHeight()));
+            }
 
             double w = model_widget.propWidth().getValue();
             double h = model_widget.propHeight().getValue();
 
-            if ( w < 32 || h < 32 ) {
+            if ( w < INDEX_LABEL_SIZE || h < INDEX_LABEL_SIZE ) {
                 jfx_node.getChildren().remove(indexLabel);
                 jfx_node.getChildren().remove(indexLabelBackground);
             } else {
@@ -133,44 +217,37 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
                 }
             }
 
-
-
-
-//            double minSize = Math.min(w, h);
-//
-//            indexLabelBackground.setRadius(Math.min(minSize / 2, 16.0));
-//
-//            needsSVGResize = true;
+            needsSVGResize = true;
 
         }
 
-//        if ( dirtyIndex.checkAndClear() ) {
-//            setImageIndex(model_widget.propInitialIndex().getValue());
-//        }
-//
-//        if ( dirtyContent.checkAndClear() ) {
-//
-//            value = model_widget.propArrayIndex().getValue();
-//
-//            if ( !Objects.equals(value, arrayIndex) ) {
-//                arrayIndex = Math.max(0, (int) value);
-//            }
-//
-//            dirtyValue.mark();
-//
-//        }
+        if ( dirtyIndex.checkAndClear() ) {
+            setImageIndex(model_widget.propInitialIndex().getValue());
+        }
+
+        if ( dirtyContent.checkAndClear() ) {
+
+            value = model_widget.propArrayIndex().getValue();
+
+            if ( !Objects.equals(value, arrayIndex) ) {
+                arrayIndex = Math.max(0, (int) value);
+            }
+
+            dirtyValue.mark();
+
+        }
 
         if ( dirtyStyle.checkAndClear() ) {
 
-//            value = model_widget.propPreserveRatio().getValue();
-//
-//            if ( !Objects.equals(value, imageView.isPreserveRatio()) ) {
-//
-//                imageView.setPreserveRatio((boolean) value);
-//
-//                needsSVGResize = true;
-//
-//            }
+            value = model_widget.propPreserveRatio().getValue();
+
+            if ( content instanceof ImageView && !Objects.equals(value, ((ImageView) content).isPreserveRatio()) ) {
+
+                ((ImageView) content).setPreserveRatio((boolean) value);
+
+                needsSVGResize = true;
+
+            }
 
             value = model_widget.propEnabled().getValue();
 
@@ -189,17 +266,17 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
                 indexLabelBackground.setVisible((boolean) value);
             }
 
-//            if ( model_widget.propTransparent().getValue() ) {
-//                jfx_node.setBackground(null);
-//            } else {
-//                jfx_node.setBackground(new Background(new BackgroundFill(JFXUtil.convert(model_widget.propBackgroundColor().getValue()), CornerRadii.EMPTY, Insets.EMPTY)));
-//            }
-//
-//            value = model_widget.propRotation().getValue();
-//
-//            if ( !Objects.equals(value, imagePane.getRotate()) ) {
-//                imagePane.setRotate((double) value);
-//            }
+            if ( model_widget.propTransparent().getValue() ) {
+                jfx_node.setBackground(null);
+            } else {
+                jfx_node.setBackground(new Background(new BackgroundFill(JFXUtil.convert(model_widget.propBackgroundColor().getValue()), CornerRadii.EMPTY, Insets.EMPTY)));
+            }
+
+            value = model_widget.propRotation().getValue();
+
+            if ( !Objects.equals(value, content.getRotate()) ) {
+                content.setRotate((double) value);
+            }
 
         }
 
@@ -315,107 +392,162 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
 
     }
 
-  @Override
-  protected StackPane createJFXNode ( ) throws Exception {
+    @Override
+    protected StackPane createJFXNode ( ) throws Exception {
 
-//      setImageIndex(Math.max(model_widget.propInitialIndex().getValue(), 0));
+        autoSize = model_widget.propAutoSize().getValue();
+        content = defaultSymbol;
 
-//      autoSize = model_widget.propAutoSize().getValue();
-      content = new DefaultSymbol();
+        StackPane symbol = new StackPane();
 
-      StackPane symbol = new StackPane();
+        indexLabelBackground.setStroke(Color.LIGHTGRAY.deriveColor(0.0, 1.0, 1.0, 0.75));
+        indexLabelBackground.setVisible(model_widget.propShowIndex().getValue());
 
-//          imagePane = new BorderPane();
-//
-//              imageView = new ImageView();
-//
-//              imageView.setPreserveRatio(model_widget.propPreserveRatio().getValue());
-//              imageView.setSmooth(true);
-//              imageView.fitHeightProperty().bind(symbol.prefHeightProperty());
-//              imageView.fitWidthProperty().bind(symbol.prefWidthProperty());
-//              imageView.imageProperty().bind(Bindings.createObjectBinding(
-//                  () -> getDisplayable(ic -> ic.isImage(), ic -> ic.getImage(), getDefaultSymbol()),
-//                  imageIndexProperty(),
-//                  triggerImageUpdateProperty()
-//              ));
-//
-//          imagePane.setPrefWidth(model_widget.propWidth().getValue());
-//          imagePane.setPrefHeight(model_widget.propHeight().getValue());
-//          imagePane.setRotate(model_widget.propRotation().getValue());
-//          imagePane.centerProperty().bind(Bindings.createObjectBinding(
-//              () -> getDisplayable(ic -> ic.isSVG(), ic -> ic.getSVG(), imageView),
-//              imageIndexProperty(),
-//              triggerContentUpdateProperty()
-//          ));
-//
-//          AnchorPane.setLeftAnchor(imagePane, 0.0);
-//          AnchorPane.setRightAnchor(imagePane, 0.0);
-//          AnchorPane.setTopAnchor(imagePane, 0.0);
-//          AnchorPane.setBottomAnchor(imagePane, 0.0);
+        indexLabel.setAlignment(Pos.CENTER);
+        indexLabel.setFont(Font.font(indexLabel.getFont().getFamily(), FontWeight.BOLD, 16));
+        indexLabel.setTextFill(Color.WHITE);
+        indexLabel.setVisible(model_widget.propShowIndex().getValue());
+        indexLabel.textProperty().bind(Bindings.convert(imageIndexProperty()));
 
-      indexLabelBackground.setStroke(Color.LIGHTGRAY.deriveColor(0.0, 1.0, 1.0, 0.75));
-      indexLabelBackground.setVisible(model_widget.propShowIndex().getValue());
+        symbol.getChildren().addAll(content, indexLabelBackground, indexLabel);
 
-      indexLabel.setAlignment(Pos.CENTER);
-      indexLabel.setFont(Font.font(indexLabel.getFont().getFamily(), FontWeight.BOLD, 16));
-      indexLabel.setTextFill(Color.WHITE);
-      indexLabel.setVisible(model_widget.propShowIndex().getValue());
-      indexLabel.textProperty().bind(Bindings.convert(imageIndexProperty()));
+        if ( model_widget.propTransparent().getValue() ) {
+            symbol.setBackground(null);
+        } else {
+            symbol.setBackground(new Background(new BackgroundFill(JFXUtil.convert(model_widget.propBackgroundColor().getValue()), CornerRadii.EMPTY, Insets.EMPTY)));
+        }
 
-      symbol.getChildren().addAll(content, indexLabelBackground, indexLabel);
+        enabled = model_widget.propEnabled().getValue();
 
-//      if ( model_widget.propTransparent().getValue() ) {
-//          symbol.setBackground(null);
-//      } else {
-//          symbol.setBackground(new Background(new BackgroundFill(JFXUtil.convert(model_widget.propBackgroundColor().getValue()), CornerRadii.EMPTY, Insets.EMPTY)));
-//      }
-//
-//      enabled = model_widget.propEnabled().getValue();
-//
-//      Styles.update(symbol, Styles.NOT_ENABLED, !enabled);
-//
-//      imageChanged(null, null, null);
+        Styles.update(symbol, Styles.NOT_ENABLED, !enabled);
 
-      return symbol;
+        initialIndexChanged(null, null, null);
+        symbolChanged(null, null, null);
 
-  }
+        return symbol;
+
+    }
 
     @Override
     protected void registerListeners ( ) {
 
         super.registerListeners();
 
-//        model_widget.propArrayIndex().addUntypedPropertyListener(this::contentChanged);
-//        model_widget.propPVName().addPropertyListener(this::contentChanged);
-//
-//        model_widget.propSymbols().addPropertyListener(this::imagesChanged);
-//        model_widget.propSymbols().getValue().stream().forEach(p -> {
-//            p.removePropertyListener(imagePropertyListener);
-//            p.addPropertyListener(imagePropertyListener);
-//        });
-//
-//        model_widget.propInitialIndex().addPropertyListener(this::initialIndexChanged);
-//
-//        model_widget.propAutoSize().addUntypedPropertyListener(this::geometryChanged);
-//        model_widget.propVisible().addUntypedPropertyListener(this::geometryChanged);
-//        model_widget.propX().addUntypedPropertyListener(this::geometryChanged);
-//        model_widget.propY().addUntypedPropertyListener(this::geometryChanged);
+        model_widget.propArrayIndex().addUntypedPropertyListener(this::contentChanged);
+        model_widget.propPVName().addPropertyListener(this::contentChanged);
+
+        model_widget.propSymbols().addPropertyListener(this::symbolsChanged);
+        model_widget.propSymbols().getValue().stream().forEach(p -> {
+            p.removePropertyListener(symbolPropertyListener);
+            p.addPropertyListener(symbolPropertyListener);
+        });
+
+        model_widget.propInitialIndex().addPropertyListener(this::initialIndexChanged);
+
+        model_widget.propAutoSize().addUntypedPropertyListener(this::geometryChanged);
+        model_widget.propVisible().addUntypedPropertyListener(this::geometryChanged);
+        model_widget.propX().addUntypedPropertyListener(this::geometryChanged);
+        model_widget.propY().addUntypedPropertyListener(this::geometryChanged);
         model_widget.propWidth().addUntypedPropertyListener(this::geometryChanged);
         model_widget.propHeight().addUntypedPropertyListener(this::geometryChanged);
 
-//        model_widget.propBackgroundColor().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propBackgroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.propEnabled().addUntypedPropertyListener(this::styleChanged);
-//        model_widget.propPreserveRatio().addUntypedPropertyListener(this::styleChanged);
-//        model_widget.propRotation().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propPreserveRatio().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propRotation().addUntypedPropertyListener(this::styleChanged);
         model_widget.propShowIndex().addUntypedPropertyListener(this::styleChanged);
-//        model_widget.propTransparent().addUntypedPropertyListener(this::styleChanged);
-//
-//        if ( toolkit.isEditMode() ) {
-//            dirtyValue.checkAndClear();
-//        } else {
-//            model_widget.runtimePropValue().addPropertyListener(this::valueChanged);
-//            valueChanged(null, null, null);
-//        }
+        model_widget.propTransparent().addUntypedPropertyListener(this::styleChanged);
+
+        if ( toolkit.isEditMode() ) {
+            dirtyValue.checkAndClear();
+        } else {
+            model_widget.runtimePropValue().addPropertyListener(this::valueChanged);
+            valueChanged(null, null, null);
+        }
+
+    }
+
+    private void contentChanged ( final WidgetProperty<?> property, final Object oldValue, final Object newValue ) {
+        dirtyContent.mark();
+        toolkit.scheduleUpdate(this);
+    }
+
+    /**
+     * Fix the file names imported from BOY.
+     */
+    private void fixImportedSymbolNames ( ) {
+
+        try {
+
+            ArrayWidgetProperty<WidgetProperty<String>> propSymbols = model_widget.propSymbols();
+            List<String> fileNames = new ArrayList<>(2);
+
+            switch ( model_widget.getImportedFrom() ) {
+                case "org.csstudio.opibuilder.widgets.ImageBoolIndicator":
+                    return;
+                case "org.csstudio.opibuilder.widgets.symbol.bool.BoolMonitorWidget": {
+
+                        String imageFileName = propSymbols.getElement(0).getValue();
+                        int dotIndex = imageFileName.lastIndexOf('.');
+                        String onImageFileName = imageFileName.substring(0, dotIndex) + " On" + imageFileName.substring(dotIndex);
+                        String offImageFileName = imageFileName.substring(0, dotIndex) + " Off" + imageFileName.substring(dotIndex);
+
+                        if ( resourceExists(resolveImageFile(model_widget, onImageFileName)) ) {
+                            fileNames.add(onImageFileName);
+                        } else {
+                            fileNames.add(imageFileName);
+                        }
+
+                        if ( resourceExists(resolveImageFile(model_widget, offImageFileName)) ) {
+                            fileNames.add(offImageFileName);
+                        } else {
+                            fileNames.add(imageFileName);
+                        }
+
+                    }
+                    break;
+                case "org.csstudio.opibuilder.widgets.symbol.multistate.MultistateMonitorWidget": {
+
+                        String imageFileName = propSymbols.getElement(0).getValue();
+                        int dotIndex = imageFileName.lastIndexOf('.');
+                        int spaceIndex = imageFileName.lastIndexOf(' ');
+
+                        try {
+                            model_widget.propInitialIndex().setValue(Integer.parseInt(imageFileName.substring(1 + spaceIndex, dotIndex)));
+                        } catch ( NumberFormatException nfex ) {
+                            logger.log(Level.WARNING, "Imported image file doesn't contain state value [{0}].", imageFileName);
+                        }
+
+                        int index = 0;
+
+                        while ( true ) {
+
+                            String nthImageFileName = MessageFormat.format("{0} {1,number,#########0}{2}", imageFileName.substring(0, spaceIndex), index, imageFileName.substring(dotIndex));
+
+                            if ( resourceExists(resolveImageFile(model_widget, nthImageFileName)) ) {
+                                fileNames.add(nthImageFileName);
+                            } else {
+                                break;
+                            }
+
+                            index++;
+
+                        }
+
+                    }
+                    break;
+                default:
+                    logger.log(Level.WARNING, "Invalid imported type [{0}].", model_widget.getImportedFrom());
+                    return;
+            }
+
+            for ( int i = 0; i < fileNames.size(); i++ ) {
+                model_widget.addOrReplaceSymbol(i, fileNames.get(i));
+            }
+
+        } finally {
+            model_widget.clearImportedFrom();
+        }
 
     }
 
@@ -424,30 +556,120 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
         toolkit.scheduleUpdate(this);
     }
 
+    private void initialIndexChanged ( final WidgetProperty<?> property, final Object oldValue, final Object newValue ) {
+        dirtyIndex.mark();
+        toolkit.scheduleUpdate(this);
+    }
+
     private void styleChanged ( final WidgetProperty<?> property, final Object oldValue, final Object newValue ) {
         dirtyStyle.mark();
         toolkit.scheduleUpdate(this);
+    }
+
+    private void symbolChanged ( final WidgetProperty<String> property, final String oldValue, final String newValue ) {
+        EXECUTOR.execute( ( ) -> {
+
+            updateSymbols();
+
+            dirtyContent.mark();
+            toolkit.scheduleUpdate(this);
+
+        });
+    }
+
+    private void symbolsChanged ( final WidgetProperty<List<WidgetProperty<String>>> property, final List<WidgetProperty<String>> oldValue, final List<WidgetProperty<String>> newValue ) {
+        EXECUTOR.execute( ( ) -> {
+
+            if ( oldValue != null ) {
+                oldValue.stream().forEach(p -> p.removePropertyListener(symbolPropertyListener));
+            }
+
+            if ( newValue != null ) {
+                newValue.stream().forEach(p -> p.addPropertyListener(symbolPropertyListener));
+            }
+
+            symbolChanged(null, null, null);
+
+        });
+    }
+
+    private synchronized void updateSymbols ( ) {
+
+        List<WidgetProperty<String>> fileNames = model_widget.propSymbols().getValue();
+        List<Symbol> symbolsList = new ArrayList<>(fileNames.size());
+        Map<String, Symbol> symbolsMap = new HashMap<>(fileNames.size());
+        Map<String, Symbol> currentSymbolsMap = symbols.get().stream().collect(Collectors.toMap(Symbol::getFileName, sc -> sc));
+        int currentIndex = getImageIndex();
+
+        try {
+
+            if ( model_widget.getImportedFrom() != null ) {
+                fixImportedSymbolNames();
+            }
+
+            if ( fileNames == null ) {
+                logger.log(Level.WARNING, "Empty list of file names.");
+            } else {
+
+                fileNames.stream().forEach(f -> {
+
+                    String fileName = f.getValue();
+                    Symbol symbol = symbolsMap.get(fileName);
+
+                    if ( symbol == null ) {     //  Symbol not yet loaded...
+
+                        symbol = currentSymbolsMap.get(fileName);
+
+                        if ( symbol == null ) { //  Neither previously loaded.
+                            symbol = new Symbol(fileName);
+                        }
+
+                        symbolsMap.put(fileName, symbol);
+
+                    }
+
+                    symbolsList.add(symbol);
+
+                });
+
+            }
+
+        } finally {
+
+            int newImageIndex = Math.min(Math.max(getImageIndex(), 0), symbolsList.size() - 1);
+
+            maxSize = new Dimension2D(
+                symbolsList.stream().mapToDouble(Symbol::getOriginalWidth).max().orElse(0.0),
+                symbolsList.stream().mapToDouble(Symbol::getOriginalHeight).max().orElse(0.0)
+            );
+
+            if ( currentIndex == newImageIndex && currentIndex >= 0 ) {
+
+                ImageContent imageContent = imagesList.get(getImageIndex());
+
+                if ( imageContent.isSVG() || ( imageContent.isImage() && imagePane.getCenter() != imageView ) ) {
+                    Platform.runLater( ( ) -> triggerContentUpdate());
+                } else if ( imageContent.isImage() ) {
+                    Platform.runLater( ( ) -> triggerImageUpdate());
+                }
+
+            } else if ( oldIndex != newImageIndex ) {
+                setImageIndex(newImageIndex);
+            }
+
+            dirtyGeometry.mark();
+            dirtyStyle.mark();
+            dirtyValue.mark();
+            toolkit.scheduleUpdate(this);
+
+        }
+
     }
 
     private void valueChanged ( final WidgetProperty<? extends VType> property, final VType oldValue, final VType newValue ) {
         dirtyValue.mark();
         toolkit.scheduleUpdate(this);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     private class DefaultSymbol extends Group {
 
@@ -502,6 +724,99 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
 
     }
 
+    private class Symbol {
+
+        private final String fileName;
+        private double       originalHeight;
+        private double       originalWidth;
+        private Node         node;
+
+        Symbol ( String fileName ) {
+
+            this.fileName = fileName;
+
+            boolean loadFailed = true;
+            String imageFileName = resolveImageFile(model_widget, fileName);
+
+            if ( imageFileName != null ) {
+                if ( imageFileName.toLowerCase().endsWith(".svg") ) {
+                    try {
+
+                        // Open the image from the stream created from the resource file.
+                        node = SVG.load(ModelResourceUtil.openResourceStream(imageFileName));
+
+                        Bounds bounds = ((SVG) node).getLayoutBounds();
+
+                        originalWidth = bounds.getWidth();
+                        originalHeight = bounds.getHeight();
+                        loadFailed = false;
+
+                    } catch ( Exception ex ) {
+                        logger.log(Level.WARNING, "Failure loading SVG image file: ({0}) {1} [{2}].", new Object[] { fileName, imageFileName, ex.getMessage() });
+                    }
+                } else {
+                    try {
+
+                        // Open the image from the stream created from the resource file.
+                        Image image = new Image(ModelResourceUtil.openResourceStream(imageFileName));
+
+                        node = new ImageView(image);
+                        originalWidth = image.getWidth();
+                        originalHeight = image.getHeight();
+                        loadFailed = false;
+
+                    } catch ( Exception ex ) {
+                        logger.log(Level.WARNING, "Failure loading image: ({0}) {1} [{2}].", new Object[] { fileName, imageFileName, ex.getMessage() });
+                    }
+                }
+            }
+
+            if ( loadFailed ) {
+
+                node = defaultSymbol;
+
+                Bounds bounds = ((DefaultSymbol) node).getLayoutBounds();
+
+                originalWidth = bounds.getWidth();
+                originalHeight = bounds.getHeight();
+
+            }
+
+        }
+
+        String getFileName() {
+            return fileName;
+        }
+
+        double getOriginalHeight ( ) {
+            return originalHeight;
+        }
+
+        double getOriginalRatio ( ) {
+            return originalWidth / originalHeight;
+        }
+
+        double getOriginalWidth ( ) {
+            return originalWidth;
+        }
+
+        Node getNode ( ) {
+            return node;
+        }
+
+        boolean isImageView ( ) {
+            return ( node instanceof ImageView );
+        }
+
+        boolean isSVG ( ) {
+            return ( node instanceof SVG);
+        }
+
+        boolean isValid ( ) {
+            return ( isImageView() || isSVG() );
+        }
+
+    }
 
 
 
@@ -515,19 +830,27 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
 
 
 
-//    private static volatile Image defaultSymbol = null;
-//
-//    private int                                  arrayIndex            = 0;
-//    private volatile boolean                     autoSize              = false;
-//    private final DirtyFlag                      dirtyContent          = new DirtyFlag();
-//    private final DirtyFlag                      dirtyIndex            = new DirtyFlag();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //    private final List<ImageContent>             imagesList            = Collections.synchronizedList(new ArrayList<>(4));
 //    private final Map<String, ImageContent>      imagesMap             = Collections.synchronizedMap(new TreeMap<>());
 //    private BorderPane                           imagePane;
-//    private final WidgetPropertyListener<String> imagePropertyListener = this::imageChanged;
 //    private ImageView                            imageView;
-//    private Dimension2D                          maxSize               = new Dimension2D(0, 0);
-//    private final ReentrantLock                  updatingSymbols       = new ReentrantLock();
+//  private final ReentrantLock updatingSymbols      = new ReentrantLock();
 //    private final AtomicBoolean                  updatingValue         = new AtomicBoolean(false);
 //
 //    //  ---- triggerContentUpdate property
@@ -570,7 +893,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
 //
 //    /**
 //     * Compute the maximum width and height of the given {@code widget} based on
-//     * the its set of symbol images.
+//     * the its set of node images.
 //     *
 //     * @param widget The {@link SymbolWidget} whose size must be computed.
 //     * @return A not {@code null} maximum dimension of the given {@code widget}.
@@ -608,73 +931,6 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
 //
 //    }
 //
-//    public static String resolveImageFile ( SymbolWidget widget, String imageFileName ) {
-//
-//        try {
-//
-//            String expandedFileName = MacroHandler.replace(widget.getMacrosOrProperties(), imageFileName);
-//
-//            //  Resolve new image file relative to the source widget model (not 'top'!).
-//            //  Get the display model from the widget tied to this representation.
-//            final DisplayModel widgetModel = widget.getDisplayModel();
-//
-//            // Resolve the image path using the parent model file path.
-//            return ModelResourceUtil.resolveResource(widgetModel, expandedFileName);
-//
-//        } catch ( Exception ex ) {
-//
-//            logger.log(Level.WARNING, "Failure resolving image path: {0} [{1}].", new Object[] { imageFileName, ex.getMessage() });
-//
-//            return null;
-//
-//        }
-//
-//    }
-//
-//    private static boolean resourceExists ( String fileName ) {
-//
-//        try {
-//            ModelResourceUtil.openResourceStream(fileName);
-//        } catch ( Exception ex ) {
-//            return false;
-//        }
-//
-//        return true;
-//
-//    }
-//
-//    @Override
-//    public void dispose ( ) {
-//        super.dispose();
-//
-//        logger.info("**** Symbol widget disposed");
-//
-//    }
-//
-//    private void contentChanged ( final WidgetProperty<?> property, final Object oldValue, final Object newValue ) {
-//        dirtyContent.mark();
-//        toolkit.scheduleUpdate(this);
-//    }
-//
-//
-//    private ImageContent createImageContent ( String fileName ) {
-//        return new ImageContent(fileName);
-//    }
-//
-//    private Image getDefaultSymbol() {
-//
-//        if ( defaultSymbol == null ) {
-//            synchronized ( SymbolRepresentation.class ) {
-//                if ( defaultSymbol == null ) {
-//                    defaultSymbol = loadDefaultSymbol();
-//                }
-//            }
-//        }
-//
-//        return defaultSymbol;
-//
-//    }
-//
 //    private <T> T  getDisplayable( Predicate<ImageContent> predicate, Function<ImageContent, T> getter, T defaultDisplayable ) {
 //
 //        int index = getImageIndex();
@@ -695,319 +951,4 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
 //
 //    }
 //
-//    private void imageChanged ( final WidgetProperty<String> property, final String oldValue, final String newValue ) {
-//        EXECUTOR.execute(() -> {
-//
-//            updateSymbols();
-//
-//            dirtyContent.mark();
-//            toolkit.scheduleUpdate(this);
-//
-//        });
-//    }
-//
-//    private void imagesChanged ( final WidgetProperty<List<WidgetProperty<String>>> property, final List<WidgetProperty<String>> oldValue, final List<WidgetProperty<String>> newValue ) {
-//        EXECUTOR.execute(() -> {
-//
-//            updateSymbols();
-//
-//            if ( oldValue != null ) {
-//                oldValue.stream().forEach(p -> p.removePropertyListener(imagePropertyListener));
-//            }
-//
-//            if ( newValue != null ) {
-//                newValue.stream().forEach(p -> p.addPropertyListener(imagePropertyListener));
-//            }
-//
-//            dirtyContent.mark();
-//            toolkit.scheduleUpdate(this);
-//
-//        });
-//    }
-//
-//    private void initialIndexChanged ( final WidgetProperty<?> property, final Object oldValue, final Object newValue ) {
-//        dirtyIndex.mark();
-//        toolkit.scheduleUpdate(this);
-//    }
-//
-//    private Image loadDefaultSymbol() {
-//
-//        String imageFileName = resolveImageFile(model_widget, SymbolWidget.DEFAULT_SYMBOL);
-//
-//        try {
-//            //  Open the image from the stream created from the resource file.
-//            return new Image(ModelResourceUtil.openResourceStream(imageFileName));
-//        } catch ( Exception ex ) {
-//            logger.log(Level.WARNING, "Failure loading image: {0} [{1}].", new Object[] { SymbolWidget.DEFAULT_SYMBOL, ex.getMessage() });
-//        }
-//
-//        return null;
-//
-//    }
-//
-//    /**
-//     * Fix the file names imported from BOY.
-//     */
-//    private void updateImportedSymbols ( ) {
-//
-//        try {
-//
-//            ArrayWidgetProperty<WidgetProperty<String>> propSymbols = model_widget.propSymbols();
-//            List<String> fileNames = new ArrayList<>(2);
-//
-//            switch ( model_widget.getImportedFrom() ) {
-//                case "org.csstudio.opibuilder.widgets.ImageBoolIndicator":
-//                    return;
-//                case "org.csstudio.opibuilder.widgets.symbol.bool.BoolMonitorWidget": {
-//
-//                        String imageFileName = propSymbols.getElement(0).getValue();
-//                        int dotIndex = imageFileName.lastIndexOf('.');
-//                        String onImageFileName = imageFileName.substring(0, dotIndex) + " On" + imageFileName.substring(dotIndex);
-//                        String offImageFileName = imageFileName.substring(0, dotIndex) + " Off" + imageFileName.substring(dotIndex);
-//
-//                        if ( resourceExists(resolveImageFile(model_widget, onImageFileName)) ) {
-//                            fileNames.add(onImageFileName);
-//                        } else {
-//                            fileNames.add(imageFileName);
-//                        }
-//
-//                        if ( resourceExists(resolveImageFile(model_widget, offImageFileName)) ) {
-//                            fileNames.add(offImageFileName);
-//                        } else {
-//                            fileNames.add(imageFileName);
-//                        }
-//
-//                    }
-//                    break;
-//                case "org.csstudio.opibuilder.widgets.symbol.multistate.MultistateMonitorWidget": {
-//
-//                        String imageFileName = propSymbols.getElement(0).getValue();
-//                        int dotIndex = imageFileName.lastIndexOf('.');
-//                        int spaceIndex = imageFileName.lastIndexOf(' ');
-//
-//                        try {
-//                            model_widget.propInitialIndex().setValue(Integer.parseInt(imageFileName.substring(1 + spaceIndex, dotIndex)));
-//                        } catch ( NumberFormatException nfex ) {
-//                            logger.log(Level.WARNING, "Imported image file doesn't contain state value [{0}].", imageFileName);
-//                        }
-//
-//                        int index = 0;
-//
-//                        while ( true ) {
-//
-//                            String nthImageFileName = MessageFormat.format(
-//                                "{0} {1,number,#########0}{2}",
-//                                imageFileName.substring(0, spaceIndex),
-//                                index,
-//                                imageFileName.substring(dotIndex)
-//                            );
-//
-//                            if ( resourceExists(resolveImageFile(model_widget, nthImageFileName)) ) {
-//                                fileNames.add(nthImageFileName);
-//                            } else {
-//                                break;
-//                            }
-//
-//                            index++;
-//
-//                        }
-//
-//                    }
-//                    break;
-//                default:
-//                    logger.log(Level.WARNING, "Invalid imported type [{0}].", model_widget.getImportedFrom());
-//                    return;
-//            }
-//
-//            for ( int i = 0; i < fileNames.size(); i++ ) {
-//                model_widget.addOrReplaceSymbol(i, fileNames.get(i));
-//            }
-//
-//        } finally {
-//            model_widget.clearImportedFrom();
-//        }
-//
-//    }
-//
-//    private synchronized void updateSymbols ( ) {
-//
-//        updatingSymbols.lock();
-//
-//        try {
-//
-//            int oldIndex = getImageIndex();
-//
-//            try {
-//
-//                ArrayWidgetProperty<WidgetProperty<String>> propSymbols = model_widget.propSymbols();
-//                List<WidgetProperty<String>> fileNames = propSymbols.getValue();
-//
-//                if ( model_widget.getImportedFrom() != null ) {
-//                    updateImportedSymbols();
-//                }
-//
-//                if ( fileNames == null ) {
-//                    logger.log(Level.WARNING, "Empty list of file names.");
-//                } else {
-//
-//                    imagesList.clear();
-//
-//                    fileNames.stream().forEach(f -> {
-//
-//                        String fileName = f.getValue();
-//                        ImageContent imageContent = imagesMap.get(fileName);
-//
-//                        if ( imageContent == null ) {
-//
-//                            imageContent = createImageContent(fileName);
-//
-//                            if ( imageContent.isValid() ) {
-//                                imagesMap.put(fileName, imageContent);
-//                            }
-//
-//                        }
-//
-//                        if ( imageContent.isValid() ) {
-//                            imagesList.add(imageContent);
-//                        }
-//
-//                    });
-//
-//                    Set<String> toBeRemoved = imagesMap.keySet().stream().filter(f -> !imagesList.contains(imagesMap.get(f))).collect(Collectors.toSet());
-//
-//                    toBeRemoved.stream().forEach(f -> imagesMap.remove(f));
-//
-//                }
-//
-//            } finally {
-//
-//                int newImageIndex = Math.min(Math.max(getImageIndex(), 0), imagesList.size() - 1);
-//
-//                maxSize = computeMaximumSize(model_widget);
-//
-//                if ( oldIndex == newImageIndex && oldIndex >= 0 ) {
-//
-//                    ImageContent imageContent = imagesList.get(getImageIndex());
-//
-//                    if ( imageContent.isSVG() || ( imageContent.isImage() && imagePane.getCenter() != imageView ) ) {
-//                        Platform.runLater(() -> triggerContentUpdate());
-//                    } else if ( imageContent.isImage() ) {
-//                        Platform.runLater(() -> triggerImageUpdate());
-//                    }
-//
-//                } else if ( oldIndex != newImageIndex ) {
-//                    setImageIndex(newImageIndex);
-//                }
-//
-//                dirtyGeometry.mark();
-//                dirtyValue.mark();
-//                toolkit.scheduleUpdate(this);
-//
-//            }
-//
-//        } finally {
-//            updatingSymbols.unlock();
-//        }
-//
-//    }
-//
-//    private class ImageContent {
-//
-//        private Image image;
-//        private double originalHeight;
-//        private double originalWidth;
-//        private SVG svg;
-//
-//        ImageContent ( String fileName ) {
-//
-//            boolean loadFailed = true;
-//            String imageFileName = resolveImageFile(model_widget, fileName);
-//
-//            if ( imageFileName != null ) {
-//                if ( imageFileName.toLowerCase().endsWith(".svg") ) {
-//                    try {
-//
-//                        // Open the image from the stream created from the resource file
-//                        svg = SVG.load(ModelResourceUtil.openResourceStream(imageFileName));
-//
-//                        Bounds bounds = svg.getLayoutBounds();
-//
-//                        originalWidth = bounds.getWidth();
-//                        originalHeight = bounds.getHeight();
-//                        image = null;
-//                        loadFailed = false;
-//
-//                    } catch ( Exception ex ) {
-//                        logger.log(Level.WARNING, "Failure loading SVG image file: ({0}) {1} [{2}].", new Object[] { fileName, imageFileName, ex.getMessage() });
-//                    }
-//                } else {
-//                    try {
-//                        //  Open the image from the stream created from the resource file.
-//                        image = new Image(ModelResourceUtil.openResourceStream(imageFileName));
-//                        originalWidth = image.getWidth();
-//                        originalHeight = image.getHeight();
-//                        svg = null;
-//                        loadFailed = false;
-//                    } catch ( Exception ex ) {
-//                        logger.log(Level.WARNING, "Failure loading image: ({0}) {1} [{2}].", new Object[] { fileName, imageFileName, ex.getMessage() });
-//                    }
-//                }
-//            }
-//
-//            if ( loadFailed ) {
-//
-//                imageFileName = resolveImageFile(model_widget, SymbolWidget.DEFAULT_SYMBOL);
-//
-//                try {
-//                    //  Open the image from the stream created from the resource file.
-//                    image = getDefaultSymbol();
-//                    originalWidth = image.getWidth();
-//                    originalHeight = image.getHeight();
-//                    svg = null;
-//                } catch ( Exception ex ) {
-//                    logger.log(Level.WARNING, "Failure loading image: ({0}) {1} [{2}].", new Object[] { fileName, imageFileName, ex.getMessage() });
-//                    image = null;
-//                    svg = null;
-//                    originalWidth = Double.NaN;
-//                    originalHeight = Double.NaN;
-//                }
-//
-//            }
-//
-//        }
-//
-//        Image getImage() {
-//            return image;
-//        }
-//
-//        double getOriginalHeight() {
-//            return originalHeight;
-//        }
-//
-//        double getOriginalRatio() {
-//            return originalWidth / originalHeight;
-//        }
-//
-//        double getOriginalWidth() {
-//            return originalWidth;
-//        }
-//
-//        SVG getSVG() {
-//            return svg;
-//        }
-//
-//        boolean isImage() {
-//            return ( image != null );
-//        }
-//
-//        boolean isSVG() {
-//            return ( svg != null );
-//        }
-//
-//        boolean isValid() {
-//            return ( isImage() || isSVG() );
-//        }
-//
-//    }
-
 }
