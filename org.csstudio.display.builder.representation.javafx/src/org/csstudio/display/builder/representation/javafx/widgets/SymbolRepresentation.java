@@ -50,6 +50,7 @@ import org.diirt.vtype.VType;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Dimension2D;
 import javafx.geometry.Insets;
@@ -312,14 +313,11 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
             jfx_node.setLayoutX(model_widget.propX().getValue());
             jfx_node.setLayoutY(model_widget.propY().getValue());
             jfx_node.setPrefSize(w, h);
-            jfx_node.setMaxSize(w, h);
 
             value = model_widget.propRotation().getValue();
 
             if ( !Objects.equals(value, jfx_node.getRotate()) ) {
                 jfx_node.setRotate((double) value);
-//            if ( !Objects.equals(value, symbol.getNode().getRotate()) ) {
-//                symbol.getNode().setRotate((double) value);
             }
 
         }
@@ -662,8 +660,8 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
 
     private class ResizableSVG extends SVG {
 
-        private double currentHeight = 0;
-        private double currentWidth = 0;
+        private double    currentHeight;
+        private double    currentWidth;
         private final SVG svg;
 
         ResizableSVG ( SVG svg ) {
@@ -672,12 +670,74 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
 
             Bounds bounds = svg.getLayoutBounds();
 
-            this.currentWidth = bounds.getWidth();
-            this.currentHeight = bounds.getHeight();
+            currentWidth = bounds.getWidth();
+            currentHeight = bounds.getHeight();
+
+            getChildren().add(svg);
 
         }
 
-        void setSize ( double width, double height ) {
+        void setSize ( double width, double height, boolean preserveRatio ) {
+
+            double symbolWidth = width;
+            double symbolHeight = height;
+
+            if ( preserveRatio ) {
+
+                Bounds bounds = svg.getLayoutBounds();
+                double originalRatio = bounds.getWidth() / bounds.getHeight();
+                double wPrime = symbolHeight * originalRatio;
+                double hPrime = symbolWidth / originalRatio;
+
+                if ( wPrime < symbolWidth ) {
+                    symbolHeight = hPrime;
+                } else if ( hPrime < symbolHeight ) {
+                    symbolWidth = wPrime;
+                }
+
+            }
+
+            double finalSymbolWidth = symbolWidth;
+            double finalSymbolHeight = symbolHeight;
+            double cos_a = Math.cos(Math.toRadians(model_widget.propRotation().getValue()));
+            double sin_a = Math.sin(Math.toRadians(model_widget.propRotation().getValue()));
+            double pic_bb_w = symbolWidth * Math.abs(cos_a) + symbolHeight * Math.abs(sin_a);
+            double pic_bb_h = symbolWidth * Math.abs(sin_a) + symbolHeight * Math.abs(cos_a);
+            double scale_fac = Math.min(width / pic_bb_w, height / pic_bb_h);
+
+            if ( scale_fac < 1.0 ) {
+                finalSymbolWidth = (int) Math.floor(scale_fac * symbolWidth);
+                finalSymbolHeight = (int) Math.floor(scale_fac * symbolHeight);
+            }
+
+            Bounds bounds = svg.getLayoutBounds();
+            double boundsWidth = bounds.getWidth();
+            double boundsHeight = bounds.getHeight();
+
+            svg.setScaleX(finalSymbolWidth / boundsWidth);
+            svg.setScaleY(finalSymbolHeight / boundsHeight);
+
+            setTranslateX(( width - finalSymbolWidth ) / 2.0);
+            setTranslateY(( height - finalSymbolHeight ) / 2.0);
+
+            currentWidth = width;
+            currentHeight = height;
+
+            impl_notifyLayoutBoundsChanged();
+
+        }
+
+        @Override
+        protected Bounds impl_computeLayoutBounds() {
+
+            Bounds bounds = super.impl_computeLayoutBounds();
+
+            return new BoundingBox(
+                bounds.getMinX(),
+                bounds.getMinY(),
+                currentWidth,
+                currentHeight
+            );
 
         }
 
@@ -714,7 +774,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
                     try {
 
                         // Open the image from the stream created from the resource file.
-                        node = SVG.load(ModelResourceUtil.openResourceStream(imageFileName));
+                        node = new ResizableSVG(SVG.load(ModelResourceUtil.openResourceStream(imageFileName)));
 
                         Bounds bounds = ((SVG) node).getLayoutBounds();
 
@@ -788,7 +848,6 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
         }
 
         void setSize ( double width, double height, boolean preserveRatio ) {
-
             if ( isDefault() ) {
                 ((DefaultSymbol) getNode()).setSize(width, height);
             } else if ( isImageView() ) {
@@ -800,58 +859,8 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
                 iv.setPreserveRatio(preserveRatio);
 
             } else if ( isSVG() ) {
-
-                double symbolWidth = width;
-                double symbolHeight = height;
-
-                if ( preserveRatio ) {
-
-                    double wPrime = symbolHeight * getOriginalRatio();
-                    double hPrime = symbolWidth / getOriginalRatio();
-
-                    if ( wPrime < symbolWidth ) {
-                        symbolHeight = hPrime;
-                    } else if ( hPrime < symbolHeight ) {
-                        symbolWidth = wPrime;
-                    }
-
-                }
-
-                double finalSymbolWidth = symbolWidth;
-                double finalSymbolHeight = symbolHeight;
-                double cos_a = Math.cos(Math.toRadians(model_widget.propRotation().getValue()));
-                double sin_a = Math.sin(Math.toRadians(model_widget.propRotation().getValue()));
-                double pic_bb_w = symbolWidth * Math.abs(cos_a) + symbolHeight * Math.abs(sin_a);
-                double pic_bb_h = symbolWidth * Math.abs(sin_a) + symbolHeight * Math.abs(cos_a);
-                double scale_fac = Math.min(width / pic_bb_w, height / pic_bb_h);
-
-                if ( scale_fac < 1.0 ) {
-                    finalSymbolWidth = (int) Math.floor(scale_fac * symbolWidth);
-                    finalSymbolHeight = (int) Math.floor(scale_fac * symbolHeight);
-                }
-
-                SVG svg = ((SVG) getNode());
-                Bounds bounds = svg.getLayoutBounds();
-                double boundsWidth = bounds.getWidth();
-                double boundsHeight = bounds.getHeight();
-
-                svg.setScaleX(finalSymbolWidth / boundsWidth);
-                svg.setScaleY(finalSymbolHeight / boundsHeight);
-
-                if ( finalSymbolWidth < boundsWidth && width <= boundsWidth ) {
-                    svg.setTranslateX(( width - boundsWidth ) / 2.0);
-                } else {
-                    svg.setTranslateX(0);
-                }
-
-                if ( finalSymbolHeight < boundsHeight && height <= boundsHeight ) {
-                    svg.setTranslateY(( height - boundsHeight ) / 2.0);
-                } else {
-                    svg.setTranslateY(0);
-                }
-
+                ((ResizableSVG) getNode()).setSize(width, height, preserveRatio);
             }
-
         }
 
     }
