@@ -47,6 +47,7 @@ import org.diirt.vtype.VNumberArray;
 import org.diirt.vtype.VString;
 import org.diirt.vtype.VType;
 
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -57,6 +58,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.SnapshotParameters;
+import javafx.scene.SnapshotResult;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -72,6 +75,7 @@ import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.util.Callback;
 import se.europeanspallationsource.xaos.components.SVG;
 
 
@@ -129,6 +133,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
 
         toolkit.execute(() -> {
             this.imageIndex.set(imageIndex);
+//  TODO:CR se sta facendo lo snapshot, l'immagine è nulla. Provare a creare l'immagine prima dello snapshot.
             jfx_node.getChildren().set(0, symbol.getNode());
         });
 
@@ -316,8 +321,9 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
 
             value = model_widget.propRotation().getValue();
 
-            if ( !Objects.equals(value, jfx_node.getRotate()) ) {
-                jfx_node.setRotate((double) value);
+//  TODO:CR da mettere a posto.
+            if ( symbol != null && !Objects.equals(value, symbol.getNode().getRotate()) ) {
+                symbol.getNode().setRotate((double) value);
             }
 
         }
@@ -774,12 +780,32 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
                     try {
 
                         // Open the image from the stream created from the resource file.
-                        node = new ResizableSVG(SVG.load(ModelResourceUtil.openResourceStream(imageFileName)));
+                        SVG svg = SVG.load(ModelResourceUtil.openResourceStream(imageFileName));
+                        Callback<SnapshotResult,Void> imageReady = sr -> {
 
-                        Bounds bounds = ((SVG) node).getLayoutBounds();
+                            node = new ImageView(sr.getImage());
+                            originalWidth = sr.getImage().getWidth();
+                            originalHeight = sr.getImage().getHeight();
 
-                        originalWidth = bounds.getWidth();
-                        originalHeight = bounds.getHeight();
+                            return null;
+
+                        };
+
+                        Platform.runLater(() -> {
+
+                            SnapshotParameters sp = new SnapshotParameters();
+
+                            sp.setFill(Color.TRANSPARENT);
+                            svg.snapshot(imageReady, sp, null);
+
+                        });
+
+//                        node = new ResizableSVG(SVG.load(ModelResourceUtil.openResourceStream(imageFileName)));
+//
+//                        Bounds bounds = ((SVG) node).getLayoutBounds();
+//
+//                        originalWidth = bounds.getWidth();
+//                        originalHeight = bounds.getHeight();
                         loadFailed = false;
 
                     } catch ( Exception ex ) {
