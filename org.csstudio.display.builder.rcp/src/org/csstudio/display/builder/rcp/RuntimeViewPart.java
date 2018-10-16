@@ -31,6 +31,8 @@ import org.csstudio.display.builder.model.widgets.KnobWidget;
 import org.csstudio.display.builder.model.widgets.ScaledSliderWidget;
 import org.csstudio.display.builder.model.widgets.ScrollBarWidget;
 import org.csstudio.display.builder.model.widgets.TableWidget;
+import org.csstudio.display.builder.model.widgets.TextEntryWidget;
+import org.csstudio.display.builder.model.widgets.TextUpdateWidget;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget;
 import org.csstudio.display.builder.rcp.run.ContextMenuSupport;
 import org.csstudio.display.builder.rcp.run.DisplayNavigation;
@@ -423,7 +425,9 @@ public class RuntimeViewPart extends FXViewPart
                         widget instanceof ScrollBarWidget ||
                         widget instanceof TableWidget ||
                         widget instanceof ImageWidget ||
-                        widget instanceof KnobWidget)
+                        widget instanceof KnobWidget  ||
+                        widget instanceof TextEntryWidget  ||
+                        (widget instanceof TextUpdateWidget  &&  ((TextUpdateWidget)widget).propInteractive().getValue()))
                         event.doit = false;
                 }
 
