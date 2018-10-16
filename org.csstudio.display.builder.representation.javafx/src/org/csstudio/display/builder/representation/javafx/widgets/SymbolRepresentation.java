@@ -21,6 +21,7 @@ import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -32,9 +33,18 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
+import org.csstudio.display.builder.model.widgets.PVWidget;
 import org.csstudio.display.builder.model.widgets.SymbolWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.javafx.Styles;
+import org.diirt.util.array.ListInt;
+import org.diirt.util.array.ListNumber;
+import org.diirt.vtype.VBoolean;
+import org.diirt.vtype.VEnum;
+import org.diirt.vtype.VEnumArray;
+import org.diirt.vtype.VNumber;
+import org.diirt.vtype.VNumberArray;
+import org.diirt.vtype.VString;
 import org.diirt.vtype.VType;
 
 import javafx.beans.binding.Bindings;
@@ -52,7 +62,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -71,16 +80,15 @@ import se.europeanspallationsource.xaos.components.SVG;
  */
 public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, SymbolWidget> {
 
-    private static final ExecutorService EXECUTOR         = Executors.newFixedThreadPool(8);
-    private static final double          INDEX_LABEL_SIZE = 32.0;
+    private final ExecutorService EXECUTOR         = Executors.newFixedThreadPool(4);
+    private static final double   INDEX_LABEL_SIZE = 32.0;
 
     private int                                  arrayIndex             = 0;
     private volatile boolean                     autoSize               = false;
-    private Symbol                               content;
-    private DefaultSymbol                        defaultSymbol          = new DefaultSymbol();
+    private Symbol                               symbol;
+    private Symbol                               defaultSymbol          = new Symbol();
     private final DirtyFlag                      dirtyContent           = new DirtyFlag();
     private final DirtyFlag                      dirtyGeometry          = new DirtyFlag();
-    private final DirtyFlag                      dirtyIndex             = new DirtyFlag();
     private final DirtyFlag                      dirtyStyle             = new DirtyFlag();
     private final DirtyFlag                      dirtyValue             = new DirtyFlag();
     private volatile boolean                     enabled                = true;
@@ -89,6 +97,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
     private Dimension2D                          maxSize                = new Dimension2D(0, 0);
     private final WidgetPropertyListener<String> symbolPropertyListener = this::symbolChanged;
     private final AtomicReference<List<Symbol>>  symbols                = new AtomicReference<>(Collections.emptyList());
+    private final AtomicBoolean                  updatingValue          = new AtomicBoolean(false);
 
     // ---- imageIndex property
     private IntegerProperty imageIndex = new SimpleIntegerProperty(-1);
@@ -102,7 +111,26 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
     }
 
     private void setImageIndex ( int imageIndex ) {
-        toolkit.execute(() -> this.imageIndex.set(imageIndex));
+
+        int oldIndex = getImageIndex();
+        List<Symbol> symbolsList = symbols.get();
+
+        if ( imageIndex < 0 || symbolsList.isEmpty() ) {
+            symbol = defaultSymbol;
+        } else {
+            symbol = symbolsList.get(Math.min(imageIndex, symbolsList.size() - 1));
+        }
+
+        if ( oldIndex != imageIndex ) {
+            dirtyGeometry.mark();
+            toolkit.scheduleUpdate(SymbolRepresentation.this);
+        }
+
+        toolkit.execute(() -> {
+            this.imageIndex.set(imageIndex);
+            jfx_node.getChildren().set(0, symbol.getNode());
+        });
+
     }
 
     public static String resolveImageFile ( SymbolWidget widget, String imageFileName ) {
@@ -159,6 +187,12 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
             );
         }
 
+        symbol = null;
+        defaultSymbol = null;
+
+        symbols.get().clear();
+        symbols.set(null);
+
         super.dispose();
 
     }
@@ -168,8 +202,74 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
 
         super.updateChanges();
 
-        boolean needsSVGResize = false;
         Object value;
+
+        //  Must be the first "if" statement to be executed, because it select the array index for the value.
+        if ( dirtyContent.checkAndClear() ) {
+
+            value = model_widget.propArrayIndex().getValue();
+
+            if ( !Objects.equals(value, arrayIndex) ) {
+                arrayIndex = Math.max(0, (int) value);
+            }
+
+            dirtyValue.mark();
+
+        }
+
+        //  Must be the second "if" statement to be executed, because it select the node to be displayed.
+        if ( dirtyValue.checkAndClear() && updatingValue.compareAndSet(false, true) ) {
+
+            int idx = Integer.MIN_VALUE;    // Marker indicating non-valid value.
+
+            try {
+
+                value = model_widget.runtimePropValue().getValue();
+
+                if ( value != null ) {
+                    if ( PVWidget.RUNTIME_VALUE_NO_PV == value ) {
+                        idx = model_widget.propInitialIndex().getValue();
+                    } else if ( value instanceof VBoolean ) {
+                        idx = ( (VBoolean) value ).getValue() ? 1 : 0;
+                    } else if ( value instanceof VString ) {
+                        try {
+                            idx = Integer.parseInt(( (VString) value ).getValue());
+                        } catch ( NumberFormatException nfex ) {
+                            logger.log(Level.FINE, "Failure parsing the string value: {0} [{1}].", new Object[] { ( (VString) value ).getValue(), nfex.getMessage() });
+                        }
+                    } else if ( value instanceof VNumber ) {
+                        idx = ( (VNumber) value ).getValue().intValue();
+                    } else if ( value instanceof VEnum ) {
+                        idx = ( (VEnum) value ).getIndex();
+                    } else if ( value instanceof VNumberArray ) {
+
+                        ListNumber array = ( (VNumberArray) value ).getData();
+
+                        if ( array.size() > 0 ) {
+                            idx = array.getInt(Math.min(arrayIndex, array.size() - 1));
+                        }
+
+                    } else if ( value instanceof VEnumArray ) {
+
+                        ListInt array = ( (VEnumArray) value ).getIndexes();
+
+                        if ( array.size() > 0 ) {
+                            idx = array.getInt(Math.min(arrayIndex, array.size() - 1));
+                        }
+
+                    }
+                }
+
+            } finally {
+                updatingValue.set(false);
+            }
+
+            if ( idx != Integer.MIN_VALUE ) {
+                // Valid value.
+                setImageIndex(idx);
+            }
+
+        }
 
         if ( dirtyGeometry.checkAndClear() ) {
 
@@ -209,45 +309,19 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
             jfx_node.setLayoutY(model_widget.propY().getValue());
             jfx_node.setPrefSize(w, h);
 
-            if ( content != null ) {
-                if ( content instanceof DefaultSymbol ) {
-                    ((DefaultSymbol) content).setSize(w, h);
-                } else if ( content instanceof Region ) {
-                    ((Region) content).setPrefSize(w, h);
-                }
+            if ( symbol != null ) {
+                symbol.setSize(w, h, model_widget.propPreserveRatio().getValue());
             }
 
-            needsSVGResize = true;
+            value = model_widget.propRotation().getValue();
 
-        }
-
-        if ( dirtyIndex.checkAndClear() ) {
-            setImageIndex(model_widget.propInitialIndex().getValue());
-        }
-
-        if ( dirtyContent.checkAndClear() ) {
-
-            value = model_widget.propArrayIndex().getValue();
-
-            if ( !Objects.equals(value, arrayIndex) ) {
-                arrayIndex = Math.max(0, (int) value);
+            if ( !Objects.equals(value, symbol.getNode().getRotate()) ) {
+                symbol.getNode().setRotate((double) value);
             }
-
-            dirtyValue.mark();
 
         }
 
         if ( dirtyStyle.checkAndClear() ) {
-
-            value = model_widget.propPreserveRatio().getValue();
-
-            if ( content instanceof ImageView && !Objects.equals(value, ((ImageView) content).isPreserveRatio()) ) {
-
-                ((ImageView) content).setPreserveRatio((boolean) value);
-
-                needsSVGResize = true;
-
-            }
 
             value = model_widget.propEnabled().getValue();
 
@@ -272,67 +346,8 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
                 jfx_node.setBackground(new Background(new BackgroundFill(JFXUtil.convert(model_widget.propBackgroundColor().getValue()), CornerRadii.EMPTY, Insets.EMPTY)));
             }
 
-            value = model_widget.propRotation().getValue();
-
-            if ( !Objects.equals(value, content.getRotate()) ) {
-                content.setRotate((double) value);
-            }
-
         }
 
-//        if ( dirtyValue.checkAndClear() && updatingValue.compareAndSet(false, true) ) {
-//
-//            int idx = Integer.MIN_VALUE;    // Marker indicating no valid value.
-//
-//            try {
-//
-//                value = model_widget.runtimePropValue().getValue();
-//
-//                if ( value != null ) {
-//                    if ( PVWidget.RUNTIME_VALUE_NO_PV == value ) {
-//                        idx = model_widget.propInitialIndex().getValue();
-//                    } else if ( value instanceof VBoolean ) {
-//                        idx = ( (VBoolean) value ).getValue() ? 1 : 0;
-//                    } else if ( value instanceof VString ) {
-//                        try {
-//                            idx = Integer.parseInt(( (VString) value ).getValue());
-//                        } catch ( NumberFormatException nfex ) {
-//                            logger.log(Level.FINE, "Failure parsing the string value: {0} [{1}].", new Object[] { ( (VString) value ).getValue(), nfex.getMessage() });
-//                        }
-//                    } else if ( value instanceof VNumber ) {
-//                        idx = ( (VNumber) value ).getValue().intValue();
-//                    } else if ( value instanceof VEnum ) {
-//                        idx = ( (VEnum) value ).getIndex();
-//                    } else if ( value instanceof VNumberArray ) {
-//
-//                        ListNumber array = ( (VNumberArray) value ).getData();
-//
-//                        if ( array.size() > 0 ) {
-//                            idx = array.getInt(Math.min(arrayIndex, array.size() - 1));
-//                        }
-//
-//                    } else if ( value instanceof VEnumArray ) {
-//
-//                        ListInt array = ( (VEnumArray) value ).getIndexes();
-//
-//                        if ( array.size() > 0 ) {
-//                            idx = array.getInt(Math.min(arrayIndex, array.size() - 1));
-//                        }
-//
-//                    }
-//                }
-//
-//            } finally {
-//                updatingValue.set(false);
-//            }
-//
-//            if ( idx != Integer.MIN_VALUE ) {
-//                // Valid value.
-//                setImageIndex(idx);
-//            }
-//
-//        }
-//
 //        if ( needsSVGResize ) {
 //            imagesList.stream().filter(ic -> ic.isSVG()).forEach(ic -> {
 //
@@ -396,9 +411,9 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
     protected StackPane createJFXNode ( ) throws Exception {
 
         autoSize = model_widget.propAutoSize().getValue();
-        content = defaultSymbol;
+        symbol = defaultSymbol;
 
-        StackPane symbol = new StackPane();
+        StackPane symbolPane = new StackPane();
 
         indexLabelBackground.setStroke(Color.LIGHTGRAY.deriveColor(0.0, 1.0, 1.0, 0.75));
         indexLabelBackground.setVisible(model_widget.propShowIndex().getValue());
@@ -409,22 +424,22 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
         indexLabel.setVisible(model_widget.propShowIndex().getValue());
         indexLabel.textProperty().bind(Bindings.convert(imageIndexProperty()));
 
-        symbol.getChildren().addAll(content, indexLabelBackground, indexLabel);
+        symbolPane.getChildren().addAll(symbol.getNode(), indexLabelBackground, indexLabel);
 
         if ( model_widget.propTransparent().getValue() ) {
-            symbol.setBackground(null);
+            symbolPane.setBackground(null);
         } else {
-            symbol.setBackground(new Background(new BackgroundFill(JFXUtil.convert(model_widget.propBackgroundColor().getValue()), CornerRadii.EMPTY, Insets.EMPTY)));
+            symbolPane.setBackground(new Background(new BackgroundFill(JFXUtil.convert(model_widget.propBackgroundColor().getValue()), CornerRadii.EMPTY, Insets.EMPTY)));
         }
 
         enabled = model_widget.propEnabled().getValue();
 
-        Styles.update(symbol, Styles.NOT_ENABLED, !enabled);
+        Styles.update(symbolPane, Styles.NOT_ENABLED, !enabled);
 
         initialIndexChanged(null, null, null);
         symbolChanged(null, null, null);
 
-        return symbol;
+        return symbolPane;
 
     }
 
@@ -437,10 +452,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
         model_widget.propPVName().addPropertyListener(this::contentChanged);
 
         model_widget.propSymbols().addPropertyListener(this::symbolsChanged);
-        model_widget.propSymbols().getValue().stream().forEach(p -> {
-            p.removePropertyListener(symbolPropertyListener);
-            p.addPropertyListener(symbolPropertyListener);
-        });
+        model_widget.propSymbols().getValue().stream().forEach(p -> p.addPropertyListener(symbolPropertyListener));
 
         model_widget.propInitialIndex().addPropertyListener(this::initialIndexChanged);
 
@@ -450,11 +462,11 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
         model_widget.propY().addUntypedPropertyListener(this::geometryChanged);
         model_widget.propWidth().addUntypedPropertyListener(this::geometryChanged);
         model_widget.propHeight().addUntypedPropertyListener(this::geometryChanged);
+        model_widget.propPreserveRatio().addUntypedPropertyListener(this::geometryChanged);
+        model_widget.propRotation().addUntypedPropertyListener(this::geometryChanged);
 
         model_widget.propBackgroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.propEnabled().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propPreserveRatio().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propRotation().addUntypedPropertyListener(this::styleChanged);
         model_widget.propShowIndex().addUntypedPropertyListener(this::styleChanged);
         model_widget.propTransparent().addUntypedPropertyListener(this::styleChanged);
 
@@ -557,7 +569,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
     }
 
     private void initialIndexChanged ( final WidgetProperty<?> property, final Object oldValue, final Object newValue ) {
-        dirtyIndex.mark();
+        dirtyValue.mark();
         toolkit.scheduleUpdate(this);
     }
 
@@ -568,12 +580,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
 
     private void symbolChanged ( final WidgetProperty<String> property, final String oldValue, final String newValue ) {
         EXECUTOR.execute( ( ) -> {
-
             updateSymbols();
-
-            dirtyContent.mark();
-            toolkit.scheduleUpdate(this);
-
         });
     }
 
@@ -588,7 +595,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
                 newValue.stream().forEach(p -> p.addPropertyListener(symbolPropertyListener));
             }
 
-            symbolChanged(null, null, null);
+            updateSymbols();
 
         });
     }
@@ -598,7 +605,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
         List<WidgetProperty<String>> fileNames = model_widget.propSymbols().getValue();
         List<Symbol> symbolsList = new ArrayList<>(fileNames.size());
         Map<String, Symbol> symbolsMap = new HashMap<>(fileNames.size());
-        Map<String, Symbol> currentSymbolsMap = symbols.get().stream().collect(Collectors.toMap(Symbol::getFileName, sc -> sc));
+        Map<String, Symbol> currentSymbolsMap = symbols.get().stream().distinct().collect(Collectors.toMap(Symbol::getFileName, sc -> sc));
         int currentIndex = getImageIndex();
 
         try {
@@ -607,58 +614,42 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
                 fixImportedSymbolNames();
             }
 
-            if ( fileNames == null ) {
-                logger.log(Level.WARNING, "Empty list of file names.");
-            } else {
+            fileNames.stream().forEach(f -> {
 
-                fileNames.stream().forEach(f -> {
+                String fileName = f.getValue();
+                Symbol s = symbolsMap.get(fileName);
 
-                    String fileName = f.getValue();
-                    Symbol symbol = symbolsMap.get(fileName);
+                if ( s == null ) {     // Symbol not yet loaded...
 
-                    if ( symbol == null ) {     //  Symbol not yet loaded...
+                    s = currentSymbolsMap.get(fileName);
 
-                        symbol = currentSymbolsMap.get(fileName);
-
-                        if ( symbol == null ) { //  Neither previously loaded.
-                            symbol = new Symbol(fileName);
-                        }
-
-                        symbolsMap.put(fileName, symbol);
-
+                    if ( s == null ) { // Neither previously loaded.
+                        s = new Symbol(fileName);
                     }
 
-                    symbolsList.add(symbol);
+                    symbolsMap.put(fileName, s);
 
-                });
+                }
 
-            }
+                symbolsList.add(s);
+
+            });
 
         } finally {
 
-            int newImageIndex = Math.min(Math.max(getImageIndex(), 0), symbolsList.size() - 1);
+            int newImageIndex = Math.min(Math.max(currentIndex, 0), symbolsList.size() - 1);
 
             maxSize = new Dimension2D(
                 symbolsList.stream().mapToDouble(Symbol::getOriginalWidth).max().orElse(0.0),
                 symbolsList.stream().mapToDouble(Symbol::getOriginalHeight).max().orElse(0.0)
             );
 
-            if ( currentIndex == newImageIndex && currentIndex >= 0 ) {
+            symbols.set(symbolsList);
 
-                ImageContent imageContent = imagesList.get(getImageIndex());
-
-                if ( imageContent.isSVG() || ( imageContent.isImage() && imagePane.getCenter() != imageView ) ) {
-                    Platform.runLater( ( ) -> triggerContentUpdate());
-                } else if ( imageContent.isImage() ) {
-                    Platform.runLater( ( ) -> triggerImageUpdate());
-                }
-
-            } else if ( oldIndex != newImageIndex ) {
-                setImageIndex(newImageIndex);
-            }
+            setImageIndex(-1);
+            setImageIndex(newImageIndex);
 
             dirtyGeometry.mark();
-            dirtyStyle.mark();
             dirtyValue.mark();
             toolkit.scheduleUpdate(this);
 
@@ -731,6 +722,18 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
         private double       originalWidth;
         private Node         node;
 
+        Symbol ( ) {
+
+            fileName = null;
+            node = new DefaultSymbol();
+
+            Bounds bounds = ( (DefaultSymbol) node ).getLayoutBounds();
+
+            originalWidth = bounds.getWidth();
+            originalHeight = bounds.getHeight();
+
+        }
+
         Symbol ( String fileName ) {
 
             this.fileName = fileName;
@@ -773,7 +776,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
 
             if ( loadFailed ) {
 
-                node = defaultSymbol;
+                node = defaultSymbol.getNode();
 
                 Bounds bounds = ((DefaultSymbol) node).getLayoutBounds();
 
@@ -804,16 +807,32 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
             return node;
         }
 
+        boolean isDefault ( ) {
+            return ( node instanceof DefaultSymbol );
+        }
+
         boolean isImageView ( ) {
             return ( node instanceof ImageView );
         }
 
         boolean isSVG ( ) {
-            return ( node instanceof SVG);
+            return ( node instanceof SVG );
         }
 
         boolean isValid ( ) {
             return ( isImageView() || isSVG() );
+        }
+
+        void setSize ( double width, double height, boolean preserveRatio ) {
+            if ( isDefault() ) {
+                ((DefaultSymbol) getNode()).setSize(width, height);
+            } else if ( isImageView() ) {
+                ((ImageView) getNode()).setFitWidth(width);
+                ((ImageView) getNode()).setFitHeight(height);
+                ((ImageView) getNode()).setPreserveRatio(preserveRatio);
+            } else if ( isSVG() ) {
+//  TODO:CR scale SVGs.
+            }
         }
 
     }
@@ -851,7 +870,6 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
 //    private BorderPane                           imagePane;
 //    private ImageView                            imageView;
 //  private final ReentrantLock updatingSymbols      = new ReentrantLock();
-//    private final AtomicBoolean                  updatingValue         = new AtomicBoolean(false);
 //
 //    //  ---- triggerContentUpdate property
 //    private BooleanProperty triggerContentUpdate =  new SimpleBooleanProperty(false);
