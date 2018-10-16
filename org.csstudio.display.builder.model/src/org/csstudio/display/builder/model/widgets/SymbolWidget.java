@@ -172,7 +172,7 @@ public class SymbolWidget extends PVWidget {
 
         super.defineProperties(properties);
 
-        properties.add(symbols        = propSymbols.createProperty(this, Collections.emptyList()));
+        properties.add(symbols        = propSymbols.createProperty(this, Collections.singletonList(propSymbol(0).createProperty(this, "platform:/plugin/org.csstudio.display.builder.model/icons/default_symbol.png"))));
 
         properties.add(background     = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
         properties.add(initial_index  = propInitialIndex.createProperty(this, 0));

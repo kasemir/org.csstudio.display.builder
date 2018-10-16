@@ -305,18 +305,21 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
                 }
             }
 
-            jfx_node.setLayoutX(model_widget.propX().getValue());
-            jfx_node.setLayoutY(model_widget.propY().getValue());
-            jfx_node.setPrefSize(w, h);
-
             if ( symbol != null ) {
                 symbol.setSize(w, h, model_widget.propPreserveRatio().getValue());
             }
 
+            jfx_node.setLayoutX(model_widget.propX().getValue());
+            jfx_node.setLayoutY(model_widget.propY().getValue());
+            jfx_node.setPrefSize(w, h);
+            jfx_node.setMaxSize(w, h);
+
             value = model_widget.propRotation().getValue();
 
-            if ( !Objects.equals(value, symbol.getNode().getRotate()) ) {
-                symbol.getNode().setRotate((double) value);
+            if ( !Objects.equals(value, jfx_node.getRotate()) ) {
+                jfx_node.setRotate((double) value);
+//            if ( !Objects.equals(value, symbol.getNode().getRotate()) ) {
+//                symbol.getNode().setRotate((double) value);
             }
 
         }
@@ -347,63 +350,6 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
             }
 
         }
-
-//        if ( needsSVGResize ) {
-//            imagesList.stream().filter(ic -> ic.isSVG()).forEach(ic -> {
-//
-//                double widgetWidth = model_widget.propWidth().getValue().doubleValue();
-//                double widgetHeight = model_widget.propHeight().getValue().doubleValue();
-//                double symbolWidth = widgetWidth;
-//                double symbolHeight = widgetHeight;
-//
-//                if ( model_widget.propPreserveRatio().getValue() ) {
-//
-//                    double wPrime = symbolHeight * ic.getOriginalRatio();
-//                    double hPrime = symbolWidth / ic.getOriginalRatio();
-//
-//                    if ( wPrime < symbolWidth ) {
-//                        symbolHeight = hPrime;
-//                    } else if ( hPrime < symbolHeight ) {
-//                        symbolWidth = wPrime;
-//                    }
-//
-//                }
-//
-//                double finalSymbolWidth = symbolWidth;
-//                double finalSymbolHeight = symbolHeight;
-//                double cos_a = Math.cos(Math.toRadians(model_widget.propRotation().getValue()));
-//                double sin_a = Math.sin(Math.toRadians(model_widget.propRotation().getValue()));
-//                double pic_bb_w = symbolWidth * Math.abs(cos_a) + symbolHeight * Math.abs(sin_a);
-//                double pic_bb_h = symbolWidth * Math.abs(sin_a) + symbolHeight * Math.abs(cos_a);
-//                double scale_fac = Math.min(widgetWidth / pic_bb_w, widgetHeight / pic_bb_h);
-//
-//                if ( scale_fac < 1.0 ) {
-//                    finalSymbolWidth = (int) Math.floor(scale_fac * symbolWidth);
-//                    finalSymbolHeight = (int) Math.floor(scale_fac * symbolHeight);
-//                }
-//
-//                SVG svg = ic.getSVG();
-//                Bounds bounds = svg.getLayoutBounds();
-//                double boundsWidth = bounds.getWidth();
-//                double boundsHeight = bounds.getHeight();
-//
-//                svg.setScaleX(finalSymbolWidth / boundsWidth);
-//                svg.setScaleY(finalSymbolHeight / boundsHeight);
-//
-//                if ( finalSymbolWidth < boundsWidth && widgetWidth <= boundsWidth ) {
-//                    svg.setTranslateX(( widgetWidth - boundsWidth ) / 2.0);
-//                } else {
-//                    svg.setTranslateX(0);
-//                }
-//
-//                if ( finalSymbolHeight < boundsHeight && widgetHeight <= boundsHeight ) {
-//                    svg.setTranslateY(( widgetHeight - boundsHeight ) / 2.0);
-//                } else {
-//                    svg.setTranslateY(0);
-//                }
-//
-//            });
-//        }
 
     }
 
@@ -670,7 +616,6 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
 
         DefaultSymbol() {
 
-            setAutoSizeChildren(true);
             setManaged(true);
 
             int w = 100;
@@ -710,6 +655,29 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
 
             l2.setEndX(w - 0.5);
             l2.setStartY(h - 0.5);
+
+        }
+
+    }
+
+    private class ResizableSVG extends SVG {
+
+        private double currentHeight = 0;
+        private double currentWidth = 0;
+        private final SVG svg;
+
+        ResizableSVG ( SVG svg ) {
+
+            this.svg = svg;
+
+            Bounds bounds = svg.getLayoutBounds();
+
+            this.currentWidth = bounds.getWidth();
+            this.currentHeight = bounds.getHeight();
+
+        }
+
+        void setSize ( double width, double height ) {
 
         }
 
@@ -819,154 +787,73 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
             return ( node instanceof SVG );
         }
 
-        boolean isValid ( ) {
-            return ( isImageView() || isSVG() );
-        }
-
         void setSize ( double width, double height, boolean preserveRatio ) {
+
             if ( isDefault() ) {
                 ((DefaultSymbol) getNode()).setSize(width, height);
             } else if ( isImageView() ) {
-                ((ImageView) getNode()).setFitWidth(width);
-                ((ImageView) getNode()).setFitHeight(height);
-                ((ImageView) getNode()).setPreserveRatio(preserveRatio);
+
+                ImageView iv = (ImageView) getNode();
+
+                iv.setFitWidth(width);
+                iv.setFitHeight(height);
+                iv.setPreserveRatio(preserveRatio);
+
             } else if ( isSVG() ) {
-//  TODO:CR scale SVGs.
+
+                double symbolWidth = width;
+                double symbolHeight = height;
+
+                if ( preserveRatio ) {
+
+                    double wPrime = symbolHeight * getOriginalRatio();
+                    double hPrime = symbolWidth / getOriginalRatio();
+
+                    if ( wPrime < symbolWidth ) {
+                        symbolHeight = hPrime;
+                    } else if ( hPrime < symbolHeight ) {
+                        symbolWidth = wPrime;
+                    }
+
+                }
+
+                double finalSymbolWidth = symbolWidth;
+                double finalSymbolHeight = symbolHeight;
+                double cos_a = Math.cos(Math.toRadians(model_widget.propRotation().getValue()));
+                double sin_a = Math.sin(Math.toRadians(model_widget.propRotation().getValue()));
+                double pic_bb_w = symbolWidth * Math.abs(cos_a) + symbolHeight * Math.abs(sin_a);
+                double pic_bb_h = symbolWidth * Math.abs(sin_a) + symbolHeight * Math.abs(cos_a);
+                double scale_fac = Math.min(width / pic_bb_w, height / pic_bb_h);
+
+                if ( scale_fac < 1.0 ) {
+                    finalSymbolWidth = (int) Math.floor(scale_fac * symbolWidth);
+                    finalSymbolHeight = (int) Math.floor(scale_fac * symbolHeight);
+                }
+
+                SVG svg = ((SVG) getNode());
+                Bounds bounds = svg.getLayoutBounds();
+                double boundsWidth = bounds.getWidth();
+                double boundsHeight = bounds.getHeight();
+
+                svg.setScaleX(finalSymbolWidth / boundsWidth);
+                svg.setScaleY(finalSymbolHeight / boundsHeight);
+
+                if ( finalSymbolWidth < boundsWidth && width <= boundsWidth ) {
+                    svg.setTranslateX(( width - boundsWidth ) / 2.0);
+                } else {
+                    svg.setTranslateX(0);
+                }
+
+                if ( finalSymbolHeight < boundsHeight && height <= boundsHeight ) {
+                    svg.setTranslateY(( height - boundsHeight ) / 2.0);
+                } else {
+                    svg.setTranslateY(0);
+                }
+
             }
+
         }
 
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//    private final List<ImageContent>             imagesList            = Collections.synchronizedList(new ArrayList<>(4));
-//    private final Map<String, ImageContent>      imagesMap             = Collections.synchronizedMap(new TreeMap<>());
-//    private BorderPane                           imagePane;
-//    private ImageView                            imageView;
-//  private final ReentrantLock updatingSymbols      = new ReentrantLock();
-//
-//    //  ---- triggerContentUpdate property
-//    private BooleanProperty triggerContentUpdate =  new SimpleBooleanProperty(false);
-//
-//    private boolean isTriggerContentUpdate ( ) {
-//        return triggerContentUpdate.get();
-//    }
-//
-//    private BooleanProperty triggerContentUpdateProperty ( ) {
-//        return triggerContentUpdate;
-//    }
-//
-//    private void setTriggerContentUpdate ( boolean triggerContentUpdate ) {
-//        Platform.runLater(() -> this.triggerContentUpdate.set(triggerContentUpdate));
-//    }
-//
-//    private void triggerContentUpdate() {
-//        setTriggerContentUpdate(!isTriggerContentUpdate());
-//    }
-//
-//    //  ---- triggerImageUpdate property
-//    private BooleanProperty triggerImageUpdate =  new SimpleBooleanProperty(false);
-//
-//    private boolean isTriggerImageUpdate ( ) {
-//        return triggerImageUpdate.get();
-//    }
-//
-//    private BooleanProperty triggerImageUpdateProperty ( ) {
-//        return triggerImageUpdate;
-//    }
-//
-//    private void setTriggerImageUpdate ( boolean triggerImageUpdate ) {
-//        Platform.runLater(() -> this.triggerImageUpdate.set(triggerImageUpdate));
-//    }
-//
-//    private void triggerImageUpdate() {
-//        setTriggerImageUpdate(!isTriggerImageUpdate());
-//    }
-//
-//    /**
-//     * Compute the maximum width and height of the given {@code widget} based on
-//     * the its set of node images.
-//     *
-//     * @param widget The {@link SymbolWidget} whose size must be computed.
-//     * @return A not {@code null} maximum dimension of the given {@code widget}.
-//     */
-//    public static Dimension2D computeMaximumSize ( final SymbolWidget widget ) {
-//
-//        Double[] max_size = new Double[] { 0.0, 0.0 };
-//
-//        widget.propSymbols().getValue().stream().forEach(s -> {
-//
-//            final String imageFile = s.getValue();
-//
-//            try {
-//
-//                final SymbolRepresentation representation = widget.getUserData(Widget.USER_DATA_REPRESENTATION);
-//                final ImageContent ic = representation.imagesMap.containsKey(imageFile)
-//                                      ? representation.imagesMap.get(imageFile)
-//                                      : representation.createImageContent(imageFile);
-//
-//                if ( max_size[0] < ic.getOriginalWidth() ) {
-//                    max_size[0] = ic.getOriginalWidth();
-//                }
-//                if ( max_size[1] < ic.getOriginalHeight() ) {
-//                    max_size[1] = ic.getOriginalHeight();
-//                }
-//
-//            } catch ( Exception ex ) {
-//                //  The following message has proven to be annoying and not useful.
-//                //logger.log(Level.WARNING, "Cannot obtain image size for {0} [{1}].", new Object[] { imageFile, ex.getMessage() });
-//            }
-//
-//        });
-//
-//        return new Dimension2D(max_size[0], max_size[1]);
-//
-//    }
-//
-//    private <T> T  getDisplayable( Predicate<ImageContent> predicate, Function<ImageContent, T> getter, T defaultDisplayable ) {
-//
-//        int index = getImageIndex();
-//
-//        if ( index >= 0 && index < imagesList.size() ) {
-//
-//            ImageContent imageContent = imagesList.get(index);
-//
-//            if ( predicate.test(imageContent) ) {
-//                return getter.apply(imageContent);
-//            } else {
-//                return defaultDisplayable;
-//            }
-//
-//        } else {
-//            return defaultDisplayable;
-//        }
-//
-//    }
-//
 }
