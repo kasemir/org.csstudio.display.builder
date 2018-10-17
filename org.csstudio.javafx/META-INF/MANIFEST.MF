@@ -14,5 +14,6 @@ Require-Bundle: org.csstudio.display.builder.util;bundle-version="1.0.0",
  org.fxmisc.flowless,
  org.fxmisc.richtext.fx,
  org.fxmisc.undo.fx,
- org.fxmisc.wellbehaved.fx
+ org.fxmisc.wellbehaved.fx,
+ org.apache.commons.collections4
 Bundle-ActivationPolicy: lazy

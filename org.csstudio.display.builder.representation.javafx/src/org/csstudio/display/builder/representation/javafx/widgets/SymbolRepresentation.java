@@ -18,9 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
@@ -33,9 +30,11 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
+import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.model.widgets.PVWidget;
 import org.csstudio.display.builder.model.widgets.SymbolWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
+import org.csstudio.javafx.ImageCache;
 import org.csstudio.javafx.Styles;
 import org.diirt.util.array.ListInt;
 import org.diirt.util.array.ListNumber;
@@ -47,11 +46,9 @@ import org.diirt.vtype.VNumberArray;
 import org.diirt.vtype.VString;
 import org.diirt.vtype.VType;
 
-import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Dimension2D;
 import javafx.geometry.Insets;
@@ -59,10 +56,10 @@ import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
-import javafx.scene.SnapshotResult;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -75,7 +72,6 @@ import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import javafx.util.Callback;
 import se.europeanspallationsource.xaos.components.SVG;
 
 
@@ -85,18 +81,19 @@ import se.europeanspallationsource.xaos.components.SVG;
  */
 public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, SymbolWidget> {
 
-    private final ExecutorService EXECUTOR         = Executors.newFixedThreadPool(4);
-    private static final double   INDEX_LABEL_SIZE = 32.0;
+    private static final double INDEX_LABEL_SIZE = 32.0;
 
     private int                                  arrayIndex             = 0;
     private volatile boolean                     autoSize               = false;
     private Symbol                               symbol;
-    private Symbol                               defaultSymbol          = new Symbol();
+    private final Symbol                         defaultSymbol;
+    private final DefaultSymbolNode              defaultSymbolNode      = new DefaultSymbolNode();
     private final DirtyFlag                      dirtyContent           = new DirtyFlag();
     private final DirtyFlag                      dirtyGeometry          = new DirtyFlag();
     private final DirtyFlag                      dirtyStyle             = new DirtyFlag();
     private final DirtyFlag                      dirtyValue             = new DirtyFlag();
     private volatile boolean                     enabled                = true;
+    private final ImageView                      imageView              = new ImageView();
     private final Label                          indexLabel             = new Label();
     private final Circle                         indexLabelBackground   = new Circle(INDEX_LABEL_SIZE / 2, Color.BLACK.deriveColor(0.0, 0.0, 0.0, 0.75));
     private Dimension2D                          maxSize                = new Dimension2D(0, 0);
@@ -121,7 +118,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
         List<Symbol> symbolsList = symbols.get();
 
         if ( imageIndex < 0 || symbolsList.isEmpty() ) {
-            symbol = defaultSymbol;
+            symbol = getDefaultSymbol();
         } else {
             symbol = symbolsList.get(Math.min(imageIndex, symbolsList.size() - 1));
         }
@@ -133,7 +130,6 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
 
         toolkit.execute(() -> {
             this.imageIndex.set(imageIndex);
-//  TODO:CR se sta facendo lo snapshot, l'immagine è nulla. Provare a creare l'immagine prima dello snapshot.
             jfx_node.getChildren().set(0, symbol.getNode());
         });
 
@@ -174,27 +170,22 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
 
     }
 
+    public SymbolRepresentation ( ) {
+
+        super();
+
+        //  This initialization must be performed here, to allow defaultSymbolNode
+        //  to be initialized first.
+        defaultSymbol = new Symbol();
+
+    }
+
     @Override
     public void dispose ( ) {
 
         model_widget.propSymbols().getValue().stream().forEach(p -> p.removePropertyListener(symbolPropertyListener));
 
-        EXECUTOR.shutdown();
-
-        try {
-            while ( !EXECUTOR.awaitTermination(10, TimeUnit.SECONDS) ) {
-                Thread.yield();
-            }
-        } catch ( InterruptedException ex ) {
-            logger.log(
-                Level.WARNING,
-                MessageFormat.format("Interrupted while awaiting for shutdown termination [widget: {0} - {1}].", model_widget.getType(), model_widget.getName()),
-                ex
-            );
-        }
-
         symbol = null;
-        defaultSymbol = null;
 
         symbols.get().clear();
         symbols.set(null);
@@ -321,9 +312,8 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
 
             value = model_widget.propRotation().getValue();
 
-//  TODO:CR da mettere a posto.
-            if ( symbol != null && !Objects.equals(value, symbol.getNode().getRotate()) ) {
-                symbol.getNode().setRotate((double) value);
+            if ( !Objects.equals(value, jfx_node.getRotate()) ) {
+                jfx_node.setRotate((double) value);
             }
 
         }
@@ -361,7 +351,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
     protected StackPane createJFXNode ( ) throws Exception {
 
         autoSize = model_widget.propAutoSize().getValue();
-        symbol = defaultSymbol;
+        symbol = getDefaultSymbol();
 
         StackPane symbolPane = new StackPane();
 
@@ -518,6 +508,14 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
         toolkit.scheduleUpdate(this);
     }
 
+    private Symbol getDefaultSymbol ( ) {
+        return defaultSymbol;
+    }
+
+    private DefaultSymbolNode getDefaultSymbolNode ( ) {
+        return defaultSymbolNode;
+    }
+
     private void initialIndexChanged ( final WidgetProperty<?> property, final Object oldValue, final Object newValue ) {
         dirtyValue.mark();
         toolkit.scheduleUpdate(this);
@@ -529,13 +527,13 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
     }
 
     private void symbolChanged ( final WidgetProperty<String> property, final String oldValue, final String newValue ) {
-        EXECUTOR.execute( ( ) -> {
+        ModelThreadPool.getExecutor().execute( ( ) -> {
             updateSymbols();
         });
     }
 
     private void symbolsChanged ( final WidgetProperty<List<WidgetProperty<String>>> property, final List<WidgetProperty<String>> oldValue, final List<WidgetProperty<String>> newValue ) {
-        EXECUTOR.execute( ( ) -> {
+        ModelThreadPool.getExecutor().execute( ( ) -> {
 
             if ( oldValue != null ) {
                 oldValue.stream().forEach(p -> p.removePropertyListener(symbolPropertyListener));
@@ -612,13 +610,13 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
         toolkit.scheduleUpdate(this);
     }
 
-    private class DefaultSymbol extends Group {
+    private class DefaultSymbolNode extends Group {
 
         private final Rectangle r;
         private final Line l1;
         private final Line l2;
 
-        DefaultSymbol() {
+        DefaultSymbolNode() {
 
             setManaged(true);
 
@@ -664,104 +662,20 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
 
     }
 
-    private class ResizableSVG extends SVG {
-
-        private double    currentHeight;
-        private double    currentWidth;
-        private final SVG svg;
-
-        ResizableSVG ( SVG svg ) {
-
-            this.svg = svg;
-
-            Bounds bounds = svg.getLayoutBounds();
-
-            currentWidth = bounds.getWidth();
-            currentHeight = bounds.getHeight();
-
-            getChildren().add(svg);
-
-        }
-
-        void setSize ( double width, double height, boolean preserveRatio ) {
-
-            double symbolWidth = width;
-            double symbolHeight = height;
-
-            if ( preserveRatio ) {
-
-                Bounds bounds = svg.getLayoutBounds();
-                double originalRatio = bounds.getWidth() / bounds.getHeight();
-                double wPrime = symbolHeight * originalRatio;
-                double hPrime = symbolWidth / originalRatio;
-
-                if ( wPrime < symbolWidth ) {
-                    symbolHeight = hPrime;
-                } else if ( hPrime < symbolHeight ) {
-                    symbolWidth = wPrime;
-                }
-
-            }
-
-            double finalSymbolWidth = symbolWidth;
-            double finalSymbolHeight = symbolHeight;
-            double cos_a = Math.cos(Math.toRadians(model_widget.propRotation().getValue()));
-            double sin_a = Math.sin(Math.toRadians(model_widget.propRotation().getValue()));
-            double pic_bb_w = symbolWidth * Math.abs(cos_a) + symbolHeight * Math.abs(sin_a);
-            double pic_bb_h = symbolWidth * Math.abs(sin_a) + symbolHeight * Math.abs(cos_a);
-            double scale_fac = Math.min(width / pic_bb_w, height / pic_bb_h);
-
-            if ( scale_fac < 1.0 ) {
-                finalSymbolWidth = (int) Math.floor(scale_fac * symbolWidth);
-                finalSymbolHeight = (int) Math.floor(scale_fac * symbolHeight);
-            }
-
-            Bounds bounds = svg.getLayoutBounds();
-            double boundsWidth = bounds.getWidth();
-            double boundsHeight = bounds.getHeight();
-
-            svg.setScaleX(finalSymbolWidth / boundsWidth);
-            svg.setScaleY(finalSymbolHeight / boundsHeight);
-
-            setTranslateX(( width - finalSymbolWidth ) / 2.0);
-            setTranslateY(( height - finalSymbolHeight ) / 2.0);
-
-            currentWidth = width;
-            currentHeight = height;
-
-            impl_notifyLayoutBoundsChanged();
-
-        }
-
-        @Override
-        protected Bounds impl_computeLayoutBounds() {
-
-            Bounds bounds = super.impl_computeLayoutBounds();
-
-            return new BoundingBox(
-                bounds.getMinX(),
-                bounds.getMinY(),
-                currentWidth,
-                currentHeight
-            );
-
-        }
-
-    }
-
     private class Symbol {
 
         private final String fileName;
-        private double       originalHeight;
-        private double       originalWidth;
-        private Node         node;
+        private Image image = null;
+        private DefaultSymbolNode defaultNode = null;
+        private double originalHeight;
+        private double originalWidth;
 
         Symbol ( ) {
 
             fileName = null;
-            node = new DefaultSymbol();
+            defaultNode = getDefaultSymbolNode();
 
-            Bounds bounds = ( (DefaultSymbol) node ).getLayoutBounds();
+            Bounds bounds = defaultNode.getLayoutBounds();
 
             originalWidth = bounds.getWidth();
             originalHeight = bounds.getHeight();
@@ -776,63 +690,67 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
             String imageFileName = resolveImageFile(model_widget, fileName);
 
             if ( imageFileName != null ) {
-                if ( imageFileName.toLowerCase().endsWith(".svg") ) {
-                    try {
 
-                        // Open the image from the stream created from the resource file.
-                        SVG svg = SVG.load(ModelResourceUtil.openResourceStream(imageFileName));
-                        Callback<SnapshotResult,Void> imageReady = sr -> {
+                image = ImageCache.get(imageFileName);
 
-                            node = new ImageView(sr.getImage());
-                            originalWidth = sr.getImage().getWidth();
-                            originalHeight = sr.getImage().getHeight();
-
-                            return null;
-
-                        };
-
-                        Platform.runLater(() -> {
-
-                            SnapshotParameters sp = new SnapshotParameters();
-
-                            sp.setFill(Color.TRANSPARENT);
-                            svg.snapshot(imageReady, sp, null);
-
-                        });
-
-//                        node = new ResizableSVG(SVG.load(ModelResourceUtil.openResourceStream(imageFileName)));
-//
-//                        Bounds bounds = ((SVG) node).getLayoutBounds();
-//
-//                        originalWidth = bounds.getWidth();
-//                        originalHeight = bounds.getHeight();
-                        loadFailed = false;
-
-                    } catch ( Exception ex ) {
-                        logger.log(Level.WARNING, "Failure loading SVG image file: ({0}) {1} [{2}].", new Object[] { fileName, imageFileName, ex.getMessage() });
-                    }
+                if ( image != null ) {
+                    originalWidth = image.getWidth();
+                    originalHeight = image.getHeight();
+                    loadFailed = false;
                 } else {
-                    try {
 
-                        // Open the image from the stream created from the resource file.
-                        Image image = new Image(ModelResourceUtil.openResourceStream(imageFileName));
+                    if ( imageFileName.toLowerCase().endsWith(".svg") ) {
+                        try {
 
-                        node = new ImageView(image);
-                        originalWidth = image.getWidth();
-                        originalHeight = image.getHeight();
-                        loadFailed = false;
+                            // Open the image from the stream created from the
+                            // resource file.
+                            SVG svg = SVG.load(ModelResourceUtil.openResourceStream(imageFileName));
+                            Bounds bounds = svg.getLayoutBounds();
 
-                    } catch ( Exception ex ) {
-                        logger.log(Level.WARNING, "Failure loading image: ({0}) {1} [{2}].", new Object[] { fileName, imageFileName, ex.getMessage() });
+                            image = new WritableImage((int) Math.round(bounds.getWidth()), (int) Math.round(bounds.getHeight()));
+                            originalWidth = image.getWidth();
+                            originalHeight = image.getHeight();
+                            loadFailed = false;
+
+                            toolkit.execute( ( ) -> {
+
+                                SnapshotParameters sp = new SnapshotParameters();
+
+                                sp.setFill(Color.TRANSPARENT);
+                                svg.snapshot(sp, (WritableImage) image);
+
+                            });
+
+                        } catch ( Exception ex ) {
+                            logger.log(Level.WARNING, "Failure loading SVG image file: ({0}) {1} [{2}].", new Object[] { fileName, imageFileName, ex.getMessage() });
+                        }
+                    } else {
+                        try {
+
+                            // Open the image from the stream created from the
+                            // resource file.
+                            image = new Image(ModelResourceUtil.openResourceStream(imageFileName));
+                            originalWidth = image.getWidth();
+                            originalHeight = image.getHeight();
+                            loadFailed = false;
+
+                        } catch ( Exception ex ) {
+                            logger.log(Level.WARNING, "Failure loading image: ({0}) {1} [{2}].", new Object[] { fileName, imageFileName, ex.getMessage() });
+                        }
                     }
+
+                    if ( !loadFailed ) {
+                        ImageCache.put(imageFileName, image);
+                    }
+
                 }
             }
 
             if ( loadFailed ) {
 
-                node = defaultSymbol.getNode();
+                defaultNode = getDefaultSymbolNode();
 
-                Bounds bounds = ((DefaultSymbol) node).getLayoutBounds();
+                Bounds bounds = defaultNode.getLayoutBounds();
 
                 originalWidth = bounds.getWidth();
                 originalHeight = bounds.getHeight();
@@ -841,7 +759,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
 
         }
 
-        String getFileName() {
+        String getFileName ( ) {
             return fileName;
         }
 
@@ -849,34 +767,30 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
             return originalHeight;
         }
 
-        double getOriginalRatio ( ) {
-            return originalWidth / originalHeight;
-        }
-
         double getOriginalWidth ( ) {
             return originalWidth;
         }
 
         Node getNode ( ) {
-            return node;
+            if ( isDefault() ) {
+                return defaultNode;
+            } else {
+
+                imageView.setImage(image);
+
+                return imageView;
+
+            }
         }
 
         boolean isDefault ( ) {
-            return ( node instanceof DefaultSymbol );
-        }
-
-        boolean isImageView ( ) {
-            return ( node instanceof ImageView );
-        }
-
-        boolean isSVG ( ) {
-            return ( node instanceof SVG );
+            return ( defaultNode != null );
         }
 
         void setSize ( double width, double height, boolean preserveRatio ) {
             if ( isDefault() ) {
-                ((DefaultSymbol) getNode()).setSize(width, height);
-            } else if ( isImageView() ) {
+                ((DefaultSymbolNode) getNode()).setSize(width, height);
+            } else {
 
                 ImageView iv = (ImageView) getNode();
 
@@ -884,8 +798,6 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
                 iv.setFitHeight(height);
                 iv.setPreserveRatio(preserveRatio);
 
-            } else if ( isSVG() ) {
-                ((ResizableSVG) getNode()).setSize(width, height, preserveRatio);
             }
         }
 
