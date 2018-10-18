@@ -130,7 +130,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
 
         toolkit.execute(() -> {
             this.imageIndex.set(imageIndex);
-            jfx_node.getChildren().set(0, symbol.getNode());
+            jfx_node.getChildren().set(0, getSymbolNode());
         });
 
     }
@@ -303,7 +303,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
             }
 
             if ( symbol != null ) {
-                symbol.setSize(w, h, model_widget.propPreserveRatio().getValue());
+                setSymbolSize(w, h, model_widget.propPreserveRatio().getValue());
             }
 
             jfx_node.setLayoutX(model_widget.propX().getValue());
@@ -364,7 +364,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
         indexLabel.setVisible(model_widget.propShowIndex().getValue());
         indexLabel.textProperty().bind(Bindings.convert(imageIndexProperty()));
 
-        symbolPane.getChildren().addAll(symbol.getNode(), indexLabelBackground, indexLabel);
+        symbolPane.getChildren().addAll(getSymbolNode(), indexLabelBackground, indexLabel);
 
         if ( model_widget.propTransparent().getValue() ) {
             symbolPane.setBackground(null);
@@ -516,9 +516,37 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
         return defaultSymbolNode;
     }
 
+    Node getSymbolNode ( ) {
+
+        Image image = symbol.getImage();
+
+        if ( image == null ) {
+            return getDefaultSymbolNode();
+        } else {
+
+            imageView.setImage(image);
+
+            return imageView;
+
+        }
+
+    }
+
     private void initialIndexChanged ( final WidgetProperty<?> property, final Object oldValue, final Object newValue ) {
         dirtyValue.mark();
         toolkit.scheduleUpdate(this);
+    }
+
+    void setSymbolSize ( double width, double height, boolean preserveRatio ) {
+        if ( symbol != null ) {
+            if ( symbol.getImage() == null ) {
+                getDefaultSymbolNode().setSize(width, height);
+            } else {
+                imageView.setFitWidth(width);
+                imageView.setFitHeight(height);
+                imageView.setPreserveRatio(preserveRatio);
+            }
+        }
     }
 
     private void styleChanged ( final WidgetProperty<?> property, final Object oldValue, final Object newValue ) {
@@ -666,27 +694,17 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
 
         private final String fileName;
         private Image image = null;
-        private DefaultSymbolNode defaultNode = null;
-        private double originalHeight;
-        private double originalWidth;
+        private double originalHeight = 100;
+        private double originalWidth = 100;
 
         Symbol ( ) {
-
             fileName = null;
-            defaultNode = getDefaultSymbolNode();
-
-            Bounds bounds = defaultNode.getLayoutBounds();
-
-            originalWidth = bounds.getWidth();
-            originalHeight = bounds.getHeight();
-
         }
 
         Symbol ( String fileName ) {
 
             this.fileName = fileName;
 
-            boolean loadFailed = true;
             String imageFileName = resolveImageFile(model_widget, fileName);
 
             if ( imageFileName != null ) {
@@ -696,8 +714,9 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
                 if ( image != null ) {
                     originalWidth = image.getWidth();
                     originalHeight = image.getHeight();
-                    loadFailed = false;
                 } else {
+
+                    boolean loadFailed = true;
 
                     if ( imageFileName.toLowerCase().endsWith(".svg") ) {
                         try {
@@ -746,17 +765,6 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
                 }
             }
 
-            if ( loadFailed ) {
-
-                defaultNode = getDefaultSymbolNode();
-
-                Bounds bounds = defaultNode.getLayoutBounds();
-
-                originalWidth = bounds.getWidth();
-                originalHeight = bounds.getHeight();
-
-            }
-
         }
 
         String getFileName ( ) {
@@ -771,34 +779,8 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
             return originalWidth;
         }
 
-        Node getNode ( ) {
-            if ( isDefault() ) {
-                return defaultNode;
-            } else {
-
-                imageView.setImage(image);
-
-                return imageView;
-
-            }
-        }
-
-        boolean isDefault ( ) {
-            return ( defaultNode != null );
-        }
-
-        void setSize ( double width, double height, boolean preserveRatio ) {
-            if ( isDefault() ) {
-                ((DefaultSymbolNode) getNode()).setSize(width, height);
-            } else {
-
-                ImageView iv = (ImageView) getNode();
-
-                iv.setFitWidth(width);
-                iv.setFitHeight(height);
-                iv.setPreserveRatio(preserveRatio);
-
-            }
+        Image getImage ( ) {
+            return image;
         }
 
     }
