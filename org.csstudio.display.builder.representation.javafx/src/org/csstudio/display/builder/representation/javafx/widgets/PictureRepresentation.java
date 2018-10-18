@@ -18,12 +18,15 @@ import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.model.widgets.PictureWidget;
+import org.csstudio.javafx.ImageCache;
 
 import javafx.geometry.Bounds;
 import javafx.geometry.Dimension2D;
 import javafx.scene.Group;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
@@ -46,10 +49,7 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
 
     private volatile Image img_loaded;
     private volatile ImageView iv;
-    private volatile SVG svg;
     private volatile String img_path;
-    private volatile double native_offset_x = 0.0;
-    private volatile double native_offset_y = 0.0;
     private volatile double native_ratio = 1.0;
 
     // private static final Color border_color = Color.GRAY;
@@ -162,34 +162,49 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
         }
 
         if ( !load_failed ) {
-            if ( img_path.toLowerCase().endsWith(".svg") ) {
-                try {
 
-                    // Open the image from the stream created from the resource file
-                    svg = SVG.load(ModelResourceUtil.openResourceStream(img_path));
+            img_loaded = ImageCache.get(img_path);
 
-                    Bounds bounds = svg.getLayoutBounds();
+            if ( img_loaded == null ) {
 
-                    native_offset_x = -bounds.getMinX();
-                    native_offset_y = -bounds.getMinY();
-                    native_ratio = bounds.getWidth() / bounds.getHeight();
-                    img_loaded = null;
+                if ( img_path.toLowerCase().endsWith(".svg") ) {
+                    try {
 
-                } catch ( Exception ex ) {
-                    logger.log(Level.WARNING, "Failure loading SVG image file:" + img_path, ex);
-                    load_failed = true;
+                        // Open the image from the stream created from the resource file
+                        SVG svg = SVG.load(ModelResourceUtil.openResourceStream(img_path));
+                        Bounds bounds = svg.getLayoutBounds();
+
+                        img_loaded = new WritableImage((int) Math.round(bounds.getWidth()), (int) Math.round(bounds.getHeight()));
+
+                        toolkit.execute( ( ) -> {
+
+                            SnapshotParameters sp = new SnapshotParameters();
+
+                            sp.setFill(Color.TRANSPARENT);
+                            svg.snapshot(sp, (WritableImage) img_loaded);
+
+                        });
+
+                    } catch ( Exception ex ) {
+                        logger.log(Level.WARNING, "Failure loading SVG image file:" + img_path, ex);
+                        load_failed = true;
+                    }
+                } else {
+                    try {
+                        // Open the image from the stream created from the resource file
+                        img_loaded = new Image(ModelResourceUtil.openResourceStream(img_path));
+                    } catch ( Exception ex ) {
+                        logger.log(Level.WARNING, "Failure loading image file:" + img_path, ex);
+                        load_failed = true;
+                    }
                 }
-            } else {
-                try {
-                    // Open the image from the stream created from the resource file
-                    img_loaded = new Image(ModelResourceUtil.openResourceStream(img_path));
-                    native_ratio = img_loaded.getWidth() / img_loaded.getHeight();
-                    svg = null;
-                } catch ( Exception ex ) {
-                    logger.log(Level.WARNING, "Failure loading image file:" + img_path, ex);
-                    load_failed = true;
+
+                if ( !load_failed ) {
+                    ImageCache.put(img_path, img_loaded);
                 }
+
             }
+
         }
 
         if (load_failed)
@@ -199,13 +214,16 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
             {
                 // Open the image from the stream created from the resource file
                 img_loaded = new Image(ModelResourceUtil.openResourceStream(dflt_img));
-                native_ratio = img_loaded.getWidth() / img_loaded.getHeight();
-                svg = null;
+                load_failed = false;
             }
             catch (Exception ex)
             {
                 logger.log(Level.WARNING, "Failure loading default image file:" + img_path, ex);
             }
+        }
+
+        if ( !load_failed ) {
+            native_ratio = img_loaded.getWidth() / img_loaded.getHeight();
         }
 
         // Resize/reorient in case we are preserving aspect ratio and changed native_ratio
@@ -233,26 +251,10 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
         if (dirty_content.checkAndClear())
         {
 
-            if ( jfx_node.getChildren().get(1) == iv ) {
-                if ( img_loaded != null ) {
-                    iv.setImage(img_loaded);
-                    // We handle ratio internally, do not let ImageView do that
-                    iv.setPreserveRatio(false);
-                } else if ( svg != null ) {
-                    jfx_node.getChildren().remove(1);
-                    jfx_node.getChildren().add(svg);
-                }
-            } else {
-                if ( svg != null ) {
-                    jfx_node.getChildren().remove(1);
-                    jfx_node.getChildren().add(svg);
-                } else if ( img_loaded != null ) {
-                    jfx_node.getChildren().remove(1);
-                    jfx_node.getChildren().add(iv);
-                    iv.setImage(img_loaded);
-                    // We handle ratio internally, do not let ImageView do that
-                    iv.setPreserveRatio(false);
-                }
+            if ( img_loaded != null ) {
+                iv.setImage(img_loaded);
+                // We handle ratio internally, do not let ImageView do that
+                iv.setPreserveRatio(false);
             }
 
             //System.out.println("update change to img path at " + img_path + " on thread " + Thread.currentThread().getName());}
@@ -310,29 +312,6 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
             // translate to the center of the widget
             translate.setX((widg_w - final_pic_w) / 2.0);
             translate.setY((widg_h - final_pic_h) / 2.0);
-
-            if ( svg != null ) {
-
-                Bounds bounds = svg.getLayoutBounds();
-                double boundsWidth = bounds.getWidth();
-                double boundsHeight = bounds.getHeight();
-                double scale_x = final_pic_w / boundsWidth;
-                double scale_y = final_pic_h / boundsWidth;
-
-                svg.setScaleX(scale_x);
-                svg.setScaleY(scale_y);
-
-                if ( final_pic_w < boundsWidth ) {
-                    translate.setX(( widg_w - boundsWidth ) / 2.0);
-                }
-
-                if ( final_pic_h < boundsHeight ) {
-                    translate.setY(( widg_h - boundsHeight ) / 2.0);
-                }
-
-                jfx_node.relocate(model_widget.propX().getValue(), model_widget.propY().getValue());
-
-            }
 
         }
     }
