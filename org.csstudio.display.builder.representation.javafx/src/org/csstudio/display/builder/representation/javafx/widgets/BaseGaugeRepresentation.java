@@ -428,6 +428,7 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
             dirtyValue.checkAndClear();
         } else {
             model_widget.runtimePropValue().addPropertyListener(this::valueChanged);
+            valueChanged(null, null, null);
         }
 
     }
