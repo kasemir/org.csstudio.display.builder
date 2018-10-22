@@ -29,6 +29,8 @@ import javafx.geometry.Insets;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -94,6 +96,14 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
             default:
                 // Any other key results in active state
                 active = true;
+            }
+        });
+        // Disable the contemporary triggering of a value change and of the
+        // opening of contextual menu when right-clicking on the spinner's
+        // buttons.
+        spinner.addEventFilter(MouseEvent.ANY, e -> {
+            if ( e.getButton() == MouseButton.SECONDARY ) {
+                e.consume();
             }
         });
         return spinner;

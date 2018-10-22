@@ -138,6 +138,12 @@ public class KnobWidget extends WritablePVWidget {
         return new KnobConfigurator(persistedVersion);
     }
 
+    @Override
+    public boolean isDragEnabled ( ) {
+        // Skip slider type widgets where we want to operate the widget by dragging.
+        return false;
+    }
+
     public WidgetProperty<WidgetColor> propBackgroundColor ( ) {
         return background_color;
     }

@@ -759,4 +759,16 @@ public class Widget
         // a plain debug printout can trigger macro resolution for the name
         return "Widget '" + ((MacroizedWidgetProperty<?>)name).getSpecification() + "' (" + getType() + ")";
     }
+
+    /**
+     * Return whether runtime drag of this widget is allowed or not.
+     * <p>
+     * This implementation allows dragging of all widgets that have a "pv_name".</p>
+     *
+     * @return {@code true} if runtime drag of this widget is allowed.
+     */
+    public boolean isDragEnabled ( ) {
+        // Only drag from widgets that have a "pv_name".
+        return checkProperty("pv_name").isPresent();
+    }
 }
