@@ -2,7 +2,7 @@
 <display version="2.0.0">
   <name>Meter Widgets</name>
   <width>980</width>
-  <height>1000</height>
+  <height>1270</height>
   <widget type="label" version="2.0.0">
     <name>Label</name>
     <class>TITLE</class>
@@ -288,5 +288,67 @@
       </color>
     </bar_color>
     <flat_bar>true</flat_bar>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_6</name>
+    <text>Major and Minor Ticks</text>
+    <y>1010</y>
+    <width>580</width>
+    <font>
+      <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="meter" version="2.0.0">
+    <name>Meter_7</name>
+    <pv_name>sim://ramp(0,100,1,0.1)</pv_name>
+    <skin>0</skin>
+    <knob_position>3</knob_position>
+    <y>1040</y>
+    <width>200</width>
+    <height>200</height>
+    <background_color>
+      <color red="204" green="230" blue="255">
+      </color>
+    </background_color>
+    <transparent>false</transparent>
+    <title>First Meter</title>
+    <auto_scale>false</auto_scale>
+    <highligh_zones>false</highligh_zones>
+    <major_tick_space>9.9</major_tick_space>
+    <lcd_visible>false</lcd_visible>
+    <tick_label_decimals>1</tick_label_decimals>
+  </widget>
+  <widget type="meter" version="2.0.0">
+    <name>Meter_16</name>
+    <pv_name>sim://ramp(0,100,1,0.1)</pv_name>
+    <skin>0</skin>
+    <knob_position>3</knob_position>
+    <x>210</x>
+    <y>1040</y>
+    <width>200</width>
+    <height>200</height>
+    <background_color>
+      <color red="204" green="230" blue="255">
+      </color>
+    </background_color>
+    <transparent>false</transparent>
+    <title>Second Meter</title>
+    <auto_scale>false</auto_scale>
+    <highligh_zones>false</highligh_zones>
+    <major_tick_space>9.9</major_tick_space>
+    <minor_tick_space>0.99</minor_tick_space>
+    <lcd_visible>false</lcd_visible>
+    <tick_label_decimals>1</tick_label_decimals>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_7</name>
+    <text>Major ticks will be displayed only if they have the same value of minor ones.
+
+This means that "Major Ticks Space" / "Minor Ticks Space" must be an integer number.</text>
+    <x>420</x>
+    <y>1040</y>
+    <width>370</width>
+    <height>200</height>
   </widget>
 </display>
