@@ -301,4 +301,10 @@ public class TextUpdateWidget extends PVWidget
     {
         return interactive;
     }
+
+    @Override
+    public boolean isDragEnabled ( ) {
+        // Skip text type widgets to allow drag of selected portion of the text.
+        return !propInteractive().getValue();
+    }
 }

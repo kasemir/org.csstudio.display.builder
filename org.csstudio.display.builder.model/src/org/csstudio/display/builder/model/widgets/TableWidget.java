@@ -705,4 +705,10 @@ public class TableWidget extends VisibleWidget
     {
         return set_selection;
     }
+
+    @Override
+    public boolean isDragEnabled ( ) {
+        // Skip table widget because we drag to resize columns or operate its scroll bars.
+        return false;
+    }
 }

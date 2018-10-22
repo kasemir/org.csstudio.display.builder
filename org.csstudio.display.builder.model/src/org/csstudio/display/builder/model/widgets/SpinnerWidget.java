@@ -167,4 +167,12 @@ public class SpinnerWidget extends PVWidget
     {
         return enabled;
     }
+
+    @Override
+    public boolean isDragEnabled ( ) {
+        // Skip text type widgets to allow drag of selected portion of the text.
+        // Moreover, if dragging from the spinner's button the value will start
+        // changing continuously and a further click is necessary to stop it.
+        return false;
+    }
 }

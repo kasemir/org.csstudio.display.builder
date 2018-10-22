@@ -533,4 +533,10 @@ public class ImageWidget extends PVWidget
     {
         return configure;
     }
+
+    @Override
+    public boolean isDragEnabled ( ) {
+        // Skip image type widgets allowing to operate them with the mouse.
+        return false;
+    }
 }
