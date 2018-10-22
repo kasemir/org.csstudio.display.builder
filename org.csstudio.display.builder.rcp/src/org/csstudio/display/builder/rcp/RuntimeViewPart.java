@@ -27,13 +27,6 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.macros.DisplayMacroExpander;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.ModelLoader;
-import org.csstudio.display.builder.model.widgets.KnobWidget;
-import org.csstudio.display.builder.model.widgets.ScaledSliderWidget;
-import org.csstudio.display.builder.model.widgets.ScrollBarWidget;
-import org.csstudio.display.builder.model.widgets.TableWidget;
-import org.csstudio.display.builder.model.widgets.TextEntryWidget;
-import org.csstudio.display.builder.model.widgets.TextUpdateWidget;
-import org.csstudio.display.builder.model.widgets.plots.ImageWidget;
 import org.csstudio.display.builder.rcp.run.ContextMenuSupport;
 import org.csstudio.display.builder.rcp.run.DisplayNavigation;
 import org.csstudio.display.builder.rcp.run.NavigationAction;
@@ -416,18 +409,7 @@ public class RuntimeViewPart extends FXViewPart
                     }
 
                     final Widget widget = getActiveWidget();
-                    // Only drag from widgets that have a "pv_name".
-                    // Skip slider type widgets where we want to operate the widget by dragging.
-                    // Skip table widget because we drag to resize columns or operate its scroll bars.
-                    if (widget == null  ||
-                        !widget.checkProperty("pv_name").isPresent() ||
-                        widget instanceof ScaledSliderWidget ||
-                        widget instanceof ScrollBarWidget ||
-                        widget instanceof TableWidget ||
-                        widget instanceof ImageWidget ||
-                        widget instanceof KnobWidget  ||
-                        widget instanceof TextEntryWidget  ||
-                        (widget instanceof TextUpdateWidget  &&  ((TextUpdateWidget)widget).propInteractive().getValue()))
+                    if (widget == null || !widget.isDragEnabled())
                         event.doit = false;
                 }
 
