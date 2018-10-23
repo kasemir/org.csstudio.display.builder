@@ -229,10 +229,10 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     private static final float GRID_LINE_WIDTH = 0.222F;
 
     /** Update model size indicators (in edit mode) */
-    private WidgetPropertyListener<Integer> model_size_listener = ( p, o, n ) -> execute(this::updateModelSizeIndicators);
+    private final WidgetPropertyListener<Integer> model_size_listener = ( p, o, n ) -> execute(this::updateModelSizeIndicators);
 
     /** Update background color, grid */
-    private UntypedWidgetPropertyListener background_listener = ( p, o, n ) -> execute(this::updateBackground);
+    private final UntypedWidgetPropertyListener background_listener = ( p, o, n ) -> execute(this::updateBackground);
 
     private Line horiz_bound, vert_bound;
     private Pane widget_parent;
@@ -1150,6 +1150,11 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     {
         if (! widget_parent.getChildren().isEmpty())
             logger.log(Level.WARNING, "Display representation still contains items on shutdown", widget_parent.getChildren());
+
+        widget_parent = null;
+        model_root = null;
+        scroll_body = null;
+        zoom_listener = null;
         super.shutdown();
     }
 }

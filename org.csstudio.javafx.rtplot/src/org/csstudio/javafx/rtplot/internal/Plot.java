@@ -80,7 +80,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
 
     final private TitlePart title_part;
     final private List<Trace<XTYPE>> traces = new CopyOnWriteArrayList<>();
-    final private AxisPart<XTYPE> x_axis;
+    private AxisPart<XTYPE> x_axis;
     final private List<YAxisImpl<XTYPE>> y_axes = new CopyOnWriteArrayList<>();
     final private PlotPart plot_area;
     final private TracePainter<XTYPE> trace_painter = new TracePainter<XTYPE>();
@@ -1313,6 +1313,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
 
         // Release memory ASAP
         traces.clear();
+        x_axis = null;
         y_axes.clear();
         annotations.clear();
         listeners.clear();

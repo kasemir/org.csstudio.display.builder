@@ -297,6 +297,8 @@ public class TabsRepresentation extends JFXBaseRepresentation<TabPane, TabsWidge
             for (Widget child : tab.children().getValue())
                 toolkit.execute(() -> toolkit.disposeWidget(child));
 
+        jfx_node.getTabs().clear();
+
         super.dispose();
     }
 }

@@ -72,16 +72,16 @@ public class ImagePlot extends PlotCanvasBase
     private volatile double min_x = 0.0, max_x = 100.0, min_y = 0.0, max_y = 100.0;
 
     /** X Axis */
-    private final AxisPart<Double> x_axis;
+    private AxisPart<Double> x_axis;
 
     /** Y Axis */
-    private final YAxisImpl<Double> y_axis;
+    private YAxisImpl<Double> y_axis;
 
     /** Area used by the image */
     private volatile Rectangle image_area = new Rectangle(0, 0, 0, 0);
 
     /** Color bar Axis */
-    private final YAxisImpl<Double> colorbar_axis;
+    private YAxisImpl<Double> colorbar_axis;
 
     /** Area used by the color bar. <code>null</code> if not visible */
     private volatile Rectangle colorbar_area = null;
@@ -1466,6 +1466,10 @@ public class ImagePlot extends PlotCanvasBase
         removeROITracker();
         image_data = null;
         rois.clear();
+        x_axis = null;
+        y_axis = null;
+        colorbar_axis = null;
+        color_mapping = null;
         plot_listener = null;
     }
 }

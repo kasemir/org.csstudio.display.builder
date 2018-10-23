@@ -406,6 +406,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
     public void dispose()
     {
         image_plot.dispose();
+        image_plot = null;
         super.dispose();
     }
 }

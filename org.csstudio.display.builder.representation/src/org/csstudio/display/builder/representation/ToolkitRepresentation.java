@@ -356,7 +356,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         if (representation != null)
         {
             logger.log(Level.FINE, "Disposing {0} for {1}", new Object[] { representation, widget });
-            representation.dispose();
+            representation.destroy();
         }
         // else: Widget has no representation because not implemented for this toolkit
     }
