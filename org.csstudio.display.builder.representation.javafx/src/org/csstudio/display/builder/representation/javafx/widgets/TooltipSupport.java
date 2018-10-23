@@ -37,12 +37,18 @@ public class TooltipSupport
 
     private static boolean initialized_behavior = false;
 
+    /** System property to disable tool tips (for debugging problems seen on Linux) */
+    private static boolean disable_tooltips = Boolean.parseBoolean(System.getProperty("org.csstudio.display.builder.disable_tooltips"));
+
     /** Attach tool tip
      *  @param node Node that should have the tool tip
      *  @param tooltip_property Tool tip to show
      */
     public static void attach(final Node node, final WidgetProperty<String> tooltip_property)
     {
+        if (disable_tooltips)
+            return;
+
         // Patch legacy tool tips that defaulted to pv name & value,
         // even for static widgets
         final StringWidgetProperty ttp = (StringWidgetProperty)tooltip_property;

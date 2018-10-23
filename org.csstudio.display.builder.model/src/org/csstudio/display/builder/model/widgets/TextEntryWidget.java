@@ -270,4 +270,10 @@ public class TextEntryWidget extends WritablePVWidget
     {
         return multi_line;
     }
+
+    @Override
+    public boolean isDragEnabled ( ) {
+        // Skip text type widgets to allow drag of selected portion of the text.
+        return false;
+    }
 }

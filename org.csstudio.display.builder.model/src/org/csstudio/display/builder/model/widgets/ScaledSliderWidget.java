@@ -389,4 +389,10 @@ public class ScaledSliderWidget extends WritablePVWidget
     {
         return configure;
     }
+
+    @Override
+    public boolean isDragEnabled ( ) {
+        // Skip slider type widgets where we want to operate the widget by dragging.
+        return false;
+    }
 }

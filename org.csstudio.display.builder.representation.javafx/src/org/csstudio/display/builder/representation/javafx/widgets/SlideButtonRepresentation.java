@@ -24,7 +24,6 @@ import org.csstudio.javafx.Styles;
 import org.diirt.vtype.VType;
 
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
@@ -48,11 +47,6 @@ public class SlideButtonRepresentation extends RegionBaseRepresentation<HBox, Sl
     private final DirtyFlag dirty_size    = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
     private final DirtyFlag dirty_style   = new DirtyFlag();
-
-    private final EventHandler<MouseEvent> filter = e -> {
-        jfx_node.fireEvent(e);
-        e.consume();
-    };
 
     protected volatile int     bit          = 0;
     protected volatile boolean enabled      = true;
@@ -78,17 +72,12 @@ public class SlideButtonRepresentation extends RegionBaseRepresentation<HBox, Sl
         button.setGraphicTextGap(0);
         button.setMnemonicParsing(false);
 
-        if ( toolkit.isEditMode() ) {
-            //  Event filtering to prevent sliding on click and allowing widget's selection.
-            button.addEventFilter(MouseEvent.MOUSE_CLICKED, filter);
-            button.addEventFilter(MouseEvent.MOUSE_PRESSED, filter);
-            button.addEventFilter(MouseEvent.MOUSE_RELEASED, filter);
-        } else {
-            button.addEventFilter(MouseEvent.MOUSE_RELEASED, e -> {
+        if (! toolkit.isEditMode() )
+            button.addEventFilter(MouseEvent.MOUSE_RELEASED, event ->
+            {
                 handleSlide();
-                e.consume();
+                event.consume();
             });
-        }
 
         label = new Label(labelContent);
 
@@ -102,6 +91,12 @@ public class SlideButtonRepresentation extends RegionBaseRepresentation<HBox, Sl
 
         return hbox;
 
+    }
+
+    @Override
+    protected boolean isFilteringEditModeClicks()
+    {
+        return true;
     }
 
     @Override

@@ -206,7 +206,6 @@ public class SymbolWidget extends PVWidget {
             if ( xml_version.getMajor() < 2 ) {
 
                 SymbolWidget symbol = (SymbolWidget) widget;
-                ArrayWidgetProperty<WidgetProperty<String>> propSymbols = symbol.propSymbols();
                 List<String> fileNames = new ArrayList<>(2);
 
                 symbol.importedFrom = xml.getAttribute("typeId");
