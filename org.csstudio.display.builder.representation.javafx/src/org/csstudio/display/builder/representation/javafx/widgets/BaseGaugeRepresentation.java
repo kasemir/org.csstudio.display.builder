@@ -287,7 +287,7 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         dirtyStyle.mark();
         dirtyUnit.mark();
         dirtyValue.mark();
-        toolkit.scheduleUpdate(this);
+        toolkit.schedule(() -> toolkit.scheduleUpdate(BaseGaugeRepresentation.this), 1, TimeUnit.SECONDS);
 
         return gauge;
 
