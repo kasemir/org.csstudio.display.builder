@@ -143,7 +143,47 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
 
         if ( dirtyContent.checkAndClear() ) {
 
+
             value = FormatOptionHandler.actualPrecision(model_widget.runtimePropValue().getValue(), model_widget.propPrecision().getValue());
+
+
+//            2018-10-25 16:50:39.124 SEVERE [Thread 1] org.csstudio.display.builder.representation.RepresentationUpdateThrottle (lambda$1) - Representation update failed
+//            java.lang.NullPointerException
+//                at org.csstudio.display.builder.representation.javafx.widgets.BaseGaugeRepresentation.updateChanges(BaseGaugeRepresentation.java:146)
+//                at org.csstudio.display.builder.representation.javafx.widgets.GaugeRepresentation.updateChanges(GaugeRepresentation.java:38)
+//                at org.csstudio.display.builder.representation.RepresentationUpdateThrottle.lambda$1(RepresentationUpdateThrottle.java:208)
+//                at com.sun.javafx.application.PlatformImpl.lambda$null$172(PlatformImpl.java:295)
+//                at java.security.AccessController.doPrivileged(Native Method)
+//                at com.sun.javafx.application.PlatformImpl.lambda$runLater$173(PlatformImpl.java:294)
+//                at org.eclipse.swt.internal.cocoa.OS.objc_msgSend_bool(Native Method)
+//                at org.eclipse.swt.internal.cocoa.NSRunLoop.runMode(NSRunLoop.java:42)
+//                at org.eclipse.swt.widgets.Display.sleep(Display.java:4830)
+//                at org.eclipse.ui.application.WorkbenchAdvisor.eventLoopIdle(WorkbenchAdvisor.java:368)
+//                at org.eclipse.ui.internal.Workbench$1.eventLoopIdle(Workbench.java:513)
+//                at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine$5.run(PartRenderingEngine.java:1155)
+//                at org.eclipse.core.databinding.observable.Realm.runWithDefault(Realm.java:336)
+//                at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.run(PartRenderingEngine.java:1039)
+//                at org.eclipse.e4.ui.internal.workbench.E4Workbench.createAndRunUI(E4Workbench.java:153)
+//                at org.eclipse.ui.internal.Workbench.lambda$3(Workbench.java:680)
+//                at org.eclipse.core.databinding.observable.Realm.runWithDefault(Realm.java:336)
+//                at org.eclipse.ui.internal.Workbench.createAndRunWorkbench(Workbench.java:594)
+//                at org.eclipse.ui.PlatformUI.createAndRunWorkbench(PlatformUI.java:148)
+//                at org.csstudio.utility.product.Workbench.runWorkbench(Workbench.java:99)
+//                at org.csstudio.startup.application.Application.startApplication(Application.java:265)
+//                at org.csstudio.startup.application.Application.start(Application.java:119)
+//                at org.eclipse.equinox.internal.app.EclipseAppHandle.run(EclipseAppHandle.java:196)
+//                at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.runApplication(EclipseAppLauncher.java:134)
+//                at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.start(EclipseAppLauncher.java:104)
+//                at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:388)
+//                at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:243)
+//                at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+//                at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+//                at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+//                at java.lang.reflect.Method.invoke(Method.java:498)
+//                at org.eclipse.equinox.launcher.Main.invokeFramework(Main.java:653)
+//                at org.eclipse.equinox.launcher.Main.basicRun(Main.java:590)
+//                at org.eclipse.equinox.launcher.Main.run(Main.java:1499)
+
 
             if ( !Objects.equals(value, jfx_node.getDecimals()) ) {
                 jfx_node.setDecimals((int) value);
