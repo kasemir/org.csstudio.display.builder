@@ -11,7 +11,6 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.csstudio.display.builder.model.DirtyFlag;
@@ -59,6 +58,10 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
     @SuppressWarnings( "unchecked" )
     @Override
     public void updateChanges ( ) {
+
+        if ( jfx_node == null ) {
+            return;
+        }
 
         super.updateChanges();
 
@@ -143,47 +146,7 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
 
         if ( dirtyContent.checkAndClear() ) {
 
-
             value = FormatOptionHandler.actualPrecision(model_widget.runtimePropValue().getValue(), model_widget.propPrecision().getValue());
-
-
-//            2018-10-25 16:50:39.124 SEVERE [Thread 1] org.csstudio.display.builder.representation.RepresentationUpdateThrottle (lambda$1) - Representation update failed
-//            java.lang.NullPointerException
-//                at org.csstudio.display.builder.representation.javafx.widgets.BaseGaugeRepresentation.updateChanges(BaseGaugeRepresentation.java:146)
-//                at org.csstudio.display.builder.representation.javafx.widgets.GaugeRepresentation.updateChanges(GaugeRepresentation.java:38)
-//                at org.csstudio.display.builder.representation.RepresentationUpdateThrottle.lambda$1(RepresentationUpdateThrottle.java:208)
-//                at com.sun.javafx.application.PlatformImpl.lambda$null$172(PlatformImpl.java:295)
-//                at java.security.AccessController.doPrivileged(Native Method)
-//                at com.sun.javafx.application.PlatformImpl.lambda$runLater$173(PlatformImpl.java:294)
-//                at org.eclipse.swt.internal.cocoa.OS.objc_msgSend_bool(Native Method)
-//                at org.eclipse.swt.internal.cocoa.NSRunLoop.runMode(NSRunLoop.java:42)
-//                at org.eclipse.swt.widgets.Display.sleep(Display.java:4830)
-//                at org.eclipse.ui.application.WorkbenchAdvisor.eventLoopIdle(WorkbenchAdvisor.java:368)
-//                at org.eclipse.ui.internal.Workbench$1.eventLoopIdle(Workbench.java:513)
-//                at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine$5.run(PartRenderingEngine.java:1155)
-//                at org.eclipse.core.databinding.observable.Realm.runWithDefault(Realm.java:336)
-//                at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.run(PartRenderingEngine.java:1039)
-//                at org.eclipse.e4.ui.internal.workbench.E4Workbench.createAndRunUI(E4Workbench.java:153)
-//                at org.eclipse.ui.internal.Workbench.lambda$3(Workbench.java:680)
-//                at org.eclipse.core.databinding.observable.Realm.runWithDefault(Realm.java:336)
-//                at org.eclipse.ui.internal.Workbench.createAndRunWorkbench(Workbench.java:594)
-//                at org.eclipse.ui.PlatformUI.createAndRunWorkbench(PlatformUI.java:148)
-//                at org.csstudio.utility.product.Workbench.runWorkbench(Workbench.java:99)
-//                at org.csstudio.startup.application.Application.startApplication(Application.java:265)
-//                at org.csstudio.startup.application.Application.start(Application.java:119)
-//                at org.eclipse.equinox.internal.app.EclipseAppHandle.run(EclipseAppHandle.java:196)
-//                at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.runApplication(EclipseAppLauncher.java:134)
-//                at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.start(EclipseAppLauncher.java:104)
-//                at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:388)
-//                at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:243)
-//                at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-//                at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
-//                at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-//                at java.lang.reflect.Method.invoke(Method.java:498)
-//                at org.eclipse.equinox.launcher.Main.invokeFramework(Main.java:653)
-//                at org.eclipse.equinox.launcher.Main.basicRun(Main.java:590)
-//                at org.eclipse.equinox.launcher.Main.run(Main.java:1499)
-
 
             if ( !Objects.equals(value, jfx_node.getDecimals()) ) {
                 jfx_node.setDecimals((int) value);
@@ -313,12 +276,24 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
 
         updateLimits();
 
-        Gauge gauge = createJFXNode(getSkin());
+        Gauge gauge = GaugeBuilder.create().skinType(getSkin()).build();
 
-        toolkit.schedule( ( ) -> {
-            jfx_node.setPrefWidth(model_widget.propWidth().getValue());
-            jfx_node.setPrefHeight(model_widget.propHeight().getValue());
-        }, 111, TimeUnit.MILLISECONDS);
+        gauge.setPrefHeight(model_widget.propHeight().getValue());
+        gauge.setPrefWidth(model_widget.propWidth().getValue());
+        //--------------------------------------------------------
+        //  Previous properties must be set first.
+        //--------------------------------------------------------
+        gauge.setAnimated(false);
+        gauge.setCheckAreasForValue(false);
+        gauge.setCheckSectionsForValue(false);
+        gauge.setCheckThreshold(false);
+        gauge.setHighlightAreas(false);
+        gauge.setInnerShadowEnabled(false);
+        gauge.setInteractive(false);
+        gauge.setLedVisible(false);
+        gauge.setReturnToZero(false);
+        gauge.setSectionIconsVisible(false);
+        gauge.setSectionTextVisible(false);
 
         dirtyContent.mark();
         dirtyGeometry.mark();
@@ -327,32 +302,19 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         dirtyStyle.mark();
         dirtyUnit.mark();
         dirtyValue.mark();
-        toolkit.schedule(() -> toolkit.scheduleUpdate(BaseGaugeRepresentation.this), 1, TimeUnit.SECONDS);
+
+        //  Terminal classes must call
+        //toolkit.schedule( ( ) -> {
+        //if ( jfx_node != null ) {
+        //    //  The next 2 lines necessary because of a Medusa problem.
+        //    jfx_node.setAutoScale(!jfx_node.isAutoScale());
+        //    jfx_node.setAutoScale(!jfx_node.isAutoScale());
+        //}
+        //    valueChanged(null, null, null);
+        //}, 77 + (long) ( 34.0 * Math.random() ), TimeUnit.MILLISECONDS);
 
         return gauge;
 
-    }
-
-    protected Gauge createJFXNode ( Gauge.SkinType skin ) throws Exception {
-        return GaugeBuilder.create()
-            .skinType(skin)
-            .prefHeight(model_widget.propHeight().getValue())
-            .prefWidth(model_widget.propWidth().getValue())
-            //--------------------------------------------------------
-            //  Previous properties must be set first.
-            //--------------------------------------------------------
-            .animated(false)
-            .checkAreasForValue(false)
-            .checkSectionsForValue(false)
-            .checkThreshold(false)
-            .highlightAreas(false)
-            .innerShadowEnabled(false)
-            .interactive(false)
-            .ledVisible(false)
-            .returnToZero(false)
-            .sectionIconsVisible(false)
-            .sectionTextVisible(false)
-            .build();
     }
 
     /**
@@ -563,6 +525,25 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
 
     }
 
+    protected final void valueChanged ( final WidgetProperty<? extends VType> property, final VType old_value, final VType new_value ) {
+
+        if ( model_widget.propLimitsFromPV().getValue() ) {
+            limitsChanged(null, null, null);
+        }
+
+        if ( model_widget.propPrecision().getValue() == -1 ) {
+            contentChanged(null, null, null);
+        }
+
+        if ( model_widget.propUnitFromPV().getValue() ) {
+            dirtyUnit.mark();
+        }
+
+        dirtyValue.mark();
+        toolkit.scheduleUpdate(this);
+
+    }
+
     private void contentChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
         dirtyContent.mark();
         toolkit.scheduleUpdate(this);
@@ -593,25 +574,6 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
     private void unitChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
         dirtyUnit.mark();
         toolkit.scheduleUpdate(this);
-    }
-
-    private void valueChanged ( final WidgetProperty<? extends VType> property, final VType old_value, final VType new_value ) {
-
-        if ( model_widget.propLimitsFromPV().getValue() ) {
-            limitsChanged(null, null, null);
-        }
-
-        if ( model_widget.propPrecision().getValue() == -1 ) {
-            contentChanged(null, null, null);
-        }
-
-        if ( model_widget.propUnitFromPV().getValue() ) {
-            dirtyUnit.mark();
-        }
-
-        dirtyValue.mark();
-        toolkit.scheduleUpdate(this);
-
     }
 
 }
