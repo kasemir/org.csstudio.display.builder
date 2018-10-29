@@ -11,7 +11,6 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.csstudio.display.builder.model.DirtyFlag;
@@ -59,6 +58,10 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
     @SuppressWarnings( "unchecked" )
     @Override
     public void updateChanges ( ) {
+
+        if ( jfx_node == null ) {
+            return;
+        }
 
         super.updateChanges();
 
@@ -273,12 +276,24 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
 
         updateLimits();
 
-        Gauge gauge = createJFXNode(getSkin());
+        Gauge gauge = GaugeBuilder.create().skinType(getSkin()).build();
 
-        toolkit.schedule( ( ) -> {
-            jfx_node.setPrefWidth(model_widget.propWidth().getValue());
-            jfx_node.setPrefHeight(model_widget.propHeight().getValue());
-        }, 111, TimeUnit.MILLISECONDS);
+        gauge.setPrefHeight(model_widget.propHeight().getValue());
+        gauge.setPrefWidth(model_widget.propWidth().getValue());
+        //--------------------------------------------------------
+        //  Previous properties must be set first.
+        //--------------------------------------------------------
+        gauge.setAnimated(false);
+        gauge.setCheckAreasForValue(false);
+        gauge.setCheckSectionsForValue(false);
+        gauge.setCheckThreshold(false);
+        gauge.setHighlightAreas(false);
+        gauge.setInnerShadowEnabled(false);
+        gauge.setInteractive(false);
+        gauge.setLedVisible(false);
+        gauge.setReturnToZero(false);
+        gauge.setSectionIconsVisible(false);
+        gauge.setSectionTextVisible(false);
 
         dirtyContent.mark();
         dirtyGeometry.mark();
@@ -287,32 +302,19 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         dirtyStyle.mark();
         dirtyUnit.mark();
         dirtyValue.mark();
-        toolkit.scheduleUpdate(this);
+
+        //  Terminal classes must call
+        //toolkit.schedule( ( ) -> {
+        //if ( jfx_node != null ) {
+        //    //  The next 2 lines necessary because of a Medusa problem.
+        //    jfx_node.setAutoScale(!jfx_node.isAutoScale());
+        //    jfx_node.setAutoScale(!jfx_node.isAutoScale());
+        //}
+        //    valueChanged(null, null, null);
+        //}, 77 + (long) ( 34.0 * Math.random() ), TimeUnit.MILLISECONDS);
 
         return gauge;
 
-    }
-
-    protected Gauge createJFXNode ( Gauge.SkinType skin ) throws Exception {
-        return GaugeBuilder.create()
-            .skinType(skin)
-            .prefHeight(model_widget.propHeight().getValue())
-            .prefWidth(model_widget.propWidth().getValue())
-            //--------------------------------------------------------
-            //  Previous properties must be set first.
-            //--------------------------------------------------------
-            .animated(false)
-            .checkAreasForValue(false)
-            .checkSectionsForValue(false)
-            .checkThreshold(false)
-            .highlightAreas(false)
-            .innerShadowEnabled(false)
-            .interactive(false)
-            .ledVisible(false)
-            .returnToZero(false)
-            .sectionIconsVisible(false)
-            .sectionTextVisible(false)
-            .build();
     }
 
     /**
@@ -523,6 +525,25 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
 
     }
 
+    protected final void valueChanged ( final WidgetProperty<? extends VType> property, final VType old_value, final VType new_value ) {
+
+        if ( model_widget.propLimitsFromPV().getValue() ) {
+            limitsChanged(null, null, null);
+        }
+
+        if ( model_widget.propPrecision().getValue() == -1 ) {
+            contentChanged(null, null, null);
+        }
+
+        if ( model_widget.propUnitFromPV().getValue() ) {
+            dirtyUnit.mark();
+        }
+
+        dirtyValue.mark();
+        toolkit.scheduleUpdate(this);
+
+    }
+
     private void contentChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
         dirtyContent.mark();
         toolkit.scheduleUpdate(this);
@@ -553,25 +574,6 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
     private void unitChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
         dirtyUnit.mark();
         toolkit.scheduleUpdate(this);
-    }
-
-    private void valueChanged ( final WidgetProperty<? extends VType> property, final VType old_value, final VType new_value ) {
-
-        if ( model_widget.propLimitsFromPV().getValue() ) {
-            limitsChanged(null, null, null);
-        }
-
-        if ( model_widget.propPrecision().getValue() == -1 ) {
-            contentChanged(null, null, null);
-        }
-
-        if ( model_widget.propUnitFromPV().getValue() ) {
-            dirtyUnit.mark();
-        }
-
-        dirtyValue.mark();
-        toolkit.scheduleUpdate(this);
-
     }
 
 }

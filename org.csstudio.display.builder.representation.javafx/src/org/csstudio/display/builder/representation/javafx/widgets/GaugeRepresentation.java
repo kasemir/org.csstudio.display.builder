@@ -10,6 +10,7 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 
 
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
@@ -100,7 +101,14 @@ public class GaugeRepresentation extends BaseGaugeRepresentation<GaugeWidget> {
 
         } finally {
             dirtyLook.mark();
-            toolkit.scheduleUpdate(this);
+            toolkit.schedule( ( ) -> {
+                if ( jfx_node != null ) {
+                    //  The next 2 lines necessary because of a Medusa problem.
+                    jfx_node.setAutoScale(!jfx_node.isAutoScale());
+                    jfx_node.setAutoScale(!jfx_node.isAutoScale());
+                }
+                valueChanged(null, null, null);
+            }, 77 + (long) ( 34.0 * Math.random() ), TimeUnit.MILLISECONDS);
         }
 
     }
