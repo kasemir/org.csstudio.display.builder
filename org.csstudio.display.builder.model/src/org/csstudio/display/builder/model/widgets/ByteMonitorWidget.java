@@ -118,8 +118,15 @@ public class ByteMonitorWidget extends PVWidget
                     labels.add(XMLUtil.getString(e));
                 if (labels.size() > 0)
                 {
+                    Optional<Boolean> reverse = XMLUtil.getChildBoolean(xml, "bitReverse");
                     Optional<WidgetColor> foregroundColor = XMLUtil.getChildColor(xml, "foreground_color");
-                    addLabels((ByteMonitorWidget) widget, xml, labels, foregroundColor.orElse(WidgetColorService.getColor(NamedWidgetColors.TEXT)));
+                    addLabels(
+                        (ByteMonitorWidget) widget,
+                        xml,
+                        labels,
+                        reverse.orElse(Boolean.FALSE),
+                        foregroundColor.orElse(WidgetColorService.getColor(NamedWidgetColors.TEXT))
+                    );
                 }
             }
 
@@ -127,7 +134,7 @@ public class ByteMonitorWidget extends PVWidget
         }
 
         // Add LabelWidget XML for legacy labels
-        private void addLabels(final ByteMonitorWidget widget, final Element xml, final List<String> labels, final WidgetColor foreground)
+        private void addLabels(final ByteMonitorWidget widget, final Element xml, final List<String> labels, final boolean reverse, final WidgetColor foreground)
         {
             double x = widget.propX().getValue();
             double y = widget.propY().getValue();
@@ -140,14 +147,14 @@ public class ByteMonitorWidget extends PVWidget
             {
                 dy = 0;
                 dx = w / n;
-                x = x + w - dx;
+                x = reverse ? x : x + w - dx;
                 w = dx;
             }
             else
             {
                 dx = 0;
                 dy = h / n;
-                y = y + h - dy;
+                y = reverse ? y : y + h - dy;
                 h = dy;
             }
             final Node parent = xml.getParentNode();
@@ -159,8 +166,8 @@ public class ByteMonitorWidget extends PVWidget
                     parent.insertBefore(label, next);
                 else
                     parent.appendChild(label);
-                x -= dx;
-                y -= dy;
+                x += reverse ? dx : -dx;
+                y += reverse ? dy : -dy;
             }
         }
 
