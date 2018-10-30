@@ -30,6 +30,8 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.persist.ModelReader;
+import org.csstudio.display.builder.model.persist.NamedWidgetColors;
+import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.persist.XMLTags;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.HorizontalAlignment;
@@ -115,14 +117,24 @@ public class ByteMonitorWidget extends PVWidget
                 for (Element e : XMLUtil.getChildElements(el, "s"))
                     labels.add(XMLUtil.getString(e));
                 if (labels.size() > 0)
-                    addLabels((ByteMonitorWidget) widget, xml, labels);
+                {
+                    Optional<Boolean> reverse = XMLUtil.getChildBoolean(xml, "bitReverse");
+                    Optional<WidgetColor> foregroundColor = XMLUtil.getChildColor(xml, "foreground_color");
+                    addLabels(
+                        (ByteMonitorWidget) widget,
+                        xml,
+                        labels,
+                        reverse.orElse(Boolean.FALSE),
+                        foregroundColor.orElse(WidgetColorService.getColor(NamedWidgetColors.TEXT))
+                    );
+                }
             }
 
             return true;
         }
 
         // Add LabelWidget XML for legacy labels
-        private void addLabels(final ByteMonitorWidget widget, final Element xml, final List<String> labels)
+        private void addLabels(final ByteMonitorWidget widget, final Element xml, final List<String> labels, final boolean reverse, final WidgetColor foreground)
         {
             double x = widget.propX().getValue();
             double y = widget.propY().getValue();
@@ -135,30 +147,32 @@ public class ByteMonitorWidget extends PVWidget
             {
                 dy = 0;
                 dx = w / n;
+                x = reverse ? x : x + w - dx;
                 w = dx;
             }
             else
             {
                 dx = 0;
                 dy = h / n;
+                y = reverse ? y : y + h - dy;
                 h = dy;
             }
             final Node parent = xml.getParentNode();
             final Node next = xml.getNextSibling();
             for (String text : labels)
             {
-                final Element label = createLabelWidget(xml, (int)x, (int)y, (int)w, (int)h, text, horiz);
+                final Element label = createLabelWidget(xml, (int)x, (int)y, (int)w, (int)h, text, horiz, foreground);
                 if (next != null)
                     parent.insertBefore(label, next);
                 else
                     parent.appendChild(label);
-                x += dx;
-                y += dy;
+                x += reverse ? dx : -dx;
+                y += reverse ? dy : -dy;
             }
         }
 
         // Create LabelWidget XML
-        private Element createLabelWidget(final Element xml, final int x, final int y, final int w, final int h, final String text, final boolean horiz)
+        private Element createLabelWidget(final Element xml, final int x, final int y, final int w, final int h, final String text, final boolean horiz, final WidgetColor foreground)
         {
             System.out.println(text);
             final Document doc = xml.getOwnerDocument();
@@ -195,6 +209,14 @@ public class ByteMonitorWidget extends PVWidget
 
             el = doc.createElement(propVerticalAlignment.getName());
             el.appendChild(doc.createTextNode(Integer.toString(VerticalAlignment.MIDDLE.ordinal())));
+            label.appendChild(el);
+
+            final Element fel = doc.createElement(XMLTags.COLOR);
+            fel.setAttribute("red", String.valueOf(foreground.getRed()));
+            fel.setAttribute("green", String.valueOf(foreground.getGreen()));
+            fel.setAttribute("blue", String.valueOf(foreground.getBlue()));
+            el = doc.createElement("foreground_color");
+            el.appendChild(fel);
             label.appendChild(el);
 
             if (horiz)
