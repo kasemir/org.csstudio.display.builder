@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.model.widgets;
 
 import static  org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHorizontal;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHorizontalAlignment;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOffColor;
@@ -118,15 +119,12 @@ public class ByteMonitorWidget extends PVWidget
                     labels.add(XMLUtil.getString(e));
                 if (labels.size() > 0)
                 {
-                    Optional<Boolean> reverse = XMLUtil.getChildBoolean(xml, "bitReverse");
-                    Optional<WidgetColor> foregroundColor = XMLUtil.getChildColor(xml, "foreground_color");
-                    addLabels(
-                        (ByteMonitorWidget) widget,
-                        xml,
-                        labels,
-                        reverse.orElse(Boolean.FALSE),
-                        foregroundColor.orElse(WidgetColorService.getColor(NamedWidgetColors.TEXT))
-                    );
+                    final boolean reverse = XMLUtil.getChildBoolean(xml, "bitReverse").orElse(false);
+                    final WidgetProperty<WidgetColor> fg =
+                            propForegroundColor.createProperty(widget,
+                                                               WidgetColorService.getColor(NamedWidgetColors.TEXT));
+                    fg.readFromXML(model_reader, xml);
+                    addLabels((ByteMonitorWidget) widget, xml, labels, reverse, fg.getValue());
                 }
             }
 
@@ -134,7 +132,8 @@ public class ByteMonitorWidget extends PVWidget
         }
 
         // Add LabelWidget XML for legacy labels
-        private void addLabels(final ByteMonitorWidget widget, final Element xml, final List<String> labels, final boolean reverse, final WidgetColor foreground)
+        private void addLabels(final ByteMonitorWidget widget, final Element xml, final List<String> labels,
+                               final boolean reverse, final WidgetColor foreground)
         {
             double x = widget.propX().getValue();
             double y = widget.propY().getValue();
@@ -159,20 +158,23 @@ public class ByteMonitorWidget extends PVWidget
             }
             final Node parent = xml.getParentNode();
             final Node next = xml.getNextSibling();
+            int i = 0;
             for (String text : labels)
             {
-                final Element label = createLabelWidget(xml, (int)x, (int)y, (int)w, (int)h, text, horiz, foreground);
+                final Element label = createLabelWidget(xml, widget.getName() + "#" + i, (int)x, (int)y, (int)w, (int)h, text, horiz, foreground);
                 if (next != null)
                     parent.insertBefore(label, next);
                 else
                     parent.appendChild(label);
                 x += reverse ? dx : -dx;
                 y += reverse ? dy : -dy;
+                ++i;
             }
         }
 
         // Create LabelWidget XML
-        private Element createLabelWidget(final Element xml, final int x, final int y, final int w, final int h, final String text, final boolean horiz, final WidgetColor foreground)
+        private Element createLabelWidget(final Element xml, final String name, final int x, final int y, final int w, final int h,
+                                          final String text, final boolean horiz, final WidgetColor foreground)
         {
             System.out.println(text);
             final Document doc = xml.getOwnerDocument();
@@ -180,7 +182,7 @@ public class ByteMonitorWidget extends PVWidget
             label.setAttribute(XMLTags.TYPE, LabelWidget.WIDGET_DESCRIPTOR.getType());
 
             Element el = doc.createElement(XMLTags.NAME);
-            el.appendChild(doc.createTextNode("ByteMonitorLabel"));
+            el.appendChild(doc.createTextNode(name));
             label.appendChild(el);
 
             el = doc.createElement(XMLTags.X);
