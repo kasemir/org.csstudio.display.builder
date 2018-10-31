@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.model.widgets;
 
 import static  org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHorizontal;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOffColor;
@@ -32,11 +33,14 @@ import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
+import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
+import org.csstudio.display.builder.model.persist.WidgetFontService;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.IntegerWidgetProperty;
 import org.csstudio.display.builder.model.properties.StringWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
+import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.osgi.framework.Version;
 import org.w3c.dom.Element;
 
@@ -136,6 +140,7 @@ public class ByteMonitorWidget extends PVWidget
     private volatile WidgetProperty<Boolean> horizontal;
     private volatile WidgetProperty<Boolean> square;
     private volatile WidgetProperty<WidgetColor> foreground_color;
+    private volatile WidgetProperty<WidgetFont> font;
     private volatile ArrayWidgetProperty<StringWidgetProperty> labels;
 
     public ByteMonitorWidget()
@@ -155,6 +160,7 @@ public class ByteMonitorWidget extends PVWidget
         properties.add(off_color = propOffColor.createProperty(this, new WidgetColor(60, 100, 60)));
         properties.add(on_color = propOnColor.createProperty(this, new WidgetColor(60, 255, 60)));
         properties.add(foreground_color = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
+        properties.add(font = propFont.createProperty(this, WidgetFontService.get(NamedWidgetFonts.DEFAULT)));
         properties.add(labels = propLabels.createProperty(this, Collections.emptyList()));
     }
 
@@ -211,6 +217,12 @@ public class ByteMonitorWidget extends PVWidget
     public WidgetProperty<WidgetColor> propForegroundColor()
     {
         return foreground_color;
+    }
+
+    /** @return 'font' property */
+    public WidgetProperty<WidgetFont> propFont()
+    {
+        return font;
     }
 
     /** @return 'labels' property */

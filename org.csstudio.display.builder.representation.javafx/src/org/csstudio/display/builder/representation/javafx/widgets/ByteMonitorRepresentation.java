@@ -24,6 +24,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 /** Creates JavaFX item for model widget
@@ -90,6 +91,7 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
     private void addLEDs(final Pane pane, double w, double h, final boolean horizontal)
     {
         final Color text_color = JFXUtil.convert(model_widget.propForegroundColor().getValue());
+        final Font text_font = JFXUtil.convert(model_widget.propFont().getValue());
         final int save_bits = numBits;
         final boolean save_sq = square_led;
         final Color [] save_colorVals = value_colors;
@@ -141,6 +143,8 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
                 text = new Text(model_widget.propLabels().getElement(lbl_index).getValue());
                 if (horizontal)
                     text.setRotate(-90.0);
+                text.setFont(text_font);
+                text.applyCss();
                 final Bounds bounds = text.getBoundsInLocal();
                 text.setX(x + (w - bounds.getWidth())/2);
                 text.setY(y + (h + bounds.getHeight())/2);
@@ -200,6 +204,7 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
 
         model_widget.propBitReverse().addUntypedPropertyListener(look_listener);
         model_widget.propForegroundColor().addUntypedPropertyListener(look_listener);
+        model_widget.propFont().addUntypedPropertyListener(look_listener);
         model_widget.propLabels().addPropertyListener(this::lablesChanged);
         model_widget.propNumBits().addUntypedPropertyListener(look_listener);
         model_widget.propHorizontal().addPropertyListener(this::orientationChanged);
