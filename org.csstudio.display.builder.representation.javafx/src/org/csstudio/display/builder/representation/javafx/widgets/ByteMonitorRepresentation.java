@@ -205,34 +205,27 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
         model_widget.propBitReverse().addUntypedPropertyListener(look_listener);
         model_widget.propForegroundColor().addUntypedPropertyListener(look_listener);
         model_widget.propFont().addUntypedPropertyListener(look_listener);
-        model_widget.propLabels().addPropertyListener(this::lablesChanged);
+        model_widget.propLabels().addPropertyListener(this::labelsChanged);
         model_widget.propNumBits().addUntypedPropertyListener(look_listener);
         model_widget.propHorizontal().addPropertyListener(this::orientationChanged);
         model_widget.propSquare().addUntypedPropertyListener(look_listener);
 
-        lablesChanged(model_widget.propLabels(), null, model_widget.propLabels().getValue());
-
         //initialization
+        labelsChanged(model_widget.propLabels(), null, model_widget.propLabels().getValue());
         configChanged(null, null, null);
-        lookChanged(null, null, null);
         contentChanged(null, null, model_widget.runtimePropValue().getValue());
     }
 
-    private void lablesChanged(final WidgetProperty<List<StringWidgetProperty>> prop,
+    private void labelsChanged(final WidgetProperty<List<StringWidgetProperty>> prop,
                                final List<StringWidgetProperty> removed, final List<StringWidgetProperty> added)
     {
         if (added != null)
             for (StringWidgetProperty text : added)
-            {
-                System.out.println("Add " + text.getValue());
                 text.addUntypedPropertyListener(look_listener);
-            }
         if (removed != null)
             for (StringWidgetProperty text : removed)
-            {
-                System.out.println("Removed " + text.getValue());
                 text.removePropertyListener(look_listener);
-            }
+        look_listener.propertyChanged(null, null, null);
     }
 
     private void orientationChanged(final WidgetProperty<Boolean> prop, final Boolean old, final Boolean horizontal)
