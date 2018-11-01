@@ -43,6 +43,7 @@ public class UpdateThrottleTest
         {
             this.name = name;
             this.updates = updates;
+            model_widget = new Widget("Demo");
         }
 
         @Override
