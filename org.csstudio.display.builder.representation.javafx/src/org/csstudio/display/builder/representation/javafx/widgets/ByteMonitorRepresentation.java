@@ -26,6 +26,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextBoundsType;
 
 /** Creates JavaFX item for model widget
  *  @author Amanda Carpenter
@@ -145,6 +146,7 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
                     text.setRotate(-90.0);
                 text.setFont(text_font);
                 text.applyCss();
+                text.setBoundsType(TextBoundsType.VISUAL);
                 final Bounds bounds = text.getBoundsInLocal();
                 text.setX(x + (w - bounds.getWidth())/2);
                 text.setY(y + (h + bounds.getHeight())/2);
