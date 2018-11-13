@@ -39,7 +39,6 @@ import org.csstudio.javafx.rtplot.RegionOfInterest;
 import org.diirt.util.array.ArrayDouble;
 import org.diirt.util.array.ArrayInt;
 import org.diirt.vtype.VImage;
-import org.diirt.vtype.VImageType;
 import org.diirt.vtype.VNumberArray;
 import org.diirt.vtype.VType;
 import org.diirt.vtype.ValueFactory;
@@ -359,7 +358,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
                                 model_widget.propDataHeight().getValue(),
                                 ((VNumberArray) value).getData(),
                                 model_widget.propDataUnsigned().getValue(),
-                                VImageType.TYPE_MONO);
+                                model_widget.propDataColorMode().getValue());
         else if (value instanceof VImage)
         {
             final VImage image = (VImage) value;
