@@ -38,6 +38,10 @@ public class EllipseRepresentation extends JFXBaseRepresentation<Ellipse, Ellips
     {
         // JFX Ellipse is based on center, not top-left corner,
         // so can't use the default from super.registerListeners();
+        // ==> Tooltip must be attached explicitly.
+        if (! toolkit.isEditMode())
+            attachTooltip();
+        // ==> Visibility and position nust be handled explicitly.
         model_widget.propVisible().addUntypedPropertyListener(this::positionChanged);
         model_widget.propX().addUntypedPropertyListener(this::positionChanged);
         model_widget.propY().addUntypedPropertyListener(this::positionChanged);
