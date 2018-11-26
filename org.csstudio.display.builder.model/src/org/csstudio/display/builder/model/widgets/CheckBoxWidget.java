@@ -67,8 +67,8 @@ public class CheckBoxWidget extends WritablePVWidget
     private volatile WidgetProperty<Boolean> enabled;
     private volatile WidgetProperty<Integer> bit;
     private volatile WidgetProperty<String> label;
-    private volatile WidgetProperty<WidgetColor> foreground;
     private volatile WidgetProperty<WidgetFont> font;
+    private volatile WidgetProperty<WidgetColor> foreground;
     private volatile WidgetProperty<Boolean> auto_size;
     private volatile WidgetProperty<ConfirmDialog> confirm_dialog;
     private volatile WidgetProperty<String> confirm_message;

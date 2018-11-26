@@ -326,7 +326,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
      */
     private void configChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        Color fg = JFXUtil.convert(model_widget.propForegroundColor().getValue());
+        final Color fg = JFXUtil.convert(model_widget.propForegroundColor().getValue());
 
         image_plot.showToolbar(model_widget.propToolbar().getValue());
         image_plot.setBackground(JFXUtil.convert(model_widget.propBackground().getValue()));
