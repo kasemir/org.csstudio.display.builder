@@ -409,7 +409,8 @@ public class RTImagePlot extends BorderPane
     }
 
     /** @param foreground Color bar text color. */
-    public void setColorMapForeground(final Color foreground) {
+    public void setColorMapForeground(final Color foreground)
+    {
         plot.setColorMapForeground(foreground);
     }
 

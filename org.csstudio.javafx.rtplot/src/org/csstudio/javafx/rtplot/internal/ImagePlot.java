@@ -297,10 +297,10 @@ public class ImagePlot extends PlotCanvasBase
     }
 
     /** @param foreground Color bar text color. */
-    public void setColorMapForeground(final javafx.scene.paint.Color foreground) {
+    public void setColorMapForeground(final javafx.scene.paint.Color foreground)
+    {
         colorbar_axis.setColor(foreground);
-// CR: Not sure about it.
-        requestLayout();
+        requestRedraw();
     }
 
     /** @param show Show crosshair, moved on click?
