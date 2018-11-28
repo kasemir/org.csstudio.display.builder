@@ -10,6 +10,7 @@ package org.csstudio.display.builder.model.widgets.plots;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFile;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propInteractive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMaximum;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMinimum;
@@ -48,6 +49,7 @@ import org.csstudio.display.builder.model.properties.RuntimeEventProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.csstudio.display.builder.model.widgets.PVWidget;
+import org.diirt.vtype.VImageType;
 import org.diirt.vtype.VType;
 import org.osgi.framework.Version;
 import org.w3c.dom.Element;
@@ -73,7 +75,7 @@ public class ImageWidget extends PVWidget
         }
     };
 
-    private static final WidgetPropertyDescriptor<InterpolationType> interpolationType =
+    private static final WidgetPropertyDescriptor<InterpolationType> propInterpolationType =
             new WidgetPropertyDescriptor<InterpolationType>(WidgetPropertyCategory.BEHAVIOR, "interpolation", Messages.WidgetProperties_Interpolation)
     {
         @Override
@@ -81,6 +83,17 @@ public class ImageWidget extends PVWidget
                                                                 final InterpolationType default_value)
         {
             return new EnumWidgetProperty<InterpolationType>(this, widget, default_value);
+        }
+    };
+
+    private static final WidgetPropertyDescriptor<VImageType> propColorMode =
+            new WidgetPropertyDescriptor<VImageType>(WidgetPropertyCategory.BEHAVIOR, "color_mode", Messages.WidgetProperties_ColorMode)
+    {
+        @Override
+        public WidgetProperty<VImageType> createProperty(final Widget widget,
+                                                         final VImageType default_value)
+        {
+            return new EnumWidgetProperty<VImageType>(this, widget, default_value);
         }
     };
 
@@ -345,12 +358,14 @@ public class ImageWidget extends PVWidget
     }
 
     private volatile WidgetProperty<WidgetColor> background;
+    private volatile WidgetProperty<WidgetColor> foreground;
     private volatile WidgetProperty<Boolean> show_toolbar;
     private volatile WidgetProperty<ColorMap> data_colormap;
     private volatile ColorBarProperty color_bar;
     private volatile AxisWidgetProperty x_axis, y_axis;
     private volatile WidgetProperty<Integer> data_width, data_height;
     private volatile WidgetProperty<InterpolationType> data_interpolation;
+    private volatile WidgetProperty<VImageType> data_color_mode;
     private volatile WidgetProperty<Boolean> data_unsigned;
     private volatile WidgetProperty<Boolean> data_autoscale;
     private volatile WidgetProperty<Boolean> data_logscale;
@@ -372,6 +387,7 @@ public class ImageWidget extends PVWidget
     {
         super.defineProperties(properties);
         properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
+        properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
         properties.add(show_toolbar = propToolbar.createProperty(this,false));
         properties.add(data_colormap = propDataColormap.createProperty(this, PredefinedColorMaps.VIRIDIS));
         properties.add(color_bar = new ColorBarProperty(this));
@@ -379,7 +395,8 @@ public class ImageWidget extends PVWidget
         properties.add(y_axis = new YAxisWidgetProperty(this));
         properties.add(data_width = propDataWidth.createProperty(this, 100));
         properties.add(data_height = propDataHeight.createProperty(this, 100));
-        properties.add(data_interpolation = interpolationType.createProperty(this, InterpolationType.AUTOMATIC));
+        properties.add(data_interpolation = propInterpolationType.createProperty(this, InterpolationType.AUTOMATIC));
+        properties.add(data_color_mode = propColorMode.createProperty(this, VImageType.TYPE_MONO));
         properties.add(data_unsigned = propDataUnsigned.createProperty(this, false));
         properties.add(data_autoscale = PlotWidgetProperties.propAutoscale.createProperty(this, true));
         properties.add(data_logscale = PlotWidgetProperties.propLogscale.createProperty(this, false));
@@ -396,6 +413,12 @@ public class ImageWidget extends PVWidget
     }
 
     @Override
+    protected String getInitialTooltip()
+    {
+        return "$(pv_name)";
+    }
+
+    @Override
     public WidgetConfigurator getConfigurator(final Version persisted_version)
             throws Exception
     {
@@ -406,6 +429,12 @@ public class ImageWidget extends PVWidget
     public WidgetProperty<WidgetColor> propBackground()
     {
         return background;
+    }
+
+    /** @return 'foreground_color' property */
+    public WidgetProperty<WidgetColor> propForegroundColor()
+    {
+        return foreground;
     }
 
     /** @return 'show_toolbar' property */
@@ -454,6 +483,12 @@ public class ImageWidget extends PVWidget
     public WidgetProperty<InterpolationType> propDataInterpolation()
     {
         return data_interpolation;
+    }
+
+    /** @return 'color_mode' property */
+    public WidgetProperty<VImageType> propDataColorMode()
+    {
+        return data_color_mode;
     }
 
     /** @return 'unsigned' property */

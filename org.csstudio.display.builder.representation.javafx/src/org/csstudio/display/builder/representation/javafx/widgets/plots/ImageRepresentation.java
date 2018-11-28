@@ -39,7 +39,6 @@ import org.csstudio.javafx.rtplot.RegionOfInterest;
 import org.diirt.util.array.ArrayDouble;
 import org.diirt.util.array.ArrayInt;
 import org.diirt.vtype.VImage;
-import org.diirt.vtype.VImageType;
 import org.diirt.vtype.VNumberArray;
 import org.diirt.vtype.VType;
 import org.diirt.vtype.ValueFactory;
@@ -48,6 +47,7 @@ import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 
 /** Creates JavaFX item for model widget
  *  @author Kay Kasemir
@@ -248,6 +248,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
 
         model_widget.propToolbar().addUntypedPropertyListener(this::configChanged);
         model_widget.propBackground().addUntypedPropertyListener(this::configChanged);
+        model_widget.propForegroundColor().addUntypedPropertyListener(this::configChanged);
         model_widget.propColorbar().visible().addUntypedPropertyListener(this::configChanged);
         model_widget.propColorbar().barSize().addUntypedPropertyListener(this::configChanged);
         model_widget.propColorbar().scaleFont().addUntypedPropertyListener(this::configChanged);
@@ -325,12 +326,17 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
      */
     private void configChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
+        final Color fg = JFXUtil.convert(model_widget.propForegroundColor().getValue());
+
         image_plot.showToolbar(model_widget.propToolbar().getValue());
         image_plot.setBackground(JFXUtil.convert(model_widget.propBackground().getValue()));
         image_plot.showColorMap(model_widget.propColorbar().visible().getValue());
         image_plot.setColorMapSize(model_widget.propColorbar().barSize().getValue());
         image_plot.setColorMapFont(JFXUtil.convert(model_widget.propColorbar().scaleFont().getValue()));
+        image_plot.setColorMapForeground(fg);
         image_plot.showCrosshair(model_widget.propCursorCrosshair().getValue());
+        image_plot.getXAxis().setColor(fg);
+        image_plot.getYAxis().setColor(fg);
 
         if (! changing_axis_range)
         {
@@ -359,7 +365,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
                                 model_widget.propDataHeight().getValue(),
                                 ((VNumberArray) value).getData(),
                                 model_widget.propDataUnsigned().getValue(),
-                                VImageType.TYPE_MONO);
+                                model_widget.propDataColorMode().getValue());
         else if (value instanceof VImage)
         {
             final VImage image = (VImage) value;
@@ -406,6 +412,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
     public void dispose()
     {
         image_plot.dispose();
+        image_plot = null;
         super.dispose();
     }
 }

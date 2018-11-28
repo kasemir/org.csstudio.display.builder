@@ -78,5 +78,15 @@ abstract public class WidgetRepresentation<TWP, TW, MW extends Widget>
      *  <p>Called when model widget has been removed.
      */
     abstract public void dispose();
+
+    /** Called internally to dispose() and then remove model & toolkit links */
+    void destroy()
+    {
+        dispose();
+        
+        // Speedup GC
+        model_widget = null;
+        toolkit = null;
+    }
 }
 

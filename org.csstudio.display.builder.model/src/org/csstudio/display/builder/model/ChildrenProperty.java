@@ -240,4 +240,13 @@ public class ChildrenProperty extends RuntimeWidgetProperty<List<Widget>>
     {
         model_reader.readWidgets(this, property_xml);
     }
+
+    /** Dispose, i.e. clear list
+     *
+     *  <p>Prevents further use by replacing it with immutable, empty list
+     */
+    void dispose()
+    {
+        value = Collections.emptyList();
+    }
 }

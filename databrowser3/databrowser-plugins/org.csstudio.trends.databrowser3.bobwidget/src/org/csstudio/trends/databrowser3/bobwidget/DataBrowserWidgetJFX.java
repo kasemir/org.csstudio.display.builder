@@ -61,9 +61,15 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Pane, DataBrowse
     {
         super.dispose();
         if (controller != null)
+        {
             controller.stop();
+            controller = null;
+        }
         if (plot != null)
+        {
             plot.dispose();
+            plot = null;
+        }
     }
 
     /** @return Data Browser Plot */

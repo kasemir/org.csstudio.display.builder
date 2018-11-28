@@ -168,6 +168,7 @@ public class Messages extends NLS
     public static String WidgetProperties_ColorLoLo;
     public static String WidgetProperties_ColorLow;
     public static String WidgetProperties_ColorMap;
+    public static String WidgetProperties_ColorMode;
     public static String WidgetProperties_ColorOK;
     public static String WidgetProperties_ConfirmDialog;
     public static String WidgetProperties_ConfirmMessage;

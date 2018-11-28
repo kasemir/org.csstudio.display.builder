@@ -72,16 +72,16 @@ public class ImagePlot extends PlotCanvasBase
     private volatile double min_x = 0.0, max_x = 100.0, min_y = 0.0, max_y = 100.0;
 
     /** X Axis */
-    private final AxisPart<Double> x_axis;
+    private AxisPart<Double> x_axis;
 
     /** Y Axis */
-    private final YAxisImpl<Double> y_axis;
+    private YAxisImpl<Double> y_axis;
 
     /** Area used by the image */
     private volatile Rectangle image_area = new Rectangle(0, 0, 0, 0);
 
     /** Color bar Axis */
-    private final YAxisImpl<Double> colorbar_axis;
+    private YAxisImpl<Double> colorbar_axis;
 
     /** Area used by the color bar. <code>null</code> if not visible */
     private volatile Rectangle colorbar_area = null;
@@ -294,6 +294,13 @@ public class ImagePlot extends PlotCanvasBase
     {
         colorbar_axis.setScaleFont(font);
         requestLayout();
+    }
+
+    /** @param foreground Color bar text color. */
+    public void setColorMapForeground(final javafx.scene.paint.Color foreground)
+    {
+        colorbar_axis.setColor(foreground);
+        requestRedraw();
     }
 
     /** @param show Show crosshair, moved on click?
@@ -886,7 +893,7 @@ public class ImagePlot extends PlotCanvasBase
      *  @return {@link BufferedImage}, sized to match data
      */
     private Object drawDataRGB(final int data_width, final int data_height, final ListNumber numbers,
-                                      final ToIntFunction<IteratorNumber> next_rgbs [], final VImageType type)
+                               final ToIntFunction<IteratorNumber> next_rgbs [], final VImageType type)
     {
         if (data_width <= 0  ||  data_height <= 0)
         {
@@ -913,7 +920,7 @@ public class ImagePlot extends PlotCanvasBase
 	        	{
 	        		//red
         			for (int x = 0; x < data_width; ++x)
-        				data[y_times_width + x] = next_rgbs[0].applyAsInt(iter);;
+        				data[y_times_width + x] = 0xFF000000 | next_rgbs[0].applyAsInt(iter);;
         			//green
         			for (int x = 0; x < data_width; ++x)
         				data[y_times_width + x] |= next_rgbs[1].applyAsInt(iter);
@@ -925,7 +932,7 @@ public class ImagePlot extends PlotCanvasBase
 	        case TYPE_RGB3:
 	        	//red
         		for (int i = 0; i < data_height*data_width; ++i)
-        			data[i] = next_rgbs[0].applyAsInt(iter);
+        			data[i] = 0xFF000000 | next_rgbs[0].applyAsInt(iter);
         		//green
         		for (int i = 0; i < data_height*data_width; ++i)
         			data[i] |= next_rgbs[1].applyAsInt(iter);
@@ -938,7 +945,7 @@ public class ImagePlot extends PlotCanvasBase
         		//no "break;"
 	        case TYPE_RGB1:
 	        	for (int i = 0; i < data_height*data_width; ++i)
-	            	data[i] = next_rgbs[0].applyAsInt(iter) | next_rgbs[1].applyAsInt(iter) | next_rgbs[2].applyAsInt(iter);
+	            	data[i] = 0xFF000000 | next_rgbs[0].applyAsInt(iter) | next_rgbs[1].applyAsInt(iter) | next_rgbs[2].applyAsInt(iter);
         }
 
         return image;
@@ -1466,6 +1473,10 @@ public class ImagePlot extends PlotCanvasBase
         removeROITracker();
         image_data = null;
         rois.clear();
+        x_axis = null;
+        y_axis = null;
+        colorbar_axis = null;
+        color_mapping = null;
         plot_listener = null;
     }
 }

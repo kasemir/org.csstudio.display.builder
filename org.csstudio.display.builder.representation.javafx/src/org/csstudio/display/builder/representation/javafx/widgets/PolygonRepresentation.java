@@ -36,6 +36,10 @@ public class PolygonRepresentation extends JFXBaseRepresentation<Polygon, Polygo
     protected void registerListeners()
     {
         // Polygon can't use the default x/y handling from super.registerListeners();
+        // ==> Tooltip must be attached explicitly.
+        if (! toolkit.isEditMode())
+            attachTooltip();
+        // ==> Visibility and position nust be handled explicitly.
         model_widget.propVisible().addUntypedPropertyListener(this::displayChanged);
         model_widget.propX().addUntypedPropertyListener(this::displayChanged);
         model_widget.propY().addUntypedPropertyListener(this::displayChanged);

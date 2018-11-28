@@ -79,6 +79,10 @@ public class PolylineRepresentation extends JFXBaseRepresentation<Group, Polylin
     protected void registerListeners()
     {
         // Polyline can't use the default x/y handling from super.registerListeners();
+        // ==> Tooltip must be attached explicitly.
+        if (! toolkit.isEditMode())
+            attachTooltip();
+        // ==> Visibility and position nust be handled explicitly.
         model_widget.propVisible().addUntypedPropertyListener(this::displayChanged);
         model_widget.propX().addUntypedPropertyListener(this::displayChanged);
         model_widget.propY().addUntypedPropertyListener(this::displayChanged);

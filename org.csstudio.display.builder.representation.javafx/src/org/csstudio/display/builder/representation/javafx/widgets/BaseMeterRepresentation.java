@@ -85,8 +85,19 @@ public abstract class BaseMeterRepresentation<W extends BaseMeterWidget> extends
             return gauge;
 
         } finally {
+
             dirtyLook.mark();
-            toolkit.scheduleUpdate(this);
+
+            //  Terminal classes must call
+            //toolkit.schedule( ( ) -> {
+            //if ( jfx_node != null ) {
+            //    //  The next 2 lines necessary because of a Medusa problem.
+            //    jfx_node.setAutoScale(!jfx_node.isAutoScale());
+            //    jfx_node.setAutoScale(!jfx_node.isAutoScale());
+            //}
+            //    valueChanged(null, null, null);
+            //}, 77 + (long) ( 34.0 * Math.random() ), TimeUnit.MILLISECONDS);
+
         }
 
     }
