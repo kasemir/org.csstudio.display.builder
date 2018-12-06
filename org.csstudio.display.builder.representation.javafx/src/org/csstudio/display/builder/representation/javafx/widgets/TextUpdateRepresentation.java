@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -93,8 +93,15 @@ public class TextUpdateRepresentation extends RegionBaseRepresentation<Control, 
 
         model_widget.propPVName().addPropertyListener(this::pvnameChanged);
 
-        // Initial update in case runtimePropValue already has value before we registered listener 
+        // Initial update in case runtimePropValue already has value before we registered listener
         contentChanged(null, null, model_widget.runtimePropValue().getValue());
+    }
+
+    @Override
+    protected void attachTooltip()
+    {
+        // Use the formatted text for "$(pv_value)"
+        TooltipSupport.attach(jfx_node, model_widget.propTooltip(), () -> value_text);
     }
 
     private void styleChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)

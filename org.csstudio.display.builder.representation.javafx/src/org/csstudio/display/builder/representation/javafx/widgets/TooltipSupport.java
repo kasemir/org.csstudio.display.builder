@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,9 +7,11 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropPVValue;
 import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
 
 import java.lang.reflect.Field;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 
@@ -19,6 +21,11 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.macros.MacroValueProvider;
 import org.csstudio.display.builder.model.properties.StringWidgetProperty;
+import org.csstudio.java.time.TimestampFormats;
+import org.diirt.vtype.Alarm;
+import org.diirt.vtype.AlarmSeverity;
+import org.diirt.vtype.Time;
+import org.diirt.vtype.ValueUtil;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -46,6 +53,16 @@ public class TooltipSupport
      */
     public static void attach(final Node node, final WidgetProperty<String> tooltip_property)
     {
+        attach(node, tooltip_property, null);
+    }
+
+    /** Attach tool tip
+     *  @param node Node that should have the tool tip
+     *  @param tooltip_property Tool tip to show
+     *  @param pv_value Supplier of formatted "$(pv_value)". <code>null</code> to use toString of the property.
+     */
+    public static void attach(final Node node, final WidgetProperty<String> tooltip_property, final Supplier<String> pv_value)
+    {
         if (disable_tooltips)
             return;
 
@@ -70,7 +87,23 @@ public class TooltipSupport
         // the tool tip is about to show
         tooltip.setOnShowing(event ->
         {
-            final String spec = ((MacroizedWidgetProperty<?>)tooltip_property).getSpecification();
+            String spec = ((MacroizedWidgetProperty<?>)tooltip_property).getSpecification();
+
+            // Use custom supplier for $(pv_value)?
+            // Otherwise replace like other macros, i.e. use toString of the property
+            if (pv_value != null)
+            {
+                final StringBuilder buf = new StringBuilder();
+                buf.append(pv_value.get());
+                final Object vtype = tooltip_property.getWidget().getPropertyValue(runtimePropPVValue);
+                final Alarm alarm = ValueUtil.alarmOf(vtype);
+                if (alarm != null  &&  alarm.getAlarmSeverity() != AlarmSeverity.NONE)
+                    buf.append(", ").append(alarm.getAlarmSeverity()).append(" - ").append(alarm.getAlarmName());
+                final Time time = ValueUtil.timeOf(vtype);
+                if (time != null)
+                    buf.append(", ").append(TimestampFormats.FULL_FORMAT.format(time.getTimestamp()));
+                spec = spec.replace("$(pv_value)", buf.toString());
+            }
             final Widget widget = tooltip_property.getWidget();
             final MacroValueProvider macros = widget.getMacrosOrProperties();
             String expanded;
