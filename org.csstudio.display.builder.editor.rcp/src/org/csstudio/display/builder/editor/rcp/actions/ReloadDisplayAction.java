@@ -9,6 +9,7 @@ package org.csstudio.display.builder.editor.rcp.actions;
 
 import org.csstudio.display.builder.editor.rcp.DisplayEditorPart;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 /** Action to re-load currently edited display
@@ -30,6 +31,15 @@ public class ReloadDisplayAction extends Action
     @Override
     public void run()
     {
+        if (editor.isDirty())
+        {
+            if (!MessageDialog.openConfirm(editor.getEditorSite().getShell(),
+                                           org.csstudio.display.builder.rcp.Messages.ReloadDisplay,
+                                           "Display has been modified.\n" +
+                                           "OK to replace with original file content.\n" +
+                                           "Cancel to abort so you can for example save it under a different name"))
+                return;
+        }
         editor.loadModel();
     }
 }
