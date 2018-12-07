@@ -707,6 +707,10 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
 
             if ( imageFileName != null ) {
 
+                if ( toolkit.isEditMode() ) {
+                    ImageCache.remove(imageFileName);
+                }
+
                 image = ImageCache.get(imageFileName);
 
                 if ( image != null ) {

@@ -77,6 +77,16 @@ public class ImageCache {
     }
 
     /**
+     * @param key The unique identifier of the cached image, usually its
+     *            resolved filename.
+     * @return The previously {@link Image} associated with the given
+     *         {@code key}, or {@code null}.
+     */
+    public static Image remove ( String key ) {
+        return CACHE.remove(key);
+    }
+
+    /**
      * @return The current cache size, i.e. the number of elements stored in the
      *         cache.
      */
