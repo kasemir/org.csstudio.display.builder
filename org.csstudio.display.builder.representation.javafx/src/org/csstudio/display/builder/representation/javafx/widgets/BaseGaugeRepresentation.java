@@ -11,6 +11,7 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.csstudio.display.builder.model.DirtyFlag;
@@ -313,6 +314,13 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         //    valueChanged(null, null, null);
         //}, 77 + (long) ( 34.0 * Math.random() ), TimeUnit.MILLISECONDS);
 
+        toolkit.schedule( ( ) -> {
+            if ( jfx_node != null ) {
+                changeSkin(getSkin());
+            }
+            lookChanged(null, null, null);
+        }, 77 + (long) ( 34.0 * Math.random() ), TimeUnit.MILLISECONDS);
+
         return gauge;
 
     }
@@ -551,7 +559,8 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
 
     private void geometryChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
         dirtyGeometry.mark();
-        toolkit.scheduleUpdate(this);
+        if (toolkit != null)
+            toolkit.scheduleUpdate(this);
     }
 
     private void limitsChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
