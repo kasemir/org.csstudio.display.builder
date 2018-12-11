@@ -304,6 +304,13 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         dirtyUnit.mark();
         dirtyValue.mark();
 
+        toolkit.schedule( ( ) -> {
+            if ( jfx_node != null ) {
+                changeSkin(getSkin());
+            }
+            lookChanged(null, null, null);
+        }, 77 + (long) ( 34.0 * Math.random() ), TimeUnit.MILLISECONDS);
+
         //  Terminal classes must call
         //toolkit.schedule( ( ) -> {
         //if ( jfx_node != null ) {
@@ -313,13 +320,6 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         //}
         //    valueChanged(null, null, null);
         //}, 77 + (long) ( 34.0 * Math.random() ), TimeUnit.MILLISECONDS);
-
-        toolkit.schedule( ( ) -> {
-            if ( jfx_node != null ) {
-                changeSkin(getSkin());
-            }
-            lookChanged(null, null, null);
-        }, 77 + (long) ( 34.0 * Math.random() ), TimeUnit.MILLISECONDS);
 
         return gauge;
 
