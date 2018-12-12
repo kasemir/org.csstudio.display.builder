@@ -85,6 +85,10 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
 
     private Pane pane;
 
+    private final UntypedWidgetPropertyListener buttonChangedListener = this::buttonChanged;
+    private final UntypedWidgetPropertyListener representationChangedListener = this::representationChanged;
+    private final WidgetPropertyListener<Boolean> enablementChangedListener = this::enablementChanged;
+
     @Override
     protected boolean isFilteringEditModeClicks()
     {
@@ -280,10 +284,6 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
         }
         toolkit.fireAction(model_widget, action);
     }
-
-    private final UntypedWidgetPropertyListener buttonChangedListener = this::buttonChanged;
-    private final UntypedWidgetPropertyListener representationChangedListener = this::representationChanged;
-    private final WidgetPropertyListener<Boolean> enablementChangedListener = this::enablementChanged;
 
     @Override
     protected void registerListeners()

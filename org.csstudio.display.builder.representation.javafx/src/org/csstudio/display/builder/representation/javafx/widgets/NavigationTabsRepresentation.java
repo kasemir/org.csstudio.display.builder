@@ -101,6 +101,11 @@ public class NavigationTabsRepresentation extends RegionBaseRepresentation<Navig
         ModelThreadPool.getExecutor().execute(this::updatePendingDisplay);
     };
 
+    private final UntypedWidgetPropertyListener sizesChangedListener = this::sizesChanged;
+    private final UntypedWidgetPropertyListener tabLookChangedListener = this::tabLookChanged;
+    private final WidgetPropertyListener<Integer> activeTabChangedListener = this::activeTabChanged;
+    private final WidgetPropertyListener<List<TabProperty>> tabsChangedListener = this::tabsChanged;
+
     @Override
     public NavigationTabs createJFXNode() throws Exception
     {
@@ -127,24 +132,45 @@ public class NavigationTabsRepresentation extends RegionBaseRepresentation<Navig
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.propWidth().addUntypedPropertyListener(this::sizesChanged);
-        model_widget.propHeight().addUntypedPropertyListener(this::sizesChanged);
+        model_widget.propWidth().addUntypedPropertyListener(sizesChangedListener);
+        model_widget.propHeight().addUntypedPropertyListener(sizesChangedListener);
 
-        model_widget.propDirection().addPropertyListener(this::tabLookChanged);
-        model_widget.propTabWidth().addPropertyListener(this::tabLookChanged);
-        model_widget.propTabHeight().addPropertyListener(this::tabLookChanged);
-        model_widget.propTabSpacing().addPropertyListener(this::tabLookChanged);
-        model_widget.propSelectedColor().addPropertyListener(this::tabLookChanged);
-        model_widget.propDeselectedColor().addPropertyListener(this::tabLookChanged);
-        model_widget.propFont().addPropertyListener(this::tabLookChanged);
+        model_widget.propDirection().addUntypedPropertyListener(tabLookChangedListener);
+        model_widget.propTabWidth().addUntypedPropertyListener(tabLookChangedListener);
+        model_widget.propTabHeight().addUntypedPropertyListener(tabLookChangedListener);
+        model_widget.propTabSpacing().addUntypedPropertyListener(tabLookChangedListener);
+        model_widget.propSelectedColor().addUntypedPropertyListener(tabLookChangedListener);
+        model_widget.propDeselectedColor().addUntypedPropertyListener(tabLookChangedListener);
+        model_widget.propFont().addUntypedPropertyListener(tabLookChangedListener);
 
-        model_widget.propActiveTab().addPropertyListener(this::activeTabChanged);
+        model_widget.propActiveTab().addPropertyListener(activeTabChangedListener);
 
-        model_widget.propTabs().addPropertyListener(this::tabsChanged);
+        model_widget.propTabs().addPropertyListener(tabsChangedListener);
 
         // Initial update
         tabsChanged(model_widget.propTabs(), null, model_widget.propTabs().getValue());
         activeTabChanged(null, null, model_widget.propActiveTab().getValue());
+    }
+
+    @Override
+    protected void unregisterListeners()
+    {
+        model_widget.propWidth().removePropertyListener(sizesChangedListener);
+        model_widget.propHeight().removePropertyListener(sizesChangedListener);
+
+        model_widget.propDirection().removePropertyListener(tabLookChangedListener);
+        model_widget.propTabWidth().removePropertyListener(tabLookChangedListener);
+        model_widget.propTabHeight().removePropertyListener(tabLookChangedListener);
+        model_widget.propTabSpacing().removePropertyListener(tabLookChangedListener);
+        model_widget.propSelectedColor().removePropertyListener(tabLookChangedListener);
+        model_widget.propDeselectedColor().removePropertyListener(tabLookChangedListener);
+        model_widget.propFont().removePropertyListener(tabLookChangedListener);
+
+        model_widget.propActiveTab().removePropertyListener(activeTabChangedListener);
+
+        model_widget.propTabs().removePropertyListener(tabsChangedListener);
+
+        super.unregisterListeners();
     }
 
     private void activeTabChanged(final WidgetProperty<Integer> property, final Integer old_index, final Integer tab_index)
