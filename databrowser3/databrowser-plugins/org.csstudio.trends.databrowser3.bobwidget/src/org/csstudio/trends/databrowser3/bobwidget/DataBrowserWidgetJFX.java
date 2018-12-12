@@ -16,7 +16,9 @@ import java.util.Objects;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
@@ -48,6 +50,9 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Pane, DataBrowse
     private volatile ControllerJFX controller = null;
 
     private volatile InputStream model_file_stream = null;
+    private final UntypedWidgetPropertyListener sizeChangedListener = this::sizeChanged;
+    private final UntypedWidgetPropertyListener optsChangedListener = this::optsChanged;
+    private final WidgetPropertyListener<String> fileChangedListener = this::fileChanged;
 
     @Override
     public Pane createJFXNode() throws Exception
@@ -85,13 +90,13 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Pane, DataBrowse
 
         if (! toolkit.isEditMode())
             controller = new ControllerJFX(model_widget.getDataBrowserModel(), plot);
-        model_widget.propWidth().addUntypedPropertyListener(this::sizeChanged);
-        model_widget.propHeight().addUntypedPropertyListener(this::sizeChanged);
-        model_widget.propShowToolbar().addUntypedPropertyListener(this::optsChanged);
+        model_widget.propWidth().addUntypedPropertyListener(sizeChangedListener);
+        model_widget.propHeight().addUntypedPropertyListener(sizeChangedListener);
+        model_widget.propShowToolbar().addUntypedPropertyListener(optsChangedListener);
         // Not monitoring macros.
         // Macros are read when the file property updates
         final String file_name = model_widget.propFile().getValue();
-        model_widget.propFile().addPropertyListener(this::fileChanged);
+        model_widget.propFile().addPropertyListener(fileChangedListener);
         ModelThreadPool.getExecutor().execute(() -> fileChanged(null, null, file_name));
 
         if (controller != null)
@@ -105,6 +110,30 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Pane, DataBrowse
                 logger.log(Level.WARNING, "Cannot start controller", ex);
             }
         }
+    }
+
+    @Override
+    protected void unregisterListeners()
+    {
+        if ( controller != null )
+        {
+            try
+            {
+                controller.stop();
+            }
+            catch ( Exception ex )
+            {
+                logger.log(Level.WARNING, "Cannot stop controller", ex);
+            }
+            controller = null;
+        }
+
+        model_widget.propWidth().removePropertyListener(sizeChangedListener);
+        model_widget.propHeight().removePropertyListener(sizeChangedListener);
+        model_widget.propShowToolbar().removePropertyListener(optsChangedListener);
+        model_widget.propFile().removePropertyListener(fileChangedListener);
+
+        super.unregisterListeners();
     }
 
     private void sizeChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)

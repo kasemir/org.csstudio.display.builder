@@ -13,7 +13,9 @@ import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
@@ -60,6 +62,9 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
     private volatile Rotate rotation = new Rotate(0);
     private volatile Translate translate = new Translate(0,0);
 
+    private final UntypedWidgetPropertyListener styleChangedListener = this::styleChanged;
+    private final WidgetPropertyListener<String> contentChangedListener = this::contentChanged;
+
     public static Dimension2D computeSize ( final PictureWidget widget ) {
 
         final String imageFile = widget.propFile().getValue();
@@ -104,11 +109,11 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.propWidth().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propHeight().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propWidth().addUntypedPropertyListener(styleChangedListener);
+        model_widget.propHeight().addUntypedPropertyListener(styleChangedListener);
 
-        model_widget.propStretch().addPropertyListener(this::styleChanged);
-        model_widget.propRotation().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propStretch().addUntypedPropertyListener(styleChangedListener);
+        model_widget.propRotation().addUntypedPropertyListener(styleChangedListener);
         styleChanged(null, null, null);
 
         //TODO: add way to disable border or remove permanently
@@ -117,8 +122,22 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
         // This is one of those weird cases where getValue calls setValue and fires the listener.
         // So register listener after getValue called
         final String img_name = model_widget.propFile().getValue();
-        model_widget.propFile().addPropertyListener(this::contentChanged);
+        model_widget.propFile().addPropertyListener(contentChangedListener);
         ModelThreadPool.getExecutor().execute(() -> contentChanged(null, null, img_name));
+    }
+
+    @Override
+    protected void unregisterListeners()
+    {
+        model_widget.propWidth().removePropertyListener(styleChangedListener);
+        model_widget.propHeight().removePropertyListener(styleChangedListener);
+
+        model_widget.propStretch().removePropertyListener(styleChangedListener);
+        model_widget.propRotation().removePropertyListener(styleChangedListener);
+
+        model_widget.propFile().removePropertyListener(contentChangedListener);
+
+        super.unregisterListeners();
     }
 
     private void styleChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
