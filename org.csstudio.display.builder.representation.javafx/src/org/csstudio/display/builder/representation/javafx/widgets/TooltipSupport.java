@@ -141,11 +141,11 @@ public class TooltipSupport
      *
      * @param node Node that should have the tool tip removed.
      */
-    public static void detach ( final Node node ) {
-        if ( node != null ) {
+    public static void detach ( final Node node )
+    {
+        if ( node != null )
             Optional.ofNullable(node.getProperties().get("_tooltip"))
                     .ifPresent(t -> Tooltip.uninstall(node, (Tooltip) t));
-        }
     }
 
     private static void hack_behavior(final Tooltip tooltip)

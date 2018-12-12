@@ -58,14 +58,13 @@ public class EllipseRepresentation extends JFXBaseRepresentation<Ellipse, Ellips
     }
 
     @Override
-    protected void unregisterListeners ( ) {
-
+    protected void unregisterListeners ( )
+    {
         // JFX Ellipse is based on center, not top-left corner,
         // so can't use the default from super.unregisterListeners();
         // ==> Tooltip must be detached explicitly.
-        if ( !toolkit.isEditMode() ) {
+        if ( !toolkit.isEditMode() )
             detachTooltip();
-        }
 
         // ==> Visibility and position must be handled explicitly.
         model_widget.propVisible().removePropertyListener(positionChangedListener);
@@ -78,7 +77,6 @@ public class EllipseRepresentation extends JFXBaseRepresentation<Ellipse, Ellips
         model_widget.propTransparent().removePropertyListener(lookChangedListener);
         model_widget.propLineColor().removePropertyListener(lookChangedListener);
         model_widget.propLineWidth().removePropertyListener(lookChangedListener);
-
     }
 
     private void positionChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)

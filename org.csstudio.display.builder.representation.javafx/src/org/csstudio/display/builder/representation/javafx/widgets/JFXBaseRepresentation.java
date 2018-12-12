@@ -224,21 +224,16 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
      * <p>
      * Override must call base class.</p>
      */
-    protected void unregisterListeners() {
-
+    protected void unregisterListeners()
+    {
         visible = model_widget.checkProperty(CommonWidgetProperties.propVisible).orElse(null);
-
-        if ( visible != null ) {
+        if ( visible != null )
             visible.removePropertyListener(positionChangedListener);
-        }
-
         model_widget.propX().removePropertyListener(positionChangedListener);
         model_widget.propY().removePropertyListener(positionChangedListener);
 
-        if ( !toolkit.isEditMode() ) {
+        if ( !toolkit.isEditMode() )
             detachTooltip();
-        }
-
     }
 
     /** Attach tool tip support
@@ -257,7 +252,8 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
     /**
      * Detach tool tip support.
      */
-    protected void detachTooltip ( ) {
+    protected void detachTooltip ( )
+    {
         TooltipSupport.detach(jfx_node);
     }
 
