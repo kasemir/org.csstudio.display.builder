@@ -559,8 +559,7 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
 
     private void geometryChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
         dirtyGeometry.mark();
-        if (toolkit != null)
-            toolkit.scheduleUpdate(this);
+        toolkit.scheduleUpdate(this);
     }
 
     private void limitsChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {

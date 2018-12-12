@@ -231,8 +231,7 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
     private void positionChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         dirty_position.mark();
-        if (toolkit != null)
-            toolkit.scheduleUpdate(this);
+        toolkit.scheduleUpdate(this);
     }
 
     /** {@inheritDoc} */
