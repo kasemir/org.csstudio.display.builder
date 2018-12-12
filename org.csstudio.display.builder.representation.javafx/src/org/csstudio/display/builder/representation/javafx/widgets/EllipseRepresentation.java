@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.representation.javafx.widgets;
 
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.EllipseWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
@@ -24,6 +25,8 @@ public class EllipseRepresentation extends JFXBaseRepresentation<Ellipse, Ellips
     private final DirtyFlag dirty_position = new DirtyFlag();
     private final DirtyFlag dirty_look = new DirtyFlag();
     private Color background, line_color;
+    private final UntypedWidgetPropertyListener lookChangedListener = this::lookChanged;
+    private final UntypedWidgetPropertyListener positionChangedListener = this::positionChanged;
 
     @Override
     public Ellipse createJFXNode() throws Exception
@@ -41,17 +44,41 @@ public class EllipseRepresentation extends JFXBaseRepresentation<Ellipse, Ellips
         // ==> Tooltip must be attached explicitly.
         if (! toolkit.isEditMode())
             attachTooltip();
-        // ==> Visibility and position nust be handled explicitly.
-        model_widget.propVisible().addUntypedPropertyListener(this::positionChanged);
-        model_widget.propX().addUntypedPropertyListener(this::positionChanged);
-        model_widget.propY().addUntypedPropertyListener(this::positionChanged);
-        model_widget.propWidth().addUntypedPropertyListener(this::positionChanged);
-        model_widget.propHeight().addUntypedPropertyListener(this::positionChanged);
+        // ==> Visibility and position must be handled explicitly.
+        model_widget.propVisible().addUntypedPropertyListener(positionChangedListener);
+        model_widget.propX().addUntypedPropertyListener(positionChangedListener);
+        model_widget.propY().addUntypedPropertyListener(positionChangedListener);
+        model_widget.propWidth().addUntypedPropertyListener(positionChangedListener);
+        model_widget.propHeight().addUntypedPropertyListener(positionChangedListener);
 
-        model_widget.propBackgroundColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propTransparent().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propLineColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propLineWidth().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propBackgroundColor().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propTransparent().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propLineColor().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propLineWidth().addUntypedPropertyListener(lookChangedListener);
+    }
+
+    @Override
+    protected void unregisterListeners ( ) {
+
+        // JFX Ellipse is based on center, not top-left corner,
+        // so can't use the default from super.unregisterListeners();
+        // ==> Tooltip must be detached explicitly.
+        if ( !toolkit.isEditMode() ) {
+            detachTooltip();
+        }
+
+        // ==> Visibility and position must be handled explicitly.
+        model_widget.propVisible().removePropertyListener(positionChangedListener);
+        model_widget.propX().removePropertyListener(positionChangedListener);
+        model_widget.propY().removePropertyListener(positionChangedListener);
+        model_widget.propWidth().removePropertyListener(positionChangedListener);
+        model_widget.propHeight().removePropertyListener(positionChangedListener);
+
+        model_widget.propBackgroundColor().removePropertyListener(lookChangedListener);
+        model_widget.propTransparent().removePropertyListener(lookChangedListener);
+        model_widget.propLineColor().removePropertyListener(lookChangedListener);
+        model_widget.propLineWidth().removePropertyListener(lookChangedListener);
+
     }
 
     private void positionChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)

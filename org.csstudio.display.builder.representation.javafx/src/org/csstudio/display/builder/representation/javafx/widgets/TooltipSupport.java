@@ -11,6 +11,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
 
 import java.lang.reflect.Field;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
@@ -120,6 +121,7 @@ public class TooltipSupport
         });
 
         Tooltip.install(node, tooltip);
+        node.getProperties().put("_tooltip", tooltip);
 
         if (! initialized_behavior)
         {
@@ -130,6 +132,19 @@ public class TooltipSupport
             // Java 9 will offer API, https://bugs.openjdk.java.net/browse/JDK-8090477
             hack_behavior(tooltip);
             initialized_behavior = true;
+        }
+    }
+
+
+    /**
+     * Detach tool tip.
+     *
+     * @param node Node that should have the tool tip removed.
+     */
+    public static void detach ( final Node node ) {
+        if ( node != null ) {
+            Optional.ofNullable(node.getProperties().get("_tooltip"))
+                    .ifPresent(t -> Tooltip.uninstall(node, (Tooltip) t));
         }
     }
 
