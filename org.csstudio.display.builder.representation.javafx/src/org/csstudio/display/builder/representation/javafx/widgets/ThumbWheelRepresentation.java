@@ -14,7 +14,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.util.VTypeUtil;
@@ -39,15 +41,21 @@ public class ThumbWheelRepresentation extends RegionBaseRepresentation<ThumbWhee
     protected static final Color ALARM_MAJOR_COLOR = JFXUtil.convert(WidgetColorService.getColor(NamedWidgetColors.ALARM_MAJOR));
     protected static final Color ALARM_MINOR_COLOR = JFXUtil.convert(WidgetColorService.getColor(NamedWidgetColors.ALARM_MINOR));
 
-    private final DirtyFlag     dirtyContent  = new DirtyFlag();
-    private final DirtyFlag     dirtyGeometry = new DirtyFlag();
-    private final DirtyFlag     dirtyLimits   = new DirtyFlag();
-    private final DirtyFlag     dirtyLook     = new DirtyFlag();
-    private final DirtyFlag     dirtyStyle    = new DirtyFlag();
-    private final DirtyFlag     dirtyValue    = new DirtyFlag();
-    private volatile double     max           = 100.0;
-    private volatile double     min           = 0.0;
-    private final AtomicBoolean updatingValue = new AtomicBoolean(false);
+    private final UntypedWidgetPropertyListener contentChangedListener  = this::contentChanged;
+    private final DirtyFlag                     dirtyContent            = new DirtyFlag();
+    private final DirtyFlag                     dirtyGeometry           = new DirtyFlag();
+    private final DirtyFlag                     dirtyLimits             = new DirtyFlag();
+    private final DirtyFlag                     dirtyLook               = new DirtyFlag();
+    private final DirtyFlag                     dirtyStyle              = new DirtyFlag();
+    private final DirtyFlag                     dirtyValue              = new DirtyFlag();
+    private final UntypedWidgetPropertyListener geometryChangedListener = this::geometryChanged;
+    private final UntypedWidgetPropertyListener limitsChangedListener   = this::limitsChanged;
+    private final UntypedWidgetPropertyListener lookChangedListener     = this::lookChanged;
+    private volatile double                     max                     = 100.0;
+    private volatile double                     min                     = 0.0;
+    private final UntypedWidgetPropertyListener styleChangedListener    = this::styleChanged;
+    private final AtomicBoolean                 updatingValue           = new AtomicBoolean(false);
+    private final WidgetPropertyListener<VType> valueChangedListener    = this::valueChanged;
 
     @Override
     public void updateChanges ( ) {
@@ -210,35 +218,69 @@ public class ThumbWheelRepresentation extends RegionBaseRepresentation<ThumbWhee
 
         super.registerListeners();
 
-        model_widget.propDecimalDigits().addUntypedPropertyListener(this::contentChanged);
-        model_widget.propIntegerDigits().addUntypedPropertyListener(this::contentChanged);
-        model_widget.propPVName().addPropertyListener(this::contentChanged);
+        model_widget.propDecimalDigits().addUntypedPropertyListener(contentChangedListener);
+        model_widget.propIntegerDigits().addUntypedPropertyListener(contentChangedListener);
+        model_widget.propPVName().addUntypedPropertyListener(contentChangedListener);
 
-        model_widget.propVisible().addUntypedPropertyListener(this::geometryChanged);
-        model_widget.propX().addUntypedPropertyListener(this::geometryChanged);
-        model_widget.propY().addUntypedPropertyListener(this::geometryChanged);
-        model_widget.propWidth().addUntypedPropertyListener(this::geometryChanged);
-        model_widget.propHeight().addUntypedPropertyListener(this::geometryChanged);
+        model_widget.propVisible().addUntypedPropertyListener(geometryChangedListener);
+        model_widget.propX().addUntypedPropertyListener(geometryChangedListener);
+        model_widget.propY().addUntypedPropertyListener(geometryChangedListener);
+        model_widget.propWidth().addUntypedPropertyListener(geometryChangedListener);
+        model_widget.propHeight().addUntypedPropertyListener(geometryChangedListener);
 
-        model_widget.propBackgroundColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propButtonsColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propFont().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propForegroundColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propInvalidColor().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propBackgroundColor().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propButtonsColor().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propFont().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propForegroundColor().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propInvalidColor().addUntypedPropertyListener(lookChangedListener);
 
-        model_widget.propLimitsFromPV().addUntypedPropertyListener(this::limitsChanged);
-        model_widget.propMaximum().addUntypedPropertyListener(this::limitsChanged);
-        model_widget.propMinimum().addUntypedPropertyListener(this::limitsChanged);
+        model_widget.propLimitsFromPV().addUntypedPropertyListener(limitsChangedListener);
+        model_widget.propMaximum().addUntypedPropertyListener(limitsChangedListener);
+        model_widget.propMinimum().addUntypedPropertyListener(limitsChangedListener);
 
-        model_widget.propEnabled().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propScrollEnabled().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propEnabled().addUntypedPropertyListener(styleChangedListener);
+        model_widget.propScrollEnabled().addUntypedPropertyListener(styleChangedListener);
 
         if ( toolkit.isEditMode() ) {
             dirtyValue.checkAndClear();
         } else {
-            model_widget.runtimePropValue().addPropertyListener(this::valueChanged);
+            model_widget.runtimePropValue().addPropertyListener(valueChangedListener);
             valueChanged(null, null, null);
         }
+
+    }
+
+    @Override
+    protected void unregisterListeners ( ) {
+
+        model_widget.propDecimalDigits().removePropertyListener(contentChangedListener);
+        model_widget.propIntegerDigits().removePropertyListener(contentChangedListener);
+        model_widget.propPVName().removePropertyListener(contentChangedListener);
+
+        model_widget.propVisible().removePropertyListener(geometryChangedListener);
+        model_widget.propX().removePropertyListener(geometryChangedListener);
+        model_widget.propY().removePropertyListener(geometryChangedListener);
+        model_widget.propWidth().removePropertyListener(geometryChangedListener);
+        model_widget.propHeight().removePropertyListener(geometryChangedListener);
+
+        model_widget.propBackgroundColor().removePropertyListener(lookChangedListener);
+        model_widget.propButtonsColor().removePropertyListener(lookChangedListener);
+        model_widget.propFont().removePropertyListener(lookChangedListener);
+        model_widget.propForegroundColor().removePropertyListener(lookChangedListener);
+        model_widget.propInvalidColor().removePropertyListener(lookChangedListener);
+
+        model_widget.propLimitsFromPV().removePropertyListener(limitsChangedListener);
+        model_widget.propMaximum().removePropertyListener(limitsChangedListener);
+        model_widget.propMinimum().removePropertyListener(limitsChangedListener);
+
+        model_widget.propEnabled().removePropertyListener(styleChangedListener);
+        model_widget.propScrollEnabled().removePropertyListener(styleChangedListener);
+
+        if ( !toolkit.isEditMode() ) {
+            model_widget.runtimePropValue().removePropertyListener(valueChangedListener);
+        }
+
+        super.unregisterListeners();
 
     }
 
