@@ -34,6 +34,10 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
     private final DirtyFlag styleChanged = new DirtyFlag();
     protected final DirtyFlag dirty_content = new DirtyFlag();
 
+    private final UntypedWidgetPropertyListener styleChangedListener = this::styleChanged;
+    private final WidgetPropertyListener<VType> contentChangedListener = this::contentChanged;
+    private final WidgetPropertyListener<Boolean> typeChangedListener = this::typeChanged;
+
     protected volatile Color[] colors = new Color[0];
 
     protected volatile Color value_color;
@@ -44,9 +48,6 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
 
     protected Label label;
 
-    private final UntypedWidgetPropertyListener styleChangedListener = this::styleChanged;
-    private final WidgetPropertyListener<VType> contentChangedListener = this::contentChanged;
-    private final WidgetPropertyListener<Boolean> typeChangedListener = this::typeChanged;
 
     @Override
     public Pane createJFXNode() throws Exception

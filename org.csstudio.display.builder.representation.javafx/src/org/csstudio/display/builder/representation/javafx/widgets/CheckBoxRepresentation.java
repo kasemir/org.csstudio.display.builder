@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,18 +34,17 @@ public class CheckBoxRepresentation extends RegionBaseRepresentation<CheckBox, C
     private final DirtyFlag dirty_size = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
     private final DirtyFlag dirty_style = new DirtyFlag();
+    private final UntypedWidgetPropertyListener sizeChangedListener = this::sizeChanged;
+    private final UntypedWidgetPropertyListener styleChangedListener = this::styleChanged;
+    private final WidgetPropertyListener<Integer> bitChangedListener = this::bitChanged;
+    private final WidgetPropertyListener<String> labelChangedListener = this::labelChanged;
+    private final WidgetPropertyListener<VType> valueChangedListener = this::valueChanged;
 
     protected volatile int bit = 0;
     protected volatile int value = 0;
     protected volatile boolean state = false;
     protected volatile String label = "";
     protected volatile boolean enabled = true;
-
-    private final UntypedWidgetPropertyListener sizeChangedListener = this::sizeChanged;
-    private final UntypedWidgetPropertyListener styleChangedListener = this::styleChanged;
-    private final WidgetPropertyListener<Integer> bitChangedListener = this::bitChanged;
-    private final WidgetPropertyListener<String> labelChangedListener = this::labelChanged;
-    private final WidgetPropertyListener<VType> valueChangedListener = this::valueChanged;
 
     @Override
     protected final CheckBox createJFXNode() throws Exception
@@ -62,21 +61,17 @@ public class CheckBoxRepresentation extends RegionBaseRepresentation<CheckBox, C
     /** @param respond to button press */
     private void handlePress()
     {
-
         if (! enabled)
         {   // Ignore, restore current state of PV
             jfx_node.setSelected(state);
             return;
         }
-
         logger.log(Level.FINE, "{0} pressed", model_widget);
-
         // Ideally, PV will soon report the written value.
         // But for now restore the 'current' value of the PV
         // because PV may not change as desired,
         // so assert that widget always reflects the correct value.
         valueChanged(null, null, model_widget.runtimePropValue().getValue());
-
         Platform.runLater(this::confirm);
     }
 
@@ -137,7 +132,7 @@ public class CheckBoxRepresentation extends RegionBaseRepresentation<CheckBox, C
 
         // Initial Update
         valueChanged(null, null, model_widget.runtimePropValue().getValue());
-   }
+    }
 
     @Override
     protected void unregisterListeners()
@@ -145,16 +140,13 @@ public class CheckBoxRepresentation extends RegionBaseRepresentation<CheckBox, C
         model_widget.propWidth().removePropertyListener(sizeChangedListener);
         model_widget.propHeight().removePropertyListener(sizeChangedListener);
         model_widget.propAutoSize().removePropertyListener(sizeChangedListener);
-
         model_widget.propLabel().removePropertyListener(labelChangedListener);
         model_widget.propForegroundColor().removePropertyListener(styleChangedListener);
         model_widget.propFont().removePropertyListener(styleChangedListener);
         model_widget.propEnabled().removePropertyListener(styleChangedListener);
         model_widget.runtimePropPVWritable().removePropertyListener(styleChangedListener);
-
         model_widget.propBit().removePropertyListener(bitChangedListener);
         model_widget.runtimePropValue().removePropertyListener(valueChangedListener);
-
         super.unregisterListeners();
     }
 

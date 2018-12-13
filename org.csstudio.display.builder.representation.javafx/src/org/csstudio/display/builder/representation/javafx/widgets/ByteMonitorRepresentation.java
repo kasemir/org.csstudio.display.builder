@@ -38,6 +38,12 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
 {
     private final DirtyFlag dirty_config = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
+    private final UntypedWidgetPropertyListener lookChangedListener = this::lookChanged;
+    private final UntypedWidgetPropertyListener configChangedListener = this::configChanged;
+    private final WidgetPropertyListener<VType> contentChangedListener = this::contentChanged;
+    private final WidgetPropertyListener<List<StringWidgetProperty>> labelsChangedListener = this::labelsChanged;
+    private final WidgetPropertyListener<Boolean> orientationChangedListener = this::orientationChanged;
+    private final WidgetPropertyListener<Integer> sizeChangedListener = this::sizeChanged;
 
     private volatile Color[] colors;
 
@@ -51,12 +57,6 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
 
     private volatile Shape[] leds = null;
 
-    private final UntypedWidgetPropertyListener configChangedListener = this::configChanged;
-    private final UntypedWidgetPropertyListener lookChangeddListener = this::lookChanged;
-    private final WidgetPropertyListener<VType> contentChangedListener = this::contentChanged;
-    private final WidgetPropertyListener<List<StringWidgetProperty>> labelsChangedListener = this::labelsChanged;
-    private final WidgetPropertyListener<Boolean> orientationChangedListener = this::orientationChanged;
-    private final WidgetPropertyListener<Integer> sizeChangedListener = this::sizeChanged;
 
     @Override
     protected Pane createJFXNode() throws Exception
@@ -235,13 +235,13 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
         model_widget.propOnColor().addUntypedPropertyListener(configChangedListener);
         model_widget.propStartBit().addUntypedPropertyListener(configChangedListener);
 
-        model_widget.propBitReverse().addUntypedPropertyListener(lookChangeddListener);
-        model_widget.propForegroundColor().addUntypedPropertyListener(lookChangeddListener);
-        model_widget.propFont().addUntypedPropertyListener(lookChangeddListener);
+        model_widget.propBitReverse().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propForegroundColor().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propFont().addUntypedPropertyListener(lookChangedListener);
         model_widget.propLabels().addPropertyListener(labelsChangedListener);
-        model_widget.propNumBits().addUntypedPropertyListener(lookChangeddListener);
+        model_widget.propNumBits().addUntypedPropertyListener(lookChangedListener);
         model_widget.propHorizontal().addPropertyListener(orientationChangedListener);
-        model_widget.propSquare().addUntypedPropertyListener(lookChangeddListener);
+        model_widget.propSquare().addUntypedPropertyListener(lookChangedListener);
 
         //initialization
         labelsChanged(model_widget.propLabels(), null, model_widget.propLabels().getValue());
@@ -254,20 +254,17 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
     {
         model_widget.propWidth().removePropertyListener(sizeChangedListener);
         model_widget.propHeight().removePropertyListener(sizeChangedListener);
-
         model_widget.runtimePropValue().removePropertyListener(contentChangedListener);
-
         model_widget.propOffColor().removePropertyListener(configChangedListener);
         model_widget.propOnColor().removePropertyListener(configChangedListener);
         model_widget.propStartBit().removePropertyListener(configChangedListener);
-
-        model_widget.propBitReverse().removePropertyListener(lookChangeddListener);
-        model_widget.propForegroundColor().removePropertyListener(lookChangeddListener);
-        model_widget.propFont().removePropertyListener(lookChangeddListener);
+        model_widget.propBitReverse().removePropertyListener(lookChangedListener);
+        model_widget.propForegroundColor().removePropertyListener(lookChangedListener);
+        model_widget.propFont().removePropertyListener(lookChangedListener);
         model_widget.propLabels().removePropertyListener(labelsChangedListener);
-        model_widget.propNumBits().removePropertyListener(lookChangeddListener);
+        model_widget.propNumBits().removePropertyListener(lookChangedListener);
         model_widget.propHorizontal().removePropertyListener(orientationChangedListener);
-        model_widget.propSquare().removePropertyListener(lookChangeddListener);
+        model_widget.propSquare().removePropertyListener(lookChangedListener);
 
         labelsChanged(model_widget.propLabels(), model_widget.propLabels().getValue(), null);
 
@@ -279,11 +276,11 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
     {
         if (added != null)
             for (StringWidgetProperty text : added)
-                text.addUntypedPropertyListener(lookChangeddListener);
+                text.addUntypedPropertyListener(lookChangedListener);
         if (removed != null)
             for (StringWidgetProperty text : removed)
-                text.removePropertyListener(lookChangeddListener);
-        lookChangeddListener.propertyChanged(null, null, null);
+                text.removePropertyListener(lookChangedListener);
+        lookChangedListener.propertyChanged(null, null, null);
     }
 
     private void orientationChanged(final WidgetProperty<Boolean> prop, final Boolean old, final Boolean horizontal)

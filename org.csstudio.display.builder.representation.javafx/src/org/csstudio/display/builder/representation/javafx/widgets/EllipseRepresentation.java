@@ -24,9 +24,9 @@ public class EllipseRepresentation extends JFXBaseRepresentation<Ellipse, Ellips
 {
     private final DirtyFlag dirty_position = new DirtyFlag();
     private final DirtyFlag dirty_look = new DirtyFlag();
-    private Color background, line_color;
     private final UntypedWidgetPropertyListener lookChangedListener = this::lookChanged;
     private final UntypedWidgetPropertyListener positionChangedListener = this::positionChanged;
+    private Color background, line_color;
 
     @Override
     public Ellipse createJFXNode() throws Exception
@@ -39,12 +39,10 @@ public class EllipseRepresentation extends JFXBaseRepresentation<Ellipse, Ellips
     @Override
     protected void registerListeners()
     {
-        // JFX Ellipse is based on center, not top-left corner,
-        // so can't use the default from super.registerListeners();
-        // ==> Tooltip must be attached explicitly.
         if (! toolkit.isEditMode())
             attachTooltip();
-        // ==> Visibility and position must be handled explicitly.
+        // JFX Ellipse is based on center, not top-left corner,
+        // so can't use the default from super.registerListeners();
         model_widget.propVisible().addUntypedPropertyListener(positionChangedListener);
         model_widget.propX().addUntypedPropertyListener(positionChangedListener);
         model_widget.propY().addUntypedPropertyListener(positionChangedListener);
@@ -58,21 +56,14 @@ public class EllipseRepresentation extends JFXBaseRepresentation<Ellipse, Ellips
     }
 
     @Override
-    protected void unregisterListeners ( )
+    protected void unregisterListeners()
     {
-        // JFX Ellipse is based on center, not top-left corner,
-        // so can't use the default from super.unregisterListeners();
-        // ==> Tooltip must be detached explicitly.
-        if ( !toolkit.isEditMode() )
-            detachTooltip();
-
-        // ==> Visibility and position must be handled explicitly.
+        detachTooltip();
         model_widget.propVisible().removePropertyListener(positionChangedListener);
         model_widget.propX().removePropertyListener(positionChangedListener);
         model_widget.propY().removePropertyListener(positionChangedListener);
         model_widget.propWidth().removePropertyListener(positionChangedListener);
         model_widget.propHeight().removePropertyListener(positionChangedListener);
-
         model_widget.propBackgroundColor().removePropertyListener(lookChangedListener);
         model_widget.propTransparent().removePropertyListener(lookChangedListener);
         model_widget.propLineColor().removePropertyListener(lookChangedListener);

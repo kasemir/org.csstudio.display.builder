@@ -46,7 +46,6 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
     private final DirtyFlag dirty_position = new DirtyFlag();
     private final UntypedWidgetPropertyListener positionChangedListener = this::positionChanged;
 
-
     /** {@inheritDoc} */
     @Override
     public Parent createComponents(final Parent parent) throws Exception
@@ -219,20 +218,18 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
             attachTooltip();
     }
 
-    /**
-     * Unregister model widget listeners.
-     * <p>
-     * Override must call base class.</p>
+    /** Unregister model widget listeners.
+     *
+     *  <p>Override must call base class
      */
     protected void unregisterListeners()
     {
         visible = model_widget.checkProperty(CommonWidgetProperties.propVisible).orElse(null);
-        if ( visible != null )
+        if (visible != null)
             visible.removePropertyListener(positionChangedListener);
         model_widget.propX().removePropertyListener(positionChangedListener);
         model_widget.propY().removePropertyListener(positionChangedListener);
-
-        if ( !toolkit.isEditMode() )
+        if (!toolkit.isEditMode())
             detachTooltip();
     }
 
@@ -249,9 +246,7 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
                     .ifPresent(prop -> TooltipSupport.attach(jfx_node, prop));
     }
 
-    /**
-     * Detach tool tip support.
-     */
+    /** Detach tool tip support */
     protected void detachTooltip ( )
     {
         TooltipSupport.detach(jfx_node);

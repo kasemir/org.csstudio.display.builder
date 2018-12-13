@@ -51,6 +51,7 @@ public class GroupRepresentation extends JFXBaseRepresentation<Pane, GroupWidget
     );
 
     private final DirtyFlag dirty_border = new DirtyFlag();
+    private final UntypedWidgetPropertyListener borderChangedListener = this::borderChanged;
 
     // top-level 'Pane' provides background color and border
 
@@ -63,7 +64,6 @@ public class GroupRepresentation extends JFXBaseRepresentation<Pane, GroupWidget
     private volatile boolean firstUpdate = true;
     private volatile int inset = 10;
     private volatile Color foreground_color, background_color;
-    private final UntypedWidgetPropertyListener borderChangedListener = this::borderChanged;
 
     @Override
     public Pane createJFXNode() throws Exception

@@ -11,7 +11,6 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
 
 import java.lang.reflect.Field;
-import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
@@ -40,6 +39,13 @@ import javafx.util.Duration;
 @SuppressWarnings("nls")
 public class TooltipSupport
 {
+    /** Instead of tracking the tool tip attached to a node ourselves,
+     *  we use this property that JavaFX 8+ happens to set,
+     *  defined in Tooltip.TOOLTIP_PROP_KEY.
+     *  If the JFX implementation changes, we'll need use our own property key.
+     */
+    private static final String TOOLTIP_PROP_KEY = "javafx.scene.control.Tooltip";
+
     /** Legacy tool tip: "$(pv_name)\n$(pv_value)" where number of '\n' can vary */
     private final static Pattern legacy_tooltip = Pattern.compile("\\$\\(pv_name\\)\\s*\\$\\(pv_value\\)");
 
@@ -121,10 +127,11 @@ public class TooltipSupport
         });
 
         Tooltip.install(node, tooltip);
-        node.getProperties().put("_tooltip", tooltip);
 
         if (! initialized_behavior)
         {
+            if (node.getProperties().get(TOOLTIP_PROP_KEY) != tooltip)
+                throw new IllegalStateException("JavaFX Tooltip behavior changed");
             // Unfortunately, no API to control when tooltop shows, and for how long.
             // http://stackoverflow.com/questions/26854301/control-javafx-tooltip-delay
             // has the hack used in here, which only needs to be applied once
@@ -135,17 +142,16 @@ public class TooltipSupport
         }
     }
 
-
-    /**
-     * Detach tool tip.
-     *
-     * @param node Node that should have the tool tip removed.
+    /** Detach tool tip.
+     *  @param node Node that should have the tool tip removed.
      */
-    public static void detach ( final Node node )
+    public static void detach(final Node node)
     {
-        if ( node != null )
-            Optional.ofNullable(node.getProperties().get("_tooltip"))
-                    .ifPresent(t -> Tooltip.uninstall(node, (Tooltip) t));
+        if (disable_tooltips)
+            return;
+        final Tooltip tooltip = (Tooltip) node.getProperties().get(TOOLTIP_PROP_KEY);
+        if (tooltip != null)
+            Tooltip.uninstall(node, tooltip);
     }
 
     private static void hack_behavior(final Tooltip tooltip)

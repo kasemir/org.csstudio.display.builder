@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -59,6 +59,9 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
 
     private final DirtyFlag dirty_sizes = new DirtyFlag();
     private final DirtyFlag dirty_background = new DirtyFlag();
+    private final UntypedWidgetPropertyListener backgroundChangedListener = this::backgroundChanged;
+    private final UntypedWidgetPropertyListener fileChangedListener = this::fileChanged;
+    private final UntypedWidgetPropertyListener sizesChangedListener = this::sizesChanged;
 
     private volatile double zoom_factor = 1.0;
 
@@ -84,10 +87,6 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
 
     /** Flag to avoid recursion when this code changes the widget size */
     private volatile boolean resizing = false;
-
-    private final UntypedWidgetPropertyListener backgroundChangedListener = this::backgroundChanged;
-    private final UntypedWidgetPropertyListener fileChangedListener = this::fileChanged;
-    private final UntypedWidgetPropertyListener sizesChangedListener = this::sizesChanged;
 
     @Override
     protected boolean isFilteringEditModeClicks()
@@ -142,13 +141,10 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
         model_widget.propWidth().removePropertyListener(sizesChangedListener);
         model_widget.propHeight().removePropertyListener(sizesChangedListener);
         model_widget.propResize().removePropertyListener(sizesChangedListener);
-
         model_widget.propFile().removePropertyListener(fileChangedListener);
         model_widget.propGroupName().removePropertyListener(fileChangedListener);
         model_widget.propMacros().removePropertyListener(fileChangedListener);
-
         model_widget.propTransparent().removePropertyListener(backgroundChangedListener);
-
         super.unregisterListeners();
     }
 
@@ -170,7 +166,7 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
             final int content_width = content_model.propWidth().getValue();
             final int content_height = content_model.propHeight().getValue();
             if (resize == Resize.ResizeContent)
-            {   // Adjust sizes by +-1 so that content is completely visible
+            {
                 final double zoom_x = content_width  > 0 ? (double) widget_width  / content_width : 1.0;
                 final double zoom_y = content_height > 0 ? (double) widget_height / content_height : 1.0;
                 zoom_factor = Math.min(zoom_x, zoom_y);
@@ -179,7 +175,6 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
             {
                 zoom_factor = 1.0;
                 resizing = true;
-                // Adjust sizes by 2 so that content is completely visible
                 if (content_width > 0)
                     model_widget.propWidth().setValue(content_width);
                 if (content_height > 0)
