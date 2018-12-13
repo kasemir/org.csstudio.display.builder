@@ -12,6 +12,7 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 import java.util.Objects;
 
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.DigitalClockWidget;
 import org.csstudio.display.builder.model.widgets.DigitalClockWidget.Design;
@@ -29,7 +30,8 @@ import eu.hansolo.medusa.LcdFont;
 @SuppressWarnings("nls")
 public class DigitalClockRepresentation extends BaseClockRepresentation<DigitalClockWidget> {
 
-    private final DirtyFlag dirtyLook = new DirtyFlag();
+    private final DirtyFlag                     dirtyLook           = new DirtyFlag();
+    private final UntypedWidgetPropertyListener lookChangedListener = this::lookChanged;
 
     @Override
     public void updateChanges ( ) {
@@ -92,9 +94,20 @@ public class DigitalClockRepresentation extends BaseClockRepresentation<DigitalC
 
         super.registerListeners();
 
-        model_widget.propLcdCrystalEnabled().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propLcdDesign().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propLcdFont().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propLcdCrystalEnabled().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propLcdDesign().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propLcdFont().addUntypedPropertyListener(lookChangedListener);
+
+    }
+
+    @Override
+    protected void unregisterListeners ( ) {
+
+        model_widget.propLcdCrystalEnabled().removePropertyListener(lookChangedListener);
+        model_widget.propLcdDesign().removePropertyListener(lookChangedListener);
+        model_widget.propLcdFont().removePropertyListener(lookChangedListener);
+
+        super.unregisterListeners();
 
     }
 

@@ -14,6 +14,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.LinearMeterWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
@@ -31,11 +32,13 @@ import javafx.scene.paint.Color;
  */
 public class LinearMeterRepresentation extends BaseMeterRepresentation<LinearMeterWidget> {
 
-    private final DirtyFlag               dirtyLimits    = new DirtyFlag();
-    private final DirtyFlag               dirtyLook      = new DirtyFlag();
-    private LinearMeterWidget.Orientation orientation    = null;
-    private volatile boolean              updatingAreas  = false;
-    private volatile boolean              zonesHighlight = true;
+    private final DirtyFlag                     dirtyLimits           = new DirtyFlag();
+    private final DirtyFlag                     dirtyLook             = new DirtyFlag();
+    private final UntypedWidgetPropertyListener limitsChangedListener = this::limitsChanged;
+    private final UntypedWidgetPropertyListener lookChangedListener   = this::lookChanged;
+    private LinearMeterWidget.Orientation       orientation           = null;
+    private volatile boolean                    updatingAreas         = false;
+    private volatile boolean                    zonesHighlight        = true;
 
     @Override
     public void updateChanges ( ) {
@@ -156,11 +159,24 @@ public class LinearMeterRepresentation extends BaseMeterRepresentation<LinearMet
 
         super.registerListeners();
 
-        model_widget.propBarColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propFlatBar().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propOrientation().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propBarColor().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propFlatBar().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propOrientation().addUntypedPropertyListener(lookChangedListener);
 
-        model_widget.propHighlightZones().addUntypedPropertyListener(this::limitsChanged);
+        model_widget.propHighlightZones().addUntypedPropertyListener(limitsChangedListener);
+
+    }
+
+    @Override
+    protected void unregisterListeners ( ) {
+
+        model_widget.propBarColor().removePropertyListener(lookChangedListener);
+        model_widget.propFlatBar().removePropertyListener(lookChangedListener);
+        model_widget.propOrientation().removePropertyListener(lookChangedListener);
+
+        model_widget.propHighlightZones().removePropertyListener(limitsChangedListener);
+
+        super.unregisterListeners();
 
     }
 

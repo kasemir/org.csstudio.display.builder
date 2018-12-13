@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.MeterWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
@@ -35,11 +36,13 @@ import javafx.scene.paint.Color;
  */
 public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
 
-    private final DirtyFlag          dirtyLimits    = new DirtyFlag();
-    private final DirtyFlag          dirtyLook      = new DirtyFlag();
-    private MeterWidget.Skin         skin           = null;
-    private MeterWidget.KnobPosition knobPosition   = null;
-    private volatile boolean         zonesHighlight = true;
+    private final DirtyFlag                     dirtyLimits           = new DirtyFlag();
+    private final DirtyFlag                     dirtyLook             = new DirtyFlag();
+    private final UntypedWidgetPropertyListener limitsChangedListener = this::limitsChanged;
+    private final UntypedWidgetPropertyListener lookChangedListener   = this::lookChanged;
+    private MeterWidget.KnobPosition            knobPosition          = null;
+    private MeterWidget.Skin                    skin                  = null;
+    private volatile boolean                    zonesHighlight        = true;
 
     @Override
     public void updateChanges ( ) {
@@ -359,23 +362,48 @@ public class MeterRepresentation extends BaseMeterRepresentation<MeterWidget> {
 
         super.registerListeners();
 
-        model_widget.propAverage().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propAverageColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propAverageSamples().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propKnobColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propKnobPosition().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propMajorTickVisible().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propMediumTickVisible().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propMinorTickVisible().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propNeedleColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propOnlyExtremaVisible().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propScaleDirection().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propSkin().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propTickLabelDecimals().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propTickLabelsVisible().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propTickMarkRingVisible().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propAverage().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propAverageColor().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propAverageSamples().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propKnobColor().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propKnobPosition().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propMajorTickVisible().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propMediumTickVisible().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propMinorTickVisible().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propNeedleColor().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propOnlyExtremaVisible().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propScaleDirection().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propSkin().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propTickLabelDecimals().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propTickLabelsVisible().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propTickMarkRingVisible().addUntypedPropertyListener(lookChangedListener);
 
-        model_widget.propHighlightZones().addUntypedPropertyListener(this::limitsChanged);
+        model_widget.propHighlightZones().addUntypedPropertyListener(limitsChangedListener);
+
+    }
+
+    @Override
+    protected void unregisterListeners ( ) {
+
+        model_widget.propAverage().removePropertyListener(lookChangedListener);
+        model_widget.propAverageColor().removePropertyListener(lookChangedListener);
+        model_widget.propAverageSamples().removePropertyListener(lookChangedListener);
+        model_widget.propKnobColor().removePropertyListener(lookChangedListener);
+        model_widget.propKnobPosition().removePropertyListener(lookChangedListener);
+        model_widget.propMajorTickVisible().removePropertyListener(lookChangedListener);
+        model_widget.propMediumTickVisible().removePropertyListener(lookChangedListener);
+        model_widget.propMinorTickVisible().removePropertyListener(lookChangedListener);
+        model_widget.propNeedleColor().removePropertyListener(lookChangedListener);
+        model_widget.propOnlyExtremaVisible().removePropertyListener(lookChangedListener);
+        model_widget.propScaleDirection().removePropertyListener(lookChangedListener);
+        model_widget.propSkin().removePropertyListener(lookChangedListener);
+        model_widget.propTickLabelDecimals().removePropertyListener(lookChangedListener);
+        model_widget.propTickLabelsVisible().removePropertyListener(lookChangedListener);
+        model_widget.propTickMarkRingVisible().removePropertyListener(lookChangedListener);
+
+        model_widget.propHighlightZones().removePropertyListener(limitsChangedListener);
+
+        super.unregisterListeners();
 
     }
 

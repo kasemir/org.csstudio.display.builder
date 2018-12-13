@@ -15,6 +15,7 @@ import java.util.Objects;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.BaseClockWidget;
 
@@ -30,6 +31,10 @@ public abstract class BaseClockRepresentation<W extends BaseClockWidget> extends
     private final DirtyFlag dirtyBehavior = new DirtyFlag();
     private final DirtyFlag dirtyGeometry = new DirtyFlag();
     private final DirtyFlag dirtyLook     = new DirtyFlag();
+
+    private final UntypedWidgetPropertyListener behaviorChangedListener = this::behaviorChanged;
+    private final UntypedWidgetPropertyListener geometryChangedListener = this::geometryChanged;
+    private final UntypedWidgetPropertyListener lookChangedListener     = this::lookChanged;
 
     @Override
     public void updateChanges ( ) {
@@ -209,20 +214,42 @@ public abstract class BaseClockRepresentation<W extends BaseClockWidget> extends
 
         super.registerListeners();
 
-        model_widget.propVisible().addUntypedPropertyListener(this::geometryChanged);
-        model_widget.propX().addUntypedPropertyListener(this::geometryChanged);
-        model_widget.propY().addUntypedPropertyListener(this::geometryChanged);
-        model_widget.propWidth().addUntypedPropertyListener(this::geometryChanged);
-        model_widget.propHeight().addUntypedPropertyListener(this::geometryChanged);
+        model_widget.propVisible().addUntypedPropertyListener(geometryChangedListener);
+        model_widget.propX().addUntypedPropertyListener(geometryChangedListener);
+        model_widget.propY().addUntypedPropertyListener(geometryChangedListener);
+        model_widget.propWidth().addUntypedPropertyListener(geometryChangedListener);
+        model_widget.propHeight().addUntypedPropertyListener(geometryChangedListener);
 
-        model_widget.propDateVisible().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propLocale().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propSecondVisible().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propShadowsEnabled().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propTitle().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propTitleVisible().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propDateVisible().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propLocale().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propSecondVisible().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propShadowsEnabled().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propTitle().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propTitleVisible().addUntypedPropertyListener(lookChangedListener);
 
-        model_widget.propRunning().addUntypedPropertyListener(this::behaviorChanged);
+        model_widget.propRunning().addUntypedPropertyListener(behaviorChangedListener);
+
+    }
+
+    @Override
+    protected void unregisterListeners ( ) {
+
+        model_widget.propVisible().removePropertyListener(geometryChangedListener);
+        model_widget.propX().removePropertyListener(geometryChangedListener);
+        model_widget.propY().removePropertyListener(geometryChangedListener);
+        model_widget.propWidth().removePropertyListener(geometryChangedListener);
+        model_widget.propHeight().removePropertyListener(geometryChangedListener);
+
+        model_widget.propDateVisible().removePropertyListener(lookChangedListener);
+        model_widget.propLocale().removePropertyListener(lookChangedListener);
+        model_widget.propSecondVisible().removePropertyListener(lookChangedListener);
+        model_widget.propShadowsEnabled().removePropertyListener(lookChangedListener);
+        model_widget.propTitle().removePropertyListener(lookChangedListener);
+        model_widget.propTitleVisible().removePropertyListener(lookChangedListener);
+
+        model_widget.propRunning().removePropertyListener(behaviorChangedListener);
+
+        super.unregisterListeners();
 
     }
 

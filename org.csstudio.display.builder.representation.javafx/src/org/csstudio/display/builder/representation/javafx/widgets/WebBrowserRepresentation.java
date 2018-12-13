@@ -11,7 +11,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.widgets.WebBrowserWidget;
 import org.csstudio.display.builder.util.ResourceUtil;
@@ -50,6 +52,9 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
     private volatile double height;
 
     private static final String[] downloads = new String[] { "zip", "csv", "cif", "tgz" };
+
+    private final UntypedWidgetPropertyListener sizeChangedListener = this::sizeChanged;
+    private final WidgetPropertyListener<String> urlChangedListener = this::urlChanged;
 
     class Browser extends Region
     {
@@ -314,12 +319,23 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.propWidth().addUntypedPropertyListener(this::sizeChanged);
-        model_widget.propHeight().addUntypedPropertyListener(this::sizeChanged);
+        model_widget.propWidth().addUntypedPropertyListener(sizeChangedListener);
+        model_widget.propHeight().addUntypedPropertyListener(sizeChangedListener);
         if (!toolkit.isEditMode())
-            model_widget.propWidgetURL().addPropertyListener(this::urlChanged);
+            model_widget.propWidgetURL().addPropertyListener(urlChangedListener);
         //the showToolbar property cannot be changed at runtime
    }
+
+    @Override
+    protected void unregisterListeners()
+    {
+        model_widget.propWidth().removePropertyListener(sizeChangedListener);
+        model_widget.propHeight().removePropertyListener(sizeChangedListener);
+        if (!toolkit.isEditMode())
+            model_widget.propWidgetURL().removePropertyListener(urlChangedListener);
+        //the showToolbar property cannot be changed at runtime
+        super.unregisterListeners();
+    }
 
     private void sizeChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
