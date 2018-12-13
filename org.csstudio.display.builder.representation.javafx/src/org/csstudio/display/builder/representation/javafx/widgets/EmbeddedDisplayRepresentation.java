@@ -107,7 +107,8 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
         inner.getTransforms().add(zoom = new Scale());
 
         scroll = new ScrollPane(inner);
-        scroll.getStyleClass().add("embedded_display");
+        //  Removing 1px border around the ScrollPane's content. See https://stackoverflow.com/a/29376445
+        scroll.getStyleClass().add("edge-to-edge");
         // Panning tends to 'jerk' the content when clicked
         // scroll.setPannable(true);
         return scroll;
@@ -170,8 +171,8 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
             final int content_height = content_model.propHeight().getValue();
             if (resize == Resize.ResizeContent)
             {   // Adjust sizes by +-1 so that content is completely visible
-                final double zoom_x = content_width  > 0 ? (double)(widget_width-1)  / (content_width+1) : 1.0;
-                final double zoom_y = content_height > 0 ? (double)(widget_height-1) / (content_height+1) : 1.0;
+                final double zoom_x = content_width  > 0 ? (double) widget_width  / content_width : 1.0;
+                final double zoom_y = content_height > 0 ? (double) widget_height / content_height : 1.0;
                 zoom_factor = Math.min(zoom_x, zoom_y);
             }
             else if (resize == Resize.SizeToContent)
@@ -180,9 +181,9 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
                 resizing = true;
                 // Adjust sizes by 2 so that content is completely visible
                 if (content_width > 0)
-                    model_widget.propWidth().setValue(content_width+2);
+                    model_widget.propWidth().setValue(content_width);
                 if (content_height > 0)
-                    model_widget.propHeight().setValue(content_height+2);
+                    model_widget.propHeight().setValue(content_height);
                 resizing = false;
             }
         }
