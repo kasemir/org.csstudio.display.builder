@@ -102,6 +102,7 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
         inner.getTransforms().add(zoom = new Scale());
 
         scroll = new ScrollPane(inner);
+        //  Removing 1px border around the ScrollPane's content. See https://stackoverflow.com/a/29376445
         scroll.getStyleClass().add("edge-to-edge");
         // Panning tends to 'jerk' the content when clicked
         // scroll.setPannable(true);
