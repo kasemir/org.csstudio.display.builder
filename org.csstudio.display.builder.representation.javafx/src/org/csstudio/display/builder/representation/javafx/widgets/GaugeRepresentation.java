@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
@@ -30,8 +31,9 @@ import javafx.scene.paint.Color;
  */
 public class GaugeRepresentation extends BaseGaugeRepresentation<GaugeWidget> {
 
-    private final DirtyFlag  dirtyLook = new DirtyFlag();
-    private GaugeWidget.Skin skin      = null;
+    private final DirtyFlag                     dirtyLook           = new DirtyFlag();
+    private final UntypedWidgetPropertyListener lookChangedListener = this::lookChanged;
+    private GaugeWidget.Skin                    skin                = null;
 
     @Override
     public void updateChanges ( ) {
@@ -123,10 +125,22 @@ public class GaugeRepresentation extends BaseGaugeRepresentation<GaugeWidget> {
 
         super.registerListeners();
 
-        model_widget.propSkin().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propBarBackgroundColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propBarColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propStartFromZero().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propSkin().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propBarBackgroundColor().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propBarColor().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propStartFromZero().addUntypedPropertyListener(lookChangedListener);
+
+    }
+
+    @Override
+    protected void unregisterListeners ( ) {
+
+        model_widget.propSkin().removePropertyListener(lookChangedListener);
+        model_widget.propBarBackgroundColor().removePropertyListener(lookChangedListener);
+        model_widget.propBarColor().removePropertyListener(lookChangedListener);
+        model_widget.propStartFromZero().removePropertyListener(lookChangedListener);
+
+        super.unregisterListeners();
 
     }
 

@@ -18,7 +18,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.util.FormatOptionHandler;
@@ -60,6 +62,15 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
     private volatile double     min           = 0.0;
     private final AtomicBoolean updatingValue = new AtomicBoolean(false);
     private volatile boolean    firstUsage    = true;
+
+    private final UntypedWidgetPropertyListener contentChangedListener  = this::contentChanged;
+    private final UntypedWidgetPropertyListener geometryChangedListener = this::geometryChanged;
+    private final UntypedWidgetPropertyListener limitsChangedListener   = this::limitsChanged;
+    private final UntypedWidgetPropertyListener lookChangedListener     = this::lookChanged;
+    private final UntypedWidgetPropertyListener styleChangedListener    = this::styleChanged;
+    private final UntypedWidgetPropertyListener synchChangedListener    = this::synchChanged;
+    private final UntypedWidgetPropertyListener unitChangedListener     = this::unitChanged;
+    private final WidgetPropertyListener<VType> valueChangedListener    = this::valueChanged;
 
     @SuppressWarnings( "unchecked" )
     @Override
@@ -292,53 +303,106 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
 
         super.registerListeners();
 
-        model_widget.propPrecision().addUntypedPropertyListener(this::contentChanged);
-        model_widget.propPVName().addPropertyListener(this::contentChanged);
+        model_widget.propPrecision().addUntypedPropertyListener(contentChangedListener);
+        model_widget.propPVName().addUntypedPropertyListener(contentChangedListener);
 
-        model_widget.propVisible().addUntypedPropertyListener(this::geometryChanged);
-        model_widget.propX().addUntypedPropertyListener(this::geometryChanged);
-        model_widget.propY().addUntypedPropertyListener(this::geometryChanged);
-        model_widget.propWidth().addUntypedPropertyListener(this::geometryChanged);
-        model_widget.propHeight().addUntypedPropertyListener(this::geometryChanged);
+        model_widget.propVisible().addUntypedPropertyListener(geometryChangedListener);
+        model_widget.propX().addUntypedPropertyListener(geometryChangedListener);
+        model_widget.propY().addUntypedPropertyListener(geometryChangedListener);
+        model_widget.propWidth().addUntypedPropertyListener(geometryChangedListener);
+        model_widget.propHeight().addUntypedPropertyListener(geometryChangedListener);
 
-        model_widget.propBackgroundColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propExtremaVisible().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propThumbColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propTagColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propTagVisible().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propTextColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propTransparent().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propValueColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propTargetVisible().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propZeroDetentEnabled().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propBackgroundColor().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propColor().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propExtremaVisible().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propThumbColor().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propTagColor().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propTagVisible().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propTextColor().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propTransparent().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propValueColor().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propTargetVisible().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propZeroDetentEnabled().addUntypedPropertyListener(lookChangedListener);
 
-        model_widget.propLevelHiHi().addUntypedPropertyListener(this::limitsChanged);
-        model_widget.propLevelHigh().addUntypedPropertyListener(this::limitsChanged);
-        model_widget.propLevelLoLo().addUntypedPropertyListener(this::limitsChanged);
-        model_widget.propLevelLow().addUntypedPropertyListener(this::limitsChanged);
-        model_widget.propLimitsFromPV().addUntypedPropertyListener(this::limitsChanged);
-        model_widget.propShowHiHi().addUntypedPropertyListener(this::limitsChanged);
-        model_widget.propShowHigh().addUntypedPropertyListener(this::limitsChanged);
-        model_widget.propShowLoLo().addUntypedPropertyListener(this::limitsChanged);
-        model_widget.propShowLow().addUntypedPropertyListener(this::limitsChanged);
-        model_widget.propShowOK().addUntypedPropertyListener(this::limitsChanged);
-        model_widget.propMaximum().addUntypedPropertyListener(this::limitsChanged);
-        model_widget.propMinimum().addUntypedPropertyListener(this::limitsChanged);
+        model_widget.propLevelHiHi().addUntypedPropertyListener(limitsChangedListener);
+        model_widget.propLevelHigh().addUntypedPropertyListener(limitsChangedListener);
+        model_widget.propLevelLoLo().addUntypedPropertyListener(limitsChangedListener);
+        model_widget.propLevelLow().addUntypedPropertyListener(limitsChangedListener);
+        model_widget.propLimitsFromPV().addUntypedPropertyListener(limitsChangedListener);
+        model_widget.propShowHiHi().addUntypedPropertyListener(limitsChangedListener);
+        model_widget.propShowHigh().addUntypedPropertyListener(limitsChangedListener);
+        model_widget.propShowLoLo().addUntypedPropertyListener(limitsChangedListener);
+        model_widget.propShowLow().addUntypedPropertyListener(limitsChangedListener);
+        model_widget.propShowOK().addUntypedPropertyListener(limitsChangedListener);
+        model_widget.propMaximum().addUntypedPropertyListener(limitsChangedListener);
+        model_widget.propMinimum().addUntypedPropertyListener(limitsChangedListener);
 
-        model_widget.propUnit().addUntypedPropertyListener(this::unitChanged);
-        model_widget.propUnitFromPV().addUntypedPropertyListener(this::unitChanged);
+        model_widget.propUnit().addUntypedPropertyListener(unitChangedListener);
+        model_widget.propUnitFromPV().addUntypedPropertyListener(unitChangedListener);
 
-        model_widget.propDragDisabled().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propEnabled().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propDragDisabled().addUntypedPropertyListener(styleChangedListener);
+        model_widget.propEnabled().addUntypedPropertyListener(styleChangedListener);
 
         if ( toolkit.isEditMode() ) {
             dirtyValue.checkAndClear();
         } else {
-            model_widget.runtimePropValue().addPropertyListener(this::valueChanged);
-            model_widget.propReadbackPVValue().addPropertyListener(this::valueChanged);
-            model_widget.propSyncedKnob().addUntypedPropertyListener(this::synchChanged);
+            model_widget.runtimePropValue().addPropertyListener(valueChangedListener);
+            model_widget.propReadbackPVValue().addPropertyListener(valueChangedListener);
+            model_widget.propSyncedKnob().addUntypedPropertyListener(synchChangedListener);
         }
+
+    }
+
+    @Override
+    protected void unregisterListeners ( ) {
+
+        model_widget.propPrecision().removePropertyListener(contentChangedListener);
+        model_widget.propPVName().removePropertyListener(contentChangedListener);
+
+        model_widget.propVisible().removePropertyListener(geometryChangedListener);
+        model_widget.propX().removePropertyListener(geometryChangedListener);
+        model_widget.propY().removePropertyListener(geometryChangedListener);
+        model_widget.propWidth().removePropertyListener(geometryChangedListener);
+        model_widget.propHeight().removePropertyListener(geometryChangedListener);
+
+        model_widget.propBackgroundColor().removePropertyListener(lookChangedListener);
+        model_widget.propColor().removePropertyListener(lookChangedListener);
+        model_widget.propExtremaVisible().removePropertyListener(lookChangedListener);
+        model_widget.propThumbColor().removePropertyListener(lookChangedListener);
+        model_widget.propTagColor().removePropertyListener(lookChangedListener);
+        model_widget.propTagVisible().removePropertyListener(lookChangedListener);
+        model_widget.propTextColor().removePropertyListener(lookChangedListener);
+        model_widget.propTransparent().removePropertyListener(lookChangedListener);
+        model_widget.propValueColor().removePropertyListener(lookChangedListener);
+        model_widget.propTargetVisible().removePropertyListener(lookChangedListener);
+        model_widget.propZeroDetentEnabled().removePropertyListener(lookChangedListener);
+
+        model_widget.propLevelHiHi().removePropertyListener(limitsChangedListener);
+        model_widget.propLevelHigh().removePropertyListener(limitsChangedListener);
+        model_widget.propLevelLoLo().removePropertyListener(limitsChangedListener);
+        model_widget.propLevelLow().removePropertyListener(limitsChangedListener);
+        model_widget.propLimitsFromPV().removePropertyListener(limitsChangedListener);
+        model_widget.propShowHiHi().removePropertyListener(limitsChangedListener);
+        model_widget.propShowHigh().removePropertyListener(limitsChangedListener);
+        model_widget.propShowLoLo().removePropertyListener(limitsChangedListener);
+        model_widget.propShowLow().removePropertyListener(limitsChangedListener);
+        model_widget.propShowOK().removePropertyListener(limitsChangedListener);
+        model_widget.propMaximum().removePropertyListener(limitsChangedListener);
+        model_widget.propMinimum().removePropertyListener(limitsChangedListener);
+
+        model_widget.propUnit().removePropertyListener(unitChangedListener);
+        model_widget.propUnitFromPV().removePropertyListener(unitChangedListener);
+
+        model_widget.propDragDisabled().removePropertyListener(styleChangedListener);
+        model_widget.propEnabled().removePropertyListener(styleChangedListener);
+
+        if ( !toolkit.isEditMode() ) {
+            model_widget.runtimePropValue().removePropertyListener(valueChangedListener);
+            model_widget.propReadbackPVValue().removePropertyListener(valueChangedListener);
+            model_widget.propSyncedKnob().removePropertyListener(synchChangedListener);
+        }
+
+        super.unregisterListeners();
 
     }
 

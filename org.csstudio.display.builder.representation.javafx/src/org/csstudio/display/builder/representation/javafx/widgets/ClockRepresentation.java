@@ -12,6 +12,7 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 import java.util.Objects;
 
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.ClockWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
@@ -31,6 +32,9 @@ public class ClockRepresentation extends BaseClockRepresentation<ClockWidget> {
 
     private final DirtyFlag dirtyBehavior = new DirtyFlag();
     private final DirtyFlag dirtyLook     = new DirtyFlag();
+
+    private final UntypedWidgetPropertyListener behaviorChangedListener = this::behaviorChanged;
+    private final UntypedWidgetPropertyListener lookChangedListener     = this::lookChanged;
 
     @Override
     public void updateChanges ( ) {
@@ -316,29 +320,60 @@ public class ClockRepresentation extends BaseClockRepresentation<ClockWidget> {
 
         super.registerListeners();
 
-        model_widget.propBackgroundColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propDateColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propHourColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propHourTickMarkColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propHourTickMarkVisible().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propKnobColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propMinuteColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propMinuteTickMarkColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propMinuteTickMarkVisible().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propRingColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propRingWidth().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propSecondColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propSkin().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propTextColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propTextVisible().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propTickLabelColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propTickLabelsVisible().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propTitleColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propTransparent().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propBackgroundColor().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propDateColor().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propHourColor().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propHourTickMarkColor().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propHourTickMarkVisible().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propKnobColor().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propMinuteColor().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propMinuteTickMarkColor().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propMinuteTickMarkVisible().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propRingColor().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propRingWidth().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propSecondColor().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propSkin().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propTextColor().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propTextVisible().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propTickLabelColor().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propTickLabelsVisible().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propTitleColor().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propTransparent().addUntypedPropertyListener(lookChangedListener);
 
-        model_widget.propDiscreteHours().addUntypedPropertyListener(this::behaviorChanged);
-        model_widget.propDiscreteMinutes().addUntypedPropertyListener(this::behaviorChanged);
-        model_widget.propDiscreteSeconds().addUntypedPropertyListener(this::behaviorChanged);
+        model_widget.propDiscreteHours().addUntypedPropertyListener(behaviorChangedListener);
+        model_widget.propDiscreteMinutes().addUntypedPropertyListener(behaviorChangedListener);
+        model_widget.propDiscreteSeconds().addUntypedPropertyListener(behaviorChangedListener);
+
+    }
+
+    @Override
+    protected void unregisterListeners ( ) {
+
+        model_widget.propBackgroundColor().removePropertyListener(lookChangedListener);
+        model_widget.propDateColor().removePropertyListener(lookChangedListener);
+        model_widget.propHourColor().removePropertyListener(lookChangedListener);
+        model_widget.propHourTickMarkColor().removePropertyListener(lookChangedListener);
+        model_widget.propHourTickMarkVisible().removePropertyListener(lookChangedListener);
+        model_widget.propKnobColor().removePropertyListener(lookChangedListener);
+        model_widget.propMinuteColor().removePropertyListener(lookChangedListener);
+        model_widget.propMinuteTickMarkColor().removePropertyListener(lookChangedListener);
+        model_widget.propMinuteTickMarkVisible().removePropertyListener(lookChangedListener);
+        model_widget.propRingColor().removePropertyListener(lookChangedListener);
+        model_widget.propRingWidth().removePropertyListener(lookChangedListener);
+        model_widget.propSecondColor().removePropertyListener(lookChangedListener);
+        model_widget.propSkin().removePropertyListener(lookChangedListener);
+        model_widget.propTextColor().removePropertyListener(lookChangedListener);
+        model_widget.propTextVisible().removePropertyListener(lookChangedListener);
+        model_widget.propTickLabelColor().removePropertyListener(lookChangedListener);
+        model_widget.propTickLabelsVisible().removePropertyListener(lookChangedListener);
+        model_widget.propTitleColor().removePropertyListener(lookChangedListener);
+        model_widget.propTransparent().removePropertyListener(lookChangedListener);
+
+        model_widget.propDiscreteHours().removePropertyListener(behaviorChangedListener);
+        model_widget.propDiscreteMinutes().removePropertyListener(behaviorChangedListener);
+        model_widget.propDiscreteSeconds().removePropertyListener(behaviorChangedListener);
+
+        super.unregisterListeners();
 
     }
 
