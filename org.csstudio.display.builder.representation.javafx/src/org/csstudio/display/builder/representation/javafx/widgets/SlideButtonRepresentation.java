@@ -49,6 +49,11 @@ public class SlideButtonRepresentation extends RegionBaseRepresentation<HBox, Sl
     private final DirtyFlag dirty_size    = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
     private final DirtyFlag dirty_style   = new DirtyFlag();
+    private final UntypedWidgetPropertyListener   sizeChangedListener  = this::sizeChanged;
+    private final UntypedWidgetPropertyListener   styleChangedListener = this::styleChanged;
+    private final WidgetPropertyListener<Integer> bitChangedListener   = this::bitChanged;
+    private final WidgetPropertyListener<String>  labelChangedListener = this::labelChanged;
+    private final WidgetPropertyListener<VType>   valueChangedListener = this::valueChanged;
 
     protected volatile int     bit          = 0;
     protected volatile boolean enabled      = true;
@@ -64,11 +69,6 @@ public class SlideButtonRepresentation extends RegionBaseRepresentation<HBox, Sl
 
     private volatile AtomicBoolean updating = new AtomicBoolean();
 
-    private final UntypedWidgetPropertyListener   sizeChangedListener  = this::sizeChanged;
-    private final UntypedWidgetPropertyListener   styleChangedListener = this::styleChanged;
-    private final WidgetPropertyListener<Integer> bitChangedListener   = this::bitChanged;
-    private final WidgetPropertyListener<String>  labelChangedListener = this::labelChanged;
-    private final WidgetPropertyListener<VType>   valueChangedListener = this::valueChanged;
 
     @Override
     public HBox createJFXNode ( ) throws Exception {

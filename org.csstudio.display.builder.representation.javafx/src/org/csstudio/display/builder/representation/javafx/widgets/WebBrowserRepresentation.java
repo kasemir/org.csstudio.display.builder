@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -47,14 +47,14 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
 {
     private final DirtyFlag dirty_size = new DirtyFlag();
     private final DirtyFlag dirty_url = new DirtyFlag();
+    private final UntypedWidgetPropertyListener sizeChangedListener = this::sizeChanged;
+    private final WidgetPropertyListener<String> urlChangedListener = this::urlChanged;
 
     private volatile double width;
     private volatile double height;
 
     private static final String[] downloads = new String[] { "zip", "csv", "cif", "tgz" };
 
-    private final UntypedWidgetPropertyListener sizeChangedListener = this::sizeChanged;
-    private final WidgetPropertyListener<String> urlChangedListener = this::urlChanged;
 
     class Browser extends Region
     {
@@ -333,7 +333,6 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
         model_widget.propHeight().removePropertyListener(sizeChangedListener);
         if (!toolkit.isEditMode())
             model_widget.propWidgetURL().removePropertyListener(urlChangedListener);
-        //the showToolbar property cannot be changed at runtime
         super.unregisterListeners();
     }
 

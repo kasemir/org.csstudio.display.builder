@@ -46,14 +46,13 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
     private final DirtyFlag dirty_size = new DirtyFlag();
     private final DirtyFlag dirty_style = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
-    private volatile String value_text = "<?>";
-
-    private static WidgetColor active_color = WidgetColorService.getColor(NamedWidgetColors.ACTIVE_TEXT);
-
     private final UntypedWidgetPropertyListener contentChangedListener = this::contentChanged;
     private final UntypedWidgetPropertyListener sizeChangedListener = this::sizeChanged;
     private final UntypedWidgetPropertyListener styleChangedListener = this::styleChanged;
     private final WidgetPropertyListener<String> pvnameChangedListener = this::pvnameChanged;
+    private volatile String value_text = "<?>";
+
+    private static WidgetColor active_color = WidgetColorService.getColor(NamedWidgetColors.ACTIVE_TEXT);
 
     @Override
     public TextInputControl createJFXNode() throws Exception
@@ -244,20 +243,16 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
     {
         model_widget.propWidth().removePropertyListener(sizeChangedListener);
         model_widget.propHeight().removePropertyListener(sizeChangedListener);
-
         model_widget.propForegroundColor().removePropertyListener(styleChangedListener);
         model_widget.propBackgroundColor().removePropertyListener(styleChangedListener);
         model_widget.propFont().removePropertyListener(styleChangedListener);
         model_widget.propEnabled().removePropertyListener(styleChangedListener);
         model_widget.runtimePropPVWritable().removePropertyListener(styleChangedListener);
-
         model_widget.propFormat().removePropertyListener(contentChangedListener);
         model_widget.propPrecision().removePropertyListener(contentChangedListener);
         model_widget.propShowUnits().removePropertyListener(contentChangedListener);
         model_widget.runtimePropValue().removePropertyListener(contentChangedListener);
-
         model_widget.propPVName().removePropertyListener(pvnameChangedListener);
-
         super.unregisterListeners();
     }
 

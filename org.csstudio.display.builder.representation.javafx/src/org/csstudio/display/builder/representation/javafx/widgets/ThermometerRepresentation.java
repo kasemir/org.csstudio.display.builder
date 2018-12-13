@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -46,12 +46,12 @@ public class ThermometerRepresentation extends RegionBaseRepresentation<Region, 
 {
     private final DirtyFlag dirty_look = new DirtyFlag();
     private final DirtyFlag dirty_value = new DirtyFlag();
+    private final UntypedWidgetPropertyListener lookChangedListener = this::lookChanged;
+    private final UntypedWidgetPropertyListener valueChangedListener = this::valueChanged;
     private volatile double max = 0.0;
     private volatile double min = 0.0;
     private volatile double val = 0.0;
 
-    private final UntypedWidgetPropertyListener lookChangedListener = this::lookChanged;
-    private final UntypedWidgetPropertyListener valueChangedListener = this::valueChanged;
 
     @Override
     public Region createJFXNode() throws Exception

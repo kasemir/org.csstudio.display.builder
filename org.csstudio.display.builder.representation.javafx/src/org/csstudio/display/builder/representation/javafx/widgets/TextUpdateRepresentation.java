@@ -43,12 +43,11 @@ public class TextUpdateRepresentation extends RegionBaseRepresentation<Control, 
 
     private final DirtyFlag dirty_style = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
-    private volatile String value_text = "<?>";
-    private volatile Pos pos;
-
     private final UntypedWidgetPropertyListener contentChangedListener = this::contentChanged;
     private final UntypedWidgetPropertyListener styleChangedListener = this::styleChanged;
     private final WidgetPropertyListener<String> pvnameChangedListener = this::pvnameChanged;
+    private volatile String value_text = "<?>";
+    private volatile Pos pos;
 
     /** Was there ever any transformation applied to the jfx_node?
      *
@@ -120,9 +119,7 @@ public class TextUpdateRepresentation extends RegionBaseRepresentation<Control, 
         model_widget.propPrecision().removePropertyListener(contentChangedListener);
         model_widget.propShowUnits().removePropertyListener(contentChangedListener);
         model_widget.runtimePropValue().removePropertyListener(contentChangedListener);
-
         model_widget.propPVName().removePropertyListener(pvnameChangedListener);
-
         super.unregisterListeners();
     }
 

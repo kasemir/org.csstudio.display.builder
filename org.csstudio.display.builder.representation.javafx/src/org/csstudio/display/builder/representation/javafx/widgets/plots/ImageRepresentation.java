@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -61,6 +61,14 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
 
     /** Actual plotting delegated to {@link RTImagePlot} */
     private RTImagePlot image_plot;
+
+    private final UntypedWidgetPropertyListener coloringChangedListener = this::coloringChanged;
+    private final UntypedWidgetPropertyListener configChangedListener = this::configChanged;
+    private final UntypedWidgetPropertyListener contentChangedListener = this::contentChanged;
+    private final UntypedWidgetPropertyListener positionChangedListener = this::positionChanged;
+    private final UntypedWidgetPropertyListener rangeChangedListener = this::rangeChanged;
+    private final WidgetPropertyListener<Double[]> crosshairChangedListener = this::crosshairChanged;
+    private final WidgetPropertyListener<Instant> runtimeConfigChangedListener = (p, o, n) -> image_plot.showConfigurationDialog();
 
     private volatile boolean changing_roi = false,
                              changing_range = false,
@@ -145,14 +153,6 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
             changing_range = false;
         }
     };
-
-    private final UntypedWidgetPropertyListener coloringChangedListener = this::coloringChanged;
-    private final UntypedWidgetPropertyListener configChangedListener = this::configChanged;
-    private final UntypedWidgetPropertyListener contentChangedListener = this::contentChanged;
-    private final UntypedWidgetPropertyListener positionChangedListener = this::positionChanged;
-    private final UntypedWidgetPropertyListener rangeChangedListener = this::rangeChanged;
-    private final WidgetPropertyListener<Double[]> crosshairChangedListener = this::crosshairChanged;
-    private final WidgetPropertyListener<Instant> runtimeConfigChangedListener = (p, o, n) -> image_plot.showConfigurationDialog();
 
     @Override
     public Pane createJFXNode() throws Exception
@@ -290,22 +290,11 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         contentChanged(null, null, null);
     }
 
-    private void addAxisListener(final AxisWidgetProperty axis)
-    {
-        axis.visible().addUntypedPropertyListener(configChangedListener);
-        axis.title().addUntypedPropertyListener(configChangedListener);
-        axis.minimum().addUntypedPropertyListener(configChangedListener);
-        axis.maximum().addUntypedPropertyListener(configChangedListener);
-        axis.titleFont().addUntypedPropertyListener(configChangedListener);
-        axis.scaleFont().addUntypedPropertyListener(configChangedListener);
-    }
-
     @Override
     protected void unregisterListeners()
     {
         model_widget.propWidth().removePropertyListener(positionChangedListener);
         model_widget.propHeight().removePropertyListener(positionChangedListener);
-
         model_widget.propToolbar().removePropertyListener(configChangedListener);
         model_widget.propBackground().removePropertyListener(configChangedListener);
         model_widget.propForegroundColor().removePropertyListener(configChangedListener);
@@ -315,23 +304,28 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         model_widget.propCursorCrosshair().removePropertyListener(configChangedListener);
         removeAxisListener(model_widget.propXAxis());
         removeAxisListener(model_widget.propYAxis());
-
         model_widget.propDataInterpolation().removePropertyListener(coloringChangedListener);
         model_widget.propDataColormap().removePropertyListener(coloringChangedListener);
         model_widget.propDataAutoscale().removePropertyListener(rangeChangedListener);
         model_widget.propDataLogscale().removePropertyListener(rangeChangedListener);
         model_widget.propDataMinimum().removePropertyListener(rangeChangedListener);
         model_widget.propDataMaximum().removePropertyListener(rangeChangedListener);
-
         model_widget.propDataWidth().removePropertyListener(contentChangedListener);
         model_widget.propDataHeight().removePropertyListener(contentChangedListener);
         model_widget.runtimePropValue().removePropertyListener(contentChangedListener);
-
         model_widget.runtimePropCrosshair().removePropertyListener(crosshairChangedListener);
-
         model_widget.runtimePropConfigure().removePropertyListener(runtimeConfigChangedListener);
-
         super.unregisterListeners();
+    }
+
+    private void addAxisListener(final AxisWidgetProperty axis)
+    {
+        axis.visible().addUntypedPropertyListener(configChangedListener);
+        axis.title().addUntypedPropertyListener(configChangedListener);
+        axis.minimum().addUntypedPropertyListener(configChangedListener);
+        axis.maximum().addUntypedPropertyListener(configChangedListener);
+        axis.titleFont().addUntypedPropertyListener(configChangedListener);
+        axis.scaleFont().addUntypedPropertyListener(configChangedListener);
     }
 
     private void removeAxisListener(final AxisWidgetProperty axis)

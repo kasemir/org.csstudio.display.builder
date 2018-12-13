@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -47,6 +47,12 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
     /** Selection changed programmatically */
     private final DirtyFlag dirty_set_selection = new DirtyFlag(false);
 
+    private final UntypedWidgetPropertyListener styleListener = this::styleChanged;
+    private final WidgetPropertyListener<List<Integer>> selectionListener = this::setSelection;
+    private final WidgetPropertyListener<List<ColumnProperty>> columnsListener = this::columnsChanged;
+    private final WidgetPropertyListener<List<List<WidgetColor>>> colorsListener = this::cellColorsChanged;
+    private final WidgetPropertyListener<Object> valueListener = this::valueChanged;
+
     /** Most recent column headers */
     private volatile List<String> headers = Collections.emptyList();
 
@@ -76,11 +82,6 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
         dirty_columns.mark();
         toolkit.scheduleUpdate(this);
     };
-    private final UntypedWidgetPropertyListener stypeChangedListener = this::styleChanged;
-    private final WidgetPropertyListener<List<Integer>> setSelectionChangedListener = this::setSelection;
-    private final WidgetPropertyListener<List<ColumnProperty>> columnsChangedListener = this::columnsChanged;
-    private final WidgetPropertyListener<List<List<WidgetColor>>> cellColorsChangedListener = this::cellColorsChanged;
-    private final WidgetPropertyListener<Object> valueChangedListener = this::valueChanged;
 
     @Override
     public StringTable createJFXNode() throws Exception
@@ -148,43 +149,39 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
             });
         }
 
-        model_widget.propWidth().addUntypedPropertyListener(stypeChangedListener);
-        model_widget.propHeight().addUntypedPropertyListener(stypeChangedListener);
-        model_widget.propBackgroundColor().addUntypedPropertyListener(stypeChangedListener);
-        model_widget.propForegroundColor().addUntypedPropertyListener(stypeChangedListener);
-        model_widget.propFont().addUntypedPropertyListener(stypeChangedListener);
-        model_widget.propToolbar().addUntypedPropertyListener(stypeChangedListener);
-        model_widget.propRowSelectionMode().addUntypedPropertyListener(stypeChangedListener);
-        model_widget.runtimePropSetSelection().addPropertyListener(setSelectionChangedListener);
+        model_widget.propWidth().addUntypedPropertyListener(styleListener);
+        model_widget.propHeight().addUntypedPropertyListener(styleListener);
+        model_widget.propBackgroundColor().addUntypedPropertyListener(styleListener);
+        model_widget.propForegroundColor().addUntypedPropertyListener(styleListener);
+        model_widget.propFont().addUntypedPropertyListener(styleListener);
+        model_widget.propToolbar().addUntypedPropertyListener(styleListener);
+        model_widget.propRowSelectionMode().addUntypedPropertyListener(styleListener);
+        model_widget.runtimePropSetSelection().addPropertyListener(selectionListener);
 
         columnsChanged(model_widget.propColumns(), null, model_widget.propColumns().getValue());
-        model_widget.propColumns().addPropertyListener(columnsChangedListener);
+        model_widget.propColumns().addPropertyListener(columnsListener);
 
-        model_widget.runtimeValue().addPropertyListener(valueChangedListener);
-        model_widget.runtimeCellColors().addPropertyListener(cellColorsChangedListener);
+        model_widget.runtimeValue().addPropertyListener(valueListener);
+        model_widget.runtimeCellColors().addPropertyListener(colorsListener);
     }
 
     @Override
     protected void unregisterListeners()
     {
+        model_widget.propWidth().removePropertyListener(styleListener);
+        model_widget.propHeight().removePropertyListener(styleListener);
+        model_widget.propBackgroundColor().removePropertyListener(styleListener);
+        model_widget.propForegroundColor().removePropertyListener(styleListener);
+        model_widget.propFont().removePropertyListener(styleListener);
+        model_widget.propToolbar().removePropertyListener(styleListener);
+        model_widget.propRowSelectionMode().removePropertyListener(styleListener);
+        model_widget.runtimePropSetSelection().removePropertyListener(selectionListener);
 
-        if (! toolkit.isEditMode())
-            jfx_node.setListener(null);
-
-        model_widget.propWidth().removePropertyListener(stypeChangedListener);
-        model_widget.propHeight().removePropertyListener(stypeChangedListener);
-        model_widget.propBackgroundColor().removePropertyListener(stypeChangedListener);
-        model_widget.propForegroundColor().removePropertyListener(stypeChangedListener);
-        model_widget.propFont().removePropertyListener(stypeChangedListener);
-        model_widget.propToolbar().removePropertyListener(stypeChangedListener);
-        model_widget.propRowSelectionMode().removePropertyListener(stypeChangedListener);
-        model_widget.runtimePropSetSelection().removePropertyListener(setSelectionChangedListener);
-
+        model_widget.propColumns().removePropertyListener(columnsListener);
         columnsChanged(model_widget.propColumns(), model_widget.propColumns().getValue(), null);
-        model_widget.propColumns().removePropertyListener(columnsChangedListener);
 
-        model_widget.runtimeValue().removePropertyListener(valueChangedListener);
-        model_widget.runtimeCellColors().removePropertyListener(cellColorsChangedListener);
+        model_widget.runtimeValue().removePropertyListener(valueListener);
+        model_widget.runtimeCellColors().removePropertyListener(colorsListener);
 
         super.unregisterListeners();
     }

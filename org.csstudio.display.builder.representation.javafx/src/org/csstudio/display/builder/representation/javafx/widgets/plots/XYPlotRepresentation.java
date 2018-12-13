@@ -55,9 +55,16 @@ import javafx.scene.paint.Color;
 @SuppressWarnings("nls")
 public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotWidget>
 {
+    /** Plot */
+    private RTValuePlot plot;
+
     private final DirtyFlag dirty_position = new DirtyFlag();
     private final DirtyFlag dirty_range = new DirtyFlag();
     private final DirtyFlag dirty_config = new DirtyFlag();
+    private final WidgetPropertyListener<List<AxisWidgetProperty>> yaxes_listener = this::yAxesChanged;
+    private final UntypedWidgetPropertyListener position_listener = this::positionChanged;
+    private final WidgetPropertyListener<List<TraceWidgetProperty>> traces_listener = this::tracesChanged;
+    private final WidgetPropertyListener<Instant> configure_listener = (p, o, n) -> plot.showConfigurationDialog();
 
     /** Prevent event loop when this code changes the range,
      *  and then receives the range-change-event
@@ -77,9 +84,6 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         dirty_config.mark();
         toolkit.scheduleUpdate(this);
     };
-
-    /** Plot */
-    private RTValuePlot plot;
 
     private volatile boolean changing_marker = false;
 
@@ -344,11 +348,6 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
 
     private final List<TraceHandler> trace_handlers = new CopyOnWriteArrayList<>();
 
-    private final UntypedWidgetPropertyListener position_listener = this::positionChanged;
-    private final WidgetPropertyListener<Instant> runtimeConfChangedListener = (p, o, n) -> plot.showConfigurationDialog();
-    private final WidgetPropertyListener<List<TraceWidgetProperty>> tracesChangedListener = this::tracesChanged;
-    private final WidgetPropertyListener<List<AxisWidgetProperty>> yAxesChangedListener = this::yAxesChanged;
-
     @Override
     public Pane createJFXNode() throws Exception
     {
@@ -409,15 +408,15 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         if (y_axes.size() > 1)
             yAxesChanged(model_widget.propYAxes(), null, y_axes.subList(1, y_axes.size()));
         // Track added/remove Y axes
-        model_widget.propYAxes().addPropertyListener(yAxesChangedListener);
+        model_widget.propYAxes().addPropertyListener(yaxes_listener);
 
         model_widget.propWidth().addUntypedPropertyListener(position_listener);
         model_widget.propHeight().addUntypedPropertyListener(position_listener);
 
         tracesChanged(model_widget.propTraces(), null, model_widget.propTraces().getValue());
-        model_widget.propTraces().addPropertyListener(tracesChangedListener);
+        model_widget.propTraces().addPropertyListener(traces_listener);
 
-        model_widget.runtimePropConfigure().addPropertyListener(runtimeConfChangedListener);
+        model_widget.runtimePropConfigure().addPropertyListener(configure_listener);
 
         plot.addListener(plot_listener);
     }
@@ -434,24 +433,18 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         model_widget.propLegend().removePropertyListener(config_listener);
 
         ignoreAxisChanges(model_widget.propXAxis());
-
-        // Track Y axis
         final List<AxisWidgetProperty> y_axes = model_widget.propYAxes().getValue();
-        ignoreAxisChanges(y_axes.get(0));
-        if (y_axes.size() > 1)
-            yAxesChanged(model_widget.propYAxes(), y_axes.subList(1, y_axes.size()), null);
-
-        // Track added/remove Y axes
-        model_widget.propYAxes().removePropertyListener(yAxesChangedListener);
+        for (AxisWidgetProperty axis : y_axes)
+            ignoreAxisChanges(axis);
+        model_widget.propYAxes().removePropertyListener(yaxes_listener);
 
         model_widget.propWidth().removePropertyListener(position_listener);
         model_widget.propHeight().removePropertyListener(position_listener);
 
         tracesChanged(model_widget.propTraces(), model_widget.propTraces().getValue(), null);
+        model_widget.propTraces().removePropertyListener(traces_listener);
 
-        model_widget.propTraces().removePropertyListener(tracesChangedListener);
-
-        model_widget.runtimePropConfigure().removePropertyListener(runtimeConfChangedListener);
+        model_widget.runtimePropConfigure().removePropertyListener(configure_listener);
 
         plot.removeListener(plot_listener);
 

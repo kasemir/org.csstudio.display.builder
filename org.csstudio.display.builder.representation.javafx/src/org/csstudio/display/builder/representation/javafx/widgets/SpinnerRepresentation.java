@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -50,15 +50,14 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
 
     private final DirtyFlag dirty_style = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
+    private final UntypedWidgetPropertyListener behaviorChangedListener = this::behaviorChanged;
+    private final UntypedWidgetPropertyListener contentChangedListener = this::contentChanged;
+    private final UntypedWidgetPropertyListener styleChangedListener = this::styleChanged;
 
     protected volatile String value_text = "<?>";
     protected volatile VType  value      = null;
     private volatile double   value_max  = 100.0;
     private volatile double   value_min  = 0.0;
-
-    private final UntypedWidgetPropertyListener behaviorChangedListener = this::behaviorChanged;
-    private final UntypedWidgetPropertyListener contentChangedListener = this::contentChanged;
-    private final UntypedWidgetPropertyListener styleChangedListener = this::styleChanged;
 
     @Override
     protected final Spinner<String> createJFXNode() throws Exception
@@ -357,21 +356,17 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
         model_widget.propWidth().removePropertyListener(styleChangedListener);
         model_widget.propHeight().removePropertyListener(styleChangedListener);
         model_widget.propButtonsOnLeft().removePropertyListener(styleChangedListener);
-
         model_widget.propForegroundColor().removePropertyListener(styleChangedListener);
         model_widget.propBackgroundColor().removePropertyListener(styleChangedListener);
         model_widget.propEnabled().removePropertyListener(styleChangedListener);
-
         model_widget.propIncrement().removePropertyListener(behaviorChangedListener);
         model_widget.propMinimum().removePropertyListener(behaviorChangedListener);
         model_widget.propMaximum().removePropertyListener(behaviorChangedListener);
         model_widget.propLimitsFromPV().removePropertyListener(behaviorChangedListener);
-
         model_widget.propFormat().removePropertyListener(contentChangedListener);
         model_widget.propPrecision().removePropertyListener(contentChangedListener);
         model_widget.propShowUnits().removePropertyListener(contentChangedListener);
         model_widget.runtimePropValue().removePropertyListener(contentChangedListener);
-
         super.unregisterListeners();
     }
 
