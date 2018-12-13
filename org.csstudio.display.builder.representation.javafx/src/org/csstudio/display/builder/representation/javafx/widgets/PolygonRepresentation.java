@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -54,11 +54,7 @@ public class PolygonRepresentation extends JFXBaseRepresentation<Polygon, Polygo
     @Override
     protected void unregisterListeners()
     {
-        // Polygon can't use the default x/y handling from super.unregisterListeners();
-        // ==> Tooltip must be attached explicitly.
-        if (! toolkit.isEditMode())
-            detachTooltip();
-        // ==> Visibility and position must be handled explicitly.
+        detachTooltip();
         model_widget.propVisible().removePropertyListener(displayChangedListener);
         model_widget.propX().removePropertyListener(displayChangedListener);
         model_widget.propY().removePropertyListener(displayChangedListener);

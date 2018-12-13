@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,8 +25,8 @@ import javafx.scene.paint.Color;
  */
 public class MultiStateLEDRepresentation extends BaseLEDRepresentation<MultiStateLEDWidget>
 {
-    private final UntypedWidgetPropertyListener state_listener = (prop, old, value) -> configChanged(prop, old, value);
     private final WidgetPropertyListener<List<StateWidgetProperty>> statesChangedListener = this::statesChanged;
+    private final UntypedWidgetPropertyListener state_listener = this::configChanged;
 
     @Override
     protected void registerListeners()
@@ -40,9 +40,8 @@ public class MultiStateLEDRepresentation extends BaseLEDRepresentation<MultiStat
     @Override
     protected void unregisterListeners()
     {
-        // Track changes to (most of) the state details
-        model_widget.propStates().removePropertyListener(statesChangedListener);
         statesChanged(null, model_widget.propStates().getValue(), null);
+        model_widget.propStates().removePropertyListener(statesChangedListener);
         super.unregisterListeners();
     }
 

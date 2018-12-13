@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,10 +34,9 @@ public class LabelRepresentation extends RegionBaseRepresentation<Label, LabelWi
 {
     private final DirtyFlag dirty_style = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
-    private volatile Pos pos;
-
     private final UntypedWidgetPropertyListener contentChangedListener = this::contentChanged;
     private final UntypedWidgetPropertyListener styleChangedListener = this::styleChanged;
+    private volatile Pos pos;
 
     /** Was there ever any transformation applied to the jfx_node?
      *
@@ -91,12 +90,8 @@ public class LabelRepresentation extends RegionBaseRepresentation<Label, LabelWi
         model_widget.propVerticalAlignment().removePropertyListener(styleChangedListener);
         model_widget.propRotationStep().removePropertyListener(styleChangedListener);
         model_widget.propWrapWords().removePropertyListener(styleChangedListener);
-
-        // Changing the text might require a resize,
-        // so handle those properties together.
         model_widget.propText().removePropertyListener(contentChangedListener);
         model_widget.propAutoSize().removePropertyListener(contentChangedListener);
-
         super.unregisterListeners();
     }
 

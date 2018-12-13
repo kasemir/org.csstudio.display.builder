@@ -33,7 +33,6 @@ import org.diirt.vtype.Alarm;
 import org.diirt.vtype.AlarmSeverity;
 import org.diirt.vtype.VType;
 
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
@@ -109,6 +108,9 @@ abstract public class RegionBaseRepresentation<JFX extends Region, MW extends Vi
     }
 
     private final DirtyFlag dirty_border = new DirtyFlag();
+    private final UntypedWidgetPropertyListener customBorderChangedListener = this::custom_border_changed;
+    private final UntypedWidgetPropertyListener connectionOrValueChangedListener = this::connectionOrValueChanged;
+
     private volatile WidgetProperty<VType> value_prop = null;
     private volatile WidgetProperty<Boolean> alarm_sensitive_border_prop = null;
     private volatile WidgetProperty<WidgetColor> border_color_prop = null;
@@ -116,9 +118,6 @@ abstract public class RegionBaseRepresentation<JFX extends Region, MW extends Vi
     private final AtomicReference<AlarmSeverity> current_alarm = new AtomicReference<>(AlarmSeverity.NONE);
     private volatile Border alarm_border = null, custom_border = null;
 
-    private final UntypedWidgetPropertyListener customBorderChangedListener = this::custom_border_changed;
-    private final UntypedWidgetPropertyListener connectionOrValueChangedListener = this::connectionOrValueChanged;
-    private final EventHandler<? super MouseEvent> hookMiddleButtonCopyHandler = event -> hookMiddleButtonCopy(event);
 
     /** Create alarm-based border
      *  @param severity AlarmSeverity
@@ -187,37 +186,23 @@ abstract public class RegionBaseRepresentation<JFX extends Region, MW extends Vi
 
         // Allow middle-button click to copy PV name
         if (model_widget instanceof PVWidget)
-            jfx_node.addEventFilter(MouseEvent.MOUSE_PRESSED, hookMiddleButtonCopyHandler);
+            jfx_node.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> hookMiddleButtonCopy(event));
     }
 
     @Override
     protected void unregisterListeners()
     {
-        // Does widget have a custom border?
-        final Optional<WidgetProperty<WidgetColor>> cust_col = model_widget.checkProperty(propBorderColor);
-        final Optional<WidgetProperty<Integer>> cust_wid = model_widget.checkProperty(propBorderWidth);
-        if (cust_col.isPresent()  &&  cust_wid.isPresent())
-        {
+        if (border_color_prop != null)
             border_color_prop.removePropertyListener(customBorderChangedListener);
+        if (border_width_prop != null)
             border_width_prop.removePropertyListener(customBorderChangedListener);
-        }
 
-        if ( !toolkit.isEditMode() )
+        if (!toolkit.isEditMode())
         {
-            // In runtime mode, handle alarm-sensitive border
-            final Optional<WidgetProperty<Boolean>> alarm_sens = model_widget.checkProperty(propBorderAlarmSensitive);
-            final Optional<WidgetProperty<VType>> value = model_widget.checkProperty(runtimePropPVValue);
-            if (alarm_sens.isPresent()  &&  value.isPresent())
-            {
+            if (value_prop != null)
                 value_prop.removePropertyListener(connectionOrValueChangedListener);
-            }
 
-            // Indicate 'disconnected' state
             model_widget.runtimePropConnected().removePropertyListener(connectionOrValueChangedListener);
-
-            // Allow middle-button click to copy PV name
-            if (model_widget instanceof PVWidget)
-                jfx_node.removeEventFilter(MouseEvent.MOUSE_PRESSED, hookMiddleButtonCopyHandler);
         }
 
         super.unregisterListeners();

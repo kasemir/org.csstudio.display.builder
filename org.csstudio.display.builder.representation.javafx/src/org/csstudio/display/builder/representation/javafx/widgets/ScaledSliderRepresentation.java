@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2017 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,7 +24,6 @@ import org.diirt.vtype.Display;
 import org.diirt.vtype.VType;
 import org.diirt.vtype.ValueUtil;
 
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -51,6 +50,11 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
     private final DirtyFlag dirty_layout = new DirtyFlag();
     private final DirtyFlag dirty_enablement = new DirtyFlag();
     private final DirtyFlag dirty_value = new DirtyFlag();
+    private final UntypedWidgetPropertyListener layoutChangedListener = this::layoutChanged;
+    private final UntypedWidgetPropertyListener limitsChangedListener = this::limitsChanged;
+    private final WidgetPropertyListener<Boolean> enablementChangedListener = this::enablementChanged;
+    private final WidgetPropertyListener<Instant> runtimeConfChangedListener = (p, o, n) -> openConfigurationPanel();
+    private final WidgetPropertyListener<VType> valueChangedListener = this::valueChanged;
 
     private volatile double min = 0.0;
     private volatile double max = 100.0;
@@ -68,12 +72,6 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
     private final Slider slider = new Slider();
     private final SliderMarkers markers = new SliderMarkers(slider);
 
-    private final UntypedWidgetPropertyListener layoutChangedListener = this::layoutChanged;
-    private final UntypedWidgetPropertyListener limitsChangedListener = this::limitsChanged;
-    private final WidgetPropertyListener<Boolean> enablementChangedListener = this::enablementChanged;
-    private final WidgetPropertyListener<Instant> runtimeConfChangedListener = (p, o, n) -> openConfigurationPanel();
-    private final WidgetPropertyListener<VType> valueChangedListener = this::valueChanged;
-    private final ChangeListener<? super Number> sliderMoveListener = this::handleSliderMove;
 
     @Override
     protected GridPane createJFXNode() throws Exception
@@ -149,10 +147,9 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         model_widget.propMajorTickStepHint().addUntypedPropertyListener(limitsChangedListener);
         model_widget.propLimitsFromPV().addUntypedPropertyListener(limitsChangedListener);
 
-
         // Since both the widget's PV value and the JFX node's value property might be
         // written to independently during runtime, both must have listeners.
-        slider.valueProperty().addListener(sliderMoveListener);
+        slider.valueProperty().addListener(this::handleSliderMove);
         if (toolkit.isEditMode())
             dirty_value.checkAndClear();
         else
@@ -195,17 +192,11 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         model_widget.propMaximum().removePropertyListener(limitsChangedListener);
         model_widget.propMajorTickStepHint().removePropertyListener(limitsChangedListener);
         model_widget.propLimitsFromPV().removePropertyListener(limitsChangedListener);
-
-
-        // Since both the widget's PV value and the JFX node's value property might be
-        // written to independently during runtime, both must have listeners.
-        slider.valueProperty().removeListener(sliderMoveListener);
         if ( !toolkit.isEditMode() )
         {
             model_widget.runtimePropValue().removePropertyListener(valueChangedListener);
             model_widget.runtimePropConfigure().removePropertyListener(runtimeConfChangedListener);
         }
-
         super.unregisterListeners();
     }
 

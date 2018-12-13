@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -80,11 +80,9 @@ public class PolylineRepresentation extends JFXBaseRepresentation<Group, Polylin
     @Override
     protected void registerListeners()
     {
-        // Polyline can't use the default x/y handling from super.registerListeners();
-        // ==> Tooltip must be attached explicitly.
         if (! toolkit.isEditMode())
             attachTooltip();
-        // ==> Visibility and position nust be handled explicitly.
+        // Polyline can't use the default x/y handling from super.registerListeners();
         model_widget.propVisible().addUntypedPropertyListener(displayChangedListener);
         model_widget.propX().addUntypedPropertyListener(displayChangedListener);
         model_widget.propY().addUntypedPropertyListener(displayChangedListener);
@@ -99,11 +97,7 @@ public class PolylineRepresentation extends JFXBaseRepresentation<Group, Polylin
     @Override
     protected void unregisterListeners()
     {
-        // Polyline can't use the default x/y handling from super.unregisterListeners();
-        // ==> Tooltip must be attached explicitly.
-        if (! toolkit.isEditMode())
-            detachTooltip();
-        // ==> Visibility and position must be handled explicitly.
+        detachTooltip();
         model_widget.propVisible().removePropertyListener(displayChangedListener);
         model_widget.propX().removePropertyListener(displayChangedListener);
         model_widget.propY().removePropertyListener(displayChangedListener);

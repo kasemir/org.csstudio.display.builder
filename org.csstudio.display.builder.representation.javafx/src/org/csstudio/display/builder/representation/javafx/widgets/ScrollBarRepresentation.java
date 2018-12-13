@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2017 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,7 +21,6 @@ import org.diirt.vtype.Display;
 import org.diirt.vtype.VType;
 import org.diirt.vtype.ValueUtil;
 
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Orientation;
 import javafx.scene.control.ScrollBar;
@@ -38,20 +37,17 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
     private final DirtyFlag dirty_size = new DirtyFlag();
     private final DirtyFlag dirty_enablement = new DirtyFlag();
     private final DirtyFlag dirty_value = new DirtyFlag();
+    private final UntypedWidgetPropertyListener limitsChangedListener = this::limitsChanged;
+    private final UntypedWidgetPropertyListener sizeChangedListener = this::sizeChanged;
+    private final WidgetPropertyListener<Boolean> enablementChangedListener = this::enablementChanged;
+    private final WidgetPropertyListener<VType> valueChangedListener = this::valueChanged;
+    private final WidgetPropertyListener<Instant> runtimeConfChangedListener = (p, o, n) -> openConfigurationPanel();
 
     private volatile double min = 0.0;
     private volatile double max = 100.0;
     private volatile boolean active = false; //is updating UI to match PV?
     private volatile boolean isValueChanging = false; //is user interacting with UI (need to suppress UI updates)?
     private volatile boolean enabled = false;
-
-    private final UntypedWidgetPropertyListener limitsChangedListener = this::limitsChanged;
-    private final UntypedWidgetPropertyListener sizeChangedListener = this::sizeChanged;
-    private final WidgetPropertyListener<Boolean> enablementChangedListener = this::enablementChanged;
-    private final WidgetPropertyListener<VType> valueChangedListener = this::valueChanged;
-    private final WidgetPropertyListener<Instant> runtimeConfChangedListener = (p, o, n) -> openConfigurationPanel();
-    private final ChangeListener<? super Number> nodeValueChangedListener = this::nodeValueChanged;
-
 
     @Override
     protected ScrollBar createJFXNode() throws Exception
@@ -125,7 +121,7 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
         //Since both the widget's PV value and the ScrollBar node's value property might be
         //written to independently during runtime, both must be listened to.
         model_widget.runtimePropValue().addPropertyListener(valueChangedListener);
-        jfx_node.valueProperty().addListener(nodeValueChangedListener);
+        jfx_node.valueProperty().addListener(this::nodeValueChanged);
         model_widget.runtimePropConfigure().addPropertyListener(runtimeConfChangedListener);
         valueChanged(null, null, null);
     }
@@ -141,15 +137,9 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
         model_widget.propHorizontal().removePropertyListener(sizeChangedListener);
         model_widget.propBarLength().removePropertyListener(sizeChangedListener);
         model_widget.propIncrement().removePropertyListener(sizeChangedListener);
-
         model_widget.propEnabled().removePropertyListener(enablementChangedListener);
-
-        //Since both the widget's PV value and the ScrollBar node's value property might be
-        //written to independently during runtime, both must be listened to.
         model_widget.runtimePropValue().removePropertyListener(valueChangedListener);
-        jfx_node.valueProperty().removeListener(nodeValueChangedListener);
         model_widget.runtimePropConfigure().removePropertyListener(runtimeConfChangedListener);
-
         super.unregisterListeners();
     }
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2017 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,7 +28,6 @@ import org.diirt.vtype.VType;
 import org.diirt.vtype.next.VNumber;
 
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -52,14 +51,13 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
     private final DirtyFlag dirty_size = new DirtyFlag();
     private final DirtyFlag dirty_style = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
-    private volatile List<String> items = Collections.emptyList();
-    private volatile int index = -1;
-    protected volatile boolean enabled = true;
-
     private final UntypedWidgetPropertyListener contentChangedListener = this::contentChanged;
     private final UntypedWidgetPropertyListener sizeChangedListener = this::sizeChanged;
     private final UntypedWidgetPropertyListener styleChangedListener = this::styleChanged;
-    private final ChangeListener<Toggle> selectionChangedListener = this::selectionChanged;
+
+    private volatile List<String> items = Collections.emptyList();
+    private volatile int index = -1;
+    protected volatile boolean enabled = true;
 
     @Override
     public TilePane createJFXNode() throws Exception
@@ -95,7 +93,7 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
         model_widget.propItems().addUntypedPropertyListener(contentChangedListener);
 
         if (! toolkit.isEditMode())
-            toggle.selectedToggleProperty().addListener(selectionChangedListener);
+            toggle.selectedToggleProperty().addListener(this::selectionChanged);
 
         // Initially populate pane with radio buttons
         contentChanged(null, null, null);
@@ -107,19 +105,13 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
         model_widget.propWidth().removePropertyListener(sizeChangedListener);
         model_widget.propHeight().removePropertyListener(sizeChangedListener);
         model_widget.propHorizontal().removePropertyListener(sizeChangedListener);
-
         model_widget.propForegroundColor().removePropertyListener(styleChangedListener);
         model_widget.propFont().removePropertyListener(styleChangedListener);
         model_widget.propEnabled().removePropertyListener(styleChangedListener);
         model_widget.runtimePropPVWritable().removePropertyListener(styleChangedListener);
-
         model_widget.runtimePropValue().removePropertyListener(contentChangedListener);
         model_widget.propItemsFromPV().removePropertyListener(contentChangedListener);
         model_widget.propItems().removePropertyListener(contentChangedListener);
-
-        if (! toolkit.isEditMode())
-            toggle.selectedToggleProperty().removeListener(selectionChangedListener);
-
         super.unregisterListeners();
     }
 
