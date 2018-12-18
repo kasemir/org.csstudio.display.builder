@@ -155,7 +155,6 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
 
         final int widget_width = model_widget.propWidth().getValue();
         final int widget_height = model_widget.propHeight().getValue();
-        // "-2" to prevent triggering scrollbars
         inner.setMinWidth(widget_width);
         inner.setMinHeight(widget_height);
 
