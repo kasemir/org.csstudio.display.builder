@@ -355,7 +355,6 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
         }
         if (dirty_background.checkAndClear())
         {
-            scroll.setBackground(inner_background);
             inner.setBackground(inner_background);
             inner.setBorder(inner_border);
         }
