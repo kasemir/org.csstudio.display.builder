@@ -167,7 +167,7 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
         addUndo(active);
 
         // Initially, panning is selected
-        selectMouseMode(pan);
+        selectMouseMode(pointer);
     }
 
     private void addOptions(final boolean active)
