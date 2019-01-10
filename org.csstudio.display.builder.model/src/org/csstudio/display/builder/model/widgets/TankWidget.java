@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newColorPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFillColor;
@@ -61,6 +62,8 @@ public class TankWidget extends PVWidget
 
     public static final WidgetPropertyDescriptor<WidgetColor> propEmptyColor =
         newColorPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "empty_color", Messages.WidgetProperties_EmptyColor);
+    public static final WidgetPropertyDescriptor<Boolean>   propScaleVisible =
+        newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "scale_visible", Messages.WidgetProperties_ScaleVisible);
 
 
     /** Widget configurator to read legacy *.opi files*/
@@ -120,6 +123,7 @@ public class TankWidget extends PVWidget
     private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<WidgetColor> fill_color;
     private volatile WidgetProperty<WidgetColor> empty_color;
+    private volatile WidgetProperty<Boolean> scaleVisible;
     private volatile WidgetProperty<Boolean> limits_from_pv;
     private volatile WidgetProperty<Double> minimum;
     private volatile WidgetProperty<Double> maximum;
@@ -138,6 +142,7 @@ public class TankWidget extends PVWidget
         properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.READ_BACKGROUND)));
         properties.add(fill_color = propFillColor.createProperty(this, new WidgetColor(0, 0, 255)));
         properties.add(empty_color = propEmptyColor.createProperty(this, new WidgetColor(192, 192, 192)));
+        properties.add(scaleVisible = propScaleVisible.createProperty(this, true));
         properties.add(limits_from_pv = propLimitsFromPV.createProperty(this, true));
         properties.add(minimum = propMinimum.createProperty(this, 0.0));
         properties.add(maximum = propMaximum.createProperty(this, 100.0));
@@ -189,5 +194,9 @@ public class TankWidget extends PVWidget
     public WidgetProperty<Double> propMaximum()
     {
         return maximum;
+    }
+
+    public WidgetProperty<Boolean> propScaleVisible ( ) {
+        return scaleVisible;
     }
 }
