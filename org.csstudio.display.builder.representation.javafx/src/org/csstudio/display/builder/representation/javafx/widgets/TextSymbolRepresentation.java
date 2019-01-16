@@ -17,6 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.RotationStep;
@@ -48,22 +49,28 @@ import javafx.scene.transform.Translate;
  */
 public class TextSymbolRepresentation extends RegionBaseRepresentation<Label, TextSymbolWidget> {
 
-    private int                                  arrayIndex             = 0;
-    private final DirtyFlag                      dirtyContent           = new DirtyFlag();
-    private final DirtyFlag                      dirtyGeometry          = new DirtyFlag();
-    private final DirtyFlag                      dirtyStyle             = new DirtyFlag();
-    private final DirtyFlag                      dirtyValue             = new DirtyFlag();
-    private volatile boolean                     enabled                = true;
-    private int                                  symbolIndex            = -1;
-    private final WidgetPropertyListener<String> symbolPropertyListener = this::symbolChanged;
-    private final AtomicBoolean                  updatingValue          = new AtomicBoolean(false);
+    private int                                                        arrayIndex              = 0;
+    private final UntypedWidgetPropertyListener                        contentChangedListener  = this::contentChanged;
+    private final DirtyFlag                                            dirtyContent            = new DirtyFlag();
+    private final DirtyFlag                                            dirtyGeometry           = new DirtyFlag();
+    private final DirtyFlag                                            dirtyStyle              = new DirtyFlag();
+    private final DirtyFlag                                            dirtyValue              = new DirtyFlag();
+    private volatile boolean                                           enabled                 = true;
+    private final UntypedWidgetPropertyListener                        geometryChangedListener = this::geometryChanged;
+    private final UntypedWidgetPropertyListener                        styleChangedListener    = this::styleChanged;
+    private int                                                        symbolIndex             = -1;
+    private final WidgetPropertyListener<String>                       symbolPropertyListener  = this::symbolChanged;
+    private final WidgetPropertyListener<List<WidgetProperty<String>>> symbolsChangedListener  = this::symbolsChanged;
+    private final AtomicBoolean                                        updatingValue           = new AtomicBoolean(false);
+    private final WidgetPropertyListener<VType>                        valueChangedListener    = this::valueChanged;
     /**
      * Was there ever any transformation applied to the jfx_node?
-     *  <p>Used to optimize:
-     *  If there never was a rotation, don't even _clear()_ it
-     *  to keep the Node's nodeTransformation == null
+     * <p>
+     * Used to optimize:
+     * If there never was a rotation, don't even _clear()_ it
+     * to keep the Node's nodeTransformation == null
      */
-    private boolean                              was_ever_transformed   = false;
+    private boolean                                                    was_ever_transformed    = false;
 
     @Override
     public void updateChanges ( ) {
@@ -229,33 +236,65 @@ public class TextSymbolRepresentation extends RegionBaseRepresentation<Label, Te
 
         super.registerListeners();
 
-        model_widget.propPVName().addPropertyListener(this::contentChanged);
-        model_widget.propArrayIndex().addUntypedPropertyListener(this::contentChanged);
+        model_widget.propPVName().addUntypedPropertyListener(contentChangedListener);
+        model_widget.propArrayIndex().addUntypedPropertyListener(contentChangedListener);
 
-        model_widget.propSymbols().addPropertyListener(this::symbolsChanged);
+        model_widget.propSymbols().addPropertyListener(symbolsChangedListener);
 
-        model_widget.propVisible().addUntypedPropertyListener(this::geometryChanged);
-        model_widget.propX().addUntypedPropertyListener(this::geometryChanged);
-        model_widget.propY().addUntypedPropertyListener(this::geometryChanged);
-        model_widget.propWidth().addUntypedPropertyListener(this::geometryChanged);
-        model_widget.propHeight().addUntypedPropertyListener(this::geometryChanged);
+        model_widget.propVisible().addUntypedPropertyListener(geometryChangedListener);
+        model_widget.propX().addUntypedPropertyListener(geometryChangedListener);
+        model_widget.propY().addUntypedPropertyListener(geometryChangedListener);
+        model_widget.propWidth().addUntypedPropertyListener(geometryChangedListener);
+        model_widget.propHeight().addUntypedPropertyListener(geometryChangedListener);
 
-        model_widget.propBackgroundColor().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propEnabled().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propForegroundColor().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propFont().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propHorizontalAlignment().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propRotationStep().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propTransparent().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propVerticalAlignment().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propWrapWords().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propBackgroundColor().addUntypedPropertyListener(styleChangedListener);
+        model_widget.propEnabled().addUntypedPropertyListener(styleChangedListener);
+        model_widget.propForegroundColor().addUntypedPropertyListener(styleChangedListener);
+        model_widget.propFont().addUntypedPropertyListener(styleChangedListener);
+        model_widget.propHorizontalAlignment().addUntypedPropertyListener(styleChangedListener);
+        model_widget.propRotationStep().addUntypedPropertyListener(styleChangedListener);
+        model_widget.propTransparent().addUntypedPropertyListener(styleChangedListener);
+        model_widget.propVerticalAlignment().addUntypedPropertyListener(styleChangedListener);
+        model_widget.propWrapWords().addUntypedPropertyListener(styleChangedListener);
 
         if ( toolkit.isEditMode() ) {
             dirtyValue.checkAndClear();
         } else {
-            model_widget.runtimePropValue().addPropertyListener(this::valueChanged);
+            model_widget.runtimePropValue().addPropertyListener(valueChangedListener);
             valueChanged(null, null, null);
         }
+
+    }
+
+    @Override
+    protected void unregisterListeners ( ) {
+
+        model_widget.propPVName().removePropertyListener(contentChangedListener);
+        model_widget.propArrayIndex().removePropertyListener(contentChangedListener);
+
+        model_widget.propSymbols().removePropertyListener(symbolsChangedListener);
+
+        model_widget.propVisible().removePropertyListener(geometryChangedListener);
+        model_widget.propX().removePropertyListener(geometryChangedListener);
+        model_widget.propY().removePropertyListener(geometryChangedListener);
+        model_widget.propWidth().removePropertyListener(geometryChangedListener);
+        model_widget.propHeight().removePropertyListener(geometryChangedListener);
+
+        model_widget.propBackgroundColor().removePropertyListener(styleChangedListener);
+        model_widget.propEnabled().removePropertyListener(styleChangedListener);
+        model_widget.propForegroundColor().removePropertyListener(styleChangedListener);
+        model_widget.propFont().removePropertyListener(styleChangedListener);
+        model_widget.propHorizontalAlignment().removePropertyListener(styleChangedListener);
+        model_widget.propRotationStep().removePropertyListener(styleChangedListener);
+        model_widget.propTransparent().removePropertyListener(styleChangedListener);
+        model_widget.propVerticalAlignment().removePropertyListener(styleChangedListener);
+        model_widget.propWrapWords().removePropertyListener(styleChangedListener);
+
+        if ( !toolkit.isEditMode() ) {
+            model_widget.runtimePropValue().removePropertyListener(valueChangedListener);
+        }
+
+        super.unregisterListeners();
 
     }
 

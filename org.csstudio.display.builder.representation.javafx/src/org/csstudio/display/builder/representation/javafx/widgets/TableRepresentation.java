@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@ import java.util.Objects;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.widgets.PVWidget;
 import org.csstudio.display.builder.model.widgets.TableWidget;
@@ -45,6 +46,12 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
 
     /** Selection changed programmatically */
     private final DirtyFlag dirty_set_selection = new DirtyFlag(false);
+
+    private final UntypedWidgetPropertyListener styleListener = this::styleChanged;
+    private final WidgetPropertyListener<List<Integer>> selectionListener = this::setSelection;
+    private final WidgetPropertyListener<List<ColumnProperty>> columnsListener = this::columnsChanged;
+    private final WidgetPropertyListener<List<List<WidgetColor>>> colorsListener = this::cellColorsChanged;
+    private final WidgetPropertyListener<Object> valueListener = this::valueChanged;
 
     /** Most recent column headers */
     private volatile List<String> headers = Collections.emptyList();
@@ -142,21 +149,41 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
             });
         }
 
-        final UntypedWidgetPropertyListener listener = this::styleChanged;
-        model_widget.propWidth().addUntypedPropertyListener(listener);
-        model_widget.propHeight().addUntypedPropertyListener(listener);
-        model_widget.propBackgroundColor().addUntypedPropertyListener(listener);
-        model_widget.propForegroundColor().addUntypedPropertyListener(listener);
-        model_widget.propFont().addUntypedPropertyListener(listener);
-        model_widget.propToolbar().addUntypedPropertyListener(listener);
-        model_widget.propRowSelectionMode().addUntypedPropertyListener(listener);
-        model_widget.runtimePropSetSelection().addPropertyListener(this::setSelection);
+        model_widget.propWidth().addUntypedPropertyListener(styleListener);
+        model_widget.propHeight().addUntypedPropertyListener(styleListener);
+        model_widget.propBackgroundColor().addUntypedPropertyListener(styleListener);
+        model_widget.propForegroundColor().addUntypedPropertyListener(styleListener);
+        model_widget.propFont().addUntypedPropertyListener(styleListener);
+        model_widget.propToolbar().addUntypedPropertyListener(styleListener);
+        model_widget.propRowSelectionMode().addUntypedPropertyListener(styleListener);
+        model_widget.runtimePropSetSelection().addPropertyListener(selectionListener);
 
         columnsChanged(model_widget.propColumns(), null, model_widget.propColumns().getValue());
-        model_widget.propColumns().addPropertyListener(this::columnsChanged);
+        model_widget.propColumns().addPropertyListener(columnsListener);
 
-        model_widget.runtimeValue().addPropertyListener(this::valueChanged);
-        model_widget.runtimeCellColors().addPropertyListener(this::cellColorsChanged);
+        model_widget.runtimeValue().addPropertyListener(valueListener);
+        model_widget.runtimeCellColors().addPropertyListener(colorsListener);
+    }
+
+    @Override
+    protected void unregisterListeners()
+    {
+        model_widget.propWidth().removePropertyListener(styleListener);
+        model_widget.propHeight().removePropertyListener(styleListener);
+        model_widget.propBackgroundColor().removePropertyListener(styleListener);
+        model_widget.propForegroundColor().removePropertyListener(styleListener);
+        model_widget.propFont().removePropertyListener(styleListener);
+        model_widget.propToolbar().removePropertyListener(styleListener);
+        model_widget.propRowSelectionMode().removePropertyListener(styleListener);
+        model_widget.runtimePropSetSelection().removePropertyListener(selectionListener);
+
+        model_widget.propColumns().removePropertyListener(columnsListener);
+        columnsChanged(model_widget.propColumns(), model_widget.propColumns().getValue(), null);
+
+        model_widget.runtimeValue().removePropertyListener(valueListener);
+        model_widget.runtimeCellColors().removePropertyListener(colorsListener);
+
+        super.unregisterListeners();
     }
 
     private void updateSelection(final int[] rows, final int[] cols)

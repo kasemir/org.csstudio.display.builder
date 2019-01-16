@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,9 @@
 package org.csstudio.display.builder.representation.javafx.widgets;
 
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.RotationStep;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.util.FormatOptionHandler;
@@ -41,6 +43,9 @@ public class TextUpdateRepresentation extends RegionBaseRepresentation<Control, 
 
     private final DirtyFlag dirty_style = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
+    private final UntypedWidgetPropertyListener contentChangedListener = this::contentChanged;
+    private final UntypedWidgetPropertyListener styleChangedListener = this::styleChanged;
+    private final WidgetPropertyListener<String> pvnameChangedListener = this::pvnameChanged;
     private volatile String value_text = "<?>";
     private volatile Pos pos;
 
@@ -76,25 +81,53 @@ public class TextUpdateRepresentation extends RegionBaseRepresentation<Control, 
         super.registerListeners();
         pos = JFXUtil.computePos(model_widget.propHorizontalAlignment().getValue(),
                                  model_widget.propVerticalAlignment().getValue());
-        model_widget.propWidth().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propHeight().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propForegroundColor().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propBackgroundColor().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propTransparent().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propFont().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propHorizontalAlignment().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propVerticalAlignment().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propRotationStep().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propWrapWords().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propFormat().addUntypedPropertyListener(this::contentChanged);
-        model_widget.propPrecision().addUntypedPropertyListener(this::contentChanged);
-        model_widget.propShowUnits().addUntypedPropertyListener(this::contentChanged);
-        model_widget.runtimePropValue().addUntypedPropertyListener(this::contentChanged);
+        model_widget.propWidth().addUntypedPropertyListener(styleChangedListener);
+        model_widget.propHeight().addUntypedPropertyListener(styleChangedListener);
+        model_widget.propForegroundColor().addUntypedPropertyListener(styleChangedListener);
+        model_widget.propBackgroundColor().addUntypedPropertyListener(styleChangedListener);
+        model_widget.propTransparent().addUntypedPropertyListener(styleChangedListener);
+        model_widget.propFont().addUntypedPropertyListener(styleChangedListener);
+        model_widget.propHorizontalAlignment().addUntypedPropertyListener(styleChangedListener);
+        model_widget.propVerticalAlignment().addUntypedPropertyListener(styleChangedListener);
+        model_widget.propRotationStep().addUntypedPropertyListener(styleChangedListener);
+        model_widget.propWrapWords().addUntypedPropertyListener(styleChangedListener);
+        model_widget.propFormat().addUntypedPropertyListener(contentChangedListener);
+        model_widget.propPrecision().addUntypedPropertyListener(contentChangedListener);
+        model_widget.propShowUnits().addUntypedPropertyListener(contentChangedListener);
+        model_widget.runtimePropValue().addUntypedPropertyListener(contentChangedListener);
 
-        model_widget.propPVName().addPropertyListener(this::pvnameChanged);
+        model_widget.propPVName().addPropertyListener(pvnameChangedListener);
 
-        // Initial update in case runtimePropValue already has value before we registered listener 
+        // Initial update in case runtimePropValue already has value before we registered listener
         contentChanged(null, null, model_widget.runtimePropValue().getValue());
+    }
+
+    @Override
+    protected void unregisterListeners()
+    {
+        model_widget.propWidth().removePropertyListener(styleChangedListener);
+        model_widget.propHeight().removePropertyListener(styleChangedListener);
+        model_widget.propForegroundColor().removePropertyListener(styleChangedListener);
+        model_widget.propBackgroundColor().removePropertyListener(styleChangedListener);
+        model_widget.propTransparent().removePropertyListener(styleChangedListener);
+        model_widget.propFont().removePropertyListener(styleChangedListener);
+        model_widget.propHorizontalAlignment().removePropertyListener(styleChangedListener);
+        model_widget.propVerticalAlignment().removePropertyListener(styleChangedListener);
+        model_widget.propRotationStep().removePropertyListener(styleChangedListener);
+        model_widget.propWrapWords().removePropertyListener(styleChangedListener);
+        model_widget.propFormat().removePropertyListener(contentChangedListener);
+        model_widget.propPrecision().removePropertyListener(contentChangedListener);
+        model_widget.propShowUnits().removePropertyListener(contentChangedListener);
+        model_widget.runtimePropValue().removePropertyListener(contentChangedListener);
+        model_widget.propPVName().removePropertyListener(pvnameChangedListener);
+        super.unregisterListeners();
+    }
+
+    @Override
+    protected void attachTooltip()
+    {
+        // Use the formatted text for "$(pv_value)"
+        TooltipSupport.attach(jfx_node, model_widget.propTooltip(), () -> value_text);
     }
 
     private void styleChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)

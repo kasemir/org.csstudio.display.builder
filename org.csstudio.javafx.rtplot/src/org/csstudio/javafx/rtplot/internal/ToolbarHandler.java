@@ -166,8 +166,8 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
         toolbar.getItems().add(new Separator());
         addUndo(active);
 
-        // Initially, panning is selected
-        selectMouseMode(pan);
+        // Initially, pointer is selected
+        selectMouseMode(pointer);
     }
 
     private void addOptions(final boolean active)

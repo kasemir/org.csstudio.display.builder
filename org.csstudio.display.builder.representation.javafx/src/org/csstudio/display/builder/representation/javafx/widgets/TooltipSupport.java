@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,9 +7,11 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropPVValue;
 import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
 
 import java.lang.reflect.Field;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 
@@ -19,6 +21,11 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.macros.MacroValueProvider;
 import org.csstudio.display.builder.model.properties.StringWidgetProperty;
+import org.csstudio.java.time.TimestampFormats;
+import org.diirt.vtype.Alarm;
+import org.diirt.vtype.AlarmSeverity;
+import org.diirt.vtype.Time;
+import org.diirt.vtype.ValueUtil;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -32,6 +39,13 @@ import javafx.util.Duration;
 @SuppressWarnings("nls")
 public class TooltipSupport
 {
+    /** Instead of tracking the tool tip attached to a node ourselves,
+     *  we use this property that JavaFX 8+ happens to set,
+     *  defined in Tooltip.TOOLTIP_PROP_KEY.
+     *  If the JFX implementation changes, we'll need use our own property key.
+     */
+    private static final String TOOLTIP_PROP_KEY = "javafx.scene.control.Tooltip";
+
     /** Legacy tool tip: "$(pv_name)\n$(pv_value)" where number of '\n' can vary */
     private final static Pattern legacy_tooltip = Pattern.compile("\\$\\(pv_name\\)\\s*\\$\\(pv_value\\)");
 
@@ -45,6 +59,16 @@ public class TooltipSupport
      *  @param tooltip_property Tool tip to show
      */
     public static void attach(final Node node, final WidgetProperty<String> tooltip_property)
+    {
+        attach(node, tooltip_property, null);
+    }
+
+    /** Attach tool tip
+     *  @param node Node that should have the tool tip
+     *  @param tooltip_property Tool tip to show
+     *  @param pv_value Supplier of formatted "$(pv_value)". <code>null</code> to use toString of the property.
+     */
+    public static void attach(final Node node, final WidgetProperty<String> tooltip_property, final Supplier<String> pv_value)
     {
         if (disable_tooltips)
             return;
@@ -70,7 +94,23 @@ public class TooltipSupport
         // the tool tip is about to show
         tooltip.setOnShowing(event ->
         {
-            final String spec = ((MacroizedWidgetProperty<?>)tooltip_property).getSpecification();
+            String spec = ((MacroizedWidgetProperty<?>)tooltip_property).getSpecification();
+
+            // Use custom supplier for $(pv_value)?
+            // Otherwise replace like other macros, i.e. use toString of the property
+            if (pv_value != null)
+            {
+                final StringBuilder buf = new StringBuilder();
+                buf.append(pv_value.get());
+                final Object vtype = tooltip_property.getWidget().getPropertyValue(runtimePropPVValue);
+                final Alarm alarm = ValueUtil.alarmOf(vtype);
+                if (alarm != null  &&  alarm.getAlarmSeverity() != AlarmSeverity.NONE)
+                    buf.append(", ").append(alarm.getAlarmSeverity()).append(" - ").append(alarm.getAlarmName());
+                final Time time = ValueUtil.timeOf(vtype);
+                if (time != null)
+                    buf.append(", ").append(TimestampFormats.FULL_FORMAT.format(time.getTimestamp()));
+                spec = spec.replace("$(pv_value)", buf.toString());
+            }
             final Widget widget = tooltip_property.getWidget();
             final MacroValueProvider macros = widget.getMacrosOrProperties();
             String expanded;
@@ -90,6 +130,8 @@ public class TooltipSupport
 
         if (! initialized_behavior)
         {
+            if (node.getProperties().get(TOOLTIP_PROP_KEY) != tooltip)
+                throw new IllegalStateException("JavaFX Tooltip behavior changed");
             // Unfortunately, no API to control when tooltop shows, and for how long.
             // http://stackoverflow.com/questions/26854301/control-javafx-tooltip-delay
             // has the hack used in here, which only needs to be applied once
@@ -98,6 +140,18 @@ public class TooltipSupport
             hack_behavior(tooltip);
             initialized_behavior = true;
         }
+    }
+
+    /** Detach tool tip.
+     *  @param node Node that should have the tool tip removed.
+     */
+    public static void detach(final Node node)
+    {
+        if (disable_tooltips)
+            return;
+        final Tooltip tooltip = (Tooltip) node.getProperties().get(TOOLTIP_PROP_KEY);
+        if (tooltip != null)
+            Tooltip.uninstall(node, tooltip);
     }
 
     private static void hack_behavior(final Tooltip tooltip)

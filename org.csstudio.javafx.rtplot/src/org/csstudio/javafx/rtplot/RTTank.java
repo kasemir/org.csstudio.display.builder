@@ -47,9 +47,11 @@ public class RTTank extends Canvas
 
     /** Fill color */
     private volatile Color empty = Color.LIGHT_GRAY.brighter().brighter();
+    private volatile Color emptyShadow = Color.LIGHT_GRAY;
 
     /** Fill color */
     private volatile Color fill = Color.BLUE;
+    private volatile Color fillHighlight = new Color(72, 72, 255);
 
     /** Current value, i.e. fill level */
     private volatile double value = 5.0;
@@ -62,6 +64,9 @@ public class RTTank extends Canvas
 
     /** Buffer for image of the tank and scale */
     private volatile Image plot_image = null;
+
+    /** Does the scale be displayed or not. */
+    private volatile boolean scaleVisible = true;
 
     /** Listener to {@link PlotPart}s, triggering refresh of canvas */
     protected final PlotPartListener plot_part_listener = new PlotPartListener()
@@ -149,12 +154,33 @@ public class RTTank extends Canvas
     public void setEmptyColor(final javafx.scene.paint.Color color)
     {
         empty = GraphicsUtils.convert(Objects.requireNonNull(color));
+        emptyShadow = new Color(
+            Math.max(0, empty.getRed()   - 32),
+            Math.max(0, empty.getGreen() - 32),
+            Math.max(0, empty.getBlue()  - 32),
+            empty.getAlpha()
+        );
     }
 
     /** @param color Color for filled region */
     public void setFillColor(final javafx.scene.paint.Color color)
     {
         fill = GraphicsUtils.convert(Objects.requireNonNull(color));
+        int saturationContribution = (int) ( 48.f * Color.RGBtoHSB(fill.getRed(), fill.getGreen(), fill.getBlue(), null)[1] );
+        fillHighlight = new Color(
+            Math.min(255, fill.getRed()   + 32 + saturationContribution),
+            Math.min(255, fill.getGreen() + 32 + saturationContribution),
+            Math.min(255, fill.getBlue()  + 32 + saturationContribution),
+            empty.getAlpha()
+        );
+    }
+
+    /** @param visible Whether the scale must be displayed or not. */
+    public void setScaleVisible ( boolean visible ) {
+        if ( visible != scaleVisible ) {
+            scaleVisible = visible;
+            need_layout.set(true);
+        }
     }
 
     /** Set value range
@@ -187,7 +213,11 @@ public class RTTank extends Canvas
         scale_region.height -= ends[0] + ends[1];
 
         scale.setBounds(scale_region);
-        plot_area.setBounds(bounds.x + scale_region.width, bounds.y+ends[1], bounds.width-scale_region.width, bounds.height-ends[0]-ends[1]);
+
+        if ( scaleVisible )
+            plot_area.setBounds(bounds.x + scale_region.width, bounds.y+ends[1], bounds.width-scale_region.width, bounds.height-ends[0]-ends[1]);
+        else
+            plot_area.setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
     }
 
     /** Draw all components into image buffer */
@@ -216,7 +246,8 @@ public class RTTank extends Canvas
         gc.setColor(background);
         gc.fillRect(0, 0, area_copy.width, area_copy.height);
 
-        scale.paint(gc, plot_bounds);
+        if ( scaleVisible )
+            scale.paint(gc, plot_bounds);
 
         plot_area.paint(gc);
 
@@ -236,10 +267,10 @@ public class RTTank extends Canvas
             level = (int) (plot_bounds.height * (current - min) / (max - min) + 0.5);
 
         final int arc = Math.min(plot_bounds.width, plot_bounds.height) / 10;
-        gc.setPaint(new GradientPaint(plot_bounds.x, 0, empty, plot_bounds.x+plot_bounds.width/2, 0, Color.GRAY, true));
+        gc.setPaint(new GradientPaint(plot_bounds.x, 0, empty, plot_bounds.x+plot_bounds.width/2, 0, emptyShadow, true));
         gc.fillRoundRect(plot_bounds.x, plot_bounds.y, plot_bounds.width, plot_bounds.height, arc, arc);
 
-        gc.setPaint(new GradientPaint(plot_bounds.x, 0, fill, plot_bounds.x+plot_bounds.width/2, 0, Color.WHITE, true));
+        gc.setPaint(new GradientPaint(plot_bounds.x, 0, fill, plot_bounds.x+plot_bounds.width/2, 0, fillHighlight, true));
         if (normal)
             gc.fillRoundRect(plot_bounds.x, plot_bounds.y+plot_bounds.height-level, plot_bounds.width, level, arc, arc);
         else
@@ -272,4 +303,5 @@ public class RTTank extends Canvas
         // what's about to be disposed
         update_throttle.dispose();
     }
+
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@ import static org.csstudio.display.builder.representation.ToolkitRepresentation.
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.FormatOptionHandler;
 import org.csstudio.display.builder.model.widgets.SpinnerWidget;
@@ -49,6 +50,9 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
 
     private final DirtyFlag dirty_style = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
+    private final UntypedWidgetPropertyListener behaviorChangedListener = this::behaviorChanged;
+    private final UntypedWidgetPropertyListener contentChangedListener = this::contentChanged;
+    private final UntypedWidgetPropertyListener styleChangedListener = this::styleChanged;
 
     protected volatile String value_text = "<?>";
     protected volatile VType  value      = null;
@@ -324,26 +328,46 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.propWidth().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propHeight().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propButtonsOnLeft().addPropertyListener(this::styleChanged);
+        model_widget.propWidth().addUntypedPropertyListener(styleChangedListener);
+        model_widget.propHeight().addUntypedPropertyListener(styleChangedListener);
+        model_widget.propButtonsOnLeft().addUntypedPropertyListener(styleChangedListener);
 
-        model_widget.propForegroundColor().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propBackgroundColor().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propEnabled().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propForegroundColor().addUntypedPropertyListener(styleChangedListener);
+        model_widget.propBackgroundColor().addUntypedPropertyListener(styleChangedListener);
+        model_widget.propEnabled().addUntypedPropertyListener(styleChangedListener);
 
-        model_widget.propIncrement().addUntypedPropertyListener(this::behaviorChanged);
-        model_widget.propMinimum().addUntypedPropertyListener(this::behaviorChanged);
-        model_widget.propMaximum().addUntypedPropertyListener(this::behaviorChanged);
-        model_widget.propLimitsFromPV().addUntypedPropertyListener(this::behaviorChanged);
+        model_widget.propIncrement().addUntypedPropertyListener(behaviorChangedListener);
+        model_widget.propMinimum().addUntypedPropertyListener(behaviorChangedListener);
+        model_widget.propMaximum().addUntypedPropertyListener(behaviorChangedListener);
+        model_widget.propLimitsFromPV().addUntypedPropertyListener(behaviorChangedListener);
 
-        model_widget.propFormat().addUntypedPropertyListener(this::contentChanged);
-        model_widget.propPrecision().addUntypedPropertyListener(this::contentChanged);
-        model_widget.propShowUnits().addUntypedPropertyListener(this::contentChanged);
-        model_widget.runtimePropValue().addUntypedPropertyListener(this::contentChanged);
+        model_widget.propFormat().addUntypedPropertyListener(contentChangedListener);
+        model_widget.propPrecision().addUntypedPropertyListener(contentChangedListener);
+        model_widget.propShowUnits().addUntypedPropertyListener(contentChangedListener);
+        model_widget.runtimePropValue().addUntypedPropertyListener(contentChangedListener);
 
         behaviorChanged(null, null, null);
         contentChanged(null, null, null);
+    }
+
+    @Override
+    protected void unregisterListeners()
+    {
+        model_widget.propWidth().removePropertyListener(styleChangedListener);
+        model_widget.propHeight().removePropertyListener(styleChangedListener);
+        model_widget.propButtonsOnLeft().removePropertyListener(styleChangedListener);
+        model_widget.propForegroundColor().removePropertyListener(styleChangedListener);
+        model_widget.propBackgroundColor().removePropertyListener(styleChangedListener);
+        model_widget.propEnabled().removePropertyListener(styleChangedListener);
+        model_widget.propIncrement().removePropertyListener(behaviorChangedListener);
+        model_widget.propMinimum().removePropertyListener(behaviorChangedListener);
+        model_widget.propMaximum().removePropertyListener(behaviorChangedListener);
+        model_widget.propLimitsFromPV().removePropertyListener(behaviorChangedListener);
+        model_widget.propFormat().removePropertyListener(contentChangedListener);
+        model_widget.propPrecision().removePropertyListener(contentChangedListener);
+        model_widget.propShowUnits().removePropertyListener(contentChangedListener);
+        model_widget.runtimePropValue().removePropertyListener(contentChangedListener);
+        super.unregisterListeners();
     }
 
     @Override

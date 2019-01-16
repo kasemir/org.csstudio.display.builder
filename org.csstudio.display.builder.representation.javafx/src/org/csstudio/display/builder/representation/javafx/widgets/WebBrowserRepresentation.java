@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.widgets.WebBrowserWidget;
 import org.csstudio.display.builder.util.ResourceUtil;
@@ -45,11 +47,14 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
 {
     private final DirtyFlag dirty_size = new DirtyFlag();
     private final DirtyFlag dirty_url = new DirtyFlag();
+    private final UntypedWidgetPropertyListener sizeChangedListener = this::sizeChanged;
+    private final WidgetPropertyListener<String> urlChangedListener = this::urlChanged;
 
     private volatile double width;
     private volatile double height;
 
     private static final String[] downloads = new String[] { "zip", "csv", "cif", "tgz" };
+
 
     class Browser extends Region
     {
@@ -314,12 +319,22 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.propWidth().addUntypedPropertyListener(this::sizeChanged);
-        model_widget.propHeight().addUntypedPropertyListener(this::sizeChanged);
+        model_widget.propWidth().addUntypedPropertyListener(sizeChangedListener);
+        model_widget.propHeight().addUntypedPropertyListener(sizeChangedListener);
         if (!toolkit.isEditMode())
-            model_widget.propWidgetURL().addPropertyListener(this::urlChanged);
+            model_widget.propWidgetURL().addPropertyListener(urlChangedListener);
         //the showToolbar property cannot be changed at runtime
    }
+
+    @Override
+    protected void unregisterListeners()
+    {
+        model_widget.propWidth().removePropertyListener(sizeChangedListener);
+        model_widget.propHeight().removePropertyListener(sizeChangedListener);
+        if (!toolkit.isEditMode())
+            model_widget.propWidgetURL().removePropertyListener(urlChangedListener);
+        super.unregisterListeners();
+    }
 
     private void sizeChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {

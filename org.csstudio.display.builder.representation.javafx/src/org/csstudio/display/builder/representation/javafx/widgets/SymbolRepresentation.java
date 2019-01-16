@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.macros.MacroHandler;
@@ -83,23 +84,29 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
 
     private static final double INDEX_LABEL_SIZE = 32.0;
 
-    private int                                  arrayIndex             = 0;
-    private volatile boolean                     autoSize               = false;
-    private Symbol                               symbol;
-    private final Symbol                         defaultSymbol;
-    private final DefaultSymbolNode              defaultSymbolNode      = new DefaultSymbolNode();
-    private final DirtyFlag                      dirtyContent           = new DirtyFlag();
-    private final DirtyFlag                      dirtyGeometry          = new DirtyFlag();
-    private final DirtyFlag                      dirtyStyle             = new DirtyFlag();
-    private final DirtyFlag                      dirtyValue             = new DirtyFlag();
-    private volatile boolean                     enabled                = true;
-    private final ImageView                      imageView              = new ImageView();
-    private final Label                          indexLabel             = new Label();
-    private final Circle                         indexLabelBackground   = new Circle(INDEX_LABEL_SIZE / 2, Color.BLACK.deriveColor(0.0, 0.0, 0.0, 0.75));
-    private Dimension2D                          maxSize                = new Dimension2D(0, 0);
-    private final WidgetPropertyListener<String> symbolPropertyListener = this::symbolChanged;
-    private final AtomicReference<List<Symbol>>  symbols                = new AtomicReference<>(Collections.emptyList());
-    private final AtomicBoolean                  updatingValue          = new AtomicBoolean(false);
+    private int                                                        arrayIndex                  = 0;
+    private volatile boolean                                           autoSize                    = false;
+    private final UntypedWidgetPropertyListener                        contentChangedListener      = this::contentChanged;
+    private final Symbol                                               defaultSymbol;
+    private final DefaultSymbolNode                                    defaultSymbolNode           = new DefaultSymbolNode();
+    private final DirtyFlag                                            dirtyContent                = new DirtyFlag();
+    private final DirtyFlag                                            dirtyGeometry               = new DirtyFlag();
+    private final DirtyFlag                                            dirtyStyle                  = new DirtyFlag();
+    private final DirtyFlag                                            dirtyValue                  = new DirtyFlag();
+    private volatile boolean                                           enabled                     = true;
+    private final UntypedWidgetPropertyListener                        geometryChangedListener     = this::geometryChanged;
+    private final ImageView                                            imageView                   = new ImageView();
+    private final Label                                                indexLabel                  = new Label();
+    private final Circle                                               indexLabelBackground        = new Circle(INDEX_LABEL_SIZE / 2, Color.BLACK.deriveColor(0.0, 0.0, 0.0, 0.75));
+    private final WidgetPropertyListener<Integer>                      initialIndexChangedListener = this::initialIndexChanged;
+    private Dimension2D                                                maxSize                     = new Dimension2D(0, 0);
+    private final UntypedWidgetPropertyListener                        styleChangedListener        = this::styleChanged;
+    private Symbol                                                     symbol;
+    private final WidgetPropertyListener<String>                       symbolPropertyListener      = this::symbolChanged;
+    private final AtomicReference<List<Symbol>>                        symbols                     = new AtomicReference<>(Collections.emptyList());
+    private final WidgetPropertyListener<List<WidgetProperty<String>>> symbolsChangedListener      = this::symbolsChanged;
+    private final AtomicBoolean                                        updatingValue               = new AtomicBoolean(false);
+    private final WidgetPropertyListener<VType>                        valueChangedListener        = this::valueChanged;
 
     // ---- imageIndex property
     private IntegerProperty imageIndex = new SimpleIntegerProperty(-1);
@@ -182,8 +189,6 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
 
     @Override
     public void dispose ( ) {
-
-        model_widget.propSymbols().getValue().stream().forEach(p -> p.removePropertyListener(symbolPropertyListener));
 
         symbol = null;
 
@@ -388,34 +393,67 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
 
         super.registerListeners();
 
-        model_widget.propArrayIndex().addUntypedPropertyListener(this::contentChanged);
-        model_widget.propPVName().addPropertyListener(this::contentChanged);
+        model_widget.propArrayIndex().addUntypedPropertyListener(contentChangedListener);
+        model_widget.propPVName().addUntypedPropertyListener(contentChangedListener);
 
-        model_widget.propSymbols().addPropertyListener(this::symbolsChanged);
+        model_widget.propSymbols().addPropertyListener(symbolsChangedListener);
         model_widget.propSymbols().getValue().stream().forEach(p -> p.addPropertyListener(symbolPropertyListener));
 
-        model_widget.propInitialIndex().addPropertyListener(this::initialIndexChanged);
+        model_widget.propInitialIndex().addPropertyListener(initialIndexChangedListener);
 
-        model_widget.propAutoSize().addUntypedPropertyListener(this::geometryChanged);
-        model_widget.propVisible().addUntypedPropertyListener(this::geometryChanged);
-        model_widget.propX().addUntypedPropertyListener(this::geometryChanged);
-        model_widget.propY().addUntypedPropertyListener(this::geometryChanged);
-        model_widget.propWidth().addUntypedPropertyListener(this::geometryChanged);
-        model_widget.propHeight().addUntypedPropertyListener(this::geometryChanged);
-        model_widget.propPreserveRatio().addUntypedPropertyListener(this::geometryChanged);
-        model_widget.propRotation().addUntypedPropertyListener(this::geometryChanged);
+        model_widget.propAutoSize().addUntypedPropertyListener(geometryChangedListener);
+        model_widget.propVisible().addUntypedPropertyListener(geometryChangedListener);
+        model_widget.propX().addUntypedPropertyListener(geometryChangedListener);
+        model_widget.propY().addUntypedPropertyListener(geometryChangedListener);
+        model_widget.propWidth().addUntypedPropertyListener(geometryChangedListener);
+        model_widget.propHeight().addUntypedPropertyListener(geometryChangedListener);
+        model_widget.propPreserveRatio().addUntypedPropertyListener(geometryChangedListener);
+        model_widget.propRotation().addUntypedPropertyListener(geometryChangedListener);
 
-        model_widget.propBackgroundColor().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propEnabled().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propShowIndex().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propTransparent().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propBackgroundColor().addUntypedPropertyListener(styleChangedListener);
+        model_widget.propEnabled().addUntypedPropertyListener(styleChangedListener);
+        model_widget.propShowIndex().addUntypedPropertyListener(styleChangedListener);
+        model_widget.propTransparent().addUntypedPropertyListener(styleChangedListener);
 
         if ( toolkit.isEditMode() ) {
             dirtyValue.checkAndClear();
         } else {
-            model_widget.runtimePropValue().addPropertyListener(this::valueChanged);
+            model_widget.runtimePropValue().addPropertyListener(valueChangedListener);
             valueChanged(null, null, null);
         }
+
+    }
+
+    @Override
+    protected void unregisterListeners ( ) {
+
+        model_widget.propArrayIndex().removePropertyListener(contentChangedListener);
+        model_widget.propPVName().removePropertyListener(contentChangedListener);
+
+        model_widget.propSymbols().removePropertyListener(symbolsChangedListener);
+        model_widget.propSymbols().getValue().stream().forEach(p -> p.removePropertyListener(symbolPropertyListener));
+
+        model_widget.propInitialIndex().removePropertyListener(initialIndexChangedListener);
+
+        model_widget.propAutoSize().removePropertyListener(geometryChangedListener);
+        model_widget.propVisible().removePropertyListener(geometryChangedListener);
+        model_widget.propX().removePropertyListener(geometryChangedListener);
+        model_widget.propY().removePropertyListener(geometryChangedListener);
+        model_widget.propWidth().removePropertyListener(geometryChangedListener);
+        model_widget.propHeight().removePropertyListener(geometryChangedListener);
+        model_widget.propPreserveRatio().removePropertyListener(geometryChangedListener);
+        model_widget.propRotation().removePropertyListener(geometryChangedListener);
+
+        model_widget.propBackgroundColor().removePropertyListener(styleChangedListener);
+        model_widget.propEnabled().removePropertyListener(styleChangedListener);
+        model_widget.propShowIndex().removePropertyListener(styleChangedListener);
+        model_widget.propTransparent().removePropertyListener(styleChangedListener);
+
+        if ( !toolkit.isEditMode() ) {
+            model_widget.runtimePropValue().removePropertyListener(valueChangedListener);
+        }
+
+        super.unregisterListeners();
 
     }
 
@@ -532,7 +570,7 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
 
     }
 
-    private void initialIndexChanged ( final WidgetProperty<?> property, final Object oldValue, final Object newValue ) {
+    private void initialIndexChanged ( final WidgetProperty<Integer> property, final Object oldValue, final Object newValue ) {
         dirtyValue.mark();
         toolkit.scheduleUpdate(this);
     }
@@ -706,6 +744,10 @@ public class SymbolRepresentation extends RegionBaseRepresentation<StackPane, Sy
             String imageFileName = resolveImageFile(model_widget, fileName);
 
             if ( imageFileName != null ) {
+
+                if ( toolkit.isEditMode() ) {
+                    ImageCache.remove(imageFileName);
+                }
 
                 image = ImageCache.get(imageFileName);
 

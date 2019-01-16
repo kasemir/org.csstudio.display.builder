@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2018 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Objects;
 
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.ComboWidget;
@@ -33,6 +34,7 @@ import javafx.scene.text.Font;
 /** Creates JavaFX item for model widget
  *  @author Amanda Carpenter
  */
+@SuppressWarnings("nls")
 public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<String>, ComboWidget>
 {
     private volatile boolean active = false;
@@ -40,13 +42,17 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
     private final DirtyFlag dirty_style = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
     private final DirtyFlag dirty_enable = new DirtyFlag();
+    private final UntypedWidgetPropertyListener contentChangedListener = this::contentChanged;
+    private final UntypedWidgetPropertyListener enableChangedListener = this::enableChanged;
+    private final UntypedWidgetPropertyListener styleChangedListener = this::styleChanged;
+
     private volatile List<String> items = Collections.emptyList();
     private volatile int index = -1;
 
     @Override
     public ComboBox<String> createJFXNode() throws Exception
     {
-        final ComboBox<String> combo = new ComboBox<String>();
+        final ComboBox<String> combo = new ComboBox<>();
         if (! toolkit.isEditMode())
         {
             // 'editable' cannot be changed at runtime
@@ -57,7 +63,6 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
             {   // We are updating the UI, ignore
                 if (active)
                     return;
-
                 final String value = combo.getValue();
                 if (value != null)
                 {
@@ -66,26 +71,26 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
                     // ... which should soon be replaced by updated value, if accepted
                     Platform.runLater(() -> confirm(value));
                 }
-
             });
 
-            combo.setCellFactory(list -> {
-
-                final ListCell<String> cell = new ListCell<String>() {
+            // Also write to PV when user re-selects the current value
+            combo.setCellFactory(list ->
+            {
+                final ListCell<String> cell = new ListCell<String>()
+                {
                     @Override
-                    public void updateItem ( String item, boolean empty ) {
-
+                    public void updateItem(final String item, final boolean empty)
+                    {
                         super.updateItem(item, empty);
-
-                        if ( !empty ) {
+                        if ( !empty )
                             setText(item);
-                        }
-
                     }
                 };
-
-                cell.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
-                    if ( Objects.equals(combo.getValue(), cell.getItem()) ) {
+                cell.addEventFilter(MouseEvent.MOUSE_PRESSED, e ->
+                {
+                    // Is this a click on the 'current' value which would by default be ignored?
+                    if (Objects.equals(combo.getValue(), cell.getItem()))
+                    {
                         combo.fireEvent(new ActionEvent());
                         //  Alternatively...
                         //combo.setValue(null);
@@ -95,7 +100,6 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
                 });
 
                 return cell;
-
             });
 
         }
@@ -113,20 +117,36 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.propWidth().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propHeight().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propForegroundColor().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propBackgroundColor().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propFont().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propWidth().addUntypedPropertyListener(styleChangedListener);
+        model_widget.propHeight().addUntypedPropertyListener(styleChangedListener);
+        model_widget.propForegroundColor().addUntypedPropertyListener(styleChangedListener);
+        model_widget.propBackgroundColor().addUntypedPropertyListener(styleChangedListener);
+        model_widget.propFont().addUntypedPropertyListener(styleChangedListener);
 
-        model_widget.runtimePropValue().addUntypedPropertyListener(this::contentChanged);
-        model_widget.propItemsFromPV().addUntypedPropertyListener(this::contentChanged);
-        model_widget.propItems().addUntypedPropertyListener(this::contentChanged);
-        model_widget.propEnabled().addUntypedPropertyListener(this::enableChanged);
-        model_widget.runtimePropPVWritable().addUntypedPropertyListener(this::enableChanged);
+        model_widget.runtimePropValue().addUntypedPropertyListener(contentChangedListener);
+        model_widget.propItemsFromPV().addUntypedPropertyListener(contentChangedListener);
+        model_widget.propItems().addUntypedPropertyListener(contentChangedListener);
+        model_widget.propEnabled().addUntypedPropertyListener(enableChangedListener);
+        model_widget.runtimePropPVWritable().addUntypedPropertyListener(enableChangedListener);
 
         styleChanged(null, null, null);
         contentChanged(null, null, null);
+    }
+
+    @Override
+    protected void unregisterListeners()
+    {
+        model_widget.propWidth().removePropertyListener(styleChangedListener);
+        model_widget.propHeight().removePropertyListener(styleChangedListener);
+        model_widget.propForegroundColor().removePropertyListener(styleChangedListener);
+        model_widget.propBackgroundColor().removePropertyListener(styleChangedListener);
+        model_widget.propFont().removePropertyListener(styleChangedListener);
+        model_widget.runtimePropValue().removePropertyListener(contentChangedListener);
+        model_widget.propItemsFromPV().removePropertyListener(contentChangedListener);
+        model_widget.propItems().removePropertyListener(contentChangedListener);
+        model_widget.propEnabled().removePropertyListener(enableChangedListener);
+        model_widget.runtimePropPVWritable().removePropertyListener(enableChangedListener);
+        super.unregisterListeners();
     }
 
     private void confirm(final String value)
@@ -174,7 +194,7 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
         }
         else
         {
-            final List<String> new_items = new ArrayList<String>();
+            final List<String> new_items = new ArrayList<>();
             for (WidgetProperty<String> itemProp : model_widget.propItems().getValue())
                 new_items.add(itemProp.getValue());
 
