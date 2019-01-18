@@ -55,7 +55,10 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
         colors = createColors();
         value_color = colors[0];
 
-        return new Pane();
+        final Pane pane = new Pane();
+        // Avoid expensive Node.notifyParentOfBoundsChange()
+        pane.setManaged(false);
+        return pane;
     }
 
     private void createLED()
@@ -66,10 +69,13 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
         else
             led = new Ellipse();
         led.getStyleClass().add("led");
-        led.setStyle("-fx-stroke: " + JFXUtil.webRGB(model_widget.propLineColor().getValue()));
+        led.setManaged(false);
+
         label = new Label();
         label.getStyleClass().add("led_label");
         label.setAlignment(Pos.CENTER);
+        label.setManaged(false);
+
         jfx_node.getChildren().addAll(led, label);
     }
 
@@ -198,9 +204,7 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
             final int w = model_widget.propWidth().getValue();
             final int h = model_widget.propHeight().getValue();
 
-            jfx_node.setMinSize(w, h);
-            jfx_node.setPrefSize(w, h);
-            jfx_node.setMaxSize(w, h);
+            jfx_node.resize(w, h);
             if (led instanceof Ellipse)
             {
                 final Ellipse ell = (Ellipse) led;
@@ -215,12 +219,16 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
                 rect.setWidth(w);
                 rect.setHeight(h);
             }
-            label.setPrefSize(w, h);
+            label.resize(w, h);
         }
         if (dirty_content.checkAndClear())
         {
             led.setFill(value_color);
-            label.setText(value_label);
+            if (! value_label.equals(label.getText()))
+            {
+                label.setText(value_label);
+                label.layout();
+            }
         }
     }
 }
