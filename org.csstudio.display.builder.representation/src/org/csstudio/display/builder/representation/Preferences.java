@@ -64,4 +64,14 @@ public class Preferences
             milli = prefs.getInt(ID, "plot_update_delay", milli, null);
         return milli;
     }
+
+    public static int getImageUpdateDelayMillisec()
+    {
+        int milli = 100;
+        final IPreferencesService prefs = Platform.getPreferencesService();
+        if (prefs != null)
+            milli = prefs.getInt(ID, "image_update_delay", milli, null);
+        return milli;
+    }
+
 }
