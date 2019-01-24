@@ -68,6 +68,7 @@ public class TextUpdateRepresentation extends RegionBaseRepresentation<Control, 
             final TextArea area = new TextArea();
             area.setEditable(false);
             area.getStyleClass().add("text_entry");
+            area.setManaged(false);
             return area;
         }
         final Label label = new Label();
