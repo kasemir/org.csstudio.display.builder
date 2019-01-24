@@ -111,4 +111,10 @@ class WidgetTreeCell extends TextFieldTreeCell<WidgetOrTab>
                 setGraphic(null);
         }
     }
+
+    @Override
+    public void cancelEdit ( ) {
+        super.cancelEdit();
+        updateItem(getItem(), false);
+    }
 }
