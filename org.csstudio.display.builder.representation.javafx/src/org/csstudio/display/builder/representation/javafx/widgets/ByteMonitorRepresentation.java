@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.csstudio.display.builder.model.DirtyFlag;
@@ -24,6 +25,10 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Paint;
+import javafx.scene.paint.Stop;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
@@ -185,7 +190,7 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
             led.getStyleClass().add("led");
             led.setManaged(false);
             if (save_colorVals != null && i < save_colorVals.length)
-                led.setFill(save_colorVals[i]);
+                led.setFill(toolkit.isEditMode() ? editColor() : save_colorVals[i]);
 
             leds[i] = led;
             labels[i] = label;
@@ -364,6 +369,19 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
         toolkit.scheduleUpdate(this);
     }
 
+    private Paint editColor ( ) {
+
+        final Color[] save_colors = colors;
+
+        return new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE, Arrays.asList(
+            new Stop(0.0, save_colors[0]),
+            new Stop(0.5, save_colors[0]),
+            new Stop(0.5, save_colors[1]),
+            new Stop(1.0, save_colors[1])
+        ));
+
+    }
+
     @Override
     public void updateChanges()
     {
@@ -384,7 +402,7 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
 
             final int N = Math.min(save_leds.length, save_values.length);
             for (int i = 0; i < N; i++)
-                leds[i].setFill(save_values[i]);
+                leds[i].setFill(toolkit.isEditMode() ? editColor() : save_values[i]);
         }
     }
 }
