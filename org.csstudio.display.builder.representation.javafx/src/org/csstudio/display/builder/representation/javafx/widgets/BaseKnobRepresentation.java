@@ -241,7 +241,7 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
     @Override
     protected C createJFXNode ( ) throws Exception {
 
-        updateLimits();
+        updateLimits(false);
 
         C knob = createKnob();
 
@@ -480,9 +480,10 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
     }
 
     private void limitsChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
-        updateLimits();
-        dirtyLimits.mark();
-        toolkit.scheduleUpdate(this);
+        if ( updateLimits(model_widget.propLimitsFromPV().getValue()) ) {
+            dirtyLimits.mark();
+            toolkit.scheduleUpdate(this);
+        }
     }
 
     private void lookChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
@@ -510,7 +511,7 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
      *
      * @return {@code true} is something changed and and UI update is required.
      */
-    private boolean updateLimits ( ) {
+    private boolean updateLimits ( boolean limitsFromPV ) {
 
         boolean somethingChanged = false;
 
@@ -519,7 +520,7 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
         double newMax = model_widget.propMaximum().getValue();
 
         //  If invalid limits, fall back to 0..100 range.
-        if ( Double.isNaN(newMin) || Double.isNaN(newMax) || newMin > newMax ) {
+        if ( !Double.isFinite(newMin) || !Double.isFinite(newMax) || newMin > newMax ) {
             newMin = 0.0;
             newMax = 100.0;
         }
@@ -529,7 +530,7 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
         double newHigh = model_widget.propLevelHigh().getValue();
         double newHiHi = model_widget.propLevelHiHi().getValue();
 
-        if ( model_widget.propLimitsFromPV().getValue() ) {
+        if ( limitsFromPV ) {
 
             //  Try to get display range from PV.
             final Display display_info = ValueUtil.displayOf(model_widget.runtimePropValue().getValue());
@@ -539,7 +540,7 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
                 double infoMin = display_info.getLowerCtrlLimit();
                 double infoMax = display_info.getUpperCtrlLimit();
 
-                if ( !Double.isNaN(infoMin) && !Double.isNaN(infoMax) && infoMin < infoMax ) {
+                if ( Double.isFinite(infoMin) && Double.isFinite(infoMax) && infoMin < infoMax ) {
                     newMin = infoMin;
                     newMax = infoMax;
                 }
@@ -566,27 +567,27 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
             newHiHi = Double.NaN;
         }
 
-        if ( Double.compare(min, newMin) != 0 ) {
+        if ( min != newMin ) {
             min = newMin;
             somethingChanged = true;
         }
-        if ( Double.compare(max, newMax) != 0 ) {
+        if ( max != newMax ) {
             max = newMax;
             somethingChanged = true;
         }
-        if ( Double.compare(lolo, newLoLo) != 0 ) {
+        if ( lolo != newLoLo ) {
             lolo = newLoLo;
             somethingChanged = true;
         }
-        if ( Double.compare(low, newLow) != 0 ) {
+        if ( low != newLow ) {
             low = newLow;
             somethingChanged = true;
         }
-        if ( Double.compare(high, newHigh) != 0 ) {
+        if ( high != newHigh) {
             high = newHigh;
             somethingChanged = true;
         }
-        if ( Double.compare(hihi, newHiHi) != 0 ) {
+        if ( hihi != newHiHi ) {
             hihi = newHiHi;
             somethingChanged = true;
         }
@@ -598,11 +599,12 @@ public abstract class BaseKnobRepresentation<C extends Knob, W extends KnobWidge
     private void valueChanged ( final WidgetProperty<? extends VType> property, final VType old_value, final VType new_value ) {
 
         if ( model_widget.propLimitsFromPV().getValue() ) {
-            limitsChanged(null, null, null);
+            updateLimits(model_widget.propLimitsFromPV().getValue());
+            dirtyLimits.mark();
         }
 
         if ( model_widget.propPrecision().getValue() == -1 ) {
-            contentChanged(null, null, null);
+            dirtyContent.mark();
         }
 
         if ( model_widget.propUnitFromPV().getValue() ) {
