@@ -168,9 +168,9 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
 
     private void contentChanged(final WidgetProperty<VType> property, final VType old_value, final VType new_value)
     {
-        final boolean editMode = toolkit.isEditMode();
+        final boolean runtimeMode = ! toolkit.isEditMode();
         final VType value = model_widget.runtimePropValue().getValue();
-        if (value == null && ! editMode)
+        if (value == null && runtimeMode)
         {
             value_color = alarm_colors[AlarmSeverity.UNDEFINED.ordinal()];
             value_label = "";
@@ -183,7 +183,7 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
                 value_index = 0;
             if (value_index >= save_colors.length)
                 value_index = save_colors.length-1;
-            value_color = editMode ? editColor(save_colors) : save_colors[value_index];
+            value_color = runtimeMode ? save_colors[value_index] : editColor();
             value_label = computeLabel(value_index);
         }
 
@@ -191,8 +191,9 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
         toolkit.scheduleUpdate(this);
     }
 
-    private Paint editColor ( final Color[] save_colors ) {
+    private Paint editColor ( ) {
 
+        final Color[] save_colors = colors;
         List<Stop> stops = new ArrayList<>(2 * save_colors.length);
         double offset = 1.0 / save_colors.length;
 
@@ -201,7 +202,7 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
             stops.add(new Stop(( i + 1 ) * offset, save_colors[i]));
         }
 
-        return new LinearGradient(0, 0, 1, 0, true, CycleMethod.NO_CYCLE, stops);
+        return new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE, stops);
 
     }
 
