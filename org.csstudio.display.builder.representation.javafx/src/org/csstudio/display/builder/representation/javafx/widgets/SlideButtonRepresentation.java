@@ -76,8 +76,6 @@ public class SlideButtonRepresentation extends RegionBaseRepresentation<HBox, Sl
 
         if ( dirty_size.checkAndClear() ) {
 
-//            jfx_node.setPrefWidth(model_widget.propWidth().getValue());
-//            jfx_node.setPrefHeight(model_widget.propHeight().getValue());
             jfx_node.resize(model_widget.propWidth().getValue(), model_widget.propHeight().getValue());
 
             if ( model_widget.propAutoSize().getValue() ) {
