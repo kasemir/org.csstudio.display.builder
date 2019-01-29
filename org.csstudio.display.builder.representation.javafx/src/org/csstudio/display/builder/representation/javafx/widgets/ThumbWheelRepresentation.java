@@ -78,6 +78,9 @@ public class ThumbWheelRepresentation extends RegionBaseRepresentation<ThumbWhee
                 jfx_node.setIntegerDigits((int) value);
             }
 
+            // Since jfx_node.isManaged() == false, need to trigger layout
+            jfx_node.layout();
+
         }
 
         if ( dirtyGeometry.checkAndClear() ) {
@@ -90,8 +93,7 @@ public class ThumbWheelRepresentation extends RegionBaseRepresentation<ThumbWhee
 
             jfx_node.setLayoutX(model_widget.propX().getValue());
             jfx_node.setLayoutY(model_widget.propY().getValue());
-            jfx_node.setPrefWidth(model_widget.propWidth().getValue());
-            jfx_node.setPrefHeight(model_widget.propHeight().getValue());
+            jfx_node.resize(model_widget.propWidth().getValue(), model_widget.propHeight().getValue());
 
         }
 
@@ -161,8 +163,10 @@ public class ThumbWheelRepresentation extends RegionBaseRepresentation<ThumbWhee
 
                 double newVal = VTypeUtil.getValueNumber(model_widget.runtimePropValue().getValue()).doubleValue();
 
-                if ( !Double.isNaN(newVal) ) {
+                if ( Double.isFinite(newVal) ) {
                     jfx_node.setValue(clamp(newVal, min, max));
+                    // Since jfx_node.isManaged() == false, need to trigger layout
+                    jfx_node.layout();
                 } else {
                     //  TODO: CR: do something!!!
                 }
@@ -177,7 +181,7 @@ public class ThumbWheelRepresentation extends RegionBaseRepresentation<ThumbWhee
     @Override
     protected ThumbWheel createJFXNode ( ) throws Exception {
 
-        updateLimits();
+        updateLimits(false);
 
         ThumbWheel thumbwheel = new ThumbWheel();
 
@@ -202,6 +206,11 @@ public class ThumbWheelRepresentation extends RegionBaseRepresentation<ThumbWhee
         dirtyStyle.mark();
         dirtyValue.mark();
         toolkit.scheduleUpdate(this);
+
+        // This code manages layout,
+        // because otherwise for example border changes would trigger
+        // expensive Node.notifyParentOfBoundsChange() recursing up the scene graph
+        thumbwheel.setManaged(false);
 
         return thumbwheel;
 
@@ -299,7 +308,7 @@ public class ThumbWheelRepresentation extends RegionBaseRepresentation<ThumbWhee
     }
 
     private void limitsChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
-        updateLimits();
+        updateLimits(model_widget.propLimitsFromPV().getValue());
         dirtyLimits.mark();
         toolkit.scheduleUpdate(this);
     }
@@ -317,9 +326,10 @@ public class ThumbWheelRepresentation extends RegionBaseRepresentation<ThumbWhee
     /**
      * Updates, if required, the limits and zones.
      *
+     * @param limitsFromPV {@code true} if PV limits must be used.
      * @return {@code true} is something changed and and UI update is required.
      */
-    private boolean updateLimits ( ) {
+    private boolean updateLimits ( boolean limitsFromPV ) {
 
         boolean somethingChanged = false;
 
@@ -328,12 +338,12 @@ public class ThumbWheelRepresentation extends RegionBaseRepresentation<ThumbWhee
         double newMax = model_widget.propMaximum().getValue();
 
         //  If invalid limits, fall back to 0..100 range.
-        if ( Double.isNaN(newMin) || Double.isNaN(newMax) || newMin > newMax ) {
+        if ( !Double.isFinite(newMin) || !Double.isFinite(newMax) || newMin > newMax ) {
             newMin = 0.0;
             newMax = 100.0;
         }
 
-        if ( model_widget.propLimitsFromPV().getValue() ) {
+        if ( limitsFromPV ) {
 
             //  Try to get display range from PV.
             final Display display_info = ValueUtil.displayOf(model_widget.runtimePropValue().getValue());
@@ -343,7 +353,7 @@ public class ThumbWheelRepresentation extends RegionBaseRepresentation<ThumbWhee
                 double infoMin = display_info.getLowerCtrlLimit();
                 double infoMax = display_info.getUpperCtrlLimit();
 
-                if ( !Double.isNaN(infoMin) && !Double.isNaN(infoMax) && infoMin < infoMax ) {
+                if ( Double.isFinite(infoMin) && Double.isFinite(infoMax) && infoMin < infoMax ) {
                     newMin = infoMin;
                     newMax = infoMax;
                 }
@@ -352,11 +362,11 @@ public class ThumbWheelRepresentation extends RegionBaseRepresentation<ThumbWhee
 
         }
 
-        if ( Double.compare(min, newMin) != 0 ) {
+        if ( min != newMin ) {
             min = newMin;
             somethingChanged = true;
         }
-        if ( Double.compare(max, newMax) != 0 ) {
+        if ( max != newMax ) {
             max = newMax;
             somethingChanged = true;
         }
@@ -367,8 +377,11 @@ public class ThumbWheelRepresentation extends RegionBaseRepresentation<ThumbWhee
 
     private void valueChanged ( final WidgetProperty<? extends VType> property, final VType old_value, final VType new_value ) {
 
-        if ( model_widget.propLimitsFromPV().getValue() ) {
-            limitsChanged(null, null, null);
+        Boolean limitsFromPV = model_widget.propLimitsFromPV().getValue();
+
+        if ( limitsFromPV ) {
+            updateLimits(limitsFromPV);
+            dirtyLimits.mark();
         }
 
         dirtyValue.mark();
