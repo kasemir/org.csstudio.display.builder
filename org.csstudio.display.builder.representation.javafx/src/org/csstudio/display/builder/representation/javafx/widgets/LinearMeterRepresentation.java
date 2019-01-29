@@ -181,9 +181,9 @@ public class LinearMeterRepresentation extends BaseMeterRepresentation<LinearMet
     }
 
     @Override
-    protected boolean updateLimits ( ) {
+    protected boolean updateLimits ( boolean limitsFromPV ) {
 
-        boolean somethingChanged = super.updateLimits();
+        boolean somethingChanged = super.updateLimits(limitsFromPV);
 
         //  Model's values.
         boolean newZonesHighlight = model_widget.propHighlightZones().getValue();
@@ -210,7 +210,7 @@ public class LinearMeterRepresentation extends BaseMeterRepresentation<LinearMet
     }
 
     private void limitsChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
-        if ( updateLimits() ) {
+        if ( updateLimits(model_widget.propLimitsFromPV().getValue()) ) {
             dirtyLimits.mark();
             toolkit.scheduleUpdate(this);
         }
