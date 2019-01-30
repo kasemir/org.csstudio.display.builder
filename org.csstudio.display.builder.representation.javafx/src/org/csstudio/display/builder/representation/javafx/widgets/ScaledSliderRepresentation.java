@@ -53,6 +53,7 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
     private final UntypedWidgetPropertyListener layoutChangedListener = this::layoutChanged;
     private final UntypedWidgetPropertyListener limitsChangedListener = this::limitsChanged;
     private final WidgetPropertyListener<Boolean> enablementChangedListener = this::enablementChanged;
+    private final WidgetPropertyListener<Boolean> orientationChangedListener = this::orientationChanged;
     private final WidgetPropertyListener<Instant> runtimeConfChangedListener = (p, o, n) -> openConfigurationPanel();
     private final WidgetPropertyListener<VType> valueChangedListener = this::valueChanged;
 
@@ -121,7 +122,6 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         super.registerListeners();
         model_widget.propWidth().addUntypedPropertyListener(layoutChangedListener);
         model_widget.propHeight().addUntypedPropertyListener(layoutChangedListener);
-        model_widget.propHorizontal().addUntypedPropertyListener(layoutChangedListener);
         model_widget.propForegroundColor().addUntypedPropertyListener(layoutChangedListener);
         model_widget.propBackgroundColor().addUntypedPropertyListener(layoutChangedListener);
         model_widget.propTransparent().addUntypedPropertyListener(layoutChangedListener);
@@ -130,6 +130,8 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         model_widget.propScaleFormat().addUntypedPropertyListener(layoutChangedListener);
         model_widget.propShowMinorTicks().addUntypedPropertyListener(layoutChangedListener);
         model_widget.propIncrement().addUntypedPropertyListener(layoutChangedListener);
+
+        model_widget.propHorizontal().addPropertyListener(orientationChangedListener);
 
         model_widget.propEnabled().addPropertyListener(enablementChangedListener);
         model_widget.runtimePropPVWritable().addPropertyListener(enablementChangedListener);
@@ -167,7 +169,6 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
     {
         model_widget.propWidth().removePropertyListener(layoutChangedListener);
         model_widget.propHeight().removePropertyListener(layoutChangedListener);
-        model_widget.propHorizontal().removePropertyListener(layoutChangedListener);
         model_widget.propForegroundColor().removePropertyListener(layoutChangedListener);
         model_widget.propBackgroundColor().removePropertyListener(layoutChangedListener);
         model_widget.propTransparent().removePropertyListener(layoutChangedListener);
@@ -176,6 +177,8 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         model_widget.propScaleFormat().removePropertyListener(layoutChangedListener);
         model_widget.propShowMinorTicks().removePropertyListener(layoutChangedListener);
         model_widget.propIncrement().removePropertyListener(layoutChangedListener);
+
+        model_widget.propHorizontal().removePropertyListener(orientationChangedListener);
 
         model_widget.propEnabled().removePropertyListener(enablementChangedListener);
         model_widget.runtimePropPVWritable().removePropertyListener(enablementChangedListener);
@@ -198,6 +201,23 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
             model_widget.runtimePropConfigure().removePropertyListener(runtimeConfChangedListener);
         }
         super.unregisterListeners();
+    }
+
+    private void orientationChanged(final WidgetProperty<Boolean> prop, final Boolean old, final Boolean horizontal)
+    {
+        // When interactively changing orientation, swap width <-> height.
+        // This will only affect interactive changes once the widget is represented on the screen.
+        // Initially, when the widget is loaded from XML, the representation
+        // doesn't exist and the original width, height and orientation are applied
+        // without triggering a swap.
+        if (toolkit.isEditMode())
+        {
+            final int w = model_widget.propWidth().getValue();
+            final int h = model_widget.propHeight().getValue();
+            model_widget.propWidth().setValue(h);
+            model_widget.propHeight().setValue(w);
+        }
+        layoutChanged(prop, old, horizontal);
     }
 
     private void layoutChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
