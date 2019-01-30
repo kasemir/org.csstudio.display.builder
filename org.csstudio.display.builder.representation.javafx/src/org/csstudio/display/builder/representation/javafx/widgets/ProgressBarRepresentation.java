@@ -38,6 +38,12 @@ public class ProgressBarRepresentation extends RegionBaseRepresentation<Progress
     public ProgressBar createJFXNode() throws Exception
     {
         final ProgressBar bar = new ProgressBar();
+
+        // This code manages layout,
+        // because otherwise for example border changes would trigger
+        // expensive Node.notifyParentOfBoundsChange() recursing up the scene graph
+        bar.setManaged(false);
+
         return bar;
     }
 
@@ -125,15 +131,15 @@ public class ProgressBarRepresentation extends RegionBaseRepresentation<Progress
             double height = model_widget.propHeight().getValue();
             if (!horizontal)
             {
-                jfx_node.setPrefSize(height, width);
                 jfx_node.getTransforms().setAll(
                         new Translate(0, height),
                         new Rotate(-90, 0, 0));
+                jfx_node.resize(height, width);
             }
             else
             {
-                jfx_node.setPrefSize(width, height);
                 jfx_node.getTransforms().clear();
+                jfx_node.resize(width, height);
             }
             // Could clear style and use setBackground(),
             // but result is very plain.
