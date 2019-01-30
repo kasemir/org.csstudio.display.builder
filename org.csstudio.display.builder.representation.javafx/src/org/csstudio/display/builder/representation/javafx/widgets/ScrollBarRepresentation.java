@@ -46,6 +46,8 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
 
     private volatile double min = 0.0;
     private volatile double max = 100.0;
+    private volatile double block = ( max - min ) / 10.0;
+    private volatile double step = ( max - min ) / 100.0;
     private volatile boolean active = false; //is updating UI to match PV?
     private volatile boolean isValueChanging = false; //is user interacting with UI (need to suppress UI updates)?
     private volatile boolean enabled = false;
@@ -177,30 +179,10 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
 
     private void limitsChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        double min_val = model_widget.propMinimum().getValue();
-        double max_val = model_widget.propMaximum().getValue();
-        if (model_widget.propLimitsFromPV().getValue())
-        {
-            //Try to get display range from PV
-            final Display display_info = ValueUtil.displayOf(model_widget.runtimePropValue().getValue());
-            if (display_info != null)
-            {
-                min_val = display_info.getLowerDisplayLimit();
-                max_val = display_info.getUpperDisplayLimit();
-            }
+        if ( updateLimits(model_widget.propLimitsFromPV().getValue()) ) {
+            dirty_size.mark();
+            toolkit.scheduleUpdate(this);
         }
-        //If invalid limits, fall back to 0..100 range
-        if (min_val >= max_val)
-        {
-            min_val = 0.0;
-            max_val = 100.0;
-        }
-
-        min = min_val;
-        max = max_val;
-
-        dirty_size.mark();
-        toolkit.scheduleUpdate(this);
     }
 
     private void nodeValueChanged(final ObservableValue<? extends Number> property, final Number old_value, final Number new_value)
@@ -223,8 +205,69 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
 
     private void valueChanged(final WidgetProperty<? extends VType> property, final VType old_value, final VType new_value)
     {
+
+        if ( model_widget.propLimitsFromPV().getValue() ) {
+            updateLimits(model_widget.propLimitsFromPV().getValue());
+            dirty_size.mark();
+        }
+
         dirty_value.mark();
         toolkit.scheduleUpdate(this);
+
+    }
+
+    /**
+     * Updates, if required, the limits and zones.
+     *
+     * @return {@code true} is something changed and and UI update is required.
+     */
+    private boolean updateLimits ( boolean limitsFromPV ) {
+
+        boolean somethingChanged = false;
+
+        //  Model's values.
+        double min_val = model_widget.propMinimum().getValue();
+        double max_val = model_widget.propMaximum().getValue();
+
+        if ( limitsFromPV ) {
+
+            // Try to get display range from PV
+            final Display display_info = ValueUtil.displayOf(model_widget.runtimePropValue().getValue());
+
+            if ( display_info != null ) {
+                min_val = display_info.getLowerDisplayLimit();
+                max_val = display_info.getUpperDisplayLimit();
+            }
+
+        }
+
+        // If invalid limits, fall back to 0..100 range
+        if ( min_val >= max_val ) {
+            min_val = 0.0;
+            max_val = 100.0;
+        }
+
+        if ( min != min_val ) {
+            min = min_val;
+            somethingChanged = true;
+        }
+        if ( max != max_val ) {
+            max = max_val;
+            somethingChanged = true;
+        }
+
+        if ( somethingChanged ) {
+            if ( limitsFromPV ) {
+                block = ( max - min ) / 10.0;
+                step = ( max - min ) / 100.0;
+            } else {
+                block = model_widget.propBarLength().getValue();
+                step = model_widget.propIncrement().getValue();
+            }
+        }
+
+        return somethingChanged;
+
     }
 
     @Override
@@ -243,9 +286,9 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
             jfx_node.setMin(min);
             jfx_node.setMax(max);
             jfx_node.setOrientation(model_widget.propHorizontal().getValue() ? Orientation.HORIZONTAL : Orientation.VERTICAL);
-            jfx_node.setUnitIncrement(model_widget.propIncrement().getValue());
-            jfx_node.setBlockIncrement(model_widget.propIncrement().getValue());
-            jfx_node.setVisibleAmount(model_widget.propBarLength().getValue());
+            jfx_node.setUnitIncrement(step);
+            jfx_node.setBlockIncrement(block);
+            jfx_node.setVisibleAmount(block);
         }
         if (dirty_value.checkAndClear())
         {
