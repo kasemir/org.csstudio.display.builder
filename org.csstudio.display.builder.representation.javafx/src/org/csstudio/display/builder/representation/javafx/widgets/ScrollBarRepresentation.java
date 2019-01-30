@@ -97,6 +97,12 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
         enablementChanged(null, null, null);
         limitsChanged(null, null, null);
 
+
+        // This code manages layout,
+        // because otherwise for example border changes would trigger
+        // expensive Node.notifyParentOfBoundsChange() recursing up the scene graph
+        scrollbar.setManaged(false);
+
         return scrollbar;
     }
 
@@ -115,8 +121,8 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
         model_widget.propLimitsFromPV().addUntypedPropertyListener(limitsChangedListener);
         model_widget.propMinimum().addUntypedPropertyListener(limitsChangedListener);
         model_widget.propMaximum().addUntypedPropertyListener(limitsChangedListener);
-        model_widget.propBarLength().addUntypedPropertyListener(sizeChangedListener);
-        model_widget.propIncrement().addUntypedPropertyListener(sizeChangedListener);
+        model_widget.propBarLength().addUntypedPropertyListener(limitsChangedListener);
+        model_widget.propIncrement().addUntypedPropertyListener(limitsChangedListener);
         model_widget.propHorizontal().addPropertyListener(orientationChangedListener);
 
         model_widget.propEnabled().addPropertyListener(enablementChangedListener);
@@ -137,8 +143,8 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
         model_widget.propLimitsFromPV().removePropertyListener(limitsChangedListener);
         model_widget.propMinimum().removePropertyListener(limitsChangedListener);
         model_widget.propMaximum().removePropertyListener(limitsChangedListener);
-        model_widget.propBarLength().removePropertyListener(sizeChangedListener);
-        model_widget.propIncrement().removePropertyListener(sizeChangedListener);
+        model_widget.propBarLength().removePropertyListener(limitsChangedListener);
+        model_widget.propIncrement().removePropertyListener(limitsChangedListener);
         model_widget.propHorizontal().removePropertyListener(orientationChangedListener);
         model_widget.propEnabled().removePropertyListener(enablementChangedListener);
         model_widget.runtimePropValue().removePropertyListener(valueChangedListener);
@@ -228,6 +234,8 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
         //  Model's values.
         double min_val = model_widget.propMinimum().getValue();
         double max_val = model_widget.propMaximum().getValue();
+        double block_val = model_widget.propBarLength().getValue();
+        double step_val = model_widget.propIncrement().getValue();
 
         if ( limitsFromPV ) {
 
@@ -235,8 +243,14 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
             final Display display_info = ValueUtil.displayOf(model_widget.runtimePropValue().getValue());
 
             if ( display_info != null ) {
+
                 min_val = display_info.getLowerDisplayLimit();
                 max_val = display_info.getUpperDisplayLimit();
+
+                double delta = ( max_val - min_val );
+
+                block_val = delta / 10.0;
+                step_val = delta / 100.0;
             }
 
         }
@@ -255,15 +269,13 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
             max = max_val;
             somethingChanged = true;
         }
-
-        if ( somethingChanged ) {
-            if ( limitsFromPV ) {
-                block = ( max - min ) / 10.0;
-                step = ( max - min ) / 100.0;
-            } else {
-                block = model_widget.propBarLength().getValue();
-                step = model_widget.propIncrement().getValue();
-            }
+        if ( block != block_val ) {
+            block = block_val;
+            somethingChanged = true;
+        }
+        if ( step != step_val ) {
+            step = step_val;
+            somethingChanged = true;
         }
 
         return somethingChanged;
@@ -281,8 +293,7 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
         }
         if (dirty_size.checkAndClear())
         {
-            jfx_node.setPrefHeight(model_widget.propHeight().getValue());
-            jfx_node.setPrefWidth(model_widget.propWidth().getValue());
+            jfx_node.resize(model_widget.propWidth().getValue(), model_widget.propHeight().getValue());
             jfx_node.setMin(min);
             jfx_node.setMax(max);
             jfx_node.setOrientation(model_widget.propHorizontal().getValue() ? Orientation.HORIZONTAL : Orientation.VERTICAL);
