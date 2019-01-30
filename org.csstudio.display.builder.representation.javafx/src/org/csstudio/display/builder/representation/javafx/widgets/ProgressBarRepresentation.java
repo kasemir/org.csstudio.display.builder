@@ -10,6 +10,7 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.ProgressBarWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
@@ -31,6 +32,7 @@ public class ProgressBarRepresentation extends RegionBaseRepresentation<Progress
     private final DirtyFlag dirty_look = new DirtyFlag();
     private final DirtyFlag dirty_value = new DirtyFlag();
     private final UntypedWidgetPropertyListener lookChangedListener = this::lookChanged;
+    private final WidgetPropertyListener<Boolean> orientationChangedListener = this::orientationChanged;
     private final UntypedWidgetPropertyListener valueChangedListener = this::valueChanged;
     private volatile double percentage = 0.0;
 
@@ -58,7 +60,7 @@ public class ProgressBarRepresentation extends RegionBaseRepresentation<Progress
         model_widget.propMinimum().addUntypedPropertyListener(valueChangedListener);
         model_widget.propMaximum().addUntypedPropertyListener(valueChangedListener);
         model_widget.runtimePropValue().addUntypedPropertyListener(valueChangedListener);
-        model_widget.propHorizontal().addUntypedPropertyListener(lookChangedListener);
+        model_widget.propHorizontal().addPropertyListener(orientationChangedListener);
         valueChanged(null, null, null);
     }
 
@@ -72,8 +74,25 @@ public class ProgressBarRepresentation extends RegionBaseRepresentation<Progress
         model_widget.propMinimum().removePropertyListener(valueChangedListener);
         model_widget.propMaximum().removePropertyListener(valueChangedListener);
         model_widget.runtimePropValue().removePropertyListener(valueChangedListener);
-        model_widget.propHorizontal().removePropertyListener(lookChangedListener);
+        model_widget.propHorizontal().removePropertyListener(orientationChangedListener);
         super.unregisterListeners();
+    }
+
+    private void orientationChanged(final WidgetProperty<Boolean> prop, final Boolean old, final Boolean horizontal)
+    {
+        // When interactively changing orientation, swap width <-> height.
+        // This will only affect interactive changes once the widget is represented on the screen.
+        // Initially, when the widget is loaded from XML, the representation
+        // doesn't exist and the original width, height and orientation are applied
+        // without triggering a swap.
+        if (toolkit.isEditMode())
+        {
+            final int w = model_widget.propWidth().getValue();
+            final int h = model_widget.propHeight().getValue();
+            model_widget.propWidth().setValue(h);
+            model_widget.propHeight().setValue(w);
+        }
+        lookChanged(prop, old, horizontal);
     }
 
     private void lookChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
