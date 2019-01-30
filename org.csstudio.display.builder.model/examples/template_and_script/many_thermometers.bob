@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <display version="2.0.0">
-  <name>Many Progress Bar Instances</name>
+  <name>Many Thermometers Instances</name>
   <scripts>
     <script file="EmbeddedPy">
       <text><![CDATA[# This script is attached to a display
@@ -11,8 +11,8 @@
 from org.csstudio.display.builder.runtime.script import ScriptUtil
 from org.csstudio.display.builder.model import WidgetFactory
 
-width = 100
-height = 20
+width = 40
+height = 120
 gap = 5
 
 display = widget.getDisplayModel()
@@ -21,7 +21,7 @@ for i in range(500):
     x = gap + (i / rows) * (width+gap)
     y = 40 + (height+gap)*(i % rows)
 
-    w = WidgetFactory.getInstance().getWidgetDescriptor("progressbar").createWidget();
+    w = WidgetFactory.getInstance().getWidgetDescriptor("thermometer").createWidget();
     w.setPropertyValue("x", x)
     w.setPropertyValue("y", y)
     w.setPropertyValue("width", width)
@@ -36,7 +36,7 @@ for i in range(500):
   </scripts>
   <widget type="label" version="2.0.0">
     <name>Label</name>
-    <text>Many Progress Bars</text>
+    <text>Many Thermometers</text>
     <width>490</width>
     <height>31</height>
     <font>
