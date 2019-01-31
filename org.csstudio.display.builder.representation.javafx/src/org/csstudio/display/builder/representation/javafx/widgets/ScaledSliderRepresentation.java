@@ -107,6 +107,12 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         // pane.setGridLinesVisible(true);
         pane.add(markers, 0, 0);
         pane.getChildren().add(slider);
+
+        // This code manages layout,
+        // because otherwise for example border changes would trigger
+        // expensive Node.notifyParentOfBoundsChange() recursing up the scene graph
+        pane.setManaged(false);
+
         return pane;
     }
 
@@ -421,8 +427,7 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
 
             final double width = model_widget.propWidth().getValue();
             final double height = model_widget.propHeight().getValue();
-            jfx_node.setMaxSize(width, height);
-            jfx_node.setMinSize(width, height);
+            jfx_node.resize(model_widget.propWidth().getValue(), model_widget.propHeight().getValue());
             if (model_widget.propHorizontal().getValue())
                 slider.setMaxSize(width, Double.MAX_VALUE);
             else
