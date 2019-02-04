@@ -110,6 +110,12 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
                 e.consume();
             }
         });
+
+        // This code manages layout,
+        // because otherwise for example border changes would trigger
+        // expensive Node.notifyParentOfBoundsChange() recursing up the scene graph
+        spinner.setManaged(false);
+
         return spinner;
     }
 
@@ -425,8 +431,7 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
             jfx_node.editorProperty().getValue().setStyle("-fx-text-fill:" + color);
             final Color background = JFXUtil.convert(model_widget.propBackgroundColor().getValue());
             jfx_node.editorProperty().getValue().setBackground(new Background(new BackgroundFill(background, CornerRadii.EMPTY, Insets.EMPTY)));
-            jfx_node.setPrefWidth(model_widget.propWidth().getValue());
-            jfx_node.setPrefHeight(model_widget.propHeight().getValue());
+            jfx_node.resize(model_widget.propWidth().getValue(), model_widget.propHeight().getValue());
 
             final boolean enabled = model_widget.propEnabled().getValue();
             Styles.update(jfx_node, Styles.NOT_ENABLED, !enabled);
