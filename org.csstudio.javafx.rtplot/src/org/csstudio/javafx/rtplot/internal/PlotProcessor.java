@@ -483,6 +483,7 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
     /** Perform autoscale for all axes that are marked as such */
     public void autoscale()
     {
+        logger.log(Level.FINE, "Autoscale...");
         // In low-memory situation, the following can fail because threads for determining
         // range cannot be created.
         // Catch any error to keep autoscale problem from totally skipping a plot update.
@@ -498,6 +499,9 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
                     y_axes.add(axis);
                     ranges.add(determineValueRange(axis, plot.getXAxis().getValueRange()));
                 }
+                else
+                    logger.log(Level.FINE, () -> axis.getName() + " skipped");
+
             // If X axis is auto-scale, schedule fetching its range
             final Future<AxisRange<XTYPE>> pos_range = plot.getXAxis().isAutoscale()
                 ? determinePositionRange(all_y_axes)
@@ -511,6 +515,8 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
                 {
                     final ValueRange new_range = ranges.get(i).get();
                     double low = new_range.getLow(), high = new_range.getHigh();
+                    if (logger.isLoggable(Level.FINE))
+                        logger.log(Level.FINE, axis.getName() + " range " + low + " .. " + high);
                     if (low > high)
                         continue;
                     if (low == high)
@@ -569,6 +575,8 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
             final AxisRange<XTYPE> range = pos_range.get();
             if (range == null)
                 return;
+            if (logger.isLoggable(Level.FINE))
+                logger.log(Level.FINE, plot.getXAxis().getName() + " range " + range.getLow() + " .. " + range.getHigh());
             plot.getXAxis().setValueRange(range.getLow(), range.getHigh());
             plot.fireXAxisChange();
         }
