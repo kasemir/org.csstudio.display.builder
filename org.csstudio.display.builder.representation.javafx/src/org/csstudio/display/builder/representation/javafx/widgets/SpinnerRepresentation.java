@@ -29,6 +29,7 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Insets;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -47,6 +48,8 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
 {
     /** Is user actively editing the content, so updates should be suppressed? */
     private volatile boolean active = false;
+    
+    private boolean primaryButtonDown = false;
 
     private final DirtyFlag dirty_style = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
@@ -105,11 +108,38 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
         // Disable the contemporary triggering of a value change and of the
         // opening of contextual menu when right-clicking on the spinner's
         // buttons.
-        spinner.addEventFilter(MouseEvent.ANY, e -> {
-            if ( e.getButton() == MouseButton.SECONDARY ) {
+        spinner.addEventFilter(MouseEvent.ANY, e ->
+        {
+            if (e.getButton() == MouseButton.SECONDARY)
                 e.consume();
-            }
         });
+
+        // While context menu is handled by SWT, there is a problem
+        // when the primary button is held down to increment/decrement to spinner,
+        // and _then_ the secondary button is used to open the context menu.
+        // Releasing the primary button will in that case NOT stop the value changes
+        // because SWT has the focus.
+        // Fix is to trac the primaryButtonDown state,
+        // and suppress context menu while button is held down.
+        spinner.addEventFilter(MouseEvent.MOUSE_PRESSED, e ->
+        {
+            if (e.getButton() == MouseButton.PRIMARY)
+                 primaryButtonDown = true;
+            else if (e.getButton() == MouseButton.SECONDARY)
+                  e.consume();
+        });
+
+         spinner.addEventFilter(MouseEvent.MOUSE_RELEASED, e ->
+         {
+             if (e.getButton() == MouseButton.PRIMARY)
+                 primaryButtonDown = false;
+         });
+    
+         spinner.addEventFilter(ContextMenuEvent.CONTEXT_MENU_REQUESTED, e ->
+         {
+             if (primaryButtonDown)
+                 e.consume();
+         });
 
         // This code manages layout,
         // because otherwise for example border changes would trigger
