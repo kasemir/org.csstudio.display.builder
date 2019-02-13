@@ -105,14 +105,6 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
                 active = true;
             }
         });
-        // Disable the contemporary triggering of a value change and of the
-        // opening of contextual menu when right-clicking on the spinner's
-        // buttons.
-        spinner.addEventFilter(MouseEvent.ANY, e ->
-        {
-            if (e.getButton() == MouseButton.SECONDARY)
-                e.consume();
-        });
 
         // While context menu is handled by SWT, there is a problem
         // when the primary button is held down to increment/decrement to spinner,
