@@ -17,7 +17,7 @@
             <plugin>
                 <groupId>org.eclipse.tycho</groupId>
                 <artifactId>tycho-surefire-plugin</artifactId>
-                <version>1.1.0</version>
+                <version>${tycho.version}</version>
                 <configuration>
                     <testClass>org.csstudio.display.builder.runtime.test.RuntimeTestsSuite</testClass>
                 </configuration>

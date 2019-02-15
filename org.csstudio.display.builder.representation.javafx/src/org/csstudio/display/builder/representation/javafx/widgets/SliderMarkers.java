@@ -20,6 +20,7 @@ import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.control.skin.SliderSkin;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -139,7 +140,7 @@ public class SliderMarkers extends Pane
         // In the SliderSkin, that's a Pane with style "thumb".
         try
         {
-            com.sun.javafx.scene.control.skin.SliderSkin skin = (com.sun.javafx.scene.control.skin.SliderSkin) slider.getSkin();
+            SliderSkin skin = (SliderSkin) slider.getSkin();
             if (skin != null)
                 for (Node node : skin.getChildren())
                 {
