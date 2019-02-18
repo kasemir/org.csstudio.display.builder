@@ -230,7 +230,8 @@ public class ControllerSWT extends ControllerBase
     @Override
     public void stop()
     {
-        shell.removeShellListener(shell_listener);
+        if (shell != null)
+            shell.removeShellListener(shell_listener);
         super.stop();
     }
 }
