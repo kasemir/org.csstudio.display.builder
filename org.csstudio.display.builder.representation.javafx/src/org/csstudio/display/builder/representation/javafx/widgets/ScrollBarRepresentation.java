@@ -23,8 +23,10 @@ import org.diirt.vtype.ValueUtil;
 
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Orientation;
+import javafx.scene.Node;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -51,6 +53,8 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
     private volatile boolean active = false; //is updating UI to match PV?
     private volatile boolean isValueChanging = false; //is user interacting with UI (need to suppress UI updates)?
     private volatile boolean enabled = false;
+
+    private Node pressedButton = null;
 
     @Override
     protected ScrollBar createJFXNode() throws Exception
@@ -79,20 +83,73 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
         });
         if (! toolkit.isEditMode())
         {
-            scrollbar.addEventFilter(MouseEvent.ANY, e -> {
-                if ( e.getButton() == MouseButton.SECONDARY ) {
+
+            // While context menu is handled by SWT, there is a problem
+            // when the primary button is held down to increment/decrement the spinner,
+            // and _then_ the secondary button is used to open the context menu.
+            // Releasing the primary button will in that case NOT stop the value changes
+            // because SWT has the focus.
+            // Fix is to trace the pressedButton,
+            // and suppress context menu while button is held down,
+            // and stopping incrementing/decrementing when exiting the scrollbar.
+            scrollbar.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
+
+                // Prevent UI value update while actively changing
+                isValueChanging = true;
+
+                if ( e.getButton() == MouseButton.PRIMARY ) {
+
+                    Node node = e.getPickResult().getIntersectedNode();
+
+                    if ( node.getStyleClass().contains("increment-arrow")
+                      || node.getStyleClass().contains("decrement-arrow") ) {
+                        pressedButton = node;
+                    }
+
+                } else if ( e.getButton() == MouseButton.SECONDARY ) {
                     // Disable the contemporary triggering of a value change and of the
                     // opening of contextual menu when right-clicking on the scrollbar's
                     // buttons.
                     e.consume();
-                } else if ( MouseEvent.MOUSE_PRESSED.equals(e.getEventType()) ) {
-                    // Prevent UI value update while actively changing
-                    isValueChanging = true;
-                } else if ( MouseEvent.MOUSE_RELEASED.equals(e.getEventType()) ) {
-                    // Prevent UI value update while actively changing
-                    isValueChanging = false;
+                }
+
+            });
+
+            scrollbar.addEventFilter(MouseEvent.MOUSE_RELEASED, e -> {
+
+                if ( e.getButton() == MouseButton.PRIMARY ) {
+                    pressedButton = null;
+                }
+
+                // Prevent UI value update while actively changing
+                isValueChanging = false;
+
+            });
+
+            scrollbar.addEventFilter(ContextMenuEvent.CONTEXT_MENU_REQUESTED, e -> {
+
+                Node node = e.getPickResult().getIntersectedNode();
+
+                // Contextual menu is forbidden inside the scrollbar's buttons and track,
+                // otherwise if a button has focus (i.e. previously clicked), right-clicking
+                // on it and, after the context menu id shown, double-clicking outside the
+                // the menu and the scrollbar's boundary will close the menu and press
+                // the button (probably because SWT remember the JFX cursor's position
+                // when the menu was triggered). The same happens on scrollbar's track.
+                // This implementation will limit the context menu only inside the thumb.
+                if ( !node.getStyleClass().contains("thumb") ) {
+                    e.consume();
+                }
+
+            });
+
+            scrollbar.addEventFilter(MouseEvent.MOUSE_EXITED, e -> {
+                if ( pressedButton != null ) {
+                    pressedButton.fireEvent(e.copyFor(e.getSource(), e.getTarget(), MouseEvent.MOUSE_RELEASED));
+                    pressedButton = null;
                 }
             });
+
         }
         enablementChanged(null, null, null);
         limitsChanged(null, null, null);

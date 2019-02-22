@@ -27,6 +27,7 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectPropertyBase;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.input.ContextMenuEvent;
@@ -48,14 +49,14 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
 {
     /** Is user actively editing the content, so updates should be suppressed? */
     private volatile boolean active = false;
-    
-    private boolean primaryButtonDown = false;
 
     private final DirtyFlag dirty_style = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
     private final UntypedWidgetPropertyListener behaviorChangedListener = this::behaviorChanged;
     private final UntypedWidgetPropertyListener contentChangedListener = this::contentChanged;
     private final UntypedWidgetPropertyListener styleChangedListener = this::styleChanged;
+
+    private Node pressedButton = null;
 
     protected volatile String value_text = "<?>";
     protected volatile VType  value      = null;
@@ -107,31 +108,61 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
         });
 
         // While context menu is handled by SWT, there is a problem
-        // when the primary button is held down to increment/decrement to spinner,
+        // when the primary button is held down to increment/decrement the spinner,
         // and _then_ the secondary button is used to open the context menu.
         // Releasing the primary button will in that case NOT stop the value changes
         // because SWT has the focus.
-        // Fix is to trac the primaryButtonDown state,
-        // and suppress context menu while button is held down.
-        spinner.addEventFilter(MouseEvent.MOUSE_PRESSED, e ->
-        {
-            if (e.getButton() == MouseButton.PRIMARY)
-                 primaryButtonDown = true;
-            else if (e.getButton() == MouseButton.SECONDARY)
-                  e.consume();
+        // Fix is to trace the pressedButton,
+        // and suppress context menu while button is held down,
+        // and stopping incrementing/decrementing when exiting the spinner.
+        spinner.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
+            if ( e.getButton() == MouseButton.PRIMARY ) {
+
+                Node node = e.getPickResult().getIntersectedNode();
+
+                if ( node.getStyleClass().contains("increment-arrow-button")
+                  || node.getStyleClass().contains("decrement-arrow-button") ) {
+                    pressedButton = node;
+                }
+
+            } else if ( e.getButton() == MouseButton.SECONDARY ) {
+                // Disable the contemporary triggering of a value change and of the
+                // opening of contextual menu when right-clicking on the spinner's
+                // buttons.
+                e.consume();
+            }
         });
 
-         spinner.addEventFilter(MouseEvent.MOUSE_RELEASED, e ->
-         {
-             if (e.getButton() == MouseButton.PRIMARY)
-                 primaryButtonDown = false;
-         });
-    
-         spinner.addEventFilter(ContextMenuEvent.CONTEXT_MENU_REQUESTED, e ->
-         {
-             if (primaryButtonDown)
-                 e.consume();
-         });
+        spinner.addEventFilter(MouseEvent.MOUSE_RELEASED, e -> {
+            if ( e.getButton() == MouseButton.PRIMARY ) {
+                pressedButton = null;
+            }
+        });
+
+        spinner.addEventFilter(ContextMenuEvent.CONTEXT_MENU_REQUESTED, e -> {
+
+            Node node = e.getPickResult().getIntersectedNode();
+
+            // Contextual menu is forbidden inside the spinner's buttons, otherwise
+            // if a button has focus (i.e. previously clicked), right-clicking on it
+            // and, after the context menu id shown, double-clicking outside the
+            // the menu and the spinner's boundary will close the menu and press
+            // the button (probably because SWT remember the JFX cursor's position
+            // when the menu was triggered).
+            // This implementation will limit the context menu only inside the text area.
+            if ( node.getStyleClass().contains("increment-arrow-button")
+              || node.getStyleClass().contains("decrement-arrow-button") ) {
+               e.consume();
+            }
+
+        });
+
+        spinner.addEventFilter(MouseEvent.MOUSE_EXITED, e -> {
+            if ( pressedButton != null ) {
+                pressedButton.fireEvent(e.copyFor(e.getSource(), e.getTarget(), MouseEvent.MOUSE_RELEASED));
+                pressedButton = null;
+            }
+        });
 
         // This code manages layout,
         // because otherwise for example border changes would trigger
