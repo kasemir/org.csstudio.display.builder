@@ -153,6 +153,8 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
             if ( node.getStyleClass().contains("increment-arrow-button")
               || node.getStyleClass().contains("decrement-arrow-button") ) {
                e.consume();
+            } else {
+                spinner.getParent().fireEvent(e);
             }
 
         });
