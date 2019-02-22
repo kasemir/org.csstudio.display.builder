@@ -154,6 +154,8 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
               || node.getStyleClass().contains("decrement-arrow-button") ) {
                e.consume();
             } else {
+                // Allow SVW context-menu be opened on top of the JavaFX one
+                // when right-clicking on the text area.
                 spinner.getParent().fireEvent(e);
             }
 
