@@ -26,6 +26,7 @@ import org.diirt.vtype.ValueUtil;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectPropertyBase;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.event.Event;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Spinner;
@@ -150,14 +151,12 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
             // the button (probably because SWT remember the JFX cursor's position
             // when the menu was triggered).
             // This implementation will limit the context menu only inside the text area.
-            if ( node.getStyleClass().contains("increment-arrow-button")
-              || node.getStyleClass().contains("decrement-arrow-button") ) {
-               e.consume();
-            } else {
-                // Allow SVW context-menu be opened on top of the JavaFX one
-                // when right-clicking on the text area.
-                spinner.getParent().fireEvent(e);
+            if ( !node.getStyleClass().contains("increment-arrow-button")
+              && !node.getStyleClass().contains("decrement-arrow-button") ) {
+                spinner.getParent().fireEvent((Event) e.clone());
             }
+
+            e.consume();
 
         });
 
