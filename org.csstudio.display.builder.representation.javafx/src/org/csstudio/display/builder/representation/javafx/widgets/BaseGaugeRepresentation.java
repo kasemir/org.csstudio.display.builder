@@ -285,7 +285,7 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
     @Override
     protected Gauge createJFXNode ( ) throws Exception {
 
-        updateLimits();
+        updateLimits(false);
 
         Gauge gauge = GaugeBuilder.create().skinType(getSkin()).build();
 
@@ -504,7 +504,7 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
      *
      * @return {@code true} is something changed and and UI update is required.
      */
-    protected boolean updateLimits ( ) {
+    protected boolean updateLimits ( boolean limitsFromPV ) {
 
         boolean somethingChanged = false;
 
@@ -513,7 +513,7 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         double newMax = model_widget.propMaximum().getValue();
 
         //  If invalid limits, fall back to 0..100 range.
-        if ( Double.isNaN(newMin) || Double.isNaN(newMax) || newMin > newMax ) {
+        if ( !Double.isFinite(newMin) || !Double.isFinite(newMax) || newMin > newMax ) {
             newMin = 0.0;
             newMax = 100.0;
         }
@@ -523,7 +523,7 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         double newHigh = model_widget.propLevelHigh().getValue();
         double newHiHi = model_widget.propLevelHiHi().getValue();
 
-        if ( model_widget.propLimitsFromPV().getValue() ) {
+        if ( limitsFromPV ) {
 
             //  Try to get display range from PV.
             final Display display_info = ValueUtil.displayOf(model_widget.runtimePropValue().getValue());
@@ -533,7 +533,7 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
                 double infoMin = display_info.getLowerCtrlLimit();
                 double infoMax = display_info.getUpperCtrlLimit();
 
-                if ( !Double.isNaN(infoMin) && !Double.isNaN(infoMax) && infoMin < infoMax ) {
+                if ( Double.isFinite(infoMin) && Double.isFinite(infoMax) && infoMin < infoMax ) {
                     newMin = infoMin;
                     newMax = infoMax;
                 }
@@ -560,27 +560,27 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
             newHiHi = Double.NaN;
         }
 
-        if ( Double.compare(min, newMin) != 0 ) {
+        if ( min != newMin ) {
             min = newMin;
             somethingChanged = true;
         }
-        if ( Double.compare(max, newMax) != 0 ) {
+        if ( max != newMax ) {
             max = newMax;
             somethingChanged = true;
         }
-        if ( Double.compare(lolo, newLoLo) != 0 ) {
+        if ( lolo != newLoLo ) {
             lolo = newLoLo;
             somethingChanged = true;
         }
-        if ( Double.compare(low, newLow) != 0 ) {
+        if ( low != newLow ) {
             low = newLow;
             somethingChanged = true;
         }
-        if ( Double.compare(high, newHigh) != 0 ) {
+        if ( high != newHigh) {
             high = newHigh;
             somethingChanged = true;
         }
-        if ( Double.compare(hihi, newHiHi) != 0 ) {
+        if ( hihi != newHiHi ) {
             hihi = newHiHi;
             somethingChanged = true;
         }
@@ -592,11 +592,12 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
     protected final void valueChanged ( final WidgetProperty<? extends VType> property, final VType old_value, final VType new_value ) {
 
         if ( model_widget.propLimitsFromPV().getValue() ) {
-            limitsChanged(null, null, null);
+            updateLimits(model_widget.propLimitsFromPV().getValue());
+            dirtyLimits.mark();
         }
 
         if ( model_widget.propPrecision().getValue() == -1 ) {
-            contentChanged(null, null, null);
+            dirtyContent.mark();
         }
 
         if ( model_widget.propUnitFromPV().getValue() ) {
@@ -619,7 +620,7 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
     }
 
     private void limitsChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
-        if ( updateLimits() ) {
+        if ( updateLimits(model_widget.propLimitsFromPV().getValue()) ) {
             dirtyLimits.mark();
             toolkit.scheduleUpdate(this);
         }

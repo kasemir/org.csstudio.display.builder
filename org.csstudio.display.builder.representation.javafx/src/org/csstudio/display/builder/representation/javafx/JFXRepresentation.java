@@ -117,6 +117,7 @@ import org.csstudio.display.builder.representation.javafx.widgets.TextSymbolRepr
 import org.csstudio.display.builder.representation.javafx.widgets.TextUpdateRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.ThermometerRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.ThumbWheelRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.UnknownRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.WebBrowserRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.plots.ImageRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.plots.XYPlotRepresentation;
@@ -331,6 +332,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         factories.put(ThumbWheelWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new ThumbWheelRepresentation());
         factories.put(WebBrowserWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new WebBrowserRepresentation());
         factories.put(XYPlotWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new XYPlotRepresentation());
+        factories.put(WidgetRepresentationFactory.UNKNOWN, ( ) -> (WidgetRepresentation) new UnknownRepresentation());
     }
 
     @SuppressWarnings("unchecked")

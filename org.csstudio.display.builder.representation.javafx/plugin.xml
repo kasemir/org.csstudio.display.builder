@@ -171,5 +171,9 @@
             class="org.csstudio.display.builder.representation.javafx.widgets.plots.XYPlotRepresentation"
             type="xyplot">
       </representation>
+      <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.UnknownRepresentation"
+            type="UNKNOWN">
+      </representation>
    </extension>
 </plugin>

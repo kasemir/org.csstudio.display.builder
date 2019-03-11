@@ -18,6 +18,9 @@ import org.csstudio.display.builder.model.Widget;
 @FunctionalInterface
 public interface WidgetRepresentationFactory<TWP, TW>
 {
+    /** Type used to represent unknown widgets */
+    public static final String UNKNOWN = "UNKNOWN";
+
     /** Construct representation for a model widget
      *  @throws Exception on error
      */

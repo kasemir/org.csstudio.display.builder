@@ -68,10 +68,17 @@ public class TextUpdateRepresentation extends RegionBaseRepresentation<Control, 
             final TextArea area = new TextArea();
             area.setEditable(false);
             area.getStyleClass().add("text_entry");
+            area.setManaged(false);
             return area;
         }
         final Label label = new Label();
         label.getStyleClass().add("text_update");
+
+        // This code manages layout,
+        // because otherwise for example border changes would trigger
+        // expensive Node.notifyParentOfBoundsChange() recursing up the scene graph
+        label.setManaged(false);
+
         return label;
     }
 
@@ -189,32 +196,24 @@ public class TextUpdateRepresentation extends RegionBaseRepresentation<Control, 
             switch (rotation)
             {
             case NONE:
-                jfx_node.setMinSize(width, height);
-                jfx_node.setPrefSize(width, height);
-                jfx_node.setMaxSize(width, height);
+                jfx_node.resize(width, height);
                 if (was_ever_transformed)
                     jfx_node.getTransforms().clear();
                 break;
             case NINETY:
-                jfx_node.setMinSize(height, width);
-                jfx_node.setPrefSize(height, width);
-                jfx_node.setMaxSize(height, width);
+                jfx_node.resize(height, width);
                 jfx_node.getTransforms().setAll(new Rotate(-rotation.getAngle()),
                                                 new Translate(-height, 0));
                 was_ever_transformed = true;
                 break;
             case ONEEIGHTY:
-                jfx_node.setMinSize(width, height);
-                jfx_node.setPrefSize(width, height);
-                jfx_node.setMaxSize(width, height);
+                jfx_node.resize(width, height);
                 jfx_node.getTransforms().setAll(new Rotate(-rotation.getAngle()),
                                                 new Translate(-width, -height));
                 was_ever_transformed = true;
                                break;
             case MINUS_NINETY:
-                jfx_node.setMinSize(height, width);
-                jfx_node.setPrefSize(height, width);
-                jfx_node.setMaxSize(height, width);
+                jfx_node.resize(height, width);
                 jfx_node.getTransforms().setAll(new Rotate(-rotation.getAngle()),
                                                 new Translate(0, -width));
                 was_ever_transformed = true;
@@ -259,6 +258,8 @@ public class TextUpdateRepresentation extends RegionBaseRepresentation<Control, 
                 ((Label)jfx_node).setText(value_text);
             else
                 ((TextArea)jfx_node).setText(value_text);
+            // Since jfx_node.isManaged() == false, need to trigger layout
+            jfx_node.layout();
         }
     }
 }

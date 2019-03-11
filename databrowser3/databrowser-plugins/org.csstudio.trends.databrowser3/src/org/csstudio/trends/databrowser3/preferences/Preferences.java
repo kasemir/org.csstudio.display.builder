@@ -17,6 +17,7 @@ import org.csstudio.javafx.rtplot.TraceType;
 import org.csstudio.trends.databrowser3.Activator;
 import org.csstudio.trends.databrowser3.model.ArchiveDataSource;
 import org.csstudio.trends.databrowser3.model.ArchiveRescale;
+import org.csstudio.trends.databrowser3.model.RequestType;
 import org.csstudio.utility.singlesource.SingleSourcePlugin;
 import org.diirt.util.time.TimeDuration;
 import org.eclipse.core.runtime.IPath;
@@ -66,7 +67,8 @@ public class Preferences
             SECURE_DATA_BROWSER = "secure_data_browser",
             AUTOMATIC_HISTORY_REFRESH = "automatic_history_refresh",
             SCROLL_STEP = "scroll_step",
-            USE_TRACE_NAMES = "use_trace_names";
+            USE_TRACE_NAMES = "use_trace_names",
+            REQUEST_TYPE="request_type";
 
     public static boolean isAutomaticHistoryRefresh()
     {
@@ -150,6 +152,24 @@ public class Preferences
             }
         }
         return TraceType.AREA;
+    }
+
+    public static RequestType getRequestType()
+    {
+        final IPreferencesService prefs = Platform.getPreferencesService();
+        if (prefs != null)
+        {
+            final String type_name = prefs.getString(Activator.PLUGIN_ID, REQUEST_TYPE, RequestType.OPTIMIZED.name(), null);
+            try
+            {
+                return RequestType.valueOf(type_name);
+            }
+            catch (Exception ex)
+            {
+                Activator.getLogger().log(Level.WARNING, "Undefined request type option '" + type_name + "'", ex);
+            }
+        }
+        return RequestType.OPTIMIZED;
     }
 
     public static long getArchiveFetchDelay()

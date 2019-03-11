@@ -26,9 +26,12 @@ import org.diirt.vtype.ValueUtil;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectPropertyBase;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.event.Event;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -53,6 +56,8 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
     private final UntypedWidgetPropertyListener behaviorChangedListener = this::behaviorChanged;
     private final UntypedWidgetPropertyListener contentChangedListener = this::contentChanged;
     private final UntypedWidgetPropertyListener styleChangedListener = this::styleChanged;
+
+    private Node pressedButton = null;
 
     protected volatile String value_text = "<?>";
     protected volatile VType  value      = null;
@@ -102,14 +107,71 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
                 active = true;
             }
         });
-        // Disable the contemporary triggering of a value change and of the
-        // opening of contextual menu when right-clicking on the spinner's
-        // buttons.
-        spinner.addEventFilter(MouseEvent.ANY, e -> {
-            if ( e.getButton() == MouseButton.SECONDARY ) {
+
+        // While context menu is handled by SWT, there is a problem
+        // when the primary button is held down to increment/decrement the spinner,
+        // and _then_ the secondary button is used to open the context menu.
+        // Releasing the primary button will in that case NOT stop the value changes
+        // because SWT has the focus.
+        // Fix is to trace the pressedButton,
+        // and suppress context menu while button is held down,
+        // and stopping incrementing/decrementing when exiting the spinner.
+        spinner.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
+            if ( e.getButton() == MouseButton.PRIMARY ) {
+
+                Node node = e.getPickResult().getIntersectedNode();
+
+                if ( node.getStyleClass().contains("increment-arrow-button")
+                  || node.getStyleClass().contains("decrement-arrow-button") ) {
+                    pressedButton = node;
+                }
+
+            } else if ( e.getButton() == MouseButton.SECONDARY ) {
+                // Disable the contemporary triggering of a value change and of the
+                // opening of contextual menu when right-clicking on the spinner's
+                // buttons.
                 e.consume();
             }
         });
+
+        spinner.addEventFilter(MouseEvent.MOUSE_RELEASED, e -> {
+            if ( e.getButton() == MouseButton.PRIMARY ) {
+                pressedButton = null;
+            }
+        });
+
+        spinner.addEventFilter(ContextMenuEvent.CONTEXT_MENU_REQUESTED, e -> {
+
+            Node node = e.getPickResult().getIntersectedNode();
+
+            // Contextual menu is forbidden inside the spinner's buttons, otherwise
+            // if a button has focus (i.e. previously clicked), right-clicking on it
+            // and, after the context menu id shown, double-clicking outside the
+            // the menu and the spinner's boundary will close the menu and press
+            // the button (probably because SWT remember the JFX cursor's position
+            // when the menu was triggered).
+            // This implementation will limit the context menu only inside the text area.
+            if ( !node.getStyleClass().contains("increment-arrow-button")
+              && !node.getStyleClass().contains("decrement-arrow-button") ) {
+                spinner.getParent().fireEvent((Event) e.clone());
+            }
+
+            e.consume();
+
+        });
+
+        spinner.addEventFilter(MouseEvent.MOUSE_EXITED, e -> {
+            if ( pressedButton != null ) {
+                pressedButton.fireEvent(e.copyFor(e.getSource(), e.getTarget(), MouseEvent.MOUSE_RELEASED));
+                pressedButton = null;
+            }
+        });
+
+        // This code manages layout,
+        // because otherwise for example border changes would trigger
+        // expensive Node.notifyParentOfBoundsChange() recursing up the scene graph
+        spinner.setManaged(false);
+
         return spinner;
     }
 
@@ -425,8 +487,7 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
             jfx_node.editorProperty().getValue().setStyle("-fx-text-fill:" + color);
             final Color background = JFXUtil.convert(model_widget.propBackgroundColor().getValue());
             jfx_node.editorProperty().getValue().setBackground(new Background(new BackgroundFill(background, CornerRadii.EMPTY, Insets.EMPTY)));
-            jfx_node.setPrefWidth(model_widget.propWidth().getValue());
-            jfx_node.setPrefHeight(model_widget.propHeight().getValue());
+            jfx_node.resize(model_widget.propWidth().getValue(), model_widget.propHeight().getValue());
 
             final boolean enabled = model_widget.propEnabled().getValue();
             Styles.update(jfx_node, Styles.NOT_ENABLED, !enabled);

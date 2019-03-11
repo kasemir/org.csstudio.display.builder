@@ -32,13 +32,14 @@ import javafx.scene.paint.Color;
  */
 public class LinearMeterRepresentation extends BaseMeterRepresentation<LinearMeterWidget> {
 
-    private final DirtyFlag                     dirtyLimits           = new DirtyFlag();
-    private final DirtyFlag                     dirtyLook             = new DirtyFlag();
-    private final UntypedWidgetPropertyListener limitsChangedListener = this::limitsChanged;
-    private final UntypedWidgetPropertyListener lookChangedListener   = this::lookChanged;
-    private LinearMeterWidget.Orientation       orientation           = null;
-    private volatile boolean                    updatingAreas         = false;
-    private volatile boolean                    zonesHighlight        = true;
+    private final DirtyFlag                     dirtyLimits                = new DirtyFlag();
+    private final DirtyFlag                     dirtyLook                  = new DirtyFlag();
+    private final UntypedWidgetPropertyListener limitsChangedListener      = this::limitsChanged;
+    private final UntypedWidgetPropertyListener lookChangedListener        = this::lookChanged;
+    private final UntypedWidgetPropertyListener orientationChangedListener = this::orientationChanged;
+    private LinearMeterWidget.Orientation       orientation                = null;
+    private volatile boolean                    updatingAreas              = false;
+    private volatile boolean                    zonesHighlight             = true;
 
     @Override
     public void updateChanges ( ) {
@@ -161,9 +162,10 @@ public class LinearMeterRepresentation extends BaseMeterRepresentation<LinearMet
 
         model_widget.propBarColor().addUntypedPropertyListener(lookChangedListener);
         model_widget.propFlatBar().addUntypedPropertyListener(lookChangedListener);
-        model_widget.propOrientation().addUntypedPropertyListener(lookChangedListener);
 
         model_widget.propHighlightZones().addUntypedPropertyListener(limitsChangedListener);
+
+        model_widget.propOrientation().addUntypedPropertyListener(orientationChangedListener);
 
     }
 
@@ -172,18 +174,19 @@ public class LinearMeterRepresentation extends BaseMeterRepresentation<LinearMet
 
         model_widget.propBarColor().removePropertyListener(lookChangedListener);
         model_widget.propFlatBar().removePropertyListener(lookChangedListener);
-        model_widget.propOrientation().removePropertyListener(lookChangedListener);
 
         model_widget.propHighlightZones().removePropertyListener(limitsChangedListener);
+
+        model_widget.propOrientation().removePropertyListener(orientationChangedListener);
 
         super.unregisterListeners();
 
     }
 
     @Override
-    protected boolean updateLimits ( ) {
+    protected boolean updateLimits ( boolean limitsFromPV ) {
 
-        boolean somethingChanged = super.updateLimits();
+        boolean somethingChanged = super.updateLimits(limitsFromPV);
 
         //  Model's values.
         boolean newZonesHighlight = model_widget.propHighlightZones().getValue();
@@ -210,7 +213,7 @@ public class LinearMeterRepresentation extends BaseMeterRepresentation<LinearMet
     }
 
     private void limitsChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
-        if ( updateLimits() ) {
+        if ( updateLimits(model_widget.propLimitsFromPV().getValue()) ) {
             dirtyLimits.mark();
             toolkit.scheduleUpdate(this);
         }
@@ -219,6 +222,29 @@ public class LinearMeterRepresentation extends BaseMeterRepresentation<LinearMet
     private void lookChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
         dirtyLook.mark();
         toolkit.scheduleUpdate(this);
+    }
+
+    private void orientationChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
+
+        // When interactively changing orientation, swap width <-> height.
+        // This will only affect interactive changes once the widget is
+        // represented on the screen.
+        // Initially, when the widget is loaded from XML, the representation
+        // doesn't exist and the original width, height and orientation are
+        // applied
+        // without triggering a swap.
+        if ( toolkit.isEditMode() ) {
+
+            final int w = model_widget.propWidth().getValue();
+            final int h = model_widget.propHeight().getValue();
+
+            model_widget.propWidth().setValue(h);
+            model_widget.propHeight().setValue(w);
+
+        }
+
+        lookChanged(property, old_value, new_value);
+
     }
 
 }

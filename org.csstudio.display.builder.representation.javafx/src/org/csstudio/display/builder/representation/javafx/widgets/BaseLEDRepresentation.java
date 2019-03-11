@@ -7,6 +7,9 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
@@ -20,6 +23,10 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Paint;
+import javafx.scene.paint.Stop;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
@@ -40,7 +47,7 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
 
     protected volatile Color[] colors = new Color[0];
 
-    protected volatile Color value_color;
+    protected volatile Paint value_color;
     protected volatile String value_label;
 
     /** Actual LED Ellipse or Rectangle inside {@link Pane} to allow for border */
@@ -55,7 +62,10 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
         colors = createColors();
         value_color = colors[0];
 
-        return new Pane();
+        final Pane pane = new Pane();
+        // Avoid expensive Node.notifyParentOfBoundsChange()
+        pane.setManaged(false);
+        return pane;
     }
 
     private void createLED()
@@ -66,10 +76,13 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
         else
             led = new Ellipse();
         led.getStyleClass().add("led");
-        led.setStyle("-fx-stroke: " + JFXUtil.webRGB(model_widget.propLineColor().getValue()));
+        led.setManaged(false);
+
         label = new Label();
         label.getStyleClass().add("led_label");
         label.setAlignment(Pos.CENTER);
+        label.setManaged(false);
+
         jfx_node.getChildren().addAll(led, label);
     }
 
@@ -155,8 +168,9 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
 
     private void contentChanged(final WidgetProperty<VType> property, final VType old_value, final VType new_value)
     {
+        final boolean runtimeMode = ! toolkit.isEditMode();
         final VType value = model_widget.runtimePropValue().getValue();
-        if (value == null)
+        if (value == null && runtimeMode)
         {
             value_color = alarm_colors[AlarmSeverity.UNDEFINED.ordinal()];
             value_label = "";
@@ -169,12 +183,27 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
                 value_index = 0;
             if (value_index >= save_colors.length)
                 value_index = save_colors.length-1;
-            value_color = save_colors[value_index];
+            value_color = runtimeMode ? save_colors[value_index] : editColor();
             value_label = computeLabel(value_index);
         }
 
         dirty_content.mark();
         toolkit.scheduleUpdate(this);
+    }
+
+    private Paint editColor ( ) {
+
+        final Color[] save_colors = colors;
+        List<Stop> stops = new ArrayList<>(2 * save_colors.length);
+        double offset = 1.0 / save_colors.length;
+
+        for ( int i = 0; i < save_colors.length; i++ ) {
+            stops.add(new Stop(i * offset, save_colors[i]));
+            stops.add(new Stop(( i + 1 ) * offset, save_colors[i]));
+        }
+
+        return new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE, stops);
+
     }
 
     @Override
@@ -198,9 +227,7 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
             final int w = model_widget.propWidth().getValue();
             final int h = model_widget.propHeight().getValue();
 
-            jfx_node.setMinSize(w, h);
-            jfx_node.setPrefSize(w, h);
-            jfx_node.setMaxSize(w, h);
+            jfx_node.resize(w, h);
             if (led instanceof Ellipse)
             {
                 final Ellipse ell = (Ellipse) led;
@@ -215,12 +242,16 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
                 rect.setWidth(w);
                 rect.setHeight(h);
             }
-            label.setPrefSize(w, h);
+            label.resize(w, h);
         }
         if (dirty_content.checkAndClear())
         {
             led.setFill(value_color);
-            label.setText(value_label);
+            if (! value_label.equals(label.getText()))
+            {
+                label.setText(value_label);
+                label.layout();
+            }
         }
     }
 }
