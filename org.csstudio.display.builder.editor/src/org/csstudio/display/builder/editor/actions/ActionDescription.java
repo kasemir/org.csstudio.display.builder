@@ -10,6 +10,7 @@ package org.csstudio.display.builder.editor.actions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.Messages;
@@ -190,9 +191,11 @@ public abstract class ActionDescription
             final UndoableActionManager undo = editor.getUndoableActionManager();
             if (widgets.size() < 2)
                 return;
-            final int dest = widgets.get(0).propX().getValue();
-            for (int i=1; i<widgets.size(); ++i)
-                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).propX(), dest));
+            final int dest = widgets.stream()
+                                    .mapToInt(w -> w.propX().getValue())
+                                    .min()
+                                    .orElseThrow(NoSuchElementException::new);
+            widgets.stream().forEach(w -> undo.execute(new SetWidgetPropertyAction<Integer>(w.propX(), dest)));
         }
     };
 
@@ -225,10 +228,11 @@ public abstract class ActionDescription
             final UndoableActionManager undo = editor.getUndoableActionManager();
             if (widgets.size() < 2)
                 return;
-            final int dest = widgets.get(0).propX().getValue() + widgets.get(0).propWidth().getValue();
-            for (int i=1; i<widgets.size(); ++i)
-                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).propX(),
-                                                                  dest - widgets.get(i).propWidth().getValue()));
+            final int dest = widgets.stream()
+                                    .mapToInt(w -> w.propX().getValue() + w.propWidth().getValue())
+                                    .max()
+                                    .orElseThrow(NoSuchElementException::new);
+            widgets.stream().forEach(w -> undo.execute(new SetWidgetPropertyAction<Integer>(w.propX(), dest - w.propWidth().getValue())));
         }
     };
 
