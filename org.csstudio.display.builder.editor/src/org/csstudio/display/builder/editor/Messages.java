@@ -19,6 +19,7 @@ public class Messages extends NLS
     // Keep in alphabetical order, synchronized with messages.properties
     public static String AddElement;
     public static String AddWidget;
+    public static String Align;
     public static String AlignBottom;
     public static String AlignCenter;
     public static String AlignLeft;
@@ -26,6 +27,7 @@ public class Messages extends NLS
     public static String AlignRight;
     public static String AlignTop;
     public static String CreateGroup;
+    public static String Distribute;
     public static String DistributeHorizontally;
     public static String DistributeVertically;
     public static String Grid;
@@ -38,6 +40,7 @@ public class Messages extends NLS
     public static String MoveToBack;
     public static String MoveToFront;
     public static String MoveUp;
+    public static String Order;
     public static String PointCount_Fmt;
     public static String PropertyFilterTT;
     public static String Redo_TT;
@@ -49,9 +52,11 @@ public class Messages extends NLS
     public static String SaveDisplay_TT;
     public static String ScriptCountFMT;
     public static String SearchTextField;
+    public static String SelectZoomLevel;
     public static String SetPropertyFmt;
     public static String SetWidgetPoints;
     public static String ShowCoordinates;
+    public static String Size;
     public static String Snap;
     public static String Undo_TT;
     public static String UpdateWidgetLocation;
