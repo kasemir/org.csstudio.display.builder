@@ -191,11 +191,11 @@ public abstract class ActionDescription
             final UndoableActionManager undo = editor.getUndoableActionManager();
             if (widgets.size() < 2)
                 return;
-            final int dest = widgets.stream()
-                                    .mapToInt(w -> w.propX().getValue())
-                                    .min()
-                                    .orElseThrow(NoSuchElementException::new);
-            widgets.stream().forEach(w -> undo.execute(new SetWidgetPropertyAction<Integer>(w.propX(), dest)));
+            final int min = widgets.stream()
+                                   .mapToInt(w -> w.propX().getValue())
+                                   .min()
+                                   .orElseThrow(NoSuchElementException::new);
+            widgets.stream().forEach(w -> undo.execute(new SetWidgetPropertyAction<Integer>(w.propX(), min)));
         }
     };
 
@@ -210,10 +210,18 @@ public abstract class ActionDescription
             final UndoableActionManager undo = editor.getUndoableActionManager();
             if (widgets.size() < 2)
                 return;
-            final int dest = widgets.get(0).propX().getValue() + widgets.get(0).propWidth().getValue() / 2;
-            for (int i=1; i<widgets.size(); ++i)
+            final int min = widgets.stream()
+                                   .mapToInt(w -> w.propX().getValue())
+                                   .min()
+                                   .orElseThrow(NoSuchElementException::new);
+            final int max = widgets.stream()
+                                   .mapToInt(w -> w.propX().getValue() + w.propWidth().getValue())
+                                   .max()
+                                   .orElseThrow(NoSuchElementException::new);
+            final int center = ( min + max ) / 2;
+            for (int i=0; i<widgets.size(); ++i)
                 undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).propX(),
-                                                                  dest - widgets.get(i).propWidth().getValue()/2));
+                                                                  center - widgets.get(i).propWidth().getValue()/2));
         }
     };
 
@@ -228,11 +236,11 @@ public abstract class ActionDescription
             final UndoableActionManager undo = editor.getUndoableActionManager();
             if (widgets.size() < 2)
                 return;
-            final int dest = widgets.stream()
-                                    .mapToInt(w -> w.propX().getValue() + w.propWidth().getValue())
-                                    .max()
-                                    .orElseThrow(NoSuchElementException::new);
-            widgets.stream().forEach(w -> undo.execute(new SetWidgetPropertyAction<Integer>(w.propX(), dest - w.propWidth().getValue())));
+            final int max = widgets.stream()
+                                   .mapToInt(w -> w.propX().getValue() + w.propWidth().getValue())
+                                   .max()
+                                   .orElseThrow(NoSuchElementException::new);
+            widgets.stream().forEach(w -> undo.execute(new SetWidgetPropertyAction<Integer>(w.propX(), max - w.propWidth().getValue())));
         }
     };
 
@@ -247,9 +255,12 @@ public abstract class ActionDescription
             final UndoableActionManager undo = editor.getUndoableActionManager();
             if (widgets.size() < 2)
                 return;
-            final int dest = widgets.get(0).propY().getValue();
-            for (int i=1; i<widgets.size(); ++i)
-                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).propY(), dest));
+            final int min = widgets.stream()
+                                   .mapToInt(w -> w.propY().getValue())
+                                   .min()
+                                   .orElseThrow(NoSuchElementException::new);
+            for (int i=0; i<widgets.size(); ++i)
+                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).propY(), min));
         }
     };
 
@@ -264,10 +275,18 @@ public abstract class ActionDescription
             final UndoableActionManager undo = editor.getUndoableActionManager();
             if (widgets.size() < 2)
                 return;
-            final int dest = widgets.get(0).propY().getValue() + widgets.get(0).propHeight().getValue()/2;
-            for (int i=1; i<widgets.size(); ++i)
+            final int min = widgets.stream()
+                                   .mapToInt(w -> w.propY().getValue())
+                                   .min()
+                                   .orElseThrow(NoSuchElementException::new);
+            final int max = widgets.stream()
+                                   .mapToInt(w -> w.propY().getValue() + w.propHeight().getValue())
+                                   .max()
+                                   .orElseThrow(NoSuchElementException::new);
+            final int middle = ( min + max ) / 2;
+            for (int i=0; i<widgets.size(); ++i)
                 undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).propY(),
-                                                                  dest - widgets.get(i).propHeight().getValue()/2));
+                                                                  middle - widgets.get(i).propHeight().getValue()/2));
         }
     };
 
@@ -282,10 +301,13 @@ public abstract class ActionDescription
             final UndoableActionManager undo = editor.getUndoableActionManager();
             if (widgets.size() < 2)
                 return;
-            final int dest = widgets.get(0).propY().getValue() + widgets.get(0).propHeight().getValue();
-            for (int i=1; i<widgets.size(); ++i)
+            final int max = widgets.stream()
+                                   .mapToInt(w -> w.propY().getValue() + w.propHeight().getValue())
+                                   .max()
+                                   .orElseThrow(NoSuchElementException::new);
+            for (int i=0; i<widgets.size(); ++i)
                 undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).propY(),
-                                                                  dest - widgets.get(i).propHeight().getValue()));
+                                                                  max - widgets.get(i).propHeight().getValue()));
         }
     };
 
