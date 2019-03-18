@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2019 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -59,6 +59,20 @@ public class MacrosUnitTest
         assertThat(MacroHandler.containsMacros("Escaped \\$(S) Used $(S)"), equalTo(true));
     }
 
+    @Test
+    public void testBraces() throws Exception
+    {
+        assertThat(MacroHandler.findClosingBrace("${X\\(XX}", 1), equalTo(7));
+        assertThat(MacroHandler.findClosingBrace("$(XXX)", 1), equalTo(5));
+        assertThat(MacroHandler.findClosingBrace("$(X(X)X)", 1), equalTo(7));
+        assertThat(MacroHandler.findClosingBrace("$(X{X}X)", 1), equalTo(7));
+        assertThat(MacroHandler.findClosingBrace("$(X(X\\))X)", 1), equalTo(9));
+        assertThat(MacroHandler.findClosingBrace("${XXX}", 1), equalTo(5));
+        assertThat(MacroHandler.findClosingBrace("${XXX\\}}", 1), equalTo(7));
+        assertThat(MacroHandler.findClosingBrace("${XXX)", 1), equalTo(-1));
+        assertThat(MacroHandler.findClosingBrace("$(XXX}", 1), equalTo(-1));        
+    }
+    
     /** Test basic macro=value
      *  @throws Exception on error
      */
@@ -105,23 +119,26 @@ public class MacrosUnitTest
         assertThat(MacroHandler.replace(macros, "${NOT_CLOSED"), equalTo("${NOT_CLOSED"));
     }
 
-    /**
-     * Test macros with default values
-     *
-     * @throws Exception on error
+    /** Test macros with default values
+     *  @throws Exception on error
      */
     @Test
     public void testDefaults() throws Exception
     {
         Macros macros = new Macros();
         macros.add("A", "a");
+        macros.add("B", "b");
         System.out.println(macros);
 
         assertThat(MacroHandler.replace(macros, "Empty default ${S=} value"), equalTo("Empty default  value"));
+        // Name cannot include spaces
         assertThat(MacroHandler.replace(macros, "Invalid-name default ${ S=X}"), equalTo("Invalid-name default ${ S=X}"));
         assertThat(MacroHandler.replace(macros, "Default ${S=X} value"), equalTo("Default X value"));
-        assertThat(MacroHandler.replace(macros, "Default ${S = X + Y = Z} value"), equalTo("Default X + Y = Z value"));
-        assertThat(MacroHandler.replace(macros, "Doesn't use default: ${S = $(A=z)}"), equalTo("Doesn't use default: a"));
+        assertThat(MacroHandler.replace(macros, "Default ${S=X + Y = Z} value"), equalTo("Default X + Y = Z value"));
+        assertThat(MacroHandler.replace(macros, "Doesn't use default: ${S=$(A=z)}"), equalTo("Doesn't use default: a"));
+        
+        // Default value itself can be a macro
+        assertThat(MacroHandler.replace(macros, "$(A=$(B))"), equalTo("a"));
 
         macros = new Macros();
         macros.add("DERIVED", "$(MAIN=default)");
