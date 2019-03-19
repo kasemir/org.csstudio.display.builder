@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.Messages;
@@ -358,23 +359,62 @@ public abstract class ActionDescription
             if (N < 3)
                 return;
 
-            // Get left/right
-            int left = widgets.get(0).propX().getValue() + widgets.get(0).propWidth().getValue()/2;
-            int right = left;
-            for (int i=1; i<N; ++i)
-            {
-                int center = widgets.get(i).propX().getValue() + widgets.get(i).propWidth().getValue()/2;
-                left = Math.min(left, center);
-                right = Math.max(right, center);
+            final int min = widgets.stream()
+                                   .mapToInt(w -> w.propX().getValue())
+                                   .min()
+                                   .orElseThrow(NoSuchElementException::new);
+            final int max = widgets.stream()
+                                   .mapToInt(w -> w.propX().getValue() + w.propWidth().getValue())
+                                   .max()
+                                   .orElseThrow(NoSuchElementException::new);
+            final int totalWidth = widgets.stream()
+                                          .mapToInt(w -> w.propWidth().getValue())
+                                          .sum();
+            final int offset = ( max - min - totalWidth ) / ( N - 1 );
+
+            if ( offset > 0 ) {
+
+                List<Widget> sortedWidgets = widgets.stream()
+                                                    .sorted(( w1, w2 ) -> w1.propX().getValue().intValue() - w2.propX().getValue().intValue())
+                                                    .collect(Collectors.toList());
+                Widget widget = sortedWidgets.get(0);
+                int location = widget.propX().getValue();
+                int width = widget.propWidth().getValue();
+
+                for ( int i = 1; i < N - 1; i++ ) {
+
+                    widget = sortedWidgets.get(i);
+                    location += width + offset;
+
+                    undo.execute(new SetWidgetPropertyAction<Integer>(widget.propX(), location));
+
+                    width = widget.propWidth().getValue();
+
+                }
+
             }
 
-            // Set widget's X coord to distribute centers horizontally
-            for (int i=0; i<N; ++i)
-            {
-                final int dest = left + i*(right - left)/(N-1);
-                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).propX(),
-                                                                  dest - widgets.get(i).propWidth().getValue()/2));
-            }
+
+
+
+
+//            // Get left/right
+//            int left = widgets.get(0).propX().getValue() + widgets.get(0).propWidth().getValue()/2;
+//            int right = left;
+//            for (int i=1; i<N; ++i)
+//            {
+//                int center = widgets.get(i).propX().getValue() + widgets.get(i).propWidth().getValue()/2;
+//                left = Math.min(left, center);
+//                right = Math.max(right, center);
+//            }
+//
+//            // Set widget's X coord to distribute centers horizontally
+//            for (int i=0; i<N; ++i)
+//            {
+//                final int dest = left + i*(right - left)/(N-1);
+//                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).propX(),
+//                                                                  dest - widgets.get(i).propWidth().getValue()/2));
+//            }
         }
     };
 
