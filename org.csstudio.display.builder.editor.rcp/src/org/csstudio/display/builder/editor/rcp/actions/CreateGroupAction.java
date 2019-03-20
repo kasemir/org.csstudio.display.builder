@@ -31,19 +31,19 @@ import javafx.geometry.Rectangle2D;
 public class CreateGroupAction extends Action
 {
     private final DisplayEditor editor;
-    private final List<Widget> widgets;
 
-    public CreateGroupAction(final DisplayEditor editor, final List<Widget> widgets)
+    public CreateGroupAction(final DisplayEditor editor)
     {
         super(Messages.CreateGroup,
               AbstractUIPlugin.imageDescriptorFromPlugin(ModelPlugin.ID, "icons/group.png"));
         this.editor = editor;
-        this.widgets = widgets;
     }
 
     @Override
     public void run()
     {
+        final List<Widget> widgets = editor.getWidgetSelectionHandler().getSelection();
+
         editor.getWidgetSelectionHandler().clear();
 
         // Create group that surrounds the original widget boundaries

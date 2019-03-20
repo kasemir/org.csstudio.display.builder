@@ -7,18 +7,27 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.rcp;
 
+import java.util.List;
+
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.EditorUtil;
 import org.csstudio.display.builder.editor.actions.ActionDescription;
+import org.csstudio.display.builder.editor.rcp.actions.CreateGroupAction;
+import org.csstudio.display.builder.editor.rcp.actions.RemoveGroupAction;
 import org.csstudio.display.builder.editor.tree.WidgetTree;
 import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.widgets.GroupWidget;
 import org.csstudio.javafx.DialogHelper;
 import org.csstudio.javafx.PreferencesHelper;
 import org.csstudio.javafx.swt.JFX_SWT_Wrapper;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.swt.events.MenuAdapter;
+import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
@@ -143,15 +152,29 @@ public class OutlinePage extends Page implements IContentOutlinePage
 
     private void createContextMenu()
     {
+        final CreateGroupAction createGroupAction = new CreateGroupAction(editor);
+        final RemoveGroupAction removeGroupAction = new RemoveGroupAction(editor);
         final MenuManager manager = new MenuManager();
         manager.add(new CopyAction());
         manager.add(new DeleteAction());
         manager.add(new FindWidgetAction());
+        manager.add(new Separator());
+        manager.add(createGroupAction);
+        manager.add(removeGroupAction);
+        manager.add(new Separator());
         manager.add(new ActionForActionDescription(ActionDescription.TO_BACK));
         manager.add(new ActionForActionDescription(ActionDescription.MOVE_UP));
         manager.add(new ActionForActionDescription(ActionDescription.MOVE_DOWN));
         manager.add(new ActionForActionDescription(ActionDescription.TO_FRONT));
         final Menu menu = manager.createContextMenu(canvas);
+        menu.addMenuListener(new MenuAdapter() {
+            @Override
+            public void menuShown ( MenuEvent e ) {
+                final List<Widget> selection = editor.getWidgetSelectionHandler().getSelection();
+                createGroupAction.setEnabled(selection.size() >= 1);
+                removeGroupAction.setEnabled(selection.size() == 1  &&  selection.get(0) instanceof GroupWidget);
+            }
+        });
         canvas.setMenu(menu);
     }
 
