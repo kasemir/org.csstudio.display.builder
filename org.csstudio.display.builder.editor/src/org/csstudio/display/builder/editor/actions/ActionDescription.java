@@ -353,10 +353,12 @@ public abstract class ActionDescription
         @Override
         public void run(final DisplayEditor editor, final boolean selected)
         {
+
             final List<Widget> widgets = editor.getWidgetSelectionHandler().getSelection();
             final UndoableActionManager undo = editor.getUndoableActionManager();
             final int N = widgets.size();
-            if (N < 3)
+
+            if ( N < 3 )
                 return;
 
             final int min = widgets.stream()
@@ -371,69 +373,66 @@ public abstract class ActionDescription
                                           .mapToInt(w -> w.propWidth().getValue())
                                           .sum();
             final int offset = ( max - min - totalWidth ) / ( N - 1 );
+            final int center = ( min + max ) / 2;
+            final List<Widget> sortedWidgets = widgets.stream()
+                .sorted(( w1, w2 ) -> {
+
+                    final int w1x = w1.propX().getValue().intValue();
+                    final int w1w = w1.propWidth().getValue().intValue();
+                    final int w2x = w2.propX().getValue().intValue();
+                    final int w2w = w2.propWidth().getValue().intValue();
+
+                    if ( w1x <= w2x && w1x + w1w <= w2x + w2w ) {
+                        //  +------+        |   +------+
+                        //  |  w1  |            |  w1  |
+                        //  +------+        |   +------+
+                        //     +--------+                  +--------+
+                        //     |   w2   |   |              |   w2   |
+                        //     +--------+                  +--------+
+                        return -1;
+                    } else if ( w1x >= w2x && w1x + w1w >= w2x + w2w ) {
+                        //  +------+        |   +------+
+                        //  |  w2  |            |  w2  |
+                        //  +------+        |   +------+
+                        //     +--------+                  +--------+
+                        //     |   w1   |   |              |   w1   |
+                        //     +--------+                  +--------+
+                        return 1;
+                    } else {
+                        if ( w1w > w2w ) {
+                            //  +--------------------+
+                            //  |         w1         |
+                            //  +--------------------+
+                            //          +--------+
+                            //          |   w2   |
+                            //          +--------+
+                            return ( w1x + w1w / 2 < center ) ? -1 : 1;
+                        } else if ( w1w < w2w ) {
+                            //  +--------------------+
+                            //  |         w2         |
+                            //  +--------------------+
+                            //      +--------+
+                            //      |   w1   |
+                            //      +--------+
+                            return ( w2x + w2w / 2 < center ) ? 1 : -1;
+                        } else {
+                            //  +--------------------+
+                            //  |         w1         |
+                            //  +--------------------+
+                            //  +--------------------+
+                            //  |         w2         |
+                            //  +--------------------+
+                            return 0;
+                        }
+                    }
+
+                })
+                .collect(Collectors.toList());
 
             if ( offset >= 0 ) {
 
                 //  Equal gap distribution...
                 //  ------------------------------------------------------------
-                List<Widget> sortedWidgets = widgets.stream()
-                                                    .sorted(( w1, w2 ) -> {
-
-                                                        final int w1x = w1.propX().getValue().intValue();
-                                                        final int w1w = w1.propWidth().getValue().intValue();
-                                                        final int w2x = w2.propX().getValue().intValue();
-                                                        final int w2w = w2.propWidth().getValue().intValue();
-
-                                                        if ( w1x <= w2x && w1x + w1w <= w2x + w2w ) {
-                                                            //  +------+        |   +------+
-                                                            //  |  w1  |            |  w1  |
-                                                            //  +------+        |   +------+
-                                                            //     +--------+                  +--------+
-                                                            //     |   w2   |   |              |   w2   |
-                                                            //     +--------+                  +--------+
-                                                            return -1;
-                                                        } else if ( w1x >= w2x && w1x + w1w >= w2x + w2w ) {
-                                                            //  +------+        |   +------+
-                                                            //  |  w2  |            |  w2  |
-                                                            //  +------+        |   +------+
-                                                            //     +--------+                  +--------+
-                                                            //     |   w1   |   |              |   w1   |
-                                                            //     +--------+                  +--------+
-                                                            return 1;
-                                                        } else {
-
-                                                            final int center = ( min + max ) / 2;
-
-                                                            if ( w1w > w2w ) {
-                                                                //  +--------------------+
-                                                                //  |         w1         |
-                                                                //  +--------------------+
-                                                                //          +--------+
-                                                                //          |   w2   |
-                                                                //          +--------+
-                                                                return ( w1x + w1w / 2 < center ) ? -1 : 1;
-                                                            } else if ( w1w < w2w ) {
-                                                                //  +--------------------+
-                                                                //  |         w2         |
-                                                                //  +--------------------+
-                                                                //      +--------+
-                                                                //      |   w1   |
-                                                                //      +--------+
-                                                                return ( w2x + w2w / 2 < center ) ? 1 : -1;
-                                                            } else {
-                                                                //  +--------------------+
-                                                                //  |         w1         |
-                                                                //  +--------------------+
-                                                                //  +--------------------+
-                                                                //  |         w2         |
-                                                                //  +--------------------+
-                                                                return 0;
-                                                            }
-
-                                                        }
-
-                                                    })
-                                                    .collect(Collectors.toList());
                 Widget widget = sortedWidgets.get(0);
                 int location = widget.propX().getValue();
                 int width = widget.propWidth().getValue();
@@ -453,30 +452,34 @@ public abstract class ActionDescription
 
                 //  Centers distribution...
                 //  ------------------------------------------------------------
+                //  First (leftmost) and last (rightmost) elements of the list
+                //  are kept at their original position, the other widgets'
+                //  centers are equally distributed between the centers of first
+                //  and last widgets.
+                Widget widget = sortedWidgets.get(N - 1);
+                int location = widget.propX().getValue();
+                int width = widget.propWidth().getValue();
+
+                final int rightCenter = location + width / 2;
+
+                widget = sortedWidgets.get(0);
+                location = widget.propX().getValue();
+                width = widget.propWidth().getValue();
+
+                final int leftCenter = location + width / 2;
+                final int coffset = ( rightCenter - leftCenter ) /  ( N - 1 );
+
+                for ( int i = 1; i < N - 1; i++ ) {
+
+                    widget = sortedWidgets.get(i);
+                    width = widget.propWidth().getValue();
+
+                    undo.execute(new SetWidgetPropertyAction<Integer>(widget.propX(), ( leftCenter + i * coffset ) - width / 2));
+
+                }
 
             }
 
-
-
-
-
-//            // Get left/right
-//            int left = widgets.get(0).propX().getValue() + widgets.get(0).propWidth().getValue()/2;
-//            int right = left;
-//            for (int i=1; i<N; ++i)
-//            {
-//                int center = widgets.get(i).propX().getValue() + widgets.get(i).propWidth().getValue()/2;
-//                left = Math.min(left, center);
-//                right = Math.max(right, center);
-//            }
-//
-//            // Set widget's X coord to distribute centers horizontally
-//            for (int i=0; i<N; ++i)
-//            {
-//                final int dest = left + i*(right - left)/(N-1);
-//                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).propX(),
-//                                                                  dest - widgets.get(i).propWidth().getValue()/2));
-//            }
         }
     };
 
