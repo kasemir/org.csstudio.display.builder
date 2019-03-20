@@ -372,10 +372,67 @@ public abstract class ActionDescription
                                           .sum();
             final int offset = ( max - min - totalWidth ) / ( N - 1 );
 
-            if ( offset > 0 ) {
+            if ( offset >= 0 ) {
 
+                //  Equal gap distribution...
+                //  ------------------------------------------------------------
                 List<Widget> sortedWidgets = widgets.stream()
-                                                    .sorted(( w1, w2 ) -> w1.propX().getValue().intValue() - w2.propX().getValue().intValue())
+                                                    .sorted(( w1, w2 ) -> {
+
+                                                        final int w1x = w1.propX().getValue().intValue();
+                                                        final int w1w = w1.propWidth().getValue().intValue();
+                                                        final int w2x = w2.propX().getValue().intValue();
+                                                        final int w2w = w2.propWidth().getValue().intValue();
+
+                                                        if ( w1x <= w2x && w1x + w1w <= w2x + w2w ) {
+                                                            //  +------+        |   +------+
+                                                            //  |  w1  |            |  w1  |
+                                                            //  +------+        |   +------+
+                                                            //     +--------+                  +--------+
+                                                            //     |   w2   |   |              |   w2   |
+                                                            //     +--------+                  +--------+
+                                                            return -1;
+                                                        } else if ( w1x >= w2x && w1x + w1w >= w2x + w2w ) {
+                                                            //  +------+        |   +------+
+                                                            //  |  w2  |            |  w2  |
+                                                            //  +------+        |   +------+
+                                                            //     +--------+                  +--------+
+                                                            //     |   w1   |   |              |   w1   |
+                                                            //     +--------+                  +--------+
+                                                            return 1;
+                                                        } else {
+
+                                                            final int center = ( min + max ) / 2;
+
+                                                            if ( w1w > w2w ) {
+                                                                //  +--------------------+
+                                                                //  |         w1         |
+                                                                //  +--------------------+
+                                                                //          +--------+
+                                                                //          |   w2   |
+                                                                //          +--------+
+                                                                return ( w1x + w1w / 2 < center ) ? -1 : 1;
+                                                            } else if ( w1w < w2w ) {
+                                                                //  +--------------------+
+                                                                //  |         w2         |
+                                                                //  +--------------------+
+                                                                //      +--------+
+                                                                //      |   w1   |
+                                                                //      +--------+
+                                                                return ( w2x + w2w / 2 < center ) ? 1 : -1;
+                                                            } else {
+                                                                //  +--------------------+
+                                                                //  |         w1         |
+                                                                //  +--------------------+
+                                                                //  +--------------------+
+                                                                //  |         w2         |
+                                                                //  +--------------------+
+                                                                return 0;
+                                                            }
+
+                                                        }
+
+                                                    })
                                                     .collect(Collectors.toList());
                 Widget widget = sortedWidgets.get(0);
                 int location = widget.propX().getValue();
@@ -391,6 +448,11 @@ public abstract class ActionDescription
                     width = widget.propWidth().getValue();
 
                 }
+
+            } else if ( offset < 0 ) {
+
+                //  Centers distribution...
+                //  ------------------------------------------------------------
 
             }
 
