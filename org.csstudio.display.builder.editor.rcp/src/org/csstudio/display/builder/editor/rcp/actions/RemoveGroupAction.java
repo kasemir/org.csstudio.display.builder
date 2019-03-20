@@ -27,19 +27,19 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 public class RemoveGroupAction extends Action
 {
     private final DisplayEditor editor;
-    private final GroupWidget group;
 
-    public RemoveGroupAction(final DisplayEditor editor, final GroupWidget group)
+    public RemoveGroupAction(final DisplayEditor editor)
     {
         super(Messages.RemoveGroup,
               AbstractUIPlugin.imageDescriptorFromPlugin(ModelPlugin.ID, "icons/group.png"));
         this.editor = editor;
-        this.group = group;
     }
 
     @Override
     public void run()
     {
+        final GroupWidget group = (GroupWidget) editor.getWidgetSelectionHandler().getSelection().get(0);
+
         editor.getWidgetSelectionHandler().clear();
         // Group's children list will be empty, create copy to select la
         final List<Widget> widgets = new ArrayList<>(group.runtimeChildren().getValue());

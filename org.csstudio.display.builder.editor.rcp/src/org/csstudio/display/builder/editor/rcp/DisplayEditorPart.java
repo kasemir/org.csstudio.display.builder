@@ -209,9 +209,9 @@ public class DisplayEditorPart extends EditorPart
             if (! selection.isEmpty())
             {
                 if (selection.size() >= 1)
-                    manager.add(new CreateGroupAction(editor, selection));
+                    manager.add(new CreateGroupAction(editor));
                 if (selection.size() == 1  &&  selection.get(0) instanceof GroupWidget)
-                    manager.add(new RemoveGroupAction(editor, (GroupWidget)selection.get(0)));
+                    manager.add(new RemoveGroupAction(editor));
                 if (selection.size() == 1  &&  selection.get(0) instanceof EmbeddedDisplayWidget)
                     manager.add(new EditEmbeddedDisplayAction((EmbeddedDisplayWidget)selection.get(0)));
                 manager.add(morph);
