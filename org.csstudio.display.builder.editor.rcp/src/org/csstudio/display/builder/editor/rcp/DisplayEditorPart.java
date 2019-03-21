@@ -68,6 +68,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.window.Window;
@@ -92,6 +93,7 @@ import org.eclipse.ui.views.properties.IPropertySheetPage;
 
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.input.Clipboard;
 
 /** RCP 'Editor' for the display builder
  *  @author Kay Kasemir
@@ -203,9 +205,37 @@ public class DisplayEditorPart extends EditorPart
         mm.setRemoveAllWhenShown(true);
         mm.addMenuListener(manager ->
         {
-            manager.add(execute);
 
             final List<Widget> selection = editor.getWidgetSelectionHandler().getSelection();
+            final int selectionSize = selection.size();
+
+            manager.add(new UndoAction(editor));
+            manager.add(new RedoAction(editor));
+            manager.add(new Separator());
+
+            final CutDeleteAction cutAction = new CutDeleteAction(editor, true);
+            final CopyAction copyAction = new CopyAction(editor);
+            final PasteAction pasteAction = new PasteAction(parent, editor);
+
+            cutAction.setEnabled(selectionSize >= 1);
+            copyAction.setEnabled(selectionSize >= 1);
+            pasteAction.setEnabled(Clipboard.getSystemClipboard().hasString());
+
+            manager.add(cutAction);
+            manager.add(copyAction);
+            manager.add(pasteAction);
+            manager.add(new Separator());
+
+
+
+
+
+
+            manager.add(execute);
+
+
+
+
             if (! selection.isEmpty())
             {
                 if (selection.size() >= 1)

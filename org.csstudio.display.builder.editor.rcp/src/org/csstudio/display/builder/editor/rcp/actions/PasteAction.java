@@ -10,9 +10,12 @@ package org.csstudio.display.builder.editor.rcp.actions;
 import java.util.Random;
 
 import org.csstudio.display.builder.editor.DisplayEditor;
+import org.csstudio.display.builder.editor.rcp.Messages;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 
 /** Action to paste from clipboard
@@ -30,6 +33,8 @@ public class PasteAction extends RetargetActionHandler
     public PasteAction(final Control editor_control, final DisplayEditor editor)
     {
         super(editor, ActionFactory.PASTE.getCommandId());
+        setText(Messages.Paste);
+        setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_PASTE));
         this.editor_control = editor_control;
     }
 
