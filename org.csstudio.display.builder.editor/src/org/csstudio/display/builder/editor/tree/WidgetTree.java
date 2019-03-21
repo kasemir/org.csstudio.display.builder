@@ -176,7 +176,9 @@ public class WidgetTree
         tree_view.setOnKeyPressed(this::handleKeyPress);
         tree_view.addEventFilter(MouseEvent.ANY, e -> {
             if ( e.getButton() == MouseButton.SECONDARY ) {
-                //  Right-click should only open the context-menu and not select an element.
+                //  Right-click should only open the context-menu and not select an element,
+                //  otherwise a selection occurs after the context-menu is open and the
+                //  menu items will be inconsistently enabled.
                 e.consume();
             }
         });
