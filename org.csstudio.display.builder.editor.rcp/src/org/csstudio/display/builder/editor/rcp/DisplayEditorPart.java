@@ -193,11 +193,8 @@ public class DisplayEditorPart extends EditorPart
     private Menu createContextMenu(final Control parent)
     {
         final MenuManager mm = new MenuManager();
-
         final Action execute = new ExecuteDisplayAction(this);
-
         final MenuManager morph = new MorphWidgetMenuSupport(editor).getMenuManager();
-
         final ImageDescriptor icon = AbstractUIPlugin.imageDescriptorFromPlugin(ModelPlugin.ID, "icons/display.png");
         final Action perspective = new OpenPerspectiveAction(icon, Messages.OpenEditorPerspective, EditorPerspective.ID);
         final Action reload = new ReloadDisplayAction(this);
@@ -206,6 +203,7 @@ public class DisplayEditorPart extends EditorPart
         mm.addMenuListener(manager ->
         {
 
+            final DisplayModel model = editor.getModel();
             final List<Widget> selection = editor.getWidgetSelectionHandler().getSelection();
             final int selectionSize = selection.size();
 
@@ -226,40 +224,49 @@ public class DisplayEditorPart extends EditorPart
             manager.add(pasteAction);
             manager.add(new Separator());
 
+            final CreateGroupAction createGroupAction = new CreateGroupAction(editor);
+            final RemoveGroupAction removeGroupAction = new RemoveGroupAction(editor);
 
+            createGroupAction.setEnabled(selectionSize >= 1);
+            removeGroupAction.setEnabled(selectionSize == 1  &&  selection.get(0) instanceof GroupWidget);
 
+            manager.add(createGroupAction);
+            manager.add(removeGroupAction);
+            manager.add(new Separator());
 
+            if ( selectionSize >= 1 ) {
+                manager.add(morph);
+            } else {
+                manager.add(new Action(Messages.ReplaceWith) {{
+                    setImageDescriptor(Plugin.getIcon("replace.png"));
+                    setEnabled(false);
+                }});
+            }
 
+            final SetDisplaySize setDisplaySize = new SetDisplaySize(editor);
+
+            setDisplaySize.setEnabled(model != null  &&  !model.isClassModel() && selectionSize == 0);
+
+            manager.add(setDisplaySize);
+            manager.add(new Separator());
+
+            final ReloadClassesAction reloadClassesAction = new ReloadClassesAction(this);
+
+            reloadClassesAction.setEnabled(model != null  &&  !model.isClassModel());
 
             manager.add(execute);
-
-
-
-
-            if (! selection.isEmpty())
-            {
-                if (selection.size() >= 1)
-                    manager.add(new CreateGroupAction(editor));
-                if (selection.size() == 1  &&  selection.get(0) instanceof GroupWidget)
-                    manager.add(new RemoveGroupAction(editor));
-                if (selection.size() == 1  &&  selection.get(0) instanceof EmbeddedDisplayWidget)
-                    manager.add(new EditEmbeddedDisplayAction((EmbeddedDisplayWidget)selection.get(0)));
-                manager.add(morph);
-            }
-
             manager.add(reload);
+            manager.add(reloadClassesAction);
+            manager.add(new Separator());
 
-            final DisplayModel model = editor.getModel();
-            if (model != null  &&  !model.isClassModel())
-            {
-                manager.add(new ReloadClassesAction(this));
-
-                if (selection.isEmpty())
-                    manager.add(new SetDisplaySize(editor));
+            if ( selection.size() == 1 && selection.get(0) instanceof EmbeddedDisplayWidget ) {
+                manager.add(new EditEmbeddedDisplayAction((EmbeddedDisplayWidget) selection.get(0)));
+            } else {
+                manager.add(new EditEmbeddedDisplayAction(null));
             }
-
 
             manager.add(perspective);
+
         });
 
         return mm.createContextMenu(parent);

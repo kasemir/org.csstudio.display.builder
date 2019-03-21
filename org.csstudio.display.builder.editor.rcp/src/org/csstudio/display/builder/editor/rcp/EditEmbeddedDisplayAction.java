@@ -23,19 +23,23 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 @SuppressWarnings("nls")
 public class EditEmbeddedDisplayAction extends Action
 {
-    private String file;
+    private String file = null;
 
     public EditEmbeddedDisplayAction(final EmbeddedDisplayWidget widget)
     {
         super(Messages.EditEmbededDisplay,
               AbstractUIPlugin.imageDescriptorFromPlugin(ModelPlugin.ID, "icons/embedded.png"));
-        try
-        {
-            file = ModelResourceUtil.resolveResource(widget.getDisplayModel(), widget.propFile().getValue());
-        }
-        catch (Exception ex)
-        {
-            file = widget.propFile().getValue();
+        if ( widget != null ) {
+            try
+            {
+                file = ModelResourceUtil.resolveResource(widget.getDisplayModel(), widget.propFile().getValue());
+            }
+            catch (Exception ex)
+            {
+                file = widget.propFile().getValue();
+            }
+        } else {
+            setEnabled(false);
         }
     }
 
