@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.editor.rcp;
 
 import java.util.List;
+import java.util.Random;
 
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.EditorUtil;
@@ -39,6 +40,7 @@ import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
 import javafx.scene.Scene;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.input.Clipboard;
 import javafx.scene.layout.StackPane;
 
 /** Outline view
@@ -48,6 +50,51 @@ import javafx.scene.layout.StackPane;
  */
 public class OutlinePage extends Page implements IContentOutlinePage
 {
+    private class UndoAction extends Action
+    {
+        public UndoAction()
+        {
+            super(Messages.Undo);
+            setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_UNDO));
+        }
+
+        @Override
+        public void run()
+        {
+            editor.getUndoableActionManager().undoLast();
+        }
+    }
+
+    private class RedoAction extends Action
+    {
+        public RedoAction()
+        {
+            super(Messages.Redo);
+            setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_REDO));
+        }
+
+        @Override
+        public void run()
+        {
+            editor.getUndoableActionManager().redoLast();
+        }
+    }
+
+    private class CutAction extends Action
+    {
+        public CutAction()
+        {
+            super(Messages.Cut);
+            setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_CUT));
+        }
+
+        @Override
+        public void run()
+        {
+            editor.cutToClipboard();
+        }
+    }
+
     private class CopyAction extends Action
     {
         public CopyAction()
@@ -63,18 +110,22 @@ public class OutlinePage extends Page implements IContentOutlinePage
         }
     }
 
-    private class DeleteAction extends Action
+    private class PasteAction extends Action
     {
-        public DeleteAction()
+        public PasteAction()
         {
-            super(Messages.Delete);
-            setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_DELETE));
+            super(Messages.Paste);
+            setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_PASTE));
         }
 
         @Override
         public void run()
         {
-            editor.cutToClipboard();
+            final Random random = new Random();
+            int mouse_x = random.nextInt(100);
+            int mouse_y = random.nextInt(100);
+
+            editor.pasteFromClipboard(mouse_x, mouse_y);
         }
     }
 
@@ -152,11 +203,21 @@ public class OutlinePage extends Page implements IContentOutlinePage
 
     private void createContextMenu()
     {
+        final UndoAction undoAction = new UndoAction();
+        final RedoAction redoAction = new RedoAction();
+        final CutAction cutAction = new CutAction();
+        final CopyAction copyAction = new CopyAction();
+        final PasteAction pasteAction = new PasteAction();
         final CreateGroupAction createGroupAction = new CreateGroupAction(editor);
         final RemoveGroupAction removeGroupAction = new RemoveGroupAction(editor);
         final MenuManager manager = new MenuManager();
-        manager.add(new CopyAction());
-        manager.add(new DeleteAction());
+
+        manager.add(undoAction);
+        manager.add(redoAction);
+        manager.add(new Separator());
+        manager.add(cutAction);
+        manager.add(copyAction);
+        manager.add(pasteAction);
         manager.add(new FindWidgetAction());
         manager.add(new Separator());
         manager.add(createGroupAction);
@@ -166,13 +227,21 @@ public class OutlinePage extends Page implements IContentOutlinePage
         manager.add(new ActionForActionDescription(ActionDescription.MOVE_UP));
         manager.add(new ActionForActionDescription(ActionDescription.MOVE_DOWN));
         manager.add(new ActionForActionDescription(ActionDescription.TO_FRONT));
+
         final Menu menu = manager.createContextMenu(canvas);
+
         menu.addMenuListener(new MenuAdapter() {
             @Override
             public void menuShown ( MenuEvent e ) {
                 final List<Widget> selection = editor.getWidgetSelectionHandler().getSelection();
-                createGroupAction.setEnabled(selection.size() >= 1);
-                removeGroupAction.setEnabled(selection.size() == 1  &&  selection.get(0) instanceof GroupWidget);
+                final int selectionSize = selection.size();
+                undoAction.setEnabled(editor.getUndoableActionManager().canUndo());
+                redoAction.setEnabled(editor.getUndoableActionManager().canRedo());
+                cutAction.setEnabled(selectionSize >= 1);
+                copyAction.setEnabled(selectionSize >= 1);
+                pasteAction.setEnabled(Clipboard.getSystemClipboard().hasString());
+                createGroupAction.setEnabled(selectionSize >= 1);
+                removeGroupAction.setEnabled(selectionSize == 1  &&  selection.get(0) instanceof GroupWidget);
             }
         });
         canvas.setMenu(menu);

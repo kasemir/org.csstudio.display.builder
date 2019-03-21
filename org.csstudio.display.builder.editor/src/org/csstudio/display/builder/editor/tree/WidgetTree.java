@@ -41,6 +41,8 @@ import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.util.Callback;
 
 /** Tree view of widget hierarchy
@@ -172,6 +174,12 @@ public class WidgetTree
 
         bindSelections();
         tree_view.setOnKeyPressed(this::handleKeyPress);
+        tree_view.addEventFilter(MouseEvent.ANY, e -> {
+            if ( e.getButton() == MouseButton.SECONDARY ) {
+                //  Right-click should only open the context-menu and not select an element.
+                e.consume();
+            }
+        });
 
         return tree_view;
     }
