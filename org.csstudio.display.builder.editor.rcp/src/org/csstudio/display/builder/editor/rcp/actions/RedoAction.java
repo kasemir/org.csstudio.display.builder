@@ -8,10 +8,13 @@
 package org.csstudio.display.builder.editor.rcp.actions;
 
 import org.csstudio.display.builder.editor.DisplayEditor;
+import org.csstudio.display.builder.editor.rcp.Messages;
 import org.csstudio.display.builder.editor.undo.GroupWidgetsAction;
 import org.csstudio.display.builder.editor.undo.RemoveWidgetsAction;
 import org.csstudio.display.builder.editor.undo.UnGroupWidgetsAction;
 import org.csstudio.display.builder.util.undo.UndoableAction;
+import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 
 /** Action to re-do last operation
@@ -22,6 +25,8 @@ public class RedoAction extends RetargetActionHandler
     public RedoAction(final DisplayEditor editor)
     {
         super(editor, ActionFactory.REDO.getCommandId());
+        setText(Messages.Redo);
+        setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_REDO));
         setEnabled(editor.getUndoableActionManager().canRedo());
     }
 

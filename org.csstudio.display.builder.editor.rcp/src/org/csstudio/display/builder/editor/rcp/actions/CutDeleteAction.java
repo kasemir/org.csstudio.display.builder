@@ -23,7 +23,7 @@ public class CutDeleteAction extends RetargetActionHandler
                       ? ActionFactory.CUT.getCommandId()
                       : ActionFactory.DELETE.getCommandId());
 
-        IWorkbenchAction action = ActionFactory.DELETE.create(PlatformUI.getWorkbench().getActiveWorkbenchWindow());
+        IWorkbenchAction action = ( cut_or_delete ? ActionFactory.CUT : ActionFactory.DELETE).create(PlatformUI.getWorkbench().getActiveWorkbenchWindow());
         setText(action.getText());
         setImageDescriptor(action.getImageDescriptor());
         action = null;
