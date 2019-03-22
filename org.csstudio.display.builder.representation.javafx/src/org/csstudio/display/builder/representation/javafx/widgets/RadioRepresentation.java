@@ -17,6 +17,7 @@ import java.util.logging.Level;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.FormatOption;
 import org.csstudio.display.builder.model.util.FormatOptionHandler;
 import org.csstudio.display.builder.model.util.VTypeUtil;
@@ -52,6 +53,7 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
     private final DirtyFlag dirty_style = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
     private final UntypedWidgetPropertyListener contentChangedListener = this::contentChanged;
+    private final WidgetPropertyListener<String> itemChangedListener = this::itemChanged;
     private final UntypedWidgetPropertyListener sizeChangedListener = this::sizeChanged;
     private final UntypedWidgetPropertyListener styleChangedListener = this::styleChanged;
 
@@ -91,6 +93,7 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
         model_widget.runtimePropValue().addUntypedPropertyListener(contentChangedListener);
         model_widget.propItemsFromPV().addUntypedPropertyListener(contentChangedListener);
         model_widget.propItems().addUntypedPropertyListener(contentChangedListener);
+        model_widget.propItems().getValue().stream().forEach(p -> p.addPropertyListener(itemChangedListener));
 
         if (! toolkit.isEditMode())
             toggle.selectedToggleProperty().addListener(this::selectionChanged);
@@ -105,13 +108,16 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
         model_widget.propWidth().removePropertyListener(sizeChangedListener);
         model_widget.propHeight().removePropertyListener(sizeChangedListener);
         model_widget.propHorizontal().removePropertyListener(sizeChangedListener);
+
         model_widget.propForegroundColor().removePropertyListener(styleChangedListener);
         model_widget.propFont().removePropertyListener(styleChangedListener);
         model_widget.propEnabled().removePropertyListener(styleChangedListener);
         model_widget.runtimePropPVWritable().removePropertyListener(styleChangedListener);
+
         model_widget.runtimePropValue().removePropertyListener(contentChangedListener);
         model_widget.propItemsFromPV().removePropertyListener(contentChangedListener);
         model_widget.propItems().removePropertyListener(contentChangedListener);
+        model_widget.propItems().getValue().stream().forEach(p -> p.removePropertyListener(itemChangedListener));
         super.unregisterListeners();
     }
 
@@ -209,9 +215,28 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
         return labels.indexOf(VTypeUtil.getValueString(value, false));
     }
 
+    private void itemChanged ( final WidgetProperty<String> property, final String oldValue, final String newValue ) {
+        final VType value = model_widget.runtimePropValue().getValue();
+        final boolean fromPV = model_widget.propItemsFromPV().getValue() && value instanceof VEnum;
+        items = computeItems(value, fromPV);
+        dirty_content.mark();
+        dirty_style.mark(); // Adjust colors
+        toolkit.scheduleUpdate(this);
+    }
+
     /** The value or how we treat the value changed */
+    @SuppressWarnings( "unchecked" )
     private void contentChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
+
+        if ( old_value != null ) {
+            ((List<WidgetProperty<String>>) old_value).stream().forEach(p -> p.removePropertyListener(itemChangedListener));
+        }
+
+        if ( new_value != null ) {
+            ((List<WidgetProperty<String>>) new_value).stream().forEach(p -> p.addPropertyListener(itemChangedListener));
+        }
+
         final VType value = model_widget.runtimePropValue().getValue();
         final boolean fromPV = model_widget.propItemsFromPV().getValue() && value instanceof VEnum;
         items = computeItems(value, fromPV);
