@@ -203,31 +203,33 @@ public class WidgetTree
      */
     public static boolean handleWidgetOrderKeys(final KeyEvent event, final DisplayEditor editor)
     {
-        if (event.isAltDown())
-        {
-            switch (event.getCode())
-            {
-            case PAGE_UP:
-                event.consume();
-                ActionDescription.TO_BACK.run(editor);
-                return true;
-            case UP:
-                event.consume();
-                ActionDescription.MOVE_UP.run(editor);
-                return true;
-            case DOWN:
-                event.consume();
-                ActionDescription.MOVE_DOWN.run(editor);
-                return true;
-            case PAGE_DOWN:
-                event.consume();
-                ActionDescription.TO_FRONT.run(editor);
-                return true;
-            default:
-                break;
-            }
+        if ( ActionDescription.TO_BACK.match(event) ) {
+            event.consume();
+            ActionDescription.TO_BACK.run(editor);
+            return true;
+        } else if ( ActionDescription.MOVE_UP.match(event) ) {
+            event.consume();
+            ActionDescription.MOVE_UP.run(editor);
+            return true;
+        } else if ( ActionDescription.MOVE_DOWN.match(event) ) {
+            event.consume();
+            ActionDescription.MOVE_DOWN.run(editor);
+            return true;
+        } else if ( ActionDescription.TO_FRONT.match(event) ) {
+            event.consume();
+            ActionDescription.TO_FRONT.run(editor);
+            return true;
+        } else if ( ActionDescription.GROUP.match(event) ) {
+            event.consume();
+            ActionDescription.GROUP.run(editor);
+            return true;
+        } else if ( ActionDescription.UNGROUP.match(event) ) {
+            event.consume();
+            ActionDescription.UNGROUP.run(editor);
+            return true;
+        } else {
+            return false;
         }
-        return false;
     }
 
     /** Link selections in tree view and model */

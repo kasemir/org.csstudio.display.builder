@@ -15,12 +15,21 @@ import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.Messages;
+import org.csstudio.display.builder.editor.undo.GroupWidgetsAction;
 import org.csstudio.display.builder.editor.undo.SetWidgetPropertyAction;
+import org.csstudio.display.builder.editor.undo.UnGroupWidgetsAction;
 import org.csstudio.display.builder.editor.undo.UpdateWidgetOrderAction;
+import org.csstudio.display.builder.editor.util.GeometryTools;
 import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.widgets.GroupWidget;
+import org.csstudio.display.builder.model.widgets.GroupWidget.Style;
 import org.csstudio.display.builder.util.undo.CompoundUndoableAction;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
+
+import javafx.geometry.Rectangle2D;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 
 /** Description of an action
  *
@@ -78,9 +87,9 @@ public abstract class ActionDescription
         return sorted;
     }
 
-    /** Move widget one step to the back */
+    /** Move widget one step to the back (backward) */
     public static final ActionDescription MOVE_UP =
-        new ActionDescription("icons/up.png", Messages.MoveUp)
+        new ActionDescription("Alt+B", "icons/up.png", Messages.MoveUp)
     {
         @Override
         public void run(final DisplayEditor editor, final boolean selected)
@@ -110,7 +119,7 @@ public abstract class ActionDescription
 
     /** Move widget to back */
     public static final ActionDescription TO_BACK =
-        new ActionDescription("icons/toback.png", Messages.MoveToBack)
+        new ActionDescription("Alt+Shift+B", "icons/toback.png", Messages.MoveToBack)
     {
         @Override
         public void run(final DisplayEditor editor, final boolean selected)
@@ -125,9 +134,9 @@ public abstract class ActionDescription
         }
     };
 
-    /** Move widget one step to the front */
+    /** Move widget one step to the front (forward) */
     public static final ActionDescription MOVE_DOWN =
-        new ActionDescription("icons/down.png", Messages.MoveDown)
+        new ActionDescription("Alt+F", "icons/down.png", Messages.MoveDown)
     {
         @Override
         public void run(final DisplayEditor editor, final boolean selected)
@@ -160,7 +169,7 @@ public abstract class ActionDescription
 
     /** Move widget to front */
     public static final ActionDescription TO_FRONT =
-        new ActionDescription("icons/tofront.png", Messages.MoveToFront)
+        new ActionDescription("Alt+Shift+F", "icons/tofront.png", Messages.MoveToFront)
     {
         @Override
         public void run(final DisplayEditor editor, final boolean selected)
@@ -603,7 +612,7 @@ public abstract class ActionDescription
 
     /** Un-do last change */
     public static final ActionDescription UNDO =
-        new ActionDescription("icons/undo.png", Messages.Undo_TT)
+        new ActionDescription("Shortcut+Z", "icons/undo.png", Messages.Undo_TT)
     {
         @Override
         public void run(final DisplayEditor editor, final boolean selected)
@@ -615,7 +624,7 @@ public abstract class ActionDescription
 
     /** Re-do last change */
     public static final ActionDescription REDO =
-        new ActionDescription("icons/redo.png", Messages.Redo_TT)
+        new ActionDescription("Shortcut+Shift+Z", "icons/redo.png", Messages.Redo_TT)
     {
         @Override
         public void run(final DisplayEditor editor, final boolean selected)
@@ -625,6 +634,67 @@ public abstract class ActionDescription
         }
     };
 
+    /** Create group */
+    public static final ActionDescription GROUP =
+            new ActionDescription("Shortcut+Shift+G", "icons/group.png", Messages.CreateGroup)
+    {
+        @Override
+        public void run(final DisplayEditor editor, final boolean selected)
+        {
+            final List<Widget> widgets = editor.getWidgetSelectionHandler().getSelection();
+
+            editor.getWidgetSelectionHandler().clear();
+
+            // Create group that surrounds the original widget boundaries
+            final GroupWidget group = new GroupWidget();
+
+            // Get bounds of widgets relative to their container,
+            // which might be a group within the display
+            // or the display itself
+            final Rectangle2D rect = GeometryTools.getBounds(widgets);
+
+            // Inset depends on representation and changes with group style and font.
+            // Can be obtained via group.runtimePropInsets() _after_ the group has
+            // been represented. For this reason Style.NONE is used, where the inset
+            // is always 0. An alternative could be Style.LINE, with an inset of 1.
+            final int inset = 0;
+            group.propStyle().setValue(Style.NONE);
+            group.propTransparent().setValue(true);
+            group.propX().setValue((int) rect.getMinX() - inset);
+            group.propY().setValue((int) rect.getMinY() - inset);
+            group.propWidth().setValue((int) rect.getWidth() + 2*inset);
+            group.propHeight().setValue((int) rect.getHeight() + 2*inset);
+            group.propName().setValue(org.csstudio.display.builder.model.Messages.GroupWidget_Name);
+
+            final ChildrenProperty parent_children = ChildrenProperty.getParentsChildren(widgets.get(0));
+            final UndoableActionManager undo = editor.getUndoableActionManager();
+            undo.execute(new GroupWidgetsAction(parent_children, group, widgets, (int)rect.getMinX(), (int)rect.getMinY()));
+
+            editor.getWidgetSelectionHandler().toggleSelection(group);
+        }
+    };
+
+    /** Remove group */
+    public static final ActionDescription UNGROUP =
+            new ActionDescription("Shortcut+Shift+U", "icons/group.png", Messages.CreateGroup)
+    {
+        @Override
+        public void run(final DisplayEditor editor, final boolean selected)
+        {
+            final GroupWidget group = (GroupWidget) editor.getWidgetSelectionHandler().getSelection().get(0);
+
+            editor.getWidgetSelectionHandler().clear();
+            // Group's children list will be empty, create copy to select la
+            final List<Widget> widgets = new ArrayList<>(group.runtimeChildren().getValue());
+
+            final UndoableActionManager undo = editor.getUndoableActionManager();
+            undo.execute(new UnGroupWidgetsAction(group));
+
+            editor.getWidgetSelectionHandler().setSelection(widgets);
+        }
+    };
+
+    private final KeyCombination accelerator;
     private final String icon;
     private final String tool_tip;
 
@@ -633,8 +703,25 @@ public abstract class ActionDescription
      */
     public ActionDescription(final String icon, final String tool_tip)
     {
+        this(null, icon, tool_tip);
+    }
+
+    /** @accelerator Keyboard accelerator (e.g. SWT.COMMAND | SWT.SHIFT | 'K').
+     *  @param icon Icon path
+     *  @param tool_tip Tool tip
+     */
+    public ActionDescription(final String accelerator, final String icon, final String tool_tip)
+    {
+        this.accelerator = ( accelerator != null && !accelerator.isEmpty() )
+                         ? KeyCombination.keyCombination(accelerator)
+                         : null;
         this.icon = icon;
         this.tool_tip = tool_tip;
+    }
+
+    public KeyCombination getAccelerator()
+    {
+        return accelerator;
     }
 
     public String getIcon()
@@ -651,6 +738,19 @@ public abstract class ActionDescription
     public String getToolTip()
     {
         return tool_tip;
+    }
+
+    /**
+     * @param event The {@link KeyEvent} under test.
+     * @return {@code true} if this description contains an accelerator and it
+     *         matches the given {@code event}, {@code false} otherwise.
+     */
+    public boolean match ( final KeyEvent event ) {
+        if ( accelerator != null ) {
+            return accelerator.match(event);
+        } else {
+            return false;
+        }
     }
 
     /** Execute the action
