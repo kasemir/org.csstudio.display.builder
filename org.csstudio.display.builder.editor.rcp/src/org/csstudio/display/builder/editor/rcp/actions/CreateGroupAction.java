@@ -7,22 +7,13 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.rcp.actions;
 
-import java.util.List;
-
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.Messages;
-import org.csstudio.display.builder.editor.undo.GroupWidgetsAction;
-import org.csstudio.display.builder.editor.util.GeometryTools;
-import org.csstudio.display.builder.model.ChildrenProperty;
+import org.csstudio.display.builder.editor.actions.ActionDescription;
 import org.csstudio.display.builder.model.ModelPlugin;
-import org.csstudio.display.builder.model.Widget;
-import org.csstudio.display.builder.model.widgets.GroupWidget;
-import org.csstudio.display.builder.model.widgets.GroupWidget.Style;
-import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.eclipse.jface.action.Action;
+import org.eclipse.swt.SWT;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-
-import javafx.geometry.Rectangle2D;
 
 /** SWT Action to create group
  *  @author Kay Kasemir
@@ -37,40 +28,12 @@ public class CreateGroupAction extends Action
         super(Messages.CreateGroup,
               AbstractUIPlugin.imageDescriptorFromPlugin(ModelPlugin.ID, "icons/group.png"));
         this.editor = editor;
+        setAccelerator(SWT.COMMAND | SWT.SHIFT | 'G');
     }
 
     @Override
     public void run()
     {
-        final List<Widget> widgets = editor.getWidgetSelectionHandler().getSelection();
-
-        editor.getWidgetSelectionHandler().clear();
-
-        // Create group that surrounds the original widget boundaries
-        final GroupWidget group = new GroupWidget();
-
-        // Get bounds of widgets relative to their container,
-        // which might be a group within the display
-        // or the display itself
-        final Rectangle2D rect = GeometryTools.getBounds(widgets);
-
-        // Inset depends on representation and changes with group style and font.
-        // Can be obtained via group.runtimePropInsets() _after_ the group has
-        // been represented. For this reason Style.NONE is used, where the inset
-        // is always 0. An alternative could be Style.LINE, with an inset of 1.
-        final int inset = 0;
-        group.propStyle().setValue(Style.NONE);
-        group.propTransparent().setValue(true);
-        group.propX().setValue((int) rect.getMinX() - inset);
-        group.propY().setValue((int) rect.getMinY() - inset);
-        group.propWidth().setValue((int) rect.getWidth() + 2*inset);
-        group.propHeight().setValue((int) rect.getHeight() + 2*inset);
-        group.propName().setValue(org.csstudio.display.builder.model.Messages.GroupWidget_Name);
-
-        final ChildrenProperty parent_children = ChildrenProperty.getParentsChildren(widgets.get(0));
-        final UndoableActionManager undo = editor.getUndoableActionManager();
-        undo.execute(new GroupWidgetsAction(parent_children, group, widgets, (int)rect.getMinX(), (int)rect.getMinY()));
-
-        editor.getWidgetSelectionHandler().toggleSelection(group);
+        ActionDescription.GROUP.run(editor);
     }
 }
