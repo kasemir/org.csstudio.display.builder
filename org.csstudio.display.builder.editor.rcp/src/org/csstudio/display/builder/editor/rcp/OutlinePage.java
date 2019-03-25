@@ -235,11 +235,12 @@ public class OutlinePage extends Page implements IContentOutlinePage
             public void menuShown ( MenuEvent e ) {
                 final List<Widget> selection = editor.getWidgetSelectionHandler().getSelection();
                 final int selectionSize = selection.size();
+                final String xml = Clipboard.getSystemClipboard().getString();
                 undoAction.setEnabled(editor.getUndoableActionManager().canUndo());
                 redoAction.setEnabled(editor.getUndoableActionManager().canRedo());
                 cutAction.setEnabled(selectionSize >= 1);
                 copyAction.setEnabled(selectionSize >= 1);
-                pasteAction.setEnabled(Clipboard.getSystemClipboard().hasString());
+                pasteAction.setEnabled(xml != null && xml.startsWith("<?xml")  && xml.contains("<display"));
                 createGroupAction.setEnabled(selectionSize >= 1);
                 removeGroupAction.setEnabled(selectionSize == 1  &&  selection.get(0) instanceof GroupWidget);
             }

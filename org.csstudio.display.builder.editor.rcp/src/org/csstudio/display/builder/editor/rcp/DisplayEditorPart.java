@@ -214,10 +214,11 @@ public class DisplayEditorPart extends EditorPart
             final CutDeleteAction cutAction = new CutDeleteAction(editor, true);
             final CopyAction copyAction = new CopyAction(editor);
             final PasteAction pasteAction = new PasteAction(parent, editor);
+            final String xml = Clipboard.getSystemClipboard().getString();
 
             cutAction.setEnabled(selectionSize >= 1);
             copyAction.setEnabled(selectionSize >= 1);
-            pasteAction.setEnabled(Clipboard.getSystemClipboard().hasString());
+            pasteAction.setEnabled(xml != null && xml.startsWith("<?xml")  && xml.contains("<display"));
 
             manager.add(cutAction);
             manager.add(copyAction);
