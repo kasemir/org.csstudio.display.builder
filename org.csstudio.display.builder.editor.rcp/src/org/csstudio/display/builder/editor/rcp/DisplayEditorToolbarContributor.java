@@ -42,6 +42,8 @@ public class DisplayEditorToolbarContributor extends EditorActionBarContributor
         // Add copy/paste to the toolbar? (call addGlobalAction() for these?)
         // -> No, since Eclipse text editor also doesn't to this.
         //    Reduce number of toolbar icons.
+        global_actions.add(ActionFactory.UNDO.create(window));
+        global_actions.add(ActionFactory.REDO.create(window));
         global_actions.add(ActionFactory.CUT.create(window));
         global_actions.add(ActionFactory.COPY.create(window));
         global_actions.add(ActionFactory.PASTE.create(window));

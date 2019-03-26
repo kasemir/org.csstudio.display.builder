@@ -306,6 +306,9 @@ public class DisplayEditor
             logger.log(Level.WARNING, "Cannot load action icon", ex);
         }
         item.setText(action.getToolTip());
+        if ( action.getAccelerator() != null ) {
+            item.setAccelerator(action.getAccelerator());
+        }
         item.setOnAction(event -> action.run(this));
         return item;
     }

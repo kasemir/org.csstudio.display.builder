@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2018 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2019 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@ import java.util.logging.Level;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.FormatOption;
 import org.csstudio.display.builder.model.util.FormatOptionHandler;
 import org.csstudio.display.builder.model.util.VTypeUtil;
@@ -24,8 +25,8 @@ import org.csstudio.display.builder.model.widgets.RadioWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.javafx.Styles;
 import org.diirt.vtype.VEnum;
+import org.diirt.vtype.VNumber;
 import org.diirt.vtype.VType;
-import org.diirt.vtype.next.VNumber;
 
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
@@ -52,6 +53,7 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
     private final DirtyFlag dirty_style = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
     private final UntypedWidgetPropertyListener contentChangedListener = this::contentChanged;
+    private final WidgetPropertyListener< List<WidgetProperty<String> > > itemsChangedListener = this::itemsChanged;
     private final UntypedWidgetPropertyListener sizeChangedListener = this::sizeChanged;
     private final UntypedWidgetPropertyListener styleChangedListener = this::styleChanged;
 
@@ -88,15 +90,19 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
         model_widget.propEnabled().addUntypedPropertyListener(styleChangedListener);
         model_widget.runtimePropPVWritable().addUntypedPropertyListener(styleChangedListener);
 
+        // When using items-from-pv, each value update can require an update of the radio buttons,
+        // so one 'content' change handler for any of these events
         model_widget.runtimePropValue().addUntypedPropertyListener(contentChangedListener);
         model_widget.propItemsFromPV().addUntypedPropertyListener(contentChangedListener);
-        model_widget.propItems().addUntypedPropertyListener(contentChangedListener);
+        // Changing the items also triggers content change,
+        // after having each item trigger a content change
+        model_widget.propItems().addPropertyListener(itemsChangedListener);
 
         if (! toolkit.isEditMode())
             toggle.selectedToggleProperty().addListener(this::selectionChanged);
 
         // Initially populate pane with radio buttons
-        contentChanged(null, null, null);
+        itemsChanged(model_widget.propItems(), null, model_widget.propItems().getValue());
     }
 
     @Override
@@ -111,7 +117,10 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
         model_widget.runtimePropPVWritable().removePropertyListener(styleChangedListener);
         model_widget.runtimePropValue().removePropertyListener(contentChangedListener);
         model_widget.propItemsFromPV().removePropertyListener(contentChangedListener);
-        model_widget.propItems().removePropertyListener(contentChangedListener);
+        model_widget.propItems().removePropertyListener(itemsChangedListener);
+        for (WidgetProperty<String> item : model_widget.propItems().getValue())
+            item.removePropertyListener(contentChangedListener);
+
         super.unregisterListeners();
     }
 
@@ -134,16 +143,16 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
 
                 if (enabled)
                 {
-	                final Object value;
-	                final VType pv_value = model_widget.runtimePropValue().getValue();
-	                if (pv_value instanceof VEnum  ||  pv_value instanceof VNumber)
-	                    // PV uses enumerated or numeric type, so write the index
-	                    value = toggle.getToggles().indexOf(newval);
-	                else // PV uses text
-	                    value = FormatOptionHandler.parse(pv_value,
-	                                                      ((RadioButton) newval).getText(),
-	                                                      FormatOption.DEFAULT);
-	                logger.log(Level.FINE, "Writing " + value);
+                    final Object value;
+                    final VType pv_value = model_widget.runtimePropValue().getValue();
+                    if (pv_value instanceof VEnum  ||  pv_value instanceof VNumber)
+                        // PV uses enumerated or numeric type, so write the index
+                        value = toggle.getToggles().indexOf(newval);
+                    else // PV uses text
+                        value = FormatOptionHandler.parse(pv_value,
+                                                          ((RadioButton) newval).getText(),
+                                                          FormatOption.DEFAULT);
+                    logger.log(Level.FINE, "Writing " + value);
                     Platform.runLater(() -> confirm(value));
                 }
             }
@@ -194,7 +203,7 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
             return ((VEnum)value).getLabels();
 
         final List<WidgetProperty<String>> itemProps = model_widget.propItems().getValue();
-        final List<String> new_items = new ArrayList<String>(itemProps.size());
+        final List<String> new_items = new ArrayList<>(itemProps.size());
         for (WidgetProperty<String> itemProp : itemProps)
             new_items.add(itemProp.getValue());
         return new_items;
@@ -207,6 +216,17 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
         if (value instanceof VNumber)
             return ((VNumber)value).getValue().intValue();
         return labels.indexOf(VTypeUtil.getValueString(value, false));
+    }
+
+    private void itemsChanged(final WidgetProperty<List<WidgetProperty<String> >> property, final List<WidgetProperty<String> > removed, final List<WidgetProperty<String> > added)
+    {
+        if (removed != null)
+            for (WidgetProperty<String> item : removed)
+                item.removePropertyListener(contentChangedListener);
+        if (added != null)
+            for (WidgetProperty<String> item : added)
+                item.addUntypedPropertyListener(contentChangedListener);
+        contentChanged(null, null, null);
     }
 
     /** The value or how we treat the value changed */
@@ -239,8 +259,8 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
             try
             {
                 // Copy volatile lists before iteration
-                final List<String> save_items = new ArrayList<String>(items);
-                final List<Node> save_buttons = new ArrayList<Node>(jfx_node.getChildren());
+                final List<String> save_items = new ArrayList<>(items);
+                final List<Node> save_buttons = new ArrayList<>(jfx_node.getChildren());
 
                 // Set text of buttons, adding new ones as needed
                 int i, save_index = index;

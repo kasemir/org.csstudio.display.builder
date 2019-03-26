@@ -19,7 +19,7 @@ public class Messages extends NLS
 
     // Keep in alphabetical order!
     public static String Copy;
-    public static String Delete;
+    public static String Cut;
     public static String DownloadPromptFMT;
     public static String DownloadTitle;
     public static String EditEmbededDisplay;
@@ -41,8 +41,11 @@ public class Messages extends NLS
     public static String NewDisplay_NotWriteable;
     public static String NewDisplay_Title;
     public static String OpenEditorPerspective;
+    public static String Paste;
+    public static String Redo;
     public static String ReplaceWith;
     public static String ReplaceWith_NoWidgets;
+    public static String Undo;
 
     static
     {
