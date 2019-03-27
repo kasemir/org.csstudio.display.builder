@@ -146,7 +146,7 @@ public class ScriptSupport
         {
             // Rejection happens when we submit a script while the display has closed down
             // Log only at fine level for debugging, otherwise OK to skip the script.
-            logger.log(Level.FINE, "", ex);
+            logger.log(Level.FINE, "Skipping script, display closed", ex);
             return CompletableFuture.completedFuture(null);
         }
     }
