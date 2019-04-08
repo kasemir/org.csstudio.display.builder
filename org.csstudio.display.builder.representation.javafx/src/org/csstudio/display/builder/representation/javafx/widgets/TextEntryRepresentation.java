@@ -136,7 +136,14 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
             {
                 if (active  &&  !focused)
                 {
-                    restore();
+                    // For multi-line, submit on exit because users
+                    // cannot remember Ctrl-Enter.
+                    // For plain text field, require Enter to submit
+                    // and cancel editing when focus is lost.
+                    if (isMultiLine())
+                        submit();
+                    else
+                        restore();
                     setActive(false);
                 }
             });
