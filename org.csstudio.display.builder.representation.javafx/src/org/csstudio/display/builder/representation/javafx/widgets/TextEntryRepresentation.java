@@ -46,10 +46,10 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
     private final DirtyFlag dirty_size = new DirtyFlag();
     private final DirtyFlag dirty_style = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
-    private final UntypedWidgetPropertyListener contentChangedListener = this::contentChanged;
-    private final UntypedWidgetPropertyListener sizeChangedListener = this::sizeChanged;
-    private final UntypedWidgetPropertyListener styleChangedListener = this::styleChanged;
-    private final WidgetPropertyListener<String> pvnameChangedListener = this::pvnameChanged;
+    private final UntypedWidgetPropertyListener sizeListener = this::sizeChanged;
+    private final UntypedWidgetPropertyListener styleListener = this::styleChanged;
+    private final UntypedWidgetPropertyListener contentListener = this::contentChanged;
+    private final WidgetPropertyListener<String> pvNameListener = this::pvnameChanged;
     private volatile String value_text = "<?>";
 
     private static WidgetColor active_color = WidgetColorService.getColor(NamedWidgetColors.ACTIVE_TEXT);
@@ -59,7 +59,7 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
     {
     	value_text = computeText(null);
 
-    	// Note implementation selection:
+    	// Note implementation choice:
     	// "multi_line" and "wrap_words" cannot change at runtime.
     	// In editor, there is no visible difference,
     	// and at runtime changes are simply not supported.
@@ -101,9 +101,12 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
                     break;
                 case ENTER:
                 case UNDEFINED:
-                    // On Linux, ENTER means 'enter' key on main keyboard.
-                    // The  the numeric keypad 'enter' key sends UNDEFINED?!
+                    // With Java 8, the main keyboard sends 'ENTER',
+                    // but the numeric keypad's enter key sends UNDEFINED?!
                     // --> Handle in onKeyTyped for both cases
+                    // With Java 9+, either key sends ENTER,
+                    // and onKeyTyped does NOT receive char 13,
+                    // Java 9+ places the 'setOnKeyTyped' code here.
                     break;
                 default:
                     // Any other key results in active state
@@ -116,8 +119,8 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
                 if (typed.length() == 1  &&  event.getCharacter().charAt(0) == 13)
                 {
                     // Single line mode uses plain ENTER.
-                    // Multi line mode requires Control-ENTER.
-                    if (!isMultiLine()  ||  event.isControlDown())
+                    // Multi line mode requires Control or Command-ENTER.
+                    if (!isMultiLine()  ||  event.isShortcutDown())
                     {
                         // Submit value, leave active state
                         submit();
@@ -149,8 +152,14 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
             });
         }
 
-        // Reduce expensive Node.notifyParentOfBoundsChange() calls
-        // by handling pos & size in here
+        // Non-managed widget reduces expensive Node.notifyParentOfBoundsChange() calls.
+        // Code below is prepared to handle non-managed widget,
+        // but multi-line version behaves oddly in Java 9+ when not managed:
+        // Cursor not shown, selection not shown,
+        // unclear where entered text will appear.
+        // Even when _only_ the single-line version is unmanaged,
+        // the multi-line version will get into this state.
+        // -> Java 9+ keeps all managed
         text.setManaged(false);
 
         return text;
@@ -167,10 +176,13 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
         if (this.active == active)
             return;
 
-        // When activated, start by selecting all
-        if (active)
+        // When activated, start by selecting all in a plain text.
+        // For multi-line, leave it to the user to click or cursor around,
+        // because when all is selected, there's a larger risk of accidentally
+        // replacing some long, carefully crafted text.
+        if (active  &&  !isMultiLine())
             jfx_node.selectAll();
-
+        
         // Don't enable when widget is disabled
         if (active  &&  !model_widget.propEnabled().getValue())
             return;
@@ -231,21 +243,21 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.propWidth().addUntypedPropertyListener(sizeChangedListener);
-        model_widget.propHeight().addUntypedPropertyListener(sizeChangedListener);
+        model_widget.propWidth().addUntypedPropertyListener(sizeListener);
+        model_widget.propHeight().addUntypedPropertyListener(sizeListener);
 
-        model_widget.propForegroundColor().addUntypedPropertyListener(styleChangedListener);
-        model_widget.propBackgroundColor().addUntypedPropertyListener(styleChangedListener);
-        model_widget.propFont().addUntypedPropertyListener(styleChangedListener);
-        model_widget.propEnabled().addUntypedPropertyListener(styleChangedListener);
-        model_widget.runtimePropPVWritable().addUntypedPropertyListener(styleChangedListener);
+        model_widget.propForegroundColor().addUntypedPropertyListener(styleListener);
+        model_widget.propBackgroundColor().addUntypedPropertyListener(styleListener);
+        model_widget.propFont().addUntypedPropertyListener(styleListener);
+        model_widget.propEnabled().addUntypedPropertyListener(styleListener);
+        model_widget.runtimePropPVWritable().addUntypedPropertyListener(styleListener);
 
-        model_widget.propFormat().addUntypedPropertyListener(contentChangedListener);
-        model_widget.propPrecision().addUntypedPropertyListener(contentChangedListener);
-        model_widget.propShowUnits().addUntypedPropertyListener(contentChangedListener);
-        model_widget.runtimePropValue().addUntypedPropertyListener(contentChangedListener);
+        model_widget.propFormat().addUntypedPropertyListener(contentListener);
+        model_widget.propPrecision().addUntypedPropertyListener(contentListener);
+        model_widget.propShowUnits().addUntypedPropertyListener(contentListener);
+        model_widget.runtimePropValue().addUntypedPropertyListener(contentListener);
 
-        model_widget.propPVName().addPropertyListener(pvnameChangedListener);
+        model_widget.propPVName().addPropertyListener(pvNameListener);
 
         contentChanged(null, null, null);
     }
@@ -253,18 +265,18 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
     @Override
     protected void unregisterListeners()
     {
-        model_widget.propWidth().removePropertyListener(sizeChangedListener);
-        model_widget.propHeight().removePropertyListener(sizeChangedListener);
-        model_widget.propForegroundColor().removePropertyListener(styleChangedListener);
-        model_widget.propBackgroundColor().removePropertyListener(styleChangedListener);
-        model_widget.propFont().removePropertyListener(styleChangedListener);
-        model_widget.propEnabled().removePropertyListener(styleChangedListener);
-        model_widget.runtimePropPVWritable().removePropertyListener(styleChangedListener);
-        model_widget.propFormat().removePropertyListener(contentChangedListener);
-        model_widget.propPrecision().removePropertyListener(contentChangedListener);
-        model_widget.propShowUnits().removePropertyListener(contentChangedListener);
-        model_widget.runtimePropValue().removePropertyListener(contentChangedListener);
-        model_widget.propPVName().removePropertyListener(pvnameChangedListener);
+        model_widget.propWidth().removePropertyListener(sizeListener);
+        model_widget.propHeight().removePropertyListener(sizeListener);
+        model_widget.propForegroundColor().removePropertyListener(styleListener);
+        model_widget.propBackgroundColor().removePropertyListener(styleListener);
+        model_widget.propFont().removePropertyListener(styleListener);
+        model_widget.propEnabled().removePropertyListener(styleListener);
+        model_widget.runtimePropPVWritable().removePropertyListener(styleListener);
+        model_widget.propFormat().removePropertyListener(contentListener);
+        model_widget.propPrecision().removePropertyListener(contentListener);
+        model_widget.propShowUnits().removePropertyListener(contentListener);
+        model_widget.runtimePropValue().removePropertyListener(contentListener);
+        model_widget.propPVName().removePropertyListener(pvNameListener);
         super.unregisterListeners();
     }
 
@@ -326,8 +338,14 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
     {
         super.updateChanges();
         if (dirty_size.checkAndClear())
-            jfx_node.resize(model_widget.propWidth().getValue(),
-                            model_widget.propHeight().getValue());
+        {
+            if (jfx_node.isManaged())
+                jfx_node.setPrefSize(model_widget.propWidth().getValue(),
+                                     model_widget.propHeight().getValue());
+            else
+                jfx_node.resize(model_widget.propWidth().getValue(),
+                                model_widget.propHeight().getValue());
+        }
         if (dirty_style.checkAndClear())
         {
             final StringBuilder style = new StringBuilder(100);
@@ -351,9 +369,13 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
             jfx_node.setEditable(enabled);
             Styles.update(jfx_node, Styles.NOT_ENABLED, !enabled);
         }
-        if (active)
-            return;
-        if (dirty_content.checkAndClear())
-            jfx_node.setText(value_text);
+        if (! active)
+        {
+            if (dirty_content.checkAndClear())
+                jfx_node.setText(value_text);
+        }
+        // When not managed, trigger layout
+        if (!jfx_node.isManaged())
+            jfx_node.layout();
     }
 }
