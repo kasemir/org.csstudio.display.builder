@@ -14,6 +14,7 @@ import java.util.Optional;
 
 import org.csstudio.apputil.xml.DOMHelper;
 import org.csstudio.apputil.xml.XMLWriter;
+import org.csstudio.javafx.rtplot.LineStyle;
 import org.csstudio.javafx.rtplot.PointType;
 import org.csstudio.javafx.rtplot.TraceType;
 import org.csstudio.javafx.rtplot.data.PlotDataItem;
@@ -62,6 +63,9 @@ abstract public class ModelItem
 
     /** Line width [pixel] */
     private volatile int line_width = Preferences.getLineWidth();
+    
+    /** Line style */
+    private volatile LineStyle line_style = LineStyle.SOLID;
 
     /** How to display the points of the trace */
     private volatile PointType point_type = PointType.NONE;
@@ -260,6 +264,21 @@ abstract public class ModelItem
         fireItemLookChanged();
     }
 
+    /** @return Line Style */
+    public LineStyle getLineStyle()
+    {
+        return line_style;
+    }
+
+    /** @param line_style Line Style */
+    public void setLineStyle(LineStyle line_style)
+    {
+        if (this.line_style == line_style)
+            return;
+        this.line_style = line_style;
+        fireItemLookChanged();
+    }
+    
     /** @return {@link PointType} for displaying the trace */
     public PointType getPointType()
     {
@@ -367,6 +386,7 @@ abstract public class ModelItem
         XMLPersistence.writeColor(writer, 3, XMLPersistence.TAG_COLOR, SWTMediaPool.getRGB(getPaintColor()));
         XMLWriter.XML(writer, 3, XMLPersistence.TAG_TRACE_TYPE, getTraceType().name());
         XMLWriter.XML(writer, 3, XMLPersistence.TAG_LINEWIDTH, getLineWidth());
+        XMLWriter.XML(writer, 3, XMLPersistence.TAG_LINE_STYLE, getLineStyle().name());
         XMLWriter.XML(writer, 3, XMLPersistence.TAG_POINT_TYPE, getPointType().name());
         XMLWriter.XML(writer, 3, XMLPersistence.TAG_POINT_SIZE, getPointSize());
         XMLWriter.XML(writer, 3, XMLPersistence.TAG_WAVEFORM_INDEX, getWaveformIndex());
@@ -387,6 +407,14 @@ abstract public class ModelItem
             model.addAxis();
         axis = model.getAxis(axis_index);
         line_width = DOMHelper.getSubelementInt(node, XMLPersistence.TAG_LINEWIDTH, line_width);
+        try
+        {
+            line_style = LineStyle.valueOf(DOMHelper.getSubelementString(node, XMLPersistence.TAG_LINE_STYLE, LineStyle.SOLID.name()));
+        }
+        catch (Throwable ex)
+        {
+            line_style = LineStyle.SOLID;
+        }
         point_size = DOMHelper.getSubelementInt(node, XMLPersistence.TAG_POINT_SIZE, point_size);
 
         final Optional<RGB> col = XMLPersistence.loadColorFromDocument(node);
