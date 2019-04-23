@@ -101,6 +101,7 @@ public class XMLPersistence
     final public static String TAG_DISPLAYNAME = "display_name";
     final public static String TAG_TRACE_TYPE = "trace_type";
     final public static String TAG_LINEWIDTH = "linewidth";
+    final public static String TAG_LINE_STYLE = "line_style";
     final public static String TAG_POINT_TYPE = "point_type";
     final public static String TAG_POINT_SIZE = "point_size";
     final public static String TAG_WAVEFORM_INDEX = "waveform_index";
