@@ -367,7 +367,7 @@ public class XMLPersistence
      */
     public static Optional<FontData> loadFontFromDocument(final Element node, final String font_tag)
     {
-        final String desc = DOMHelper.getSubelementString(node, font_tag);
+        final String desc = DOMHelper.getSubelementString(node, font_tag).trim();
         if (desc == null  ||  desc.isEmpty())
             return Optional.empty();
         return Optional.of(SWTMediaPool.getFontFromDescription(desc));
