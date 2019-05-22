@@ -33,6 +33,7 @@ import eu.hansolo.medusa.Gauge;
 import eu.hansolo.medusa.GaugeBuilder;
 import eu.hansolo.medusa.Section;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 
 /**
  * @author claudiorosati, European Spallation Source ERIC
@@ -90,6 +91,9 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
             jfx_node.setLayoutY(model_widget.propY().getValue());
             jfx_node.setPrefWidth(model_widget.propWidth().getValue());
             jfx_node.setPrefHeight(model_widget.propHeight().getValue());
+
+            clipper.setWidth(model_widget.propWidth().getValue() + 10);
+            clipper.setHeight(model_widget.propHeight().getValue() + 10);
 
         }
 
@@ -321,6 +325,12 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
             lookChanged(null, null, null);
         }, 77 + (long) ( 34.0 * Math.random() ), TimeUnit.MILLISECONDS);
 
+
+        clipper.setWidth(model_widget.propWidth().getValue() + 10);
+        clipper.setHeight(model_widget.propHeight().getValue() + 10);
+        gauge.setClip(clipper);
+
+
         //  Terminal classes must call
         //toolkit.schedule( ( ) -> {
         //if ( jfx_node != null ) {
@@ -334,6 +344,8 @@ public abstract class BaseGaugeRepresentation<W extends BaseGaugeWidget> extends
         return gauge;
 
     }
+
+    final private Rectangle clipper = new Rectangle(-5, -5, 10, 10);
 
     /**
      * Creates a new zone with the given parameters.
