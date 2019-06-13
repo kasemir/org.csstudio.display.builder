@@ -189,7 +189,9 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
     {
         unregisterListeners();
         Objects.requireNonNull(jfx_node);
-        JFXRepresentation.getChildren(jfx_node.getParent()).remove(jfx_node);
+        Parent parent = jfx_node.getParent();
+        if (parent != null)
+            JFXRepresentation.getChildren(jfx_node.getParent()).remove(jfx_node);
         jfx_node = null;
     }
 
