@@ -31,7 +31,6 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.Border;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -113,6 +112,10 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
         inner.getTransforms().add(zoom = new Scale());
 
         scroll = new ScrollPane(inner);
+        //  By default it seems that the minimum size is set to 36x36.
+        //  This will make the border (if visible) not smaller that this minimum size
+        //  even if the widget is actually smaller.
+        scroll.setMinSize(1, 1);
         //  Removing 1px border around the ScrollPane's content. See https://stackoverflow.com/a/29376445
         scroll.getStyleClass().addAll("embedded_display", "edge-to-edge");
         // Panning tends to 'jerk' the content when clicked
