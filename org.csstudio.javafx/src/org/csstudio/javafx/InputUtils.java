@@ -12,6 +12,8 @@ import javafx.event.EventHandler;
 import javafx.event.EventTarget;
 import javafx.event.EventType;
 import javafx.scene.Node;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 
@@ -39,6 +41,28 @@ public class InputUtils {
     public static <T extends Node> T wrap ( T component ) {
 
         component.addEventFilter(KeyEvent.ANY, new EnterHandler());
+        component.focusedProperty().addListener(( ob, o, n ) -> {
+            component.setStyle(component.isFocused() ? "-fx-control-inner-background: #FFFF77F0;" : null);
+        });
+
+        final TextField editor;
+
+        if ( component instanceof ComboBox<?> ) {
+
+            editor = ((ComboBox<?>) component).getEditor();
+
+            ((ComboBox<?>) component).focusedProperty().addListener(( ob, o, n ) ->
+                editor.selectAll());
+
+        } else if ( component instanceof TextField ) {
+            editor = (TextField) component;
+        } else {
+            editor = null;
+        }
+
+        if ( editor != null ) {
+            editor.setOnMouseReleased(e -> editor.selectAll());
+        }
 
         return component;
 
