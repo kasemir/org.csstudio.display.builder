@@ -8,10 +8,13 @@
  */
 package org.csstudio.javafx;
 
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.event.EventTarget;
 import javafx.event.EventType;
 import javafx.scene.Node;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 
@@ -33,22 +36,51 @@ import javafx.scene.input.KeyEvent;
  */
 public class InputUtils {
 
+    private static final String FOCUSED_EDITOR_STYLE = "-fx-control-inner-background: #FFFF77F0;";
+    private static final String MODIFIED_EDITOR_STYLE = "-fx-control-inner-background: #FFCCBBF0;";
+
     private InputUtils ( ) {
     }
 
     public static <T extends Node> T wrap ( T component ) {
 
-        component.addEventFilter(KeyEvent.ANY, new EnterHandler());
+        component.addEventFilter(KeyEvent.ANY, new EnterHandler<>(component));
+        component.focusedProperty().addListener(( ob, o, n ) -> {
+
+            component.setStyle(component.isFocused() ? FOCUSED_EDITOR_STYLE : null);
+
+            final TextField editor;
+
+            if ( component instanceof ComboBox<?> ) {
+                editor = ((ComboBox<?>) component).getEditor();
+            } else if ( component instanceof TextField ) {
+                editor = (TextField) component;
+            } else {
+                editor = null;
+            }
+
+            if ( editor != null ) {
+                //  This trick will allow TextFiel in a ComboBox to be
+                //  selected when focus is obtained via TAB or click.
+                new Thread(() -> Platform.runLater(editor::selectAll)).start();
+            }
+
+        });
 
         return component;
 
     }
 
-    private static class EnterHandler implements EventHandler<KeyEvent> {
+    private static class EnterHandler<T extends Node> implements EventHandler<KeyEvent> {
 
         private KeyCode pressedCode = null;
         private KeyCode typedCode = null;
         private String character = null;
+        private T component;
+
+        public EnterHandler ( T component ) {
+            this.component = component;
+        }
 
         @Override
         public void handle ( KeyEvent event ) {
@@ -56,8 +88,17 @@ public class InputUtils {
             EventType<KeyEvent> eventType = event.getEventType();
 
             if ( eventType == KeyEvent.KEY_PRESSED ) {
+
                 pressedCode = event.getCode();
+
+                if ( pressedCode == KeyCode.ENTER || pressedCode == KeyCode.ESCAPE) {
+                    component.setStyle(component.isFocused() ? FOCUSED_EDITOR_STYLE : null);
+                } else if ( !( pressedCode.isFunctionKey() || pressedCode.isMediaKey() || pressedCode.isModifierKey() || pressedCode.isNavigationKey() ) ) {
+                    component.setStyle(component.isFocused() ? MODIFIED_EDITOR_STYLE : null);
+                }
+
                 return;
+
             } else if ( eventType == KeyEvent.KEY_TYPED ) {
                 typedCode = event.getCode();
                 character = event.getCharacter();
