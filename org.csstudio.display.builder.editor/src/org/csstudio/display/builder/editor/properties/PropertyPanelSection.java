@@ -335,7 +335,6 @@ public class PropertyPanelSection extends GridPane
                     if (combo.isVisible())
                     {
                         combo.requestFocus();
-//                        combo.getEditor().selectAll();
                     }
                     else if (check.isVisible())
                         check.requestFocus();
