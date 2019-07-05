@@ -19,7 +19,7 @@ public class Messages extends NLS
 
     // Keep in alphabetical order!
     public static String AccessDeniedMessage;
-    public static String CannotLoadDisplayTitle;
+    public static String CannotLoadDisplayMessage;
     public static String Copy;
     public static String Cut;
     public static String DownloadPromptFMT;

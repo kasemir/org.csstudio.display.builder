@@ -302,7 +302,7 @@ public class DisplayEditorPart extends EditorPart
         	final Shell shell = getSite().getShell();
         	shell.getDisplay().asyncExec(() -> ExceptionDetailsErrorDialog.openError(
                 shell,
-                MessageFormat.format(Messages.CannotLoadDisplayTitle, file),
+                MessageFormat.format(Messages.CannotLoadDisplayMessage, file),
                 message,
                 ex
             ));
@@ -313,7 +313,7 @@ public class DisplayEditorPart extends EditorPart
         	final Shell shell = getSite().getShell();
         	shell.getDisplay().asyncExec(() -> ExceptionDetailsErrorDialog.openError(
     	        shell,
-    	        MessageFormat.format(Messages.CannotLoadDisplayTitle, file),
+    	        MessageFormat.format(Messages.CannotLoadDisplayMessage, file),
     	        message,
     	        ex
 	        ));
@@ -321,7 +321,7 @@ public class DisplayEditorPart extends EditorPart
         }
         catch (Exception ex)
         {
-            final String message = "Cannot load display " + file;
+            final String message = MessageFormat.format(Messages.CannotLoadDisplayMessage, file);
             logger.log(Level.WARNING, message, ex);
             final Shell shell = getSite().getShell();
             // Also show error to user
