@@ -114,8 +114,9 @@ public class MorphWidgetMenuSupport
                 else
                 {
                     final Widget replacement = createNewWidget(widget);
+                    int originalIndex = ChildrenProperty.getParentsChildren(widget).getValue().indexOf(widget);
                     steps.execute(new RemoveWidgetsAction(selection, Arrays.asList(widget)));
-                    steps.execute(new AddWidgetAction(selection, target, replacement));
+                    steps.execute(new AddWidgetAction(selection, target, replacement, originalIndex));
                     replacements.add(replacement);
                     ++i;
                 }
