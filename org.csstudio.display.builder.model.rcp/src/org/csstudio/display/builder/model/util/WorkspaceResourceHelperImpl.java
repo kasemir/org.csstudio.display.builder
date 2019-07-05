@@ -9,10 +9,12 @@ package org.csstudio.display.builder.model.util;
 
 import static org.csstudio.display.builder.model.ModelPlugin.logger;
 
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.nio.file.AccessDeniedException;
 import java.util.logging.Level;
 
 import org.eclipse.core.filesystem.URIUtil;
@@ -85,9 +87,20 @@ public class WorkspaceResourceHelperImpl implements WorkspaceResourceHelper
     {
         final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
         final IFile file = root.getFile(new Path(resource_name));
-        if (file.exists())
+
+        if ( !file.exists() ) {
+            throw new FileNotFoundException(file.getRawLocationURI().toString());
+        } else if ( !file.isAccessible() ) {
+            throw new AccessDeniedException(file.getRawLocationURI().toString());
+        } else {
+
+            if ( file.isReadOnly() ) {
+                logger.log(Level.WARNING, "Current user lacks write permission to file " + file.getRawLocationURI().toString());
+            }
+
             return file.getContents(true);
-        return null;
+
+        }
     }
 
     @Override
