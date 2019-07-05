@@ -13,6 +13,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.nio.file.AccessDeniedException;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -296,27 +297,31 @@ public class DisplayEditorPart extends EditorPart
             return new_model;
         }
         catch(FileNotFoundException ex) {
-        	final String message = "Cannot load display " + file + " (location: " + ex.getMessage() + ").\n" +
-        			"Reason: file not found.\n" +
-        			"Please close the tab/window, refresh the Navigator view (F5), locate the file and open it again.";
+        	final String message = MessageFormat.format(Messages.FileNotFoundMessage, file, ex.getMessage());
         	logger.log(Level.WARNING, message, ex);
         	final Shell shell = getSite().getShell();
-        	shell.getDisplay().asyncExec(() ->
-            ExceptionDetailsErrorDialog.openError(shell, "Cannot load display " + file, message, ex));
+        	shell.getDisplay().asyncExec(() -> ExceptionDetailsErrorDialog.openError(
+                shell,
+                MessageFormat.format(Messages.CannotLoadDisplayMessage, file),
+                message,
+                ex
+            ));
         	return null;
         }
         catch(AccessDeniedException ex) {
-        	final String message = "Cannot load display " + file + " (location: " + ex.getMessage() + ").\n" +
-        			"Reason: current user does not have read access to the file.\n" + 
-        			"Please close the tab/window, locate the file, update its access rights and/or ownership, and open it again.";
+        	final String message = MessageFormat.format(Messages.AccessDeniedMessage, file, ex.getMessage());
         	final Shell shell = getSite().getShell();
-        	shell.getDisplay().asyncExec(() ->
-            ExceptionDetailsErrorDialog.openError(shell, "Cannot load display " + file, message, ex));
+        	shell.getDisplay().asyncExec(() -> ExceptionDetailsErrorDialog.openError(
+    	        shell,
+    	        MessageFormat.format(Messages.CannotLoadDisplayMessage, file),
+    	        message,
+    	        ex
+	        ));
         	return null;
         }
         catch (Exception ex)
         {
-            final String message = "Cannot load display " + file;
+            final String message = MessageFormat.format(Messages.CannotLoadDisplayMessage, file);
             logger.log(Level.WARNING, message, ex);
             final Shell shell = getSite().getShell();
             // Also show error to user
