@@ -9,15 +9,10 @@ package org.csstudio.display.builder.model.util;
 
 import static org.csstudio.display.builder.model.ModelPlugin.logger;
 
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-import java.nio.file.AccessDeniedException;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Paths;
 import java.util.logging.Level;
 
 import org.eclipse.core.filesystem.URIUtil;
@@ -85,29 +80,10 @@ public class WorkspaceResourceHelperImpl implements WorkspaceResourceHelper
 
     }
 
-    /**
-     * Provides an {@link InputStream} for a workspace resource, if the file is available.
-     * @param resource_name The workspace resource identifier, e.g. /foo/bar/resource.txt.
-     * @return An {@link InputStream} representing the resource
-     * @throws FileNotFoundException if the file cannot be found.
-     * @throws AccessDeniedException if the file exists, but current user lacks read permission.
-     */
     @Override
     public InputStream openWorkspaceResource(final String resource_name) throws Exception
     {
         final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-        String workspaceLocation = root.getLocation().toString();
-        String physicalFilePath = workspaceLocation + resource_name;
-        java.nio.file.Path path = Paths.get(workspaceLocation, resource_name);
-        if(!Files.exists(path, LinkOption.NOFOLLOW_LINKS)) {
-        	throw new FileNotFoundException(physicalFilePath);
-        }
-        if(!Files.isReadable(path)) {
-        	throw new AccessDeniedException(physicalFilePath);
-        } 
-        if(!Files.isWritable(path)) {
-        	logger.log(Level.WARNING, "Current user lacks write permission to file " + physicalFilePath);
-        } 
         final IFile file = root.getFile(new Path(resource_name));
         if (file.exists())
             return file.getContents(true);
