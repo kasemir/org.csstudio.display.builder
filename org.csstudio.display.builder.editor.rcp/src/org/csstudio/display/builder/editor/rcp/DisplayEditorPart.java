@@ -300,15 +300,23 @@ public class DisplayEditorPart extends EditorPart
         	final String message = MessageFormat.format(Messages.FileNotFoundMessage, file, ex.getMessage());
         	logger.log(Level.WARNING, message, ex);
         	final Shell shell = getSite().getShell();
-        	shell.getDisplay().asyncExec(() ->
-            ExceptionDetailsErrorDialog.openError(shell, MessageFormat.format(Messages.CannotLoadDisplayTitle, file), message, ex));
+        	shell.getDisplay().asyncExec(() -> ExceptionDetailsErrorDialog.openError(
+                shell,
+                MessageFormat.format(Messages.CannotLoadDisplayTitle, file),
+                message,
+                ex
+            ));
         	return null;
         }
         catch(AccessDeniedException ex) {
         	final String message = MessageFormat.format(Messages.AccessDeniedMessage, file, ex.getMessage());
         	final Shell shell = getSite().getShell();
-        	shell.getDisplay().asyncExec(() ->
-            ExceptionDetailsErrorDialog.openError(shell, MessageFormat.format(Messages.CannotLoadDisplayTitle, file), message, ex));
+        	shell.getDisplay().asyncExec(() -> ExceptionDetailsErrorDialog.openError(
+    	        shell,
+    	        MessageFormat.format(Messages.CannotLoadDisplayTitle, file),
+    	        message,
+    	        ex
+	        ));
         	return null;
         }
         catch (Exception ex)
