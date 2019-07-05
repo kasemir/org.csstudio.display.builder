@@ -17,6 +17,7 @@ import java.io.StringWriter;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.nio.file.AccessDeniedException;
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -646,10 +647,11 @@ public class RuntimeViewPart extends FXViewPart
             active_widget = new WeakReference<Widget>(widget);
     }
 
-    /** 
-     * Load display model, schedule representation. User is presented with troubleshooting 
-     * information if the underlying resource ({@link DisplayInfo#getPath()}) cannot be found or if current user
-     * lacks read permission.
+    /**
+     * Load display model, schedule representation. User is presented with troubleshooting
+     * information if the underlying resource ({@link DisplayInfo#getPath()}) cannot be
+     * found or if current user lacks read permission.
+     *
      * @param info {@link DisplayInfo} to load
      */
     private void loadModel(final DisplayInfo info)
@@ -679,18 +681,12 @@ public class RuntimeViewPart extends FXViewPart
             representation.execute(() -> representModel(model));
         }
         catch(FileNotFoundException ex) {
-        	final String message = "Cannot load display " + info.getPath() + " (location: " + ex.getMessage() + ").\n" +
-        			"Reason: file not found.\n" +
-        			"Please close this tab/window, refresh the Navigator view (F5), locate the file and open it again.";
         	logger.log(Level.SEVERE, "File " + ex.getMessage() + " not found", ex);
-        	showMessage(message);
+        	showMessage(MessageFormat.format(Messages.FileNotFoundMessage, info.getPath(), ex.getMessage()));
         }
         catch(AccessDeniedException ex) {
-        	final String message = "Cannot load display " + info.getPath() + " (location: " + ex.getMessage() + ").\n" +
-        			"Reason: current user does not have read access to the file.\n" +
-        			"Please close this tab/window, locate the file, update its access rights and/or ownership, and open it again.";
         	logger.log(Level.SEVERE, "Access denied on file " + ex.getMessage(), ex);
-        	showMessage(message);
+        	showMessage(MessageFormat.format(Messages.AccessDeniedMessage, info.getPath(), ex.getMessage()));
         }
         catch (Exception ex)
         {
