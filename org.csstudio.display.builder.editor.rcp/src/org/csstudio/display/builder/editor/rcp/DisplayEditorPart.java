@@ -11,6 +11,9 @@ import static org.csstudio.display.builder.editor.rcp.Plugin.logger;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.nio.file.AccessDeniedException;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -292,6 +295,21 @@ public class DisplayEditorPart extends EditorPart
             final DisplayModel new_model = ModelLoader.loadModel(ws_location);
             modification_marker = file.getModificationStamp();
             return new_model;
+        }
+        catch(FileNotFoundException ex) {
+        	final String message = MessageFormat.format(Messages.FileNotFoundMessage, file, ex.getMessage());
+        	logger.log(Level.WARNING, message, ex);
+        	final Shell shell = getSite().getShell();
+        	shell.getDisplay().asyncExec(() ->
+            ExceptionDetailsErrorDialog.openError(shell, MessageFormat.format(Messages.CannotLoadDisplayTitle, file), message, ex));
+        	return null;
+        }
+        catch(AccessDeniedException ex) {
+        	final String message = MessageFormat.format(Messages.AccessDeniedMessage, file, ex.getMessage());
+        	final Shell shell = getSite().getShell();
+        	shell.getDisplay().asyncExec(() ->
+            ExceptionDetailsErrorDialog.openError(shell, MessageFormat.format(Messages.CannotLoadDisplayTitle, file), message, ex));
+        	return null;
         }
         catch (Exception ex)
         {
