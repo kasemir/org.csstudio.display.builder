@@ -387,10 +387,10 @@ public class WidgetTransfer {
         logger.log(Level.FINE, "Creating DataBrowserWidget for {0}", plot_file);
 
         final DisplayModel model = selection_tracker.getModel();
-        final Widget widget = WidgetFactory.getInstance().getWidgetDescriptor("databrowser").createWidget();
 
         try {
 
+            final Widget widget = WidgetFactory.getInstance().getWidgetDescriptor("databrowser").createWidget();
             Method[] methods = widget.getClass().getDeclaredMethods();
             Method method = Arrays.asList(methods).stream()
                 .filter(m -> "propFile".equals(m.getName()))
