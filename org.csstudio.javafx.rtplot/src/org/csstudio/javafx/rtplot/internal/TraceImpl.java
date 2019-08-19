@@ -10,6 +10,7 @@ package org.csstudio.javafx.rtplot.internal;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.csstudio.javafx.rtplot.LineStyle;
 import org.csstudio.javafx.rtplot.PointType;
 import org.csstudio.javafx.rtplot.RTPlot;
 import org.csstudio.javafx.rtplot.Trace;
@@ -37,8 +38,10 @@ public class TraceImpl<XTYPE extends Comparable<XTYPE>> implements Trace<XTYPE>
     private volatile Color color;
 
     private volatile TraceType type;
-
+    
     private volatile int width;
+    
+    private volatile LineStyle line_style;
 
     private volatile PointType point_type;
 
@@ -53,7 +56,9 @@ public class TraceImpl<XTYPE extends Comparable<XTYPE>> implements Trace<XTYPE>
             final String units,
             final PlotDataProvider<XTYPE> data,
             final Color color,
-            final TraceType type, final int width,
+            final TraceType type,
+            final int width,
+            final LineStyle line_style,
             final PointType point_type, final int size,
             final int y_axis)
     {
@@ -63,6 +68,7 @@ public class TraceImpl<XTYPE extends Comparable<XTYPE>> implements Trace<XTYPE>
         this.color = Objects.requireNonNull(color);
         this.type = Objects.requireNonNull(type);
         this.width = width;
+        this.line_style = line_style;
         this.point_type = Objects.requireNonNull(point_type);
         this.size = size;
         this.y_axis = y_axis;
@@ -168,6 +174,18 @@ public class TraceImpl<XTYPE extends Comparable<XTYPE>> implements Trace<XTYPE>
         this.width = width;
     }
 
+    /** {@inheritDoc} */
+    public LineStyle getLineStyle()
+    {
+        return line_style;
+    }
+
+    /** {@inheritDoc} */
+    public void setLineStyle(final LineStyle line_style)
+    {
+        this.line_style = line_style;
+    }
+    
     /** {@inheritDoc} */
     @Override
     public PointType getPointType()

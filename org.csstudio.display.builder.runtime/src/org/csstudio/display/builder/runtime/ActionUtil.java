@@ -18,6 +18,7 @@ import java.util.logging.Level;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.macros.MacroHandler;
+import org.csstudio.display.builder.model.macros.MacroValueProvider;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.ModelLoader;
 import org.csstudio.display.builder.model.properties.ActionInfo;
@@ -205,15 +206,24 @@ public class ActionUtil
      */
     public static void handleClose(final DisplayModel model)
     {
+        final ToolkitRepresentation<Object, Object> toolkit = ToolkitRepresentation.getToolkit(model);
+
         // Called on UI thread
         // Stop runtime in background thread
-        RuntimeUtil.getExecutor().submit(() ->  RuntimeUtil.stopRuntime(model) );
+        RuntimeUtil.getExecutor().submit(() ->
+        {
+            RuntimeUtil.stopRuntime(model);
 
-        // .. while UI thread removes the representation
-        final ToolkitRepresentation<Object, Object> toolkit = ToolkitRepresentation.getToolkit(model);
-        toolkit.disposeRepresentation(model);
-
-        model.dispose();
+            // After runtime stopped and is no longer accessing the model,
+            // dispose representation.
+            toolkit.execute(() ->
+            {
+                toolkit.disposeRepresentation(model);
+                
+                // Finally, dispose model
+                model.dispose();
+            });
+        });        
     }
 
     /** Write a PV
@@ -223,22 +233,32 @@ public class ActionUtil
     private static void writePV(final Widget source_widget, final WritePVActionInfo action)
     {
         final WidgetRuntime<Widget> runtime = RuntimeUtil.getRuntime(source_widget);
+        // System.out.println(action.getDescription() + ": Set " + action.getPV() + " = " + action.getValue());
+        final MacroValueProvider macros = source_widget.getMacrosOrProperties();
+        String pv_name = action.getPV(), value = action.getValue();
         try
         {
-            runtime.writePV(action.getPV(), action.getValue());
+            pv_name = MacroHandler.replace(macros, pv_name);
+        }
+        catch (Exception ignore)
+        {
+            // NOP
+        }
+        try
+        {
+            value = MacroHandler.replace(macros, value);
+        }
+        catch (Exception ignore)
+        {
+            // NOP
+        }
+        try
+        {
+            runtime.writePV(pv_name,value);
         }
         catch (final Exception ex)
         {
-            String pv_name = action.getPV();
-            try
-            {
-                pv_name = MacroHandler.replace(source_widget.getMacrosOrProperties(), pv_name);
-            }
-            catch (Exception ignore)
-            {
-                // NOP
-            }
-            final String message = "Cannot write " + pv_name + " = " + action.getValue();
+            final String message = "Cannot write " + pv_name + " = " + value;
             logger.log(Level.WARNING, message, ex);
             ScriptUtil.showErrorDialog(source_widget, message + ".\n\nSee log for details.");
         }

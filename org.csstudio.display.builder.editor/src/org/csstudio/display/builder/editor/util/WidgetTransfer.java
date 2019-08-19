@@ -17,6 +17,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,6 +43,7 @@ import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetFactory;
+import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.persist.WidgetClassesService;
@@ -94,9 +96,13 @@ public class WidgetTransfer {
     private static Stroke OUTLINE_STROKE = new BasicStroke(2.2F);
 
     //  The extensions listed here MUST BE ALL UPPERCASE.
-    private static List<String> IMAGE_FILE_EXTENSIONS = Arrays.asList("BMP", "GIF", "JPEG", "JPG", "PNG", "SVG");
+    private static List<String> DATABROWSER_FILE_EXTENSIONS = Arrays.asList("PLT");
     private static List<String> EMBEDDED_FILE_EXTENSIONS = Arrays.asList("BOB", "OPI");
-    private static List<String> SUPPORTED_EXTENSIONS = Stream.concat(IMAGE_FILE_EXTENSIONS.stream(), EMBEDDED_FILE_EXTENSIONS.stream()).collect(Collectors.toList());
+    private static List<String> IMAGE_FILE_EXTENSIONS = Arrays.asList("BMP", "GIF", "JPEG", "JPG", "PNG", "SVG");
+    private static List<String> SUPPORTED_EXTENSIONS = Stream.concat(
+        DATABROWSER_FILE_EXTENSIONS.stream(),
+        Stream.concat(EMBEDDED_FILE_EXTENSIONS.stream(), IMAGE_FILE_EXTENSIONS.stream())
+    ).collect(Collectors.toList());
 
     // Lazily initialized list of widgets that have a PV
     private static List<WidgetDescriptor> pvWidgetDescriptors = null;
@@ -307,7 +313,7 @@ public class WidgetTransfer {
             PixelReader pixelReader = image.getPixelReader();
             PixelWriter pixelWriter = dImage.getPixelWriter();
 
-//  TODO: CR: It seems there is a bug pixelReader.getArgb(...) when on Mac when
+//  TODO: CR: It seems there is a bug pixelReader.getArgb(...) on Mac when
 //  screen is scaled to have more resolution (no retina scaling is used).
 //            for ( int x = 0; x < w; x++ ) {
 //                for ( int y = 0; y < h; y++ ) {
@@ -359,6 +365,58 @@ public class WidgetTransfer {
         }
 
         return pvWidgetDescriptors;
+
+    }
+
+    /**
+     * @param plot_file DataBrowser file for which to create a
+     *            DataBrowserWidget.
+     * @param selection_tracker Used to get the grid steps from its model to be
+     *            used
+     *            in offsetting multiple widgets.
+     * @param widgets The container of the created widgets.
+     * @param updates Updates to perform on widgets
+     */
+    private static void installDataBrowserWidgetFromFile (
+        final String plot_file,
+        final SelectedWidgetUITracker selection_tracker,
+        final List<Widget> widgets,
+        final List<Runnable> updates
+    ) {
+
+        logger.log(Level.FINE, "Creating DataBrowserWidget for {0}", plot_file);
+
+        final DisplayModel model = selection_tracker.getModel();
+
+        try {
+
+            final Widget widget = WidgetFactory.getInstance().getWidgetDescriptor("databrowser").createWidget();
+            Method[] methods = widget.getClass().getDeclaredMethods();
+            Method method = Arrays.asList(methods).stream()
+                .filter(m -> "propFile".equals(m.getName()))
+                .findFirst()
+                .get();
+
+            if ( method != null ) {
+
+                @SuppressWarnings( "unchecked" )
+                WidgetProperty<String> property = (WidgetProperty<String>) method.invoke(widget);
+
+                property.setValue(plot_file);
+
+                // Offset multiple widgets by grid size
+                final int index = widgets.size();
+
+                widget.propX().setValue(model.propGridStepX().getValue() * index);
+                widget.propY().setValue(model.propGridStepY().getValue() * index);
+
+                widgets.add(widget);
+
+            }
+
+        } catch ( Exception ex ) {
+            logger.log(Level.WARNING, "Invalid PLT file", ex);
+        }
 
     }
 
@@ -546,6 +604,8 @@ public class WidgetTransfer {
                     }
                 } else if ( EMBEDDED_FILE_EXTENSIONS.contains(extension) ) {
                     installEmbeddedDisplayWidgetFromFile(fileName, selection_tracker, widgets, updates);
+                } else if ( DATABROWSER_FILE_EXTENSIONS.contains(extension) ) {
+                    installDataBrowserWidgetFromFile(fileName, selection_tracker, widgets, updates);
                 }
 
             }

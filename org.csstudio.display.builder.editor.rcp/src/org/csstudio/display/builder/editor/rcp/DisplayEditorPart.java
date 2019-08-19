@@ -11,6 +11,9 @@ import static org.csstudio.display.builder.editor.rcp.Plugin.logger;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.nio.file.AccessDeniedException;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,6 +71,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.window.Window;
@@ -92,6 +96,7 @@ import org.eclipse.ui.views.properties.IPropertySheetPage;
 
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.input.Clipboard;
 
 /** RCP 'Editor' for the display builder
  *  @author Kay Kasemir
@@ -191,11 +196,8 @@ public class DisplayEditorPart extends EditorPart
     private Menu createContextMenu(final Control parent)
     {
         final MenuManager mm = new MenuManager();
-
         final Action execute = new ExecuteDisplayAction(this);
-
         final MenuManager morph = new MorphWidgetMenuSupport(editor).getMenuManager();
-
         final ImageDescriptor icon = AbstractUIPlugin.imageDescriptorFromPlugin(ModelPlugin.ID, "icons/display.png");
         final Action perspective = new OpenPerspectiveAction(icon, Messages.OpenEditorPerspective, EditorPerspective.ID);
         final Action reload = new ReloadDisplayAction(this);
@@ -203,33 +205,72 @@ public class DisplayEditorPart extends EditorPart
         mm.setRemoveAllWhenShown(true);
         mm.addMenuListener(manager ->
         {
-            manager.add(execute);
-
-            final List<Widget> selection = editor.getWidgetSelectionHandler().getSelection();
-            if (! selection.isEmpty())
-            {
-                if (selection.size() >= 1)
-                    manager.add(new CreateGroupAction(editor, selection));
-                if (selection.size() == 1  &&  selection.get(0) instanceof GroupWidget)
-                    manager.add(new RemoveGroupAction(editor, (GroupWidget)selection.get(0)));
-                if (selection.size() == 1  &&  selection.get(0) instanceof EmbeddedDisplayWidget)
-                    manager.add(new EditEmbeddedDisplayAction((EmbeddedDisplayWidget)selection.get(0)));
-                manager.add(morph);
-            }
-
-            manager.add(reload);
 
             final DisplayModel model = editor.getModel();
-            if (model != null  &&  !model.isClassModel())
-            {
-                manager.add(new ReloadClassesAction(this));
+            final List<Widget> selection = editor.getWidgetSelectionHandler().getSelection();
+            final int selectionSize = selection.size();
 
-                if (selection.isEmpty())
-                    manager.add(new SetDisplaySize(editor));
+            manager.add(new UndoAction(editor));
+            manager.add(new RedoAction(editor));
+            manager.add(new Separator());
+
+            final CutDeleteAction cutAction = new CutDeleteAction(editor, true);
+            final CopyAction copyAction = new CopyAction(editor);
+            final PasteAction pasteAction = new PasteAction(parent, editor);
+            final String xml = Clipboard.getSystemClipboard().getString();
+
+            cutAction.setEnabled(selectionSize >= 1);
+            copyAction.setEnabled(selectionSize >= 1);
+            pasteAction.setEnabled(xml != null && xml.startsWith("<?xml")  && xml.contains("<display"));
+
+            manager.add(cutAction);
+            manager.add(copyAction);
+            manager.add(pasteAction);
+            manager.add(new Separator());
+
+            final CreateGroupAction createGroupAction = new CreateGroupAction(editor);
+            final RemoveGroupAction removeGroupAction = new RemoveGroupAction(editor);
+
+            createGroupAction.setEnabled(selectionSize >= 1);
+            removeGroupAction.setEnabled(selectionSize == 1  &&  selection.get(0) instanceof GroupWidget);
+
+            manager.add(createGroupAction);
+            manager.add(removeGroupAction);
+            manager.add(new Separator());
+
+            if ( selectionSize >= 1 ) {
+                manager.add(morph);
+            } else {
+                manager.add(new Action(Messages.ReplaceWith) {{
+                    setImageDescriptor(Plugin.getIcon("replace.png"));
+                    setEnabled(false);
+                }});
             }
 
+            final SetDisplaySize setDisplaySize = new SetDisplaySize(editor);
+
+            setDisplaySize.setEnabled(model != null  &&  !model.isClassModel() && selectionSize == 0);
+
+            manager.add(setDisplaySize);
+            manager.add(new Separator());
+
+            final ReloadClassesAction reloadClassesAction = new ReloadClassesAction(this);
+
+            reloadClassesAction.setEnabled(model != null  &&  !model.isClassModel());
+
+            manager.add(execute);
+            manager.add(reload);
+            manager.add(reloadClassesAction);
+            manager.add(new Separator());
+
+            if ( selection.size() == 1 && selection.get(0) instanceof EmbeddedDisplayWidget ) {
+                manager.add(new EditEmbeddedDisplayAction((EmbeddedDisplayWidget) selection.get(0)));
+            } else {
+                manager.add(new EditEmbeddedDisplayAction(null));
+            }
 
             manager.add(perspective);
+
         });
 
         return mm.createContextMenu(parent);
@@ -255,9 +296,32 @@ public class DisplayEditorPart extends EditorPart
             modification_marker = file.getModificationStamp();
             return new_model;
         }
+        catch(FileNotFoundException ex) {
+        	final String message = MessageFormat.format(Messages.FileNotFoundMessage, file, ex.getMessage());
+        	logger.log(Level.WARNING, message, ex);
+        	final Shell shell = getSite().getShell();
+        	shell.getDisplay().asyncExec(() -> ExceptionDetailsErrorDialog.openError(
+                shell,
+                MessageFormat.format(Messages.CannotLoadDisplayMessage, file),
+                message,
+                ex
+            ));
+        	return null;
+        }
+        catch(AccessDeniedException ex) {
+        	final String message = MessageFormat.format(Messages.AccessDeniedMessage, file, ex.getMessage());
+        	final Shell shell = getSite().getShell();
+        	shell.getDisplay().asyncExec(() -> ExceptionDetailsErrorDialog.openError(
+    	        shell,
+    	        MessageFormat.format(Messages.CannotLoadDisplayMessage, file),
+    	        message,
+    	        ex
+	        ));
+        	return null;
+        }
         catch (Exception ex)
         {
-            final String message = "Cannot load display " + file;
+            final String message = MessageFormat.format(Messages.CannotLoadDisplayMessage, file);
             logger.log(Level.WARNING, message, ex);
             final Shell shell = getSite().getShell();
             // Also show error to user

@@ -18,12 +18,15 @@ public class Messages extends NLS
     private static final String BUNDLE_NAME = "org.csstudio.display.builder.editor.rcp.messages";
 
     // Keep in alphabetical order!
+    public static String AccessDeniedMessage;
+    public static String CannotLoadDisplayMessage;
     public static String Copy;
-    public static String Delete;
+    public static String Cut;
     public static String DownloadPromptFMT;
     public static String DownloadTitle;
     public static String EditEmbededDisplay;
     public static String ExecuteDisplay;
+    public static String FileNotFoundMessage;
     public static String FindWidget;
     public static String NewDisplay_Browse;
     public static String NewDisplay_BrowseTitle;
@@ -41,8 +44,11 @@ public class Messages extends NLS
     public static String NewDisplay_NotWriteable;
     public static String NewDisplay_Title;
     public static String OpenEditorPerspective;
+    public static String Paste;
+    public static String Redo;
     public static String ReplaceWith;
     public static String ReplaceWith_NoWidgets;
+    public static String Undo;
 
     static
     {

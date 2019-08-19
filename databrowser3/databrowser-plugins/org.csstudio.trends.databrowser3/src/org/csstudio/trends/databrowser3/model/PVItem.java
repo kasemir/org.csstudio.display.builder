@@ -111,7 +111,7 @@ public class PVItem extends ModelItem
     private ScheduledFuture<?> scanner = null;
 
     /** Archive data request type */
-    private RequestType request_type = RequestType.OPTIMIZED;
+    private RequestType request_type = Preferences.getRequestType();
 
     /** Indicating if the history data is automatically refreshed, whenever
      * the live buffer is too small to show all the data */

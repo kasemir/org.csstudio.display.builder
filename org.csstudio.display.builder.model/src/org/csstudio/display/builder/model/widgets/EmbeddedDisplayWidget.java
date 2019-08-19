@@ -74,7 +74,10 @@ public class EmbeddedDisplayWidget extends VisibleWidget
         ResizeContent(Messages.Resize_Content),
 
         /** Size the container to fit the linked *.opi */
-        SizeToContent(Messages.Resize_Container);
+        SizeToContent(Messages.Resize_Container),
+
+        /** Stretch the *.opi to fit the container */
+        StretchContent(Messages.Resize_Stretch);
 
         private final String label;
 

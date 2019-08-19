@@ -31,6 +31,7 @@ import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.widgets.RegionBaseRepresentation;
 import org.csstudio.javafx.rtplot.Axis;
 import org.csstudio.javafx.rtplot.AxisRange;
+import org.csstudio.javafx.rtplot.LineStyle;
 import org.csstudio.javafx.rtplot.PlotMarker;
 import org.csstudio.javafx.rtplot.PointType;
 import org.csstudio.javafx.rtplot.RTPlotListener;
@@ -194,6 +195,7 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
                                   JFXUtil.convert(model_trace.traceColor().getValue()),
                                   map(model_trace.traceType().getValue()),
                                   model_trace.traceWidth().getValue(),
+                                  LineStyle.SOLID,
                                   map(model_trace.tracePointType().getValue()),
                                   model_trace.tracePointSize().getValue(),
                                   model_trace.traceYAxis().getValue());
@@ -211,6 +213,7 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
             model_trace.traceXValue().addUntypedPropertyListener(value_listener);
             model_trace.traceYValue().addUntypedPropertyListener(value_listener);
             model_trace.traceErrorValue().addUntypedPropertyListener(value_listener);
+            model_trace.traceVisible().addUntypedPropertyListener(trace_listener);
         }
 
         private TraceType map(final PlotWidgetTraceType value)
@@ -243,7 +246,8 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
             trace.setWidth(model_trace.traceWidth().getValue());
             trace.setPointType(map(model_trace.tracePointType().getValue()));
             trace.setPointSize(model_trace.tracePointSize().getValue());
-
+            trace.setVisible(model_trace.traceVisible().getValue());
+            
             final int desired = model_trace.traceYAxis().getValue();
             if (desired != trace.getYAxis())
                 plot.moveTrace(trace, desired);

@@ -8,6 +8,9 @@
 package org.csstudio.display.builder.editor.rcp.actions;
 
 import org.csstudio.display.builder.editor.DisplayEditor;
+import org.csstudio.display.builder.editor.rcp.Messages;
+import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 
 /** Action to copy to clipboard
@@ -18,6 +21,8 @@ public class CopyAction extends RetargetActionHandler
     public CopyAction(final DisplayEditor editor)
     {
         super(editor, ActionFactory.COPY.getCommandId());
+        setText(Messages.Copy);
+        setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_COPY));
     }
 
     @Override

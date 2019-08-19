@@ -16,6 +16,7 @@ import org.csstudio.apputil.time.RelativeTime;
 import org.csstudio.apputil.ui.swt.TableColumnSortHelper;
 import org.csstudio.archive.vtype.DefaultVTypeFormat;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
+import org.csstudio.javafx.rtplot.LineStyle;
 import org.csstudio.javafx.rtplot.PointType;
 import org.csstudio.javafx.rtplot.TraceType;
 import org.csstudio.javafx.rtplot.data.PlotDataItem;
@@ -683,6 +684,50 @@ public class TraceTableHandler implements IStructuredContentProvider
                 final ModelItem item = (ModelItem)element;
                 if (width != item.getLineWidth())
                     new ChangeLineWidthCommand(operations_manager, item, width);
+                editing = false;
+            }
+        });
+
+        // Line Style Column ----------
+        view_col = TableHelper.createColumn(table_layout, table_viewer, Messages.TraceLineStyle, 75, 10);
+        view_col.setLabelProvider(new CellLabelProvider()
+        {
+            @Override
+            public void update(final ViewerCell cell)
+            {
+                final ModelItem item = (ModelItem) cell.getElement();
+                cell.setText(item.getLineStyle().toString());
+            }
+
+            @Override
+            public String getToolTipText(Object element)
+            {
+                return Messages.TraceLineStyleTT;
+            }
+        });
+        view_col.setEditingSupport(new EditSupportBase(table_viewer)
+        {
+            @Override
+            protected CellEditor getCellEditor(final Object element)
+            {
+                editing = true;
+                final ComboBoxCellEditor combo = new ComboBoxCellEditor(table_viewer.getTable(),
+                        LineStyle.getDisplayNames(), SWT.READ_ONLY);
+                combo.setValue(getValue(element));
+                return combo;
+            }
+            @Override
+            protected Object getValue(final Object element)
+            {
+                return ((ModelItem) element).getLineStyle().ordinal();
+            }
+            @Override
+            protected void setValue(final Object element, final Object value)
+            {
+                final LineStyle line_style = LineStyle.values()[((Integer)value).intValue()];
+                final ModelItem item = (ModelItem)element;
+                if (line_style != item.getLineStyle())
+                    new ChangeLineStyleCommand(operations_manager, item, line_style);
                 editing = false;
             }
         });
