@@ -32,6 +32,9 @@ public class JFXCursorFix
     /** @param scene JavaFX Scene where cursor is monitored
      *  @param display SWT Display where the scene's cursor is set
      */
+    private static final boolean JAVA_8 = System.getProperty("java.version")
+            .startsWith("1.8.0");
+    
     public static void apply(final Scene scene, final Display display)
     {
         // Track JFX cursor, update SWT cursor
@@ -67,6 +70,8 @@ public class JFXCursorFix
                 logger.log(Level.WARNING, "Cannot update SWT cursor from JFX cursor", ex);
             }
         };
-        scene.cursorProperty().addListener(cursor_listener);
+        if (JAVA_8) {
+            scene.cursorProperty().addListener(cursor_listener);
+        }
     }
 }
