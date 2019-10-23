@@ -5,6 +5,30 @@ Update of CS-Studio 'BOY',
 i.e. the `org.csstudio.opibuilder.*` code in 
 https://github.com/ControlSystemStudio/cs-studio.
 
+
+----------
+Note:
+This repository contains the Display Builder for
+the Eclipse/RCP-based CS-Studio using Java 8.
+Since about May 2019, the Eclipse/RCP-based CS-Studio
+has been updated to Java 9+, but this repo has not.
+
+The Phoebus version of CS-Studio,
+https://github.com/shroffk/phoebus,
+includes most of the CS-Studio components,
+including this Display Manager.
+It runs on Java 11 and higher.
+
+Going forward, additions and improvements
+to the Display Builder will be in those latest sources,
+i.e. the Phoebus version of CS-Studio.
+
+The timeline for updating this repo
+to compile and run with the Eclipse/RCP-based CS-Studio
+using Java 9 or higher is at this time undefined.
+
+----------
+
 Goal: Similar functionality and "look",
 ability to read existing *.opi files,
 with improvements:
