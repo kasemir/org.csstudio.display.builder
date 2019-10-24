@@ -24,7 +24,7 @@
   <properties>
     <!-- VERSIONS -->
     <sns.version>0.1</sns.version>
-    <tycho.version>1.1.0</tycho.version>
+    <tycho.version>1.3.0</tycho.version>
     <tycho-extras.version>${tycho.version}</tycho-extras.version>
 
     <!-- Repo that contain target platform and CSS dependencies.
@@ -41,18 +41,7 @@
     <!-- How to handle errors -->
     <!-- jgit.dirtyWorkingTree options: ignore, warning, error -->
     <jgit.dirtyWorkingTree>warning</jgit.dirtyWorkingTree>
-  </properties>
-
-  <!-- PLUGIN REPOSITORIES -->
-  <pluginRepositories>
-    <pluginRepository>
-      <id>tycho</id>
-      <url>https://oss.sonatype.org/content/groups/public</url>
-      <releases><enabled>false</enabled></releases>
-      <snapshots><enabled>true</enabled></snapshots>
-    </pluginRepository>
-  </pluginRepositories>
-
+  </properties> 
   
   <!-- CHILD MODULES -->
   <modules>
@@ -133,14 +122,43 @@
           <!-- https://github.com/kasemir/org.csstudio.display.builder/pull/163 -->
           <compilerArgument>-warn:+discouraged,forbidden</compilerArgument>
           <encoding>UTF-8</encoding>
+          <source>11</source>
+          <target>11</target>
           <extraClasspathElements>
-            <!-- Add jfxswt.jar to avoid error w/ missing FXCanvas -->
             <extraClasspathElement>
-              <groupId>com.oracle</groupId>
-              <artifactId>javafx</artifactId>
-              <version>8.0.0-SNAPSHOT</version>
-              <systemPath>${java.home}/lib/jfxswt.jar</systemPath>
-              <scope>system</scope>
+              <groupId>org.openjfx</groupId>
+              <artifactId>javafx-base</artifactId>
+              <version>11</version>
+            </extraClasspathElement>
+            <extraClasspathElement>
+              <groupId>org.openjfx</groupId>
+              <artifactId>javafx-graphics</artifactId>
+              <version>11</version>
+            </extraClasspathElement>
+            <extraClasspathElement>
+              <groupId>org.openjfx</groupId>
+              <artifactId>javafx-controls</artifactId>
+              <version>11</version>
+            </extraClasspathElement>
+            <extraClasspathElement>
+              <groupId>org.openjfx</groupId>
+              <artifactId>javafx-fxml</artifactId>
+              <version>11</version>
+            </extraClasspathElement>
+            <extraClasspathElement>
+              <groupId>org.openjfx</groupId>
+              <artifactId>javafx-media</artifactId>
+              <version>11</version>
+            </extraClasspathElement>
+            <extraClasspathElement>
+              <groupId>org.openjfx</groupId>
+              <artifactId>javafx-web</artifactId>
+              <version>11</version>
+            </extraClasspathElement>
+            <extraClasspathElement>
+              <groupId>org.openjfx</groupId>
+              <artifactId>javafx-swing</artifactId>
+              <version>11</version>
             </extraClasspathElement>
           </extraClasspathElements>
         </configuration>
@@ -214,12 +232,7 @@
         </repository>
         <repository>
           <id>Eclipse</id>
-          <url>http://download.eclipse.org/releases/oxygen</url>
-          <layout>p2</layout>
-        </repository>
-        <repository>
-          <id>orbit</id>
-          <url>http://download.eclipse.org/tools/orbit/downloads/drops/R20180330011457/repository</url>
+          <url>http://download.eclipse.org//releases/2018-12</url>
           <layout>p2</layout>
         </repository>
       </repositories>

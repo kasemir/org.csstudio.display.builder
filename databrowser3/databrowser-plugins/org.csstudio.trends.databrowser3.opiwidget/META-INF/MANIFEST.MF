@@ -22,6 +22,6 @@ Require-Bundle: org.eclipse.core.runtime,
  org.csstudio.javafx.swt;bundle-version="1.0.0",
  org.csstudio.javafx.rtplot;bundle-version="1.0.0",
  org.csstudio.display.builder.model
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Bundle-Description: BOY widget that displays Data Browser plot

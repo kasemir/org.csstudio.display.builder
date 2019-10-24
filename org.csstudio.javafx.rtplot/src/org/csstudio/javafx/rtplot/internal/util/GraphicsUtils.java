@@ -12,13 +12,14 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 
-import com.sun.javafx.tk.Toolkit;
+/*import com.sun.javafx.tk.Toolkit;*/
 
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 
 /** Utility methods for drawing graphics
  *  @author Kay Kasemir
@@ -99,8 +100,11 @@ public class GraphicsUtils
         // This is not public API for FontMetrics, see
         // https://bugs.openjdk.java.net/browse/JDK-8098301
         // https://bugs.openjdk.java.net/browse/JDK-8090775
-        final com.sun.javafx.tk.FontMetrics metrics =
-                Toolkit.getToolkit().getFontLoader().getFontMetrics(gc.getFont());
+//        final com.sun.javafx.tk.FontMetrics metrics =
+//                Toolkit.getToolkit().getFontLoader().getFontMetrics(gc.getFont());
+        final Text fxText = new Text();
+        fxText.setFont(gc.getFont());
+        fxText.setText(text);
 
         // Check for multi-line text
         int lines = 1;
@@ -112,9 +116,9 @@ public class GraphicsUtils
         }
 
         return new Rectangle(0,
-                             (int)(metrics.getLeading() + metrics.getAscent()),
-                             (int)metrics.computeStringWidth(text),
-                             lines * (int)metrics.getLineHeight());
+                             (int)(fxText.getLayoutBounds().getMaxY() + (fxText.getLayoutBounds().getMinY()*-1)),
+                             (int)fxText.getLayoutBounds().getWidth(),
+                             lines * (int)fxText.getLayoutBounds().getHeight());
     }
 
     /** Measure text
