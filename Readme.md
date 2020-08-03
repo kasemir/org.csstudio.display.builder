@@ -1,14 +1,7 @@
 Display Builder
 ===============
 
-Update of CS-Studio 'BOY',
-i.e. the `org.csstudio.opibuilder.*` code in 
-https://github.com/ControlSystemStudio/cs-studio.
-
-
-----------
-Note:
-__This repository is deprecated and dormant.__
+__Note: This repository is deprecated and dormant.__
 
 The latest version of CS-Studio,
 https://github.com/ControlSystemStudio/phoebus,
@@ -23,6 +16,10 @@ to the Display Builder will be in those latest sources,
 i.e. the Phoebus version of CS-Studio.
 
 ----------
+
+Update of CS-Studio 'BOY',
+i.e. the `org.csstudio.opibuilder.*` code in 
+https://github.com/ControlSystemStudio/cs-studio.
 
 Goal: Similar functionality and "look",
 ability to read existing *.opi files,
