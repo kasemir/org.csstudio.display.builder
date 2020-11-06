@@ -5,11 +5,13 @@ __Note: This repository is deprecated and dormant.__
 
 The latest version of CS-Studio,
 https://github.com/ControlSystemStudio/phoebus,
-includes the current Display Manager.
+includes the current Display Builder,
+https://github.com/ControlSystemStudio/phoebus/tree/master/app/display.
 It runs on Java 11 and higher.
 
 This repository contains the Display Builder for
-the older Eclipse/RCP-based CS-Studio.
+the older Eclipse/RCP-based CS-Studio,
+when it was using Java 8.
 
 Going forward, additions and improvements
 to the Display Builder will be in those latest sources,
