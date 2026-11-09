@@ -1,9 +1,13 @@
 Display Builder
 ===============
 
+-----------------------------------
+-----------------------------------
 __Note: This repository is deprecated and dormant.__
 In 2015, this repository started the Display Builder
 for the Eclipse-based CS-Studio.
+-----------------------------------
+-----------------------------------
 
 The latest version of CS-Studio,
 https://github.com/ControlSystemStudio/phoebus,
